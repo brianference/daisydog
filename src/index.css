@@ -6,10 +6,28 @@
 }
 
 body {
-  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-family: 'Roboto', 'Arial', 'Helvetica', sans-serif !important;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   color: #333;
+}
+
+/* Force non-cursive fonts on all elements */
+* {
+  font-family: 'Roboto', 'Arial', 'Helvetica', sans-serif !important;
+}
+
+/* Specific overrides for chat elements */
+.chat-container,
+.chat-container *,
+.message,
+.message *,
+input,
+button,
+.quick-actions,
+.quick-actions * {
+  font-family: 'Roboto', 'Arial', 'Helvetica', sans-serif !important;
+  font-style: normal !important;
 }
 
 #root {
