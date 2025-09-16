@@ -1,10 +1,25 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FaPlay, FaInfoCircle, FaHeart, FaPaw } from 'react-icons/fa'
 import './LandingPage.css'
 
 const LandingPage = () => {
+  // Random emotion image selection
+  const emotionImages = [
+    'crouchingdown', 'dancing', 'eager', 'excited', 'happy', 
+    'hungry', 'lookingbehind', 'nervous', 'panting', 'patient', 
+    'playfetch', 'shakepaw', 'stylish', 'thinking', 'waiting'
+  ]
+  
+  const [currentEmotion, setCurrentEmotion] = useState('happy')
+  
+  useEffect(() => {
+    // Select random emotion on page load
+    const randomEmotion = emotionImages[Math.floor(Math.random() * emotionImages.length)]
+    setCurrentEmotion(randomEmotion)
+  }, [])
+
   return (
     <div className="landing-page">
       {/* Hero Section */}
@@ -22,7 +37,7 @@ const LandingPage = () => {
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
             >
-              <img src="/assets/images/daisy-logo.png" alt="Daisy the Dog" />
+              <img src={`/assets/images/emotions/${currentEmotion}.png`} alt="Daisy the Dog" />
               <motion.div 
                 className="logo-glow"
                 animate={{ 
@@ -38,7 +53,7 @@ const LandingPage = () => {
             </motion.div>
             
             <motion.h1 
-              className="hero-title orange-text"
+              className="hero-title orange-text no-background"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}

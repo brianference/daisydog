@@ -702,15 +702,24 @@ Respond as Daisy the dog:`
       } else {
         // Check for game interactions and other responses
         response = generateDaisyResponse(message)
+        
+        // If generateDaisyResponse returns null (during game states), provide a fallback
+        if (!response) {
+          response = "Woof! I'm not sure what you mean. Can you try a different action? 🐕"
+        }
       }
 
       setIsTyping(false)
-      addDaisyMessage(response)
+      
+      // Only add message if we have a valid response
+      if (response) {
+        addDaisyMessage(response)
+      }
       
     } catch (error) {
       console.error('Error getting quick response:', error)
       setIsTyping(false)
-      const fallbackResponse = generateDaisyResponse(message)
+      const fallbackResponse = generateDaisyResponse(message) || "Woof! Something went wrong, but I'm still here! 🐕"
       addDaisyMessage(fallbackResponse)
     }
   }
