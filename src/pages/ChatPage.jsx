@@ -252,46 +252,57 @@ const ChatPage = () => {
       let response
       
       // Check for game interactions
-      if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('throw')) {
-        response = "*chases after the ball excitedly* Woof woof! *brings it back and drops it at your feet* Again! Again! 🎾"
+      if (gameState === 'ball_dropped' && (messageToSend.toLowerCase().includes('throw') || messageToSend.toLowerCase().includes('toss'))) {
+        response = "*eyes light up* WOOF! *chases after the ball at lightning speed* *pounces and catches it mid-air* Got it! *trots back proudly with ball in mouth* *drops it at your feet* That was AMAZING! Throw it again! 🎾✨"
         setGameState('ball_returned')
-      } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('run')) {
-        response = "*tilts head confused* Wait, where are you going? *chases after you playfully* Don't leave me! 🐕💨"
-        setGameState(null)
       } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('bounce')) {
-        response = "*watches the ball bounce with intense focus* Boing! Boing! *pounces on it* Got it! 🎾✨"
-        setGameState(null)
-      } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('aim')) {
-        response = "*gets into hunting position* Ooh, what are we aiming at? *crouches low* I'm ready to pounce! 🎯🐕"
-        setGameState(null)
-      } else if (gameState === 'ball_returned' && messageToSend.toLowerCase().includes('throw it again')) {
-        response = "*drops ball and backs up excitedly* Yes yes yes! *bouncing with anticipation* Throw it far this time! 🎾💨"
+        response = "*watches the ball bounce with laser focus* Boing! Boing! *times the perfect moment* *POUNCE!* *catches it on the third bounce* I'm like a professional ball-catching athlete! 🎾🏀 Want to see me do it again?"
+        setGameState('ball_caught')
+      } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('kick')) {
+        response = "*sees you kick the ball* Ooh, soccer style! *chases after the rolling ball* *nudges it back with nose* I can play soccer too! *gentle paw tap* Your turn! ⚽🐕"
+        setGameState('soccer_mode')
+      } else if (gameState === 'ball_returned' && (messageToSend.toLowerCase().includes('throw') || messageToSend.toLowerCase().includes('again'))) {
+        response = "*drops ball and backs up with intense excitement* YES! *bouncing on all fours* Make it a really good throw this time! I'm ready! *crouches in perfect catching position* 🎾💨"
         setGameState('ball_dropped')
+      } else if (gameState === 'ball_caught' && messageToSend.toLowerCase().includes('good catch')) {
+        response = "*puffs out chest proudly* Did you see that catch?! *does a little spin* I've been practicing! *wags tail so hard whole body wiggles* I'm basically a professional athlete! 🏆🐕"
+        setGameState('ball_returned')
+      } else if (gameState === 'soccer_mode' && messageToSend.toLowerCase().includes('goal')) {
+        response = "*dribbles ball with paws toward imaginary goal* *gentle nudge* GOOOOOAL! *runs in victory circles* We make a great team! ⚽🥅✨"
+        setGameState('ball_returned')
       } else if (gameState === 'hide_and_seek' && messageToSend.toLowerCase().includes('hiding')) {
         response = "*covers eyes with paws* I can't see you! *peeks through paws* Are you hiding yet? One... two... three... ready or not! 🙈👀"
-      } else if (gameState === 'hide_and_seek' && messageToSend.toLowerCase().includes('found you')) {
-        response = "*jumps out from behind imaginary tree* You found me! *spins in circles* I was hiding so well! Your turn to hide! 🌳😄"
-      } else if (gameState === 'hide_and_seek' && messageToSend.toLowerCase().includes('count again')) {
-        response = "*covers eyes again* Okay! One... two... three... *dramatic pause* ...ten! Ready or not, here I come! 🔢👀"
+        setGameState('seeking')
+      } else if (gameState === 'seeking' && messageToSend.toLowerCase().includes('found you')) {
+        response = "*jumps out from behind imaginary tree* You found me! *spins in circles* I was hiding so well! Your turn to hide now! 🌳😄"
+        setGameState('your_turn_hide')
+      } else if (gameState === 'your_turn_hide' && messageToSend.toLowerCase().includes('ready')) {
+        response = "*covers eyes tightly* Okay! One... two... three... four... five... *dramatic pause* ...ten! Ready or not, here I come! *starts searching* 🔢👀"
+        setGameState('daisy_seeking')
+      } else if (gameState === 'daisy_seeking' && messageToSend.toLowerCase().includes('here')) {
+        response = "*gasps excitedly* FOUND YOU! *bounces around* You picked such a good hiding spot! *tail wagging frantically* Want to play another round? 🎉🔍"
+        setGameState('hide_and_seek')
       } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('pull harder')) {
-        response = "*grips rope tighter* Grrrr! *pulls with all her might* I'm stronger than I look! *paws digging into ground* 💪🐕"
-      } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('let go')) {
-        response = "*releases rope and tumbles backward* Whoa! *rolls over* That was fun! *wags tail* You're really strong! 🤲✨"
-        setGameState(null)
+        response = "*grips rope tighter* Grrrr! *plants paws firmly* You're strong, but I've got determination! *pulls with all her might* 💪🐕"
+        setGameState('intense_tug')
+      } else if (gameState === 'intense_tug' && messageToSend.toLowerCase().includes('let go')) {
+        response = "*releases rope and tumbles backward* Whoa! *rolls over laughing* That was intense! *wags tail* You're really strong! Want to go again? 🤲✨"
+        setGameState('tug_of_war')
       } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('you win')) {
-        response = "*drops rope and does victory dance* I win! I win! *spins in circles* I'm the tug-of-war champion! 🏆🎉"
+        response = "*drops rope and does victory dance* I win! I win! *spins in circles* I'm the tug-of-war champion! *strikes superhero pose* 🏆🎉"
         setGameState(null)
-      } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('play again')) {
-        response = "*picks up rope again* Round two! *gets into position* This time I'll be even stronger! Grrrr! 🔄💪"
       } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('is it a ball')) {
-        response = "*shakes head* Nope! Not a ball! *wags tail* But good guess! It's something else I love to play with! 🎾❌"
-      } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('is it a toy')) {
-        response = "*nods excitedly* Yes! It IS a toy! *bounces* But what KIND of toy? Keep guessing! 🧸✅"
-      } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('hint')) {
-        response = "*whispers conspiratorially* Okay, here's a hint... *looks around* It squeaks when you squeeze it! *winks* 💡🔊"
-      } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('give up')) {
-        response = "*reveals answer dramatically* It was a squeaky toy! *squeaks imaginary toy* Squeak squeak! Aren't they the best? 🧸🔊"
+        response = "*shakes head dramatically* Nope! Not a ball this time! *wags tail* Good guess though! It's something else I absolutely love! 🎾❌"
+        setGameState('guessing_warm')
+      } else if (gameState === 'guessing_warm' && messageToSend.toLowerCase().includes('is it a toy')) {
+        response = "*nods excitedly* YES! It IS a toy! *bounces up and down* You're getting warmer! But what KIND of toy? *eyes sparkling with excitement* 🧸✅"
+        setGameState('guessing_hot')
+      } else if (gameState === 'guessing_hot' && messageToSend.toLowerCase().includes('squeaky')) {
+        response = "*jumps with joy* YES YES YES! It's my squeaky toy! *makes squeaking sounds* Squeak squeak! *does happy dance* You're so good at guessing games! 🧸🔊🎉"
         setGameState(null)
+      } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('hint')) {
+        response = "*whispers conspiratorially* Okay, here's a hint... *looks around mysteriously* It makes a funny sound when you squeeze it! *winks* What could it be? 💡🔊"
+        setGameState('guessing_warm')
       } else {
         // Try to use Anthropic API if available
         if (apiKey && sendToAnthropic) {

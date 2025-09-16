@@ -10,7 +10,12 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        chunkSizeWarningLimit: 1000
+      }
+    }
   },
   define: {
     'process.env': {}
