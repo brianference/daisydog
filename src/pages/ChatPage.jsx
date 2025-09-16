@@ -496,7 +496,7 @@ const ChatPage = () => {
       } else if (gameState === 'ball_returned' && (messageToSend.toLowerCase().includes('throw') || messageToSend.toLowerCase().includes('again'))) {
         response = "*drops ball and backs up with intense excitement* YES! *bouncing on all fours* Make it a really good throw this time! I'm ready! *crouches in perfect catching position* 🎾💨"
         setGameState('ball_dropped')
-      } else if (gameState === 'ball_caught' && messageToSend.toLowerCase().includes('good catch')) {
+      } else if (gameState === 'ball_returned' && messageToSend.toLowerCase().includes('good girl')) {
         response = "*puffs out chest proudly* Did you see that catch?! *does a little spin* I've been practicing! *wags tail so hard whole body wiggles* I'm basically a professional athlete! 🏆🐕"
         setGameState('ball_returned')
       } else if (gameState === 'soccer_mode' && messageToSend.toLowerCase().includes('goal')) {
@@ -516,13 +516,16 @@ const ChatPage = () => {
         setGameState('hide_and_seek')
       } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('pull harder')) {
         response = "*grips rope tighter* Grrrr! *plants paws firmly* You're strong, but I've got determination! *pulls with all her might* 💪🐕"
-        setGameState('intense_tug')
-      } else if (gameState === 'intense_tug' && messageToSend.toLowerCase().includes('let go')) {
+        // Keep in tug_of_war state instead of changing to intense_tug
+      } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('let go')) {
         response = "*releases rope and tumbles backward* Whoa! *rolls over laughing* That was intense! *wags tail* You're really strong! Want to go again? 🤲✨"
-        setGameState('tug_of_war')
+        // Keep in tug_of_war state
       } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('you win')) {
         response = "*drops rope and does victory dance* I win! I win! *spins in circles* I'm the tug-of-war champion! *strikes superhero pose* 🏆🎉"
         setGameState(null)
+      } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('play again')) {
+        response = "*picks up rope excitedly* YES! Round two! *gets into position* This time I'm going to use my secret technique! *winks* Ready? 🔄💪"
+        // Keep in tug_of_war state
       } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('is it a ball')) {
         response = "*shakes head dramatically* Nope! Not a ball this time! *wags tail* Good guess though! It's something else I absolutely love! 🎾❌"
         setGameState('guessing_warm')
@@ -626,10 +629,77 @@ Respond as Daisy the dog:`
     try {
       let response
       
-      // Handle story requests directly
-      if (message.toLowerCase().includes('story')) {
+      // Handle game interactions first - same logic as handleSendMessage
+      if (gameState === 'ball_dropped' && (message.toLowerCase().includes('throw') || message.toLowerCase().includes('toss'))) {
+        response = "*eyes light up* WOOF! *chases after the ball at lightning speed* *pounces and catches it mid-air* Got it! *trots back proudly with ball in mouth* *drops it at your feet* That was AMAZING! Throw it again! 🎾✨"
+        setGameState('ball_returned')
+        updateEmotion({
+          gameState: 'ball_returned',
+          userMessage: message,
+          hungerLevel,
+          lastAction: 'fetch_success',
+          messageType: 'game'
+        })
+      } else if (gameState === 'ball_dropped' && message.toLowerCase().includes('bounce')) {
+        response = "*watches the ball bounce with laser focus* Boing! Boing! *times the perfect moment* *POUNCE!* *catches it on the third bounce* I'm like a professional ball-catching athlete! 🎾🏀 Want to see me do it again?"
+        setGameState('ball_caught')
+        updateEmotion({
+          gameState: 'ball_caught',
+          userMessage: message,
+          hungerLevel,
+          lastAction: 'ball_catch',
+          messageType: 'game'
+        })
+      } else if (gameState === 'ball_dropped' && message.toLowerCase().includes('kick')) {
+        response = "*sees you kick the ball* Ooh, soccer style! *chases after the rolling ball* *nudges it back with nose* I can play soccer too! *gentle paw tap* Your turn! ⚽🐕"
+        setGameState('soccer_mode')
+      } else if (gameState === 'ball_dropped' && message.toLowerCase().includes('aim')) {
+        response = "*watches you aim carefully* Ooh, you're being strategic! *crouches in ready position* I'm watching where you're aiming... *eyes tracking* Throw it! I'm ready! 🎯🎾"
+      } else if (gameState === 'ball_dropped' && message.toLowerCase().includes('run away')) {
+        response = "*gasps dramatically* Hey! Come back! *chases after you playfully* You can't escape from fetch time! *brings ball along* We're not done playing! 🏃‍♀️🎾"
+      } else if (gameState === 'ball_returned' && (message.toLowerCase().includes('throw') || message.toLowerCase().includes('again'))) {
+        response = "*drops ball and backs up with intense excitement* YES! *bouncing on all fours* Make it a really good throw this time! I'm ready! *crouches in perfect catching position* 🎾💨"
+        setGameState('ball_dropped')
+      } else if (gameState === 'ball_returned' && message.toLowerCase().includes('good girl')) {
+        response = "*tail wagging so fast it's a blur* Thank you! I AM a good girl! *does a little spin* Did you see how fast I brought that ball back? I'm the best fetch player ever! 🐕💕"
+      } else if (gameState === 'hide_and_seek' && message.toLowerCase().includes('hiding')) {
+        response = "*covers eyes with paws* I can't see you! *peeks through paws* Are you hiding yet? One... two... three... ready or not! 🙈👀"
+        setGameState('seeking')
+      } else if (gameState === 'hide_and_seek' && message.toLowerCase().includes('found you')) {
+        response = "*jumps out from behind imaginary tree* You found me! *spins in circles* I was hiding so well! Your turn to hide now! 🌳😄"
+        setGameState('your_turn_hide')
+      } else if (gameState === 'hide_and_seek' && message.toLowerCase().includes('count again')) {
+        response = "*covers eyes tighter* Okay! Starting over! One... two... three... four... five... *dramatic pause* ...ten! Ready or not, here I come again! 🔢👀"
+        setGameState('seeking')
+      } else if (gameState === 'tug_of_war' && message.toLowerCase().includes('pull harder')) {
+        response = "*grips rope tighter* Grrrr! *plants paws firmly* You're strong, but I've got determination! *pulls with all her might* This is getting intense! 💪🐕"
+        // Keep in tug_of_war state instead of changing to intense_tug
+      } else if (gameState === 'tug_of_war' && message.toLowerCase().includes('let go')) {
+        response = "*releases rope and tumbles backward* Whoa! *rolls over laughing* That was intense! *wags tail* You're really strong! Want to go again? 🤲✨"
+        // Keep in tug_of_war state
+      } else if (gameState === 'tug_of_war' && message.toLowerCase().includes('you win')) {
+        response = "*drops rope and does victory dance* I win! I win! *spins in circles* I'm the tug-of-war champion! *strikes superhero pose* 🏆🎉"
+        setGameState(null)
+      } else if (gameState === 'tug_of_war' && message.toLowerCase().includes('play again')) {
+        response = "*picks up rope excitedly* YES! Round two! *gets into position* This time I'm going to use my secret technique! *winks* Ready? 🔄💪"
+        // Keep in tug_of_war state
+      } else if (gameState === 'guessing_game' && message.toLowerCase().includes('is it a ball')) {
+        response = "*shakes head dramatically* Nope! Not a ball this time! *wags tail* Good guess though! It's something else I absolutely love! 🎾❌"
+        setGameState('guessing_warm')
+      } else if (gameState === 'guessing_game' && message.toLowerCase().includes('is it a toy')) {
+        response = "*nods excitedly* YES! It IS a toy! *bounces up and down* You're getting warmer! But what KIND of toy? *eyes sparkling with excitement* 🧸✅"
+        setGameState('guessing_hot')
+      } else if (gameState === 'guessing_game' && message.toLowerCase().includes('hint')) {
+        response = "*whispers conspiratorially* Okay, here's a hint... *looks around mysteriously* It makes a funny sound when you squeeze it! *winks* What could it be? 💡🔊"
+        setGameState('guessing_warm')
+      } else if (gameState === 'guessing_game' && message.toLowerCase().includes('give up')) {
+        response = "*gasps* Aww, don't give up! It was my squeaky toy! *makes squeaking sounds* Squeak squeak! *does happy dance* Want to play another guessing game? 🧸🔊"
+        setGameState(null)
+      } else if (gameState && message.toLowerCase().includes('different game')) {
+        response = "*drops current game excitedly* Ooh yes! Let's try something new! *bounces around* What game should we play? I know so many fun games! 🎮✨"
+        setGameState(null)
+      } else if (message.toLowerCase().includes('story')) {
         response = getNextStory()
-        // Update emotion for storytelling
         updateEmotion({
           gameState,
           userMessage: message,
@@ -639,7 +709,6 @@ Respond as Daisy the dog:`
         })
       } else if (message.toLowerCase().includes('play dead')) {
         response = "*dramatic gasp* Gggggaaaggg... *makes choking sound* ...bleh! *falls over sideways with tongue hanging out* I'm dead! X_X *stays perfectly still for 3 seconds* ....*one eye opens* Did I do good? *tail wags while still lying down* 💀😵"
-        // Update emotion for trick
         updateEmotion({
           gameState,
           userMessage: message,
@@ -649,7 +718,6 @@ Respond as Daisy the dog:`
         })
       } else if (message.toLowerCase().includes('sit!') || message.toLowerCase() === 'sit') {
         response = "*immediately sits with perfect posture* There! *chest puffed out proudly* Look at my perfect sit! Am I the goodest girl or what? 🐕✨"
-        // Update emotion for sit trick
         updateEmotion({
           gameState,
           userMessage: message,
@@ -659,7 +727,6 @@ Respond as Daisy the dog:`
         })
       } else if (message.toLowerCase().includes('roll over')) {
         response = "*gets into position* Here I go! *rolls over completely* Ta-daaa! *wiggles on back* Did you see that perfect roll? I'm basically a circus dog! 🌀🎪"
-        // Update emotion for roll trick
         updateEmotion({
           gameState,
           userMessage: message,
@@ -668,20 +735,18 @@ Respond as Daisy the dog:`
           messageType: 'trick'
         })
       } else if (message.toLowerCase().includes('shake hands')) {
-        response = "*sits up tall and proud* Oh, a formal greeting! *carefully lifts right paw* *extends paw with dignity* How do you do? *firm but gentle pawshake* *looks directly into your eyes* I'm very pleased to make your acquaintance! *wags tail politely* My mother always taught me proper paw-shaking etiquette! 🤝🎩✨"
-        // Update emotion for shake hands
+        response = "*sits up straight and extends paw* *gentle paw shake* Nice to meet you! *wags tail proudly* I have such good manners, don't I? 🤝🐕"
         updateEmotion({
           gameState,
           userMessage: message,
           hungerLevel,
-          lastAction: 'shake_hands',
+          lastAction: 'shake_trick',
           messageType: 'trick'
         })
-      } else if (message.toLowerCase().includes('trick') || message.toLowerCase().includes('do a trick')) {
+      } else if (message.toLowerCase().includes('trick')) {
         const trickResponse = getRandomResponse('tricks')
         setGameState('tricks_active')
         response = trickResponse
-        // Update emotion for general trick
         updateEmotion({
           gameState: 'tricks_active',
           userMessage: message,
@@ -691,7 +756,6 @@ Respond as Daisy the dog:`
         })
       } else if (message.toLowerCase().includes('joke')) {
         response = getRandomResponse('jokes')
-        // Update emotion for joke
         updateEmotion({
           gameState,
           userMessage: message,
@@ -699,11 +763,27 @@ Respond as Daisy the dog:`
           lastAction: 'joke',
           messageType: 'joke'
         })
+      } else if (message.toLowerCase().includes('game') || message.toLowerCase().includes('play')) {
+        response = getRandomResponse('games')
+        if (response.includes('drops imaginary ball')) {
+          setGameState('ball_dropped')
+        } else if (response.includes('hide and seek')) {
+          setGameState('hide_and_seek')
+        } else if (response.includes('tug of war')) {
+          setGameState('tug_of_war')
+        } else if (response.includes('guessing game')) {
+          setGameState('guessing_game')
+        }
+        updateEmotion({
+          gameState,
+          userMessage: message,
+          hungerLevel,
+          lastAction: 'start_game',
+          messageType: 'game'
+        })
       } else {
-        // Check for game interactions and other responses
+        // Use generateDaisyResponse for other cases, but provide fallback if null
         response = generateDaisyResponse(message)
-        
-        // If generateDaisyResponse returns null (during game states), provide a fallback
         if (!response) {
           response = "Woof! I'm not sure what you mean. Can you try a different action? 🐕"
         }
@@ -719,7 +799,7 @@ Respond as Daisy the dog:`
     } catch (error) {
       console.error('Error getting quick response:', error)
       setIsTyping(false)
-      const fallbackResponse = generateDaisyResponse(message) || "Woof! Something went wrong, but I'm still here! 🐕"
+      const fallbackResponse = "Woof! Something went wrong, but I'm still here! 🐕"
       addDaisyMessage(fallbackResponse)
     }
   }
