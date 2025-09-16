@@ -1,0 +1,67 @@
+/* App Component Styles */
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Global Layout Styles */
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Loading States */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  font-size: 18px;
+  color: #666;
+}
+
+.loading::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #ff6b6b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error States */
+.error {
+  background: #ffe6e6;
+  color: #d63031;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 20px;
+  text-align: center;
+  border: 1px solid #fab1a0;
+}
+
+/* Success States */
+.success {
+  background: #e8f5e8;
+  color: #00b894;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 20px;
+  text-align: center;
+  border: 1px solid #81ecec;
+}

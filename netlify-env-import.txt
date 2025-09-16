@@ -1,0 +1,4 @@
+VITE_ANTHROPIC_API_KEY=your_anthropic_api_key_here
+VITE_API_BASE_URL_PROD=https://daisydog-api.herokuapp.com
+VITE_SUPABASE_URL=https://lqxstmjczpfywfgyhahj.supabase.co
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
