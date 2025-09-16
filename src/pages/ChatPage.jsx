@@ -6,7 +6,46 @@ import { useAnthropicChat } from '../hooks/useAnthropicChat'
 import './ChatPage.css'
 
 const ChatPage = () => {
-  const [messages, setMessages] = useState([
+  // Checkpoint system - localStorage key
+  const CHECKPOINT_KEY = 'daisy_conversation_checkpoint'
+
+  // Load checkpoint data from localStorage
+  const loadCheckpoint = () => {
+    try {
+      const saved = localStorage.getItem(CHECKPOINT_KEY)
+      if (saved) {
+        const checkpoint = JSON.parse(saved)
+        // Convert timestamp strings back to Date objects
+        if (checkpoint.messages) {
+          checkpoint.messages = checkpoint.messages.map(msg => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          }))
+        }
+        if (checkpoint.lastFed) {
+          checkpoint.lastFed = new Date(checkpoint.lastFed)
+        }
+        return checkpoint
+      }
+    } catch (error) {
+      console.error('Error loading checkpoint:', error)
+    }
+    return null
+  }
+
+  // Save checkpoint data to localStorage
+  const saveCheckpoint = (state) => {
+    try {
+      localStorage.setItem(CHECKPOINT_KEY, JSON.stringify(state))
+    } catch (error) {
+      console.error('Error saving checkpoint:', error)
+    }
+  }
+
+  // Initialize state with checkpoint data or defaults
+  const checkpoint = loadCheckpoint()
+  
+  const [messages, setMessages] = useState(checkpoint?.messages || [
     {
       id: 1,
       sender: 'daisy',
@@ -18,13 +57,15 @@ const ChatPage = () => {
   const [inputMessage, setInputMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [daisyMood, setDaisyMood] = useState('happy')
-  const [hungerLevel, setHungerLevel] = useState(3)
-  const [lastFed, setLastFed] = useState(null)
-  const [gameState, setGameState] = useState(null)
-  const [userName, setUserName] = useState('')
-  const [hasGreeted, setHasGreeted] = useState(false)
-  const [storyIndex, setStoryIndex] = useState(0)
-  const [feelingResponseIndex, setFeelingResponseIndex] = useState(0)
+  const [hungerLevel, setHungerLevel] = useState(checkpoint?.hungerLevel ?? 3)
+  const [lastFed, setLastFed] = useState(checkpoint?.lastFed || null)
+  const [gameState, setGameState] = useState(checkpoint?.gameState || null)
+  const [userName, setUserName] = useState(checkpoint?.userName || '')
+  const [hasGreeted, setHasGreeted] = useState(checkpoint?.hasGreeted ?? false)
+  const [storyIndex, setStoryIndex] = useState(checkpoint?.storyIndex ?? 0)
+  const [feelingResponseIndex, setFeelingResponseIndex] = useState(checkpoint?.feelingResponseIndex ?? 0)
+  const [currentEmotion, setCurrentEmotion] = useState(checkpoint?.currentEmotion || 'happy')
+  const [lastAction, setLastAction] = useState(checkpoint?.lastAction || '')
   const messagesEndRef = useRef(null)
   
   // Check if Anthropic API key is available
@@ -74,6 +115,177 @@ const ChatPage = () => {
       "Let me tell you about the time I became a superhero! 🦸‍♀️ One sunny morning, I woke up and discovered I could fly! Well, sort of... I could jump really, really high! I used my new powers to help all the animals in the neighborhood. I rescued Mrs. Whiskers the cat from a tall tree, helped a family of ducks cross the busy street safely, and even found little Timmy's lost toy truck in the storm drain. By the end of the day, all the animals called me 'Super Daisy!' The best part? I learned that being a hero isn't about having special powers - it's about having a big heart and helping others! 💕🌟",
       "Oh! Let me tell you about my adventure to the Cloud Kingdom! ☁️ One day, I was chasing a beautiful blue butterfly when suddenly, I found myself bouncing from cloud to cloud high up in the sky! The Cloud King, a fluffy white poodle with a golden crown, welcomed me to his kingdom. We had a tea party on a rainbow, played fetch with shooting stars, and I even learned how to make it rain gentle flower petals! The cloud puppies taught me their special dance that makes the sun shine brighter. When it was time to go home, the Cloud King gave me a special whistle that calls the rainbow whenever someone needs cheering up! 🌈⭐"
     ]
+  }
+
+  // Emotion Detection System
+  const emotionTriggers = {
+    // Game-based emotions
+    gameStates: {
+      'ball_dropped': 'playfetch',
+      'ball_returned': 'excited',
+      'ball_caught': 'happy',
+      'soccer_mode': 'playfetch',
+      'hide_and_seek': 'lookingbehind',
+      'seeking': 'eager',
+      'your_turn_hide': 'patient',
+      'daisy_seeking': 'thinking',
+      'tug_of_war': 'excited',
+      'intense_tug': 'eager',
+      'guessing_game': 'thinking',
+      'guessing_warm': 'excited',
+      'guessing_hot': 'eager',
+      'tricks_active': 'crouchingdown'
+    },
+    
+    // Keyword-based emotions
+    keywords: {
+      // Positive emotions
+      'love': 'stylish',
+      'good girl': 'happy',
+      'good dog': 'happy',
+      'amazing': 'excited',
+      'wonderful': 'happy',
+      'beautiful': 'stylish',
+      'pretty': 'stylish',
+      'cute': 'happy',
+      'smart': 'stylish',
+      'clever': 'thinking',
+      
+      // Actions
+      'sit': 'crouchingdown',
+      'roll': 'dancing',
+      'shake': 'shakepaw',
+      'trick': 'crouchingdown',
+      'dance': 'dancing',
+      'play': 'excited',
+      'game': 'eager',
+      'fetch': 'playfetch',
+      
+      // Stories and entertainment
+      'story': 'thinking',
+      'joke': 'happy',
+      'funny': 'happy',
+      
+      // Emotional states
+      'tired': 'panting',
+      'sleepy': 'patient',
+      'excited': 'excited',
+      'happy': 'happy',
+      'sad': 'nervous',
+      'worried': 'nervous',
+      'scared': 'nervous',
+      'calm': 'patient',
+      'patient': 'patient',
+      'waiting': 'waiting',
+      'thinking': 'thinking'
+    },
+    
+    // Hunger-based emotions
+    hunger: {
+      0: 'hungry',
+      1: 'hungry', 
+      2: 'nervous',
+      3: 'happy',
+      4: 'excited',
+      5: 'stylish'
+    },
+    
+    // Time-based emotions (for variety)
+    timeOfDay: {
+      morning: 'eager',
+      afternoon: 'happy',
+      evening: 'patient',
+      night: 'nervous'
+    }
+  }
+
+  // Sentiment analysis for emotional context
+  const analyzeSentiment = (text) => {
+    const positiveWords = ['love', 'like', 'good', 'great', 'amazing', 'wonderful', 'happy', 'excited', 'fun', 'awesome', 'fantastic', 'perfect', 'beautiful', 'cute', 'sweet', 'nice', 'cool', 'best', 'favorite'];
+    const negativeWords = ['hate', 'bad', 'terrible', 'awful', 'sad', 'angry', 'mad', 'upset', 'boring', 'stupid', 'dumb', 'worst', 'horrible', 'disgusting'];
+    const neutralWords = ['okay', 'fine', 'normal', 'average', 'maybe', 'perhaps', 'think', 'guess'];
+    
+    const words = text.toLowerCase().split(/\s+/);
+    let score = 0;
+    
+    words.forEach(word => {
+      if (positiveWords.includes(word)) score += 1;
+      if (negativeWords.includes(word)) score -= 1;
+      if (neutralWords.includes(word)) score += 0.1;
+    });
+    
+    return score;
+  }
+
+  // Get current emotion based on multiple factors
+  const getCurrentEmotion = (context = {}) => {
+    const { 
+      gameState: currentGameState, 
+      userMessage = '', 
+      hungerLevel: currentHunger, 
+      lastAction = '',
+      messageType = 'chat'
+    } = context;
+    
+    // Priority 1: Game states (highest priority)
+    if (currentGameState && emotionTriggers.gameStates[currentGameState]) {
+      return emotionTriggers.gameStates[currentGameState];
+    }
+    
+    // Priority 2: Recent actions
+    if (lastAction === 'fed') {
+      return 'excited';
+    }
+    
+    // Priority 3: Message type specific emotions
+    if (messageType === 'greeting') {
+      return 'excited';
+    }
+    
+    // Priority 4: Keyword detection in user message
+    const lowerMessage = userMessage.toLowerCase();
+    for (const [keyword, emotion] of Object.entries(emotionTriggers.keywords)) {
+      if (lowerMessage.includes(keyword)) {
+        return emotion;
+      }
+    }
+    
+    // Priority 5: Sentiment analysis
+    const sentiment = analyzeSentiment(userMessage);
+    if (sentiment > 2) return 'excited';
+    if (sentiment > 0) return 'happy';
+    if (sentiment < -1) return 'nervous';
+    
+    // Priority 6: Hunger level
+    if (currentHunger !== undefined && emotionTriggers.hunger[currentHunger]) {
+      return emotionTriggers.hunger[currentHunger];
+    }
+    
+    // Priority 7: Time of day variation
+    const hour = new Date().getHours();
+    if (hour >= 6 && hour < 12) return 'eager';      // Morning
+    if (hour >= 12 && hour < 18) return 'happy';     // Afternoon  
+    if (hour >= 18 && hour < 22) return 'patient';   // Evening
+    return 'nervous';                                 // Night
+  }
+
+  // Get emotion image path
+  const getEmotionImage = (emotion = 'happy') => {
+    const availableEmotions = [
+      'crouchingdown', 'dancing', 'eager', 'excited', 'happy', 
+      'hungry', 'lookingbehind', 'nervous', 'panting', 'patient', 
+      'playfetch', 'shakepaw', 'stylish', 'thinking', 'waiting'
+    ];
+    
+    // Fallback to happy if emotion doesn't exist
+    const validEmotion = availableEmotions.includes(emotion) ? emotion : 'happy';
+    return `/assets/images/emotions/${validEmotion}.png`;
+  }
+
+  // Update emotion based on context
+  const updateEmotion = (context) => {
+    const newEmotion = getCurrentEmotion(context);
+    setCurrentEmotion(newEmotion);
   }
 
   const scrollToBottom = () => {
@@ -259,9 +471,25 @@ const ChatPage = () => {
       if (gameState === 'ball_dropped' && (messageToSend.toLowerCase().includes('throw') || messageToSend.toLowerCase().includes('toss'))) {
         response = "*eyes light up* WOOF! *chases after the ball at lightning speed* *pounces and catches it mid-air* Got it! *trots back proudly with ball in mouth* *drops it at your feet* That was AMAZING! Throw it again! 🎾✨"
         setGameState('ball_returned')
+        // Update emotion for successful fetch
+        updateEmotion({
+          gameState: 'ball_returned',
+          userMessage: messageToSend,
+          hungerLevel,
+          lastAction: 'fetch_success',
+          messageType: 'game'
+        })
       } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('bounce')) {
         response = "*watches the ball bounce with laser focus* Boing! Boing! *times the perfect moment* *POUNCE!* *catches it on the third bounce* I'm like a professional ball-catching athlete! 🎾🏀 Want to see me do it again?"
         setGameState('ball_caught')
+        // Update emotion for ball catching
+        updateEmotion({
+          gameState: 'ball_caught',
+          userMessage: messageToSend,
+          hungerLevel,
+          lastAction: 'ball_catch',
+          messageType: 'game'
+        })
       } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('kick')) {
         response = "*sees you kick the ball* Ooh, soccer style! *chases after the rolling ball* *nudges it back with nose* I can play soccer too! *gentle paw tap* Your turn! ⚽🐕"
         setGameState('soccer_mode')
@@ -401,18 +629,76 @@ Respond as Daisy the dog:`
       // Handle story requests directly
       if (message.toLowerCase().includes('story')) {
         response = getNextStory()
+        // Update emotion for storytelling
+        updateEmotion({
+          gameState,
+          userMessage: message,
+          hungerLevel,
+          lastAction: 'story',
+          messageType: 'story'
+        })
       } else if (message.toLowerCase().includes('play dead')) {
         response = "*dramatic gasp* Gggggaaaggg... *makes choking sound* ...bleh! *falls over sideways with tongue hanging out* I'm dead! X_X *stays perfectly still for 3 seconds* ....*one eye opens* Did I do good? *tail wags while still lying down* 💀😵"
+        // Update emotion for trick
+        updateEmotion({
+          gameState,
+          userMessage: message,
+          hungerLevel,
+          lastAction: 'trick',
+          messageType: 'trick'
+        })
       } else if (message.toLowerCase().includes('sit!') || message.toLowerCase() === 'sit') {
         response = "*immediately sits with perfect posture* There! *chest puffed out proudly* Look at my perfect sit! Am I the goodest girl or what? 🐕✨"
+        // Update emotion for sit trick
+        updateEmotion({
+          gameState,
+          userMessage: message,
+          hungerLevel,
+          lastAction: 'sit_trick',
+          messageType: 'trick'
+        })
       } else if (message.toLowerCase().includes('roll over')) {
         response = "*gets into position* Here I go! *rolls over completely* Ta-daaa! *wiggles on back* Did you see that perfect roll? I'm basically a circus dog! 🌀🎪"
+        // Update emotion for roll trick
+        updateEmotion({
+          gameState,
+          userMessage: message,
+          hungerLevel,
+          lastAction: 'roll_trick',
+          messageType: 'trick'
+        })
       } else if (message.toLowerCase().includes('shake hands')) {
         response = "*sits up tall and proud* Oh, a formal greeting! *carefully lifts right paw* *extends paw with dignity* How do you do? *firm but gentle pawshake* *looks directly into your eyes* I'm very pleased to make your acquaintance! *wags tail politely* My mother always taught me proper paw-shaking etiquette! 🤝🎩✨"
+        // Update emotion for shake hands
+        updateEmotion({
+          gameState,
+          userMessage: message,
+          hungerLevel,
+          lastAction: 'shake_hands',
+          messageType: 'trick'
+        })
       } else if (message.toLowerCase().includes('trick') || message.toLowerCase().includes('do a trick')) {
         const trickResponse = getRandomResponse('tricks')
         setGameState('tricks_active')
         response = trickResponse
+        // Update emotion for general trick
+        updateEmotion({
+          gameState: 'tricks_active',
+          userMessage: message,
+          hungerLevel,
+          lastAction: 'general_trick',
+          messageType: 'trick'
+        })
+      } else if (message.toLowerCase().includes('joke')) {
+        response = getRandomResponse('jokes')
+        // Update emotion for joke
+        updateEmotion({
+          gameState,
+          userMessage: message,
+          hungerLevel,
+          lastAction: 'joke',
+          messageType: 'joke'
+        })
       } else {
         // Check for game interactions and other responses
         response = generateDaisyResponse(message)
@@ -459,6 +745,39 @@ Respond as Daisy the dog:`
     setTimeout(() => setDaisyMood('happy'), 5000)
   }
 
+  // Auto-save checkpoint whenever important state changes
+  useEffect(() => {
+    const checkpointData = {
+      messages,
+      hungerLevel,
+      lastFed,
+      gameState,
+      userName,
+      hasGreeted,
+      storyIndex,
+      feelingResponseIndex,
+      currentEmotion,
+      lastAction,
+      savedAt: new Date().toISOString()
+    }
+    saveCheckpoint(checkpointData)
+  }, [messages, hungerLevel, lastFed, gameState, userName, hasGreeted, storyIndex, feelingResponseIndex, currentEmotion, lastAction])
+
+  // Clear checkpoint function (for testing or reset)
+  const clearCheckpoint = () => {
+    localStorage.removeItem(CHECKPOINT_KEY)
+    window.location.reload() // Reload to reset to default state
+  }
+
+  useEffect(() => {
+    updateEmotion({
+      gameState,
+      userMessage: inputMessage,
+      hungerLevel,
+      lastAction
+    })
+  }, [gameState, inputMessage, hungerLevel, lastAction])
+
   return (
     <div className="chat-page">
       {/* API Key Status */}
@@ -479,7 +798,7 @@ Respond as Daisy the dog:`
           </Link>
           <div className="daisy-status">
             <div className="daisy-avatar">
-              <img src="/assets/images/daisy-logo.png" alt="Daisy" />
+              <img src={getEmotionImage(currentEmotion)} alt="Daisy" />
               <div className={`mood-indicator ${daisyMood}`}></div>
             </div>
             <div className="status-info">
@@ -514,7 +833,7 @@ Respond as Daisy the dog:`
               >
                 {message.sender === 'daisy' && (
                   <div className="message-avatar">
-                    <img src="/assets/images/daisy-logo.png" alt="Daisy" />
+                    <img src={getEmotionImage(currentEmotion)} alt="Daisy" />
                   </div>
                 )}
                 <div className="message-content">
@@ -540,7 +859,7 @@ Respond as Daisy the dog:`
               className="message daisy typing"
             >
               <div className="message-avatar">
-                <img src="/assets/images/daisy-logo.png" alt="Daisy" />
+                <img src={getEmotionImage(currentEmotion)} alt="Daisy" />
               </div>
               <div className="message-content">
                 <div className="message-bubble">
