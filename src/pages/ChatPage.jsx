@@ -206,7 +206,7 @@ const ChatPage = () => {
           "*stomach rumbling loudly* I'm feeling quite peckish actually! My tummy is making the most interesting sounds - like a tiny thunderstorm! *tilts head listening to stomach* Did you hear that? That's the song of hunger! 🥺🍖",
           "*whimpers slightly* I'm getting a bit hangry... *paws at the ground* Do you have any snacks? 🐾🍿",
           "You're the BEST! *spins in happy circles* 🌟",
-          "*tail wagging at maximum speed* I love treats! I love you! �"
+          "*tail wagging at maximum speed* I love treats! I love you! 💕"
         ]
         const response = feelingResponses[feelingResponseIndex]
         setFeelingResponseIndex((prev) => (prev + 1) % feelingResponses.length)
@@ -260,6 +260,37 @@ const ChatPage = () => {
         setGameState(null)
       } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('bounce')) {
         response = "*watches the ball bounce with intense focus* Boing! Boing! *pounces on it* Got it! 🎾✨"
+        setGameState(null)
+      } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('aim')) {
+        response = "*gets into hunting position* Ooh, what are we aiming at? *crouches low* I'm ready to pounce! 🎯🐕"
+        setGameState(null)
+      } else if (gameState === 'ball_returned' && messageToSend.toLowerCase().includes('throw it again')) {
+        response = "*drops ball and backs up excitedly* Yes yes yes! *bouncing with anticipation* Throw it far this time! 🎾💨"
+        setGameState('ball_dropped')
+      } else if (gameState === 'hide_and_seek' && messageToSend.toLowerCase().includes('hiding')) {
+        response = "*covers eyes with paws* I can't see you! *peeks through paws* Are you hiding yet? One... two... three... ready or not! 🙈👀"
+      } else if (gameState === 'hide_and_seek' && messageToSend.toLowerCase().includes('found you')) {
+        response = "*jumps out from behind imaginary tree* You found me! *spins in circles* I was hiding so well! Your turn to hide! 🌳😄"
+      } else if (gameState === 'hide_and_seek' && messageToSend.toLowerCase().includes('count again')) {
+        response = "*covers eyes again* Okay! One... two... three... *dramatic pause* ...ten! Ready or not, here I come! 🔢👀"
+      } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('pull harder')) {
+        response = "*grips rope tighter* Grrrr! *pulls with all her might* I'm stronger than I look! *paws digging into ground* 💪🐕"
+      } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('let go')) {
+        response = "*releases rope and tumbles backward* Whoa! *rolls over* That was fun! *wags tail* You're really strong! 🤲✨"
+        setGameState(null)
+      } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('you win')) {
+        response = "*drops rope and does victory dance* I win! I win! *spins in circles* I'm the tug-of-war champion! 🏆🎉"
+        setGameState(null)
+      } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('play again')) {
+        response = "*picks up rope again* Round two! *gets into position* This time I'll be even stronger! Grrrr! 🔄💪"
+      } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('is it a ball')) {
+        response = "*shakes head* Nope! Not a ball! *wags tail* But good guess! It's something else I love to play with! 🎾❌"
+      } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('is it a toy')) {
+        response = "*nods excitedly* Yes! It IS a toy! *bounces* But what KIND of toy? Keep guessing! 🧸✅"
+      } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('hint')) {
+        response = "*whispers conspiratorially* Okay, here's a hint... *looks around* It squeaks when you squeeze it! *winks* 💡🔊"
+      } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('give up')) {
+        response = "*reveals answer dramatically* It was a squeaky toy! *squeaks imaginary toy* Squeak squeak! Aren't they the best? 🧸🔊"
         setGameState(null)
       } else {
         // Try to use Anthropic API if available
