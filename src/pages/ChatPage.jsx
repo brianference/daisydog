@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FaPaperPlane, FaBone, FaHome, FaHeart } from 'react-icons/fa'
+import { FaPaperPlane, FaBone, FaHome, FaHeart, FaPaw, FaQuestionCircle } from 'react-icons/fa'
 import { useAnthropicChat } from '../hooks/useAnthropicChat'
 import './ChatPage.css'
 
@@ -20,6 +20,7 @@ const ChatPage = () => {
   const [daisyMood, setDaisyMood] = useState('happy')
   const [hungerLevel, setHungerLevel] = useState(3)
   const [lastFed, setLastFed] = useState(null)
+  const [gameState, setGameState] = useState(null)
   const messagesEndRef = useRef(null)
   
   // Check if Anthropic API key is available
@@ -57,6 +58,12 @@ const ChatPage = () => {
       "How about hide and seek? I'll count... 1... 2... wait, I can't count that high! 😅",
       "Want to play tug of war? *grabs rope toy* 🪢",
       "Let's play the guessing game! I'm thinking of something... it's round, bouncy, and I love to chase it!"
+    ],
+    ballGame: [
+      "🎾 Throw the ball",
+      "🏃 Run away", 
+      "⚽ Bounce the ball",
+      "🎯 Aim at something"
     ]
   }
 
@@ -116,7 +123,11 @@ const ChatPage = () => {
     } else if (message.includes('trick') || message.includes('sit') || message.includes('roll')) {
       return getRandomResponse('tricks')
     } else if (message.includes('play') || message.includes('game')) {
-      return getRandomResponse('games')
+      const response = getRandomResponse('games')
+      if (response.includes('drops imaginary ball')) {
+        setGameState('ball_dropped')
+      }
+      return response
     } else if (message.includes('hungry') || message.includes('food') || message.includes('eat')) {
       if (hungerLevel < 3) {
         return "Yes! I'm so hungry! *puppy dog eyes* 🥺"
@@ -164,9 +175,20 @@ const ChatPage = () => {
     try {
       let response
       
-      // Try to use Anthropic API if available
-      if (apiKey && sendToAnthropic) {
-        const daisyPrompt = `You are Daisy, a friendly, energetic, and playful AI dog companion designed for children aged 5-18. You should:
+      // Check for game interactions
+      if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('throw')) {
+        response = "*chases after the ball excitedly* Woof woof! *brings it back and drops it at your feet* Again! Again! 🎾"
+        setGameState('ball_returned')
+      } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('run')) {
+        response = "*tilts head confused* Wait, where are you going? *chases after you playfully* Don't leave me! 🐕💨"
+        setGameState(null)
+      } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('bounce')) {
+        response = "*watches the ball bounce with intense focus* Boing! Boing! *pounces on it* Got it! 🎾✨"
+        setGameState(null)
+      } else {
+        // Try to use Anthropic API if available
+        if (apiKey && sendToAnthropic) {
+          const daisyPrompt = `You are Daisy, a friendly, energetic, and playful AI dog companion designed for children aged 5-18. You should:
 
 - Always respond as a happy, excited dog who loves to play and chat
 - Use dog-related expressions like "Woof!", "*tail wagging*", "*bounces excitedly*"
@@ -181,12 +203,13 @@ The user just said: "${messageToSend}"
 
 Respond as Daisy the dog:`
 
-        response = await sendToAnthropic(daisyPrompt)
-      }
-      
-      // Fallback to local responses if API fails or isn't available
-      if (!response) {
-        response = generateDaisyResponse(messageToSend)
+          response = await sendToAnthropic(daisyPrompt)
+        }
+        
+        // Fallback to local responses if API fails or isn't available
+        if (!response) {
+          response = generateDaisyResponse(messageToSend)
+        }
       }
 
       setIsTyping(false)
@@ -201,9 +224,24 @@ Respond as Daisy the dog:`
     }
   }
 
+  const handleQuickMessage = async (message) => {
+    setInputMessage(message)
+    // Simulate form submission
+    const fakeEvent = { preventDefault: () => {} }
+    await handleSendMessage(fakeEvent)
+  }
+
   const feedDaisy = () => {
     if (hungerLevel >= 5) {
-      addDaisyMessage("I'm already full! But thank you for thinking of me! *happy tail wag* 😊")
+      // Funny animations when at max hunger
+      const fullResponses = [
+        "*does a backflip* I'm so full I could fly! Wheeeee! 🤸‍♀️✨",
+        "*spins in circles until dizzy* Woooooah! *falls over dramatically* Too... much... food! 😵‍💫",
+        "*starts howling a happy song* AROOOOO! I'm the happiest, fullest pup in the world! 🎵🐺",
+        "*does the zoomies around the room* ZOOM ZOOM ZOOM! Full belly = crazy energy! 💨💨💨",
+        "*rolls on back and wiggles* Look at my happy full belly! *wiggles paws in air* 🤗"
+      ]
+      addDaisyMessage(fullResponses[Math.floor(Math.random() * fullResponses.length)])
       return
     }
 
@@ -237,6 +275,9 @@ Respond as Daisy the dog:`
         <div className="header-content">
           <Link to="/" className="home-btn">
             <FaHome /> Home
+          </Link>
+          <Link to="/faq" className="faq-btn">
+            <FaQuestionCircle /> FAQ
           </Link>
           <div className="daisy-status">
             <div className="daisy-avatar">
@@ -338,7 +379,15 @@ Respond as Daisy the dog:`
               className="send-btn" 
               disabled={!inputMessage.trim() || isLoading}
             >
-              <FaPaperPlane />
+              <FaPaw />
+            </button>
+            <button 
+              type="button" 
+              className="feed-btn-chat" 
+              onClick={feedDaisy}
+              title="Feed Daisy"
+            >
+              <FaBone />
             </button>
           </div>
         </form>
@@ -346,17 +395,17 @@ Respond as Daisy the dog:`
 
       {/* Quick Actions */}
       <div className="quick-actions">
-        <button onClick={() => setInputMessage("Tell me a joke!")}>
-          😂 Tell a joke
+        <button onClick={() => handleQuickMessage("Tell me a joke!")}>
+          🐕 Tell a joke
         </button>
-        <button onClick={() => setInputMessage("Do a trick!")}>
-          ✨ Do a trick
+        <button onClick={() => handleQuickMessage("Do a trick!")}>
+          🦴 Do a trick
         </button>
-        <button onClick={() => setInputMessage("Let's play a game!")}>
-          🎮 Play game
+        <button onClick={() => handleQuickMessage("Let's play a game!")}>
+          🎾 Play game
         </button>
-        <button onClick={() => setInputMessage("How are you feeling?")}>
-          💭 What's on your mind?
+        <button onClick={() => handleQuickMessage("How are you feeling?")}>
+          🐾 What's on your mind?
         </button>
       </div>
     </div>

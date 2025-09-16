@@ -286,7 +286,8 @@
 
 .input-container {
   display: flex;
-  gap: 10px;
+  gap: 0.5rem;
+  align-items: center;
   background: white;
   padding: 10px;
   border-radius: 25px;
@@ -308,28 +309,48 @@
 }
 
 .send-btn {
-  width: 50px;
-  height: 50px;
+  background: #ff6b6b;
+  color: white;
   border: none;
   border-radius: 50%;
-  background: linear-gradient(45deg, #667eea, #764ba2);
-  color: white;
-  cursor: pointer;
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  font-size: 1.2rem;
 }
 
 .send-btn:hover:not(:disabled) {
+  background: #ff5252;
   transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 .send-btn:disabled {
-  opacity: 0.5;
+  background: #ccc;
   cursor: not-allowed;
+}
+
+.faq-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.faq-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
 }
 
 /* Quick Actions */
