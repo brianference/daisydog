@@ -200,11 +200,11 @@ const ChatPage = () => {
     } else {
       // General responses
       const generalResponses = [
-        "Woof! That's interesting! Tell me more! 🐕",
-        "*tilts head curiously* I'm listening! 👂",
-        "Ooh, I love learning new things! *tail wag* ✨",
-        "That sounds exciting! *bounces with enthusiasm* 🎉",
-        "Woof woof! I'm not sure I understand, but I'm happy you're talking to me! 😊"
+        "Woof! That's so interesting! *tilts head thoughtfully* You know, I was just thinking about how amazing it is that we can talk like this. Sometimes I wonder what it would be like to run through a big field with you, chasing butterflies and feeling the wind in my fur. Tell me more about what's on your mind! 🐕✨",
+        "*perks up ears with curiosity* Oh, I'm all ears! *tail wagging enthusiastically* You know what I love most? When humans share their thoughts with me. It makes me feel so special and connected. I was just daydreaming about playing fetch in a sunny park - there's something magical about the simple joy of running and playing together. What's making you happy today? 👂🌟",
+        "Ooh, I absolutely love learning new things! *bounces excitedly* My mind is always buzzing with curiosity - like right now I'm wondering about all the different scents in the world and how each one tells a story. Sometimes I imagine what it would be like to explore a forest full of interesting smells and sounds. Learning from you makes my day so much brighter! What fascinating thing have you discovered lately? ✨🎓",
+        "That sounds absolutely exciting! *spins in a happy circle* You know, your enthusiasm is contagious! I was just thinking about how wonderful it is when someone gets excited about something - it reminds me of how I feel when I see my favorite humans coming home, or when I spot a really good stick on a walk. There's pure magic in those moments of joy! Tell me what's got you so excited! 🎉💫",
+        "Woof woof! *head tilt with a gentle smile* Even if I don't completely understand everything, I'm just so happy you're here talking with me! You know what I was pondering earlier? How amazing it is that friendship doesn't always need perfect understanding - sometimes it's just about being present together. Like when I sit quietly next to someone, just enjoying their company. Your presence makes me feel warm and fuzzy inside! 😊💕"
       ]
       return generalResponses[Math.floor(Math.random() * generalResponses.length)]
     }
