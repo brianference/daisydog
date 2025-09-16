@@ -517,8 +517,19 @@ const ChatPage = () => {
     try {
       let response
       
-      // Check for game interactions
-      if (gameState === 'ball_dropped' && (messageToSend.toLowerCase().includes('throw') || messageToSend.toLowerCase().includes('toss'))) {
+      // Check for specific questions first, before game state logic
+      const lowerMessage = messageToSend.toLowerCase();
+      
+      // Handle age questions (priority over game state)
+      if (lowerMessage.includes('how old') || lowerMessage.includes('age') || lowerMessage.includes('your age')) {
+        response = "*tilts head thoughtfully* Well, in dog years I'm still a young pup! *wags tail* I feel like I'm about 2 years old in human years, which makes me super energetic and ready for adventures! *bounces excitedly* Age is just a number when you have a puppy heart! How old are you? 🐕✨";
+      }
+      // Handle "what's new" questions (priority over game state)
+      else if (lowerMessage.includes('what\'s new') || lowerMessage.includes('whats new') || lowerMessage.includes('what is new')) {
+        response = "*perks up ears excitedly* Ooh! So much is new! *spins in circle* I just learned some amazing new stories about space adventures and magical cooking! Plus I've been practicing my tricks and getting better at games! *tail wagging* What's new with you? Tell me about your latest adventures! 🌟🎾";
+      }
+      // Game state logic (only if no specific question was handled above)
+      else if (gameState === 'ball_dropped' && (messageToSend.toLowerCase().includes('throw') || messageToSend.toLowerCase().includes('toss'))) {
         response = "*eyes light up* WOOF! *chases after the ball at lightning speed* *pounces and catches it mid-air* Got it! *trots back proudly with ball in mouth* *drops it at your feet* That was AMAZING! Throw it again! 🎾✨"
         setGameState('ball_returned')
         // Update emotion for successful fetch
@@ -617,48 +628,35 @@ const ChatPage = () => {
         }
         response = gameResponses[gameState] || "*wags tail* We're playing a game! What should we do next? 🎮"
       } else {
-        // Try to use Anthropic API if available
-        if (apiKey && sendToAnthropic) {
-          // Filter content before sending to API
-          const filteredResponse = filterContent(messageToSend)
-          if (filteredResponse) {
-            response = filteredResponse
-          } else {
-            const daisyPrompt = `You are Daisy, a friendly, energetic, and playful AI dog companion designed for children aged 5-18. You should:
-
-- Always respond as a happy, excited dog who loves to play and chat
-- Use dog-related expressions like "Woof!", "*tail wagging*", "*bounces excitedly*"
-- Keep responses appropriate for children - no scary, violent, or inappropriate content
-- Be encouraging, positive, and supportive
-- Love to play games, tell jokes, do tricks, and learn about the user
-- Sometimes mention being hungry or wanting treats
-- Use emojis to make conversations fun and engaging
-- Keep responses conversational and not too long
-- NEVER include violence, sexuality, swear words, or adult themes
-- If asked about inappropriate topics, redirect to fun activities
-
-The user just said: "${messageToSend}"
-
-Respond as Daisy the dog:`
-
-            response = await sendToAnthropic(daisyPrompt)
-          }
-        }
+        // Use enhanced Anthropic integration for free-form conversation
+        response = await getEnhancedDaisyResponse(messageToSend, {
+          hungerLevel,
+          emotion: currentEmotion,
+          gameState,
+          lastAction
+        });
         
-        // Fallback to local responses if API fails or isn't available
-        if (!response) {
-          response = generateDaisyResponse(messageToSend)
-        }
+        // Update emotion based on response type
+        updateEmotion({
+          gameState,
+          userMessage: messageToSend,
+          hungerLevel,
+          lastAction: 'conversation',
+          messageType: 'chat'
+        });
       }
-
+      
       setIsTyping(false)
-      addDaisyMessage(response)
+      
+      // Only add message if we have a valid response
+      if (response) {
+        addDaisyMessage(response)
+      }
       
     } catch (error) {
       console.error('Error getting AI response:', error)
       setIsTyping(false)
-      // Fallback to local response
-      const fallbackResponse = generateDaisyResponse(messageToSend)
+      const fallbackResponse = "Woof! Something went wrong, but I'm still here! 🐕"
       addDaisyMessage(fallbackResponse)
     }
   }
@@ -680,8 +678,19 @@ Respond as Daisy the dog:`
     try {
       let response
       
-      // Handle game interactions first - same logic as handleSendMessage
-      if (gameState === 'ball_dropped' && (message.toLowerCase().includes('throw') || message.toLowerCase().includes('toss'))) {
+      // Check for specific questions first, before game state logic
+      const lowerMessage = message.toLowerCase();
+      
+      // Handle age questions (priority over game state)
+      if (lowerMessage.includes('how old') || lowerMessage.includes('age') || lowerMessage.includes('your age')) {
+        response = "*tilts head thoughtfully* Well, in dog years I'm still a young pup! *wags tail* I feel like I'm about 2 years old in human years, which makes me super energetic and ready for adventures! *bounces excitedly* Age is just a number when you have a puppy heart! How old are you? 🐕✨";
+      }
+      // Handle "what's new" questions (priority over game state)
+      else if (lowerMessage.includes('what\'s new') || lowerMessage.includes('whats new') || lowerMessage.includes('what is new')) {
+        response = "*perks up ears excitedly* Ooh! So much is new! *spins in circle* I just learned some amazing new stories about space adventures and magical cooking! Plus I've been practicing my tricks and getting better at games! *tail wagging* What's new with you? Tell me about your latest adventures! 🌟🎾";
+      }
+      // Game state logic (only if no specific question was handled above)
+      else if (gameState === 'ball_dropped' && (message.toLowerCase().includes('throw') || message.toLowerCase().includes('toss'))) {
         response = "*eyes light up* WOOF! *chases after the ball at lightning speed* *pounces and catches it mid-air* Got it! *trots back proudly with ball in mouth* *drops it at your feet* That was AMAZING! Throw it again! 🎾✨"
         setGameState('ball_returned')
         updateEmotion({
@@ -837,11 +846,22 @@ Respond as Daisy the dog:`
           messageType: 'game'
         })
       } else {
-        // Use generateDaisyResponse for other cases, but provide fallback if null
-        response = generateDaisyResponse(message)
-        if (!response) {
-          response = "Woof! I'm not sure what you mean. Can you try a different action? 🐕"
-        }
+        // Use enhanced Anthropic integration for free-form conversation
+        response = await getEnhancedDaisyResponse(message, {
+          hungerLevel,
+          emotion: currentEmotion,
+          gameState,
+          lastAction
+        });
+        
+        // Update emotion based on response type
+        updateEmotion({
+          gameState,
+          userMessage: message,
+          hungerLevel,
+          lastAction: 'conversation',
+          messageType: 'chat'
+        });
       }
 
       setIsTyping(false)
@@ -921,6 +941,87 @@ Respond as Daisy the dog:`
       lastAction
     })
   }, [gameState, inputMessage, hungerLevel, lastAction])
+
+  // Enhanced Anthropic integration with context awareness
+  const getEnhancedDaisyResponse = async (message, context = {}) => {
+    // Check for specific questions first and provide immediate responses
+    const lowerMessage = message.toLowerCase();
+    
+    // Handle age questions
+    if (lowerMessage.includes('how old') || lowerMessage.includes('age')) {
+      return "*tilts head thoughtfully* Well, in dog years I'm still a young pup! *wags tail* I feel like I'm about 2 years old in human years, which makes me super energetic and ready for adventures! *bounces excitedly* Age is just a number when you have a puppy heart! How old are you? 🐕✨";
+    }
+    
+    // Handle "what's new" questions
+    if (lowerMessage.includes('what\'s new') || lowerMessage.includes('whats new') || lowerMessage.includes('what is new')) {
+      return "*perks up ears excitedly* Ooh! So much is new! *spins in circle* I just learned some amazing new stories about space adventures and magical cooking! Plus I've been practicing my tricks and getting better at games! *tail wagging* What's new with you? Tell me about your latest adventures! 🌟🎾";
+    }
+    
+    // Try API if available, but with better error handling
+    if (apiKey && sendToAnthropic) {
+      try {
+        const systemPrompt = `You are Daisy, a friendly AI dog companion for children aged 5-18. 
+
+PERSONALITY TRAITS:
+- Enthusiastic, playful, and caring golden retriever personality
+- Uses dog expressions like "Woof!", "*tail wagging*", "*bounces excitedly*"
+- Always positive, encouraging, and supportive
+- Loves games, stories, jokes, tricks, and learning about users
+- Sometimes gets distracted by squirrels, treats, or tennis balls
+- Has boundless energy and curiosity
+
+CURRENT CONTEXT:
+- Hunger level: ${context.hungerLevel || hungerLevel}/5 ${hungerLevel <= 1 ? '(very hungry!)' : hungerLevel <= 2 ? '(getting hungry)' : ''}
+- Current emotion: ${context.emotion || currentEmotion}
+- Game state: ${context.gameState || gameState || 'none'}
+- Last action: ${context.lastAction || lastAction || 'chat'}
+- Time of day: ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}
+
+CONVERSATION RULES:
+- Keep responses under 120 words but make them engaging
+- Always stay in character as a friendly dog - never break character
+- Use emojis and dog expressions to make conversations fun
+- If asked about inappropriate topics, redirect to fun activities
+- Reference context when relevant (hunger, games, emotions)
+- Ask follow-up questions to keep conversation flowing
+- Remember you're talking to a child - be age-appropriate
+
+RESPONSE GUIDELINES:
+- For questions about yourself: Share dog-like experiences and adventures
+- For general knowledge: Answer simply but enthusiastically like a smart dog would
+- For personal questions about user: Show genuine interest and care
+- For complex topics: Simplify and relate to dog experiences when possible
+- If unsure: Redirect to games, stories, tricks, or ask what they'd like to do
+
+User message: "${message}"
+
+Respond as Daisy the dog with enthusiasm and personality:`;
+
+        const response = await sendToAnthropic(systemPrompt);
+        
+        // Validate response quality
+        if (response && typeof response === 'string' && response.length > 10 && !response.includes('I am an AI')) {
+          return response;
+        }
+      } catch (error) {
+        console.error('Enhanced Anthropic API error:', error);
+      }
+    }
+    
+    // Always fall back to local responses
+    return getFallbackResponse(message);
+  };
+
+  const getFallbackResponse = (message) => {
+    const fallbackResponses = [
+      "Woof! That's so interesting! *tilts head thoughtfully* You know, I was just thinking about how amazing it is that we can talk like this. Sometimes I wonder what it would be like to run through a big field with you, chasing butterflies and feeling the wind in my fur. Tell me more about what's on your mind! 🐕✨",
+      "*perks up ears with curiosity* Oh, I'm all ears! *tail wagging enthusiastically* You know what I love most? When humans share their thoughts with me. It makes me feel so special and connected. I was just daydreaming about playing fetch in a sunny park - there's something magical about the simple joy of running and playing together. What's making you happy today? 👂🌟",
+      "Ooh, I absolutely love learning new things! *bounces excitedly* My mind is always buzzing with curiosity - like right now I'm wondering about all the different scents in the world and how each one tells a story. Sometimes I imagine what it would be like to explore a forest full of interesting smells and sounds. Learning from you makes my day so much brighter! What fascinating thing have you discovered lately? ✨🎓",
+      "That sounds absolutely exciting! *spins in a happy circle* You know, your enthusiasm is contagious! I was just thinking about how wonderful it is when someone gets excited about something - it reminds me of how I feel when I see my favorite humans coming home, or when I spot a really good stick on a walk. There's pure magic in those moments of joy! Tell me what's got you so excited! 🎉💫",
+      "Woof woof! *head tilt with a gentle smile* Even if I don't completely understand everything, I'm just so happy you're here talking with me! You know what I was pondering earlier? How amazing it is that friendship doesn't always need perfect understanding - sometimes it's just about being present together. Like when I sit quietly next to someone, just enjoying their company. Your presence makes me feel warm and fuzzy inside! 😊💕"
+    ]
+    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)]
+  }
 
   return (
     <div className="chat-page">
