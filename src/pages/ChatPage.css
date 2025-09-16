@@ -507,9 +507,20 @@
 }
 
 .quick-actions button:hover {
+  background: #ff8c42;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  background: white;
+}
+
+.end-game-btn {
+  background: #dc3545 !important;
+  color: white !important;
+  border: 2px solid #dc3545 !important;
+  font-weight: bold;
+}
+
+.end-game-btn:hover {
+  background: #c82333 !important;
+  border-color: #c82333 !important;
 }
 
 /* Responsive Design */

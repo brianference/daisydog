@@ -303,6 +303,33 @@ const ChatPage = () => {
       } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('hint')) {
         response = "*whispers conspiratorially* Okay, here's a hint... *looks around mysteriously* It makes a funny sound when you squeeze it! *winks* What could it be? 💡🔊"
         setGameState('guessing_warm')
+      } else if (gameState && (messageToSend.toLowerCase().includes('throw') || messageToSend.toLowerCase().includes('toss'))) {
+        // Handle throw commands in any game state
+        if (gameState.includes('ball') || gameState === 'ball_dropped' || gameState === 'ball_returned' || gameState === 'ball_caught' || gameState === 'soccer_mode') {
+          response = "*eyes light up* WOOF! *chases after the ball at lightning speed* *pounces and catches it mid-air* Got it! *trots back proudly with ball in mouth* *drops it at your feet* That was AMAZING! Throw it again! 🎾✨"
+          setGameState('ball_returned')
+        } else {
+          response = "*tilts head* Ooh, are we playing fetch now? *gets excited* Let me get my imaginary ball! *drops imaginary ball at your feet* There! Now throw it! 🎾"
+          setGameState('ball_dropped')
+        }
+      } else if (gameState) {
+        // If we're in a game state but no specific action matched, give a game-appropriate response
+        const gameResponses = {
+          'ball_dropped': "*stares at the ball intensely* What should we do with it? You could throw it, bounce it, or kick it! I'm ready for anything! 🎾",
+          'ball_returned': "*drops ball and wags tail* Ready for another round! Throw it again, or we could try something different! 🎾",
+          'ball_caught': "*proudly holds ball* That was fun! Want to throw it again or try a different game? 🎾",
+          'soccer_mode': "*nudges ball with nose* Soccer time! Kick it toward the goal or pass it back to me! ⚽",
+          'hide_and_seek': "*covers eyes with paws* Are you hiding? Or should we try something else? 🙈",
+          'seeking': "*looking around* I'm still seeking! Are you hiding well? 👀",
+          'your_turn_hide': "*covers eyes* I'm waiting for you to hide! Tell me when you're ready! 🙈",
+          'daisy_seeking': "*searching around* Where could you be hiding? Give me a hint! 🔍",
+          'tug_of_war': "*grips rope* Ready for some tugging action! Pull harder or let's try something else! 💪",
+          'intense_tug': "*pulling hard* This is intense! Should I let go or keep pulling? 💪",
+          'guessing_game': "*thinking hard* I'm thinking of something special! Ask me questions to guess what it is! 🤔",
+          'guessing_warm': "*excited* You're getting warmer! Keep guessing! 🔥",
+          'guessing_hot': "*bouncing* You're so close! One more guess! 🔥🔥"
+        }
+        response = gameResponses[gameState] || "*wags tail* We're playing a game! What should we do next? 🎮"
       } else {
         // Try to use Anthropic API if available
         if (apiKey && sendToAnthropic) {
@@ -658,6 +685,17 @@ Respond as Daisy the dog:`
               </button>
             </>
           )}
+          {/* Universal End Game Button - appears for all game states */}
+          <button 
+            className="end-game-btn"
+            onClick={() => {
+              setGameState(null);
+              handleQuickMessage("Let's stop playing games for now");
+            }}
+            title="End current game"
+          >
+            ❌ End Game
+          </button>
         </div>
       )}
 
