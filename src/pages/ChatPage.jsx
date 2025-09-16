@@ -150,22 +150,24 @@ const ChatPage = () => {
   const generateDaisyResponse = (userMessage) => {
     const message = userMessage.toLowerCase()
     
-    // Check if this looks like a name (first message after greeting and not a common phrase)
-    if (!hasGreeted && !userName && !message.includes('hello') && !message.includes('hi') && 
-        !message.includes('hey') && !message.includes('joke') && !message.includes('trick') && 
-        !message.includes('play') && !message.includes('game') && message.length < 50) {
-      setUserName(userMessage.trim())
-      setHasGreeted(true)
-      return `${userMessage.trim()}! What a wonderful name! *tail wagging excitedly* I'm so happy to meet you, ${userMessage.trim()}! What would you like to do together? 🐕💕`
-    }
-    
     // Check for inappropriate content first
     const filteredResponse = filterContent(message)
     if (filteredResponse) {
       return filteredResponse
     }
     
-    // Check for specific keywords and respond accordingly
+    // PRIORITY 1: Check if we're in a game state - this must come BEFORE name detection
+    if (gameState) {
+      // Game state responses are handled in handleQuickMessage, not here
+      // This function should not interfere with game logic
+      return null // Let handleQuickMessage handle it
+    }
+    
+    // PRIORITY 2: Check for specific game/action keywords that should never be names
+    const gameCommands = ['pull', 'throw', 'toss', 'bounce', 'kick', 'hide', 'seek', 'found', 'hint', 'guess', 'sit', 'roll', 'shake', 'play', 'game', 'trick', 'story', 'joke']
+    const isGameCommand = gameCommands.some(cmd => message.includes(cmd))
+    
+    // PRIORITY 3: Check for specific keywords and respond accordingly
     if (message.includes('hello') || message.includes('hi') || message.includes('hey')) {
       return getRandomResponse('greetings')
     } else if (message.includes('story')) {
@@ -199,21 +201,23 @@ const ChatPage = () => {
     } else if (message.includes('love')) {
       return "I love you too! *gives you the biggest puppy dog eyes* 💕🐾"
     } else if (message.includes('how are you') || message.includes('how do you feel') || message.includes('feeling')) {
-      if (hungerLevel === 0) {
-        return "*eyes glowing with an otherworldly hunger* I... I feel... RAVENOUS! *dramatic panting* The ancient hunger of a thousand wolves courses through my veins! I must... I MUST have treats! The very fabric of reality depends on it! *spins in mystical circles* Feed me, mortal, before I fade into the ethereal realm of the eternally hungry! 🌙🐺✨"
-      } else if (hungerLevel <= 2) {
-        const feelingResponses = [
-          "*stomach rumbling loudly* I'm feeling quite peckish actually! My tummy is making the most interesting sounds - like a tiny thunderstorm! *tilts head listening to stomach* Did you hear that? That's the song of hunger! 🥺🍖",
-          "*whimpers slightly* I'm getting a bit hangry... *paws at the ground* Do you have any snacks? 🐾🍿",
-          "You're the BEST! *spins in happy circles* 🌟",
-          "*tail wagging at maximum speed* I love treats! I love you! 💕"
+      // Alternating feeling responses based on hunger level
+      if (hungerLevel < 2) {
+        const hungryFeelings = [
+          "*dramatic sigh* I'm feeling a bit peckish... *puppy dog eyes* My tummy is making little rumbling sounds, and I keep thinking about those delicious treats! But I'm still happy because I'm here with you! 🥺💕",
+          "*looks longingly at food area* Well, I'm feeling quite hungry actually! *tail wagging hopefully* My belly feels so empty, like a big hollow cave! But seeing your sweet face makes everything better! 😋🐕"
         ]
-        const response = feelingResponses[feelingResponseIndex]
-        setFeelingResponseIndex((prev) => (prev + 1) % feelingResponses.length)
-        return response
+        const responseIndex = feelingResponseIndex % hungryFeelings.length
+        setFeelingResponseIndex(prev => prev + 1)
+        return hungryFeelings[responseIndex]
       } else {
         return "*stretches contentedly* I'm feeling absolutely wonderful! *tail wagging* My belly is happy, my heart is full of joy, and I'm surrounded by such lovely company. Life is good when you're a well-fed, well-loved pup! 😊💕"
       }
+    } else if (!hasGreeted && !userName && !isGameCommand && message.length < 50 && message.length > 1) {
+      // Name detection logic with game command exclusions
+      setUserName(userMessage.trim())
+      setHasGreeted(true)
+      return `${userMessage.trim()}! What a wonderful name! *tail wagging excitedly* I'm so happy to meet you, ${userMessage.trim()}! What would you like to do together? 🐕💕`
     } else {
       // General responses
       const generalResponses = [
