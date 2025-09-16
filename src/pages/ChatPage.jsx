@@ -90,7 +90,18 @@ const ChatPage = () => {
       "Why don't dogs make good DJs? Because they have such ruff beats! 😂",
       "What do you call a sleeping bull dog? A bull-dozer! 💤",
       "Why did the dog go to the bank? To make a de-paws-it! 🏦",
-      "What happens when it rains cats and dogs? You might step in a poodle! 🌧️"
+      "What happens when it rains cats and dogs? You might step in a poodle! 🌧️",
+      "Why don't dogs ever pay for dinner? Because they don't have any money, they're all bark and no bite! 💸",
+      "What do you call a dog magician? A labra-cadabra-dor! 🎩✨",
+      "Why did the dog wear white socks? Because it couldn't find any that matched its fur! 🧦",
+      "What's a dog's favorite type of pizza? Pupperoni! 🍕",
+      "Why don't dogs make good comedians? Their jokes are too ruff around the edges! 🎭",
+      "What do you call a dog that can do magic tricks? A golden retriever! ✨🐕",
+      "Why did the dog go to school? To improve its bark-ing skills! 🎓",
+      "What's a dog's favorite composer? Bach! (Bark!) 🎵",
+      "Why don't dogs like vacuum cleaners? They're afraid of getting sucked into a ruff situation! 🌪️",
+      "What do you call a dog working for the government? A federal retriever! 🏛️",
+      "Why did the dog become a chef? It had great taste in bones! 👨‍🍳🦴"
     ],
     tricks: [
       "*sits perfectly* Woof! How's that for a good sit? 🐕",
