@@ -136,6 +136,39 @@
   color: #ddd;
 }
 
+.hunger-level .filled.hunger-1 {
+  color: #fdcb6e; /* Normal yellow-orange */
+}
+
+.hunger-level .filled.hunger-2 {
+  color: #f39c12; /* Darker orange */
+}
+
+.hunger-level .filled.hunger-3 {
+  color: #e67e22; /* Orange-red */
+}
+
+.hunger-level .filled.hunger-4 {
+  color: #d63031; /* Red */
+}
+
+.hunger-level .filled.hunger-5 {
+  color: #74b9ff; /* Mystical blue for maximum hunger */
+  animation: mystical-glow 1.5s ease-in-out infinite alternate;
+  text-shadow: 0 0 10px #74b9ff;
+}
+
+@keyframes mystical-glow {
+  from {
+    color: #74b9ff;
+    text-shadow: 0 0 10px #74b9ff;
+  }
+  to {
+    color: #a29bfe;
+    text-shadow: 0 0 15px #a29bfe, 0 0 20px #6c5ce7;
+  }
+}
+
 .feed-btn {
   display: flex;
   align-items: center;

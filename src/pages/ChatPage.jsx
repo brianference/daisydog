@@ -24,6 +24,7 @@ const ChatPage = () => {
   const [userName, setUserName] = useState('')
   const [hasGreeted, setHasGreeted] = useState(false)
   const [storyIndex, setStoryIndex] = useState(0)
+  const [feelingResponseIndex, setFeelingResponseIndex] = useState(0)
   const messagesEndRef = useRef(null)
   
   // Check if Anthropic API key is available
@@ -197,6 +198,22 @@ const ChatPage = () => {
       return "*tail wagging so fast it's a blur* Thank you! I AM a good girl! 🐕💕"
     } else if (message.includes('love')) {
       return "I love you too! *gives you the biggest puppy dog eyes* 💕🐾"
+    } else if (message.includes('how are you') || message.includes('how do you feel') || message.includes('feeling')) {
+      if (hungerLevel === 0) {
+        return "*eyes glowing with an otherworldly hunger* I... I feel... RAVENOUS! *dramatic panting* The ancient hunger of a thousand wolves courses through my veins! I must... I MUST have treats! The very fabric of reality depends on it! *spins in mystical circles* Feed me, mortal, before I fade into the ethereal realm of the eternally hungry! 🌙🐺✨"
+      } else if (hungerLevel <= 2) {
+        const feelingResponses = [
+          "*stomach rumbling loudly* I'm feeling quite peckish actually! My tummy is making the most interesting sounds - like a tiny thunderstorm! *tilts head listening to stomach* Did you hear that? That's the song of hunger! 🥺🍖",
+          "*whimpers slightly* I'm getting a bit hangry... *paws at the ground* Do you have any snacks? 🐾🍿",
+          "You're the BEST! *spins in happy circles* 🌟",
+          "*tail wagging at maximum speed* I love treats! I love you! �"
+        ]
+        const response = feelingResponses[feelingResponseIndex]
+        setFeelingResponseIndex((prev) => (prev + 1) % feelingResponses.length)
+        return response
+      } else {
+        return "*stretches contentedly* I'm feeling absolutely wonderful! *tail wagging* My belly is happy, my heart is full of joy, and I'm surrounded by such lovely company. Life is good when you're a well-fed, well-loved pup! 😊💕"
+      }
     } else {
       // General responses
       const generalResponses = [
@@ -311,7 +328,15 @@ Respond as Daisy the dog:`
       // Handle story requests directly
       if (message.toLowerCase().includes('story')) {
         response = getNextStory()
-      } else if (message.toLowerCase().includes('trick') || message.toLowerCase().includes('sit') || message.toLowerCase().includes('roll')) {
+      } else if (message.toLowerCase().includes('play dead')) {
+        response = "*dramatic gasp* Gggggaaaggg... *makes choking sound* ...bleh! *falls over sideways with tongue hanging out* I'm dead! X_X *stays perfectly still for 3 seconds* ....*one eye opens* Did I do good? *tail wags while still lying down* 💀😵"
+      } else if (message.toLowerCase().includes('sit!') || message.toLowerCase() === 'sit') {
+        response = "*immediately sits with perfect posture* There! *chest puffed out proudly* Look at my perfect sit! Am I the goodest girl or what? 🐕✨"
+      } else if (message.toLowerCase().includes('roll over')) {
+        response = "*gets into position* Here I go! *rolls over completely* Ta-daaa! *wiggles on back* Did you see that perfect roll? I'm basically a circus dog! 🌀🎪"
+      } else if (message.toLowerCase().includes('shake hands')) {
+        response = "*sits up tall and proud* Oh, a formal greeting! *carefully lifts right paw* *extends paw with dignity* How do you do? *firm but gentle pawshake* *looks directly into your eyes* I'm very pleased to make your acquaintance! *wags tail politely* My mother always taught me proper paw-shaking etiquette! 🤝🎩✨"
+      } else if (message.toLowerCase().includes('trick') || message.toLowerCase().includes('do a trick')) {
         const trickResponse = getRandomResponse('tricks')
         setGameState('tricks_active')
         response = trickResponse
@@ -392,7 +417,7 @@ Respond as Daisy the dog:`
                   {[...Array(5)].map((_, i) => (
                     <FaBone 
                       key={i} 
-                      className={i < hungerLevel ? 'filled' : 'empty'} 
+                      className={i < hungerLevel ? `filled hunger-${6 - hungerLevel}` : 'empty'} 
                     />
                   ))}
                 </div>
