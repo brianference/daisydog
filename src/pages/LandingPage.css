@@ -52,6 +52,11 @@
   font-weight: bold;
 }
 
+.orange-text {
+  color: #ff6b35 !important;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
 .hero-subtitle {
   font-size: 1.5rem;
   color: rgba(255, 255, 255, 0.9);

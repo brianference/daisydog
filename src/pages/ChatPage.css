@@ -46,18 +46,19 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: linear-gradient(45deg, #4ecdc4, #44a08d);
-  color: white;
+  background: #ff6b35 !important;
+  color: white !important;
   text-decoration: none;
   border-radius: 25px;
   font-weight: bold;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
 }
 
 .home-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+  background: #f7931e;
 }
 
 .daisy-status {
@@ -153,6 +154,54 @@
 .feed-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.feed-btn-chat {
+  background: transparent;
+  color: #FFA500;
+  border: 2px solid #FFA500;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.feed-btn-chat:hover {
+  background: rgba(255, 165, 0, 0.1);
+  transform: scale(1.1);
+}
+
+.paw-btn {
+  background: #FFA500;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.paw-btn:hover {
+  background: #FF8C00;
+  transform: scale(1.1);
+}
+
+.button-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: bold;
+  margin-left: 5px;
+  white-space: nowrap;
 }
 
 /* Chat Container */
@@ -309,9 +358,9 @@
 }
 
 .send-btn {
-  background: #ff6b6b;
-  color: white;
-  border: none;
+  background: transparent;
+  color: #FFA500;
+  border: 2px solid #FFA500;
   border-radius: 50%;
   width: 50px;
   height: 50px;
@@ -324,13 +373,49 @@
 }
 
 .send-btn:hover:not(:disabled) {
-  background: #ff5252;
+  background: rgba(255, 165, 0, 0.1);
   transform: scale(1.1);
 }
 
+.send-btn:active {
+  background: #FFA500;
+  color: white;
+}
+
 .send-btn:disabled {
-  background: #ccc;
+  background: transparent;
+  color: #FFA500;
+  border-color: #FFA500;
+  opacity: 0.5;
   cursor: not-allowed;
+}
+
+.feed-btn-chat {
+  background: transparent;
+  color: #FFA500;
+  border: 2px solid #FFA500;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.feed-btn-chat:hover {
+  background: rgba(255, 165, 0, 0.1);
+  transform: scale(1.1);
+}
+
+.button-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: bold;
+  margin-left: 5px;
+  white-space: nowrap;
 }
 
 .faq-btn {
@@ -338,19 +423,21 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: #ff6b35 !important;
+  color: white !important;
   text-decoration: none;
   border-radius: 25px;
   font-weight: 600;
   transition: all 0.3s ease;
   border: 2px solid transparent;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
 }
 
 .faq-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: #f7931e !important;
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
 }
 
 /* Quick Actions */
@@ -363,6 +450,14 @@
   max-width: 800px;
   margin: 0 auto;
   width: 100%;
+}
+
+/* Game Actions - additional row above normal actions */
+.game-actions {
+  padding-bottom: 0 !important;
+  margin-bottom: -10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 10px;
 }
 
 .quick-actions button {

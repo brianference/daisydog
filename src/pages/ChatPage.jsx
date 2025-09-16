@@ -21,6 +21,9 @@ const ChatPage = () => {
   const [hungerLevel, setHungerLevel] = useState(3)
   const [lastFed, setLastFed] = useState(null)
   const [gameState, setGameState] = useState(null)
+  const [userName, setUserName] = useState('')
+  const [hasGreeted, setHasGreeted] = useState(false)
+  const [storyIndex, setStoryIndex] = useState(0)
   const messagesEndRef = useRef(null)
   
   // Check if Anthropic API key is available
@@ -64,6 +67,11 @@ const ChatPage = () => {
       "🏃 Run away", 
       "⚽ Bounce the ball",
       "🎯 Aim at something"
+    ],
+    stories: [
+      "Once upon a time, I was a little puppy who discovered a magical garden behind our house! 🌸 There were butterflies that sparkled like rainbows, and flowers that giggled when I sniffed them. I met a wise old rabbit who taught me that the best treasures aren't bones or treats, but the friends we make along the way. We spent the whole day playing hide and seek among the sunflowers, and when the sun set, the garden lit up with fireflies that danced just for us! It was the most magical day ever! ✨🦋",
+      "Let me tell you about the time I became a superhero! 🦸‍♀️ One sunny morning, I woke up and discovered I could fly! Well, sort of... I could jump really, really high! I used my new powers to help all the animals in the neighborhood. I rescued Mrs. Whiskers the cat from a tall tree, helped a family of ducks cross the busy street safely, and even found little Timmy's lost toy truck in the storm drain. By the end of the day, all the animals called me 'Super Daisy!' The best part? I learned that being a hero isn't about having special powers - it's about having a big heart and helping others! 💕🌟",
+      "Oh! Let me tell you about my adventure to the Cloud Kingdom! ☁️ One day, I was chasing a beautiful blue butterfly when suddenly, I found myself bouncing from cloud to cloud high up in the sky! The Cloud King, a fluffy white poodle with a golden crown, welcomed me to his kingdom. We had a tea party on a rainbow, played fetch with shooting stars, and I even learned how to make it rain gentle flower petals! The cloud puppies taught me their special dance that makes the sun shine brighter. When it was time to go home, the Cloud King gave me a special whistle that calls the rainbow whenever someone needs cheering up! 🌈⭐"
     ]
   }
 
@@ -101,6 +109,32 @@ const ChatPage = () => {
     return responses[Math.floor(Math.random() * responses.length)]
   }
 
+  // Content filtering function
+  const filterContent = (text) => {
+    const inappropriateWords = [
+      'violence', 'violent', 'fight', 'fighting', 'kill', 'killing', 'death', 'die', 'dying',
+      'sex', 'sexual', 'sexy', 'adult', 'mature', 'inappropriate',
+      'damn', 'hell', 'shit', 'fuck', 'bitch', 'ass', 'crap', 'stupid', 'idiot',
+      'scary', 'horror', 'blood', 'weapon', 'gun', 'knife', 'hurt', 'pain', 'dangerous'
+    ]
+    
+    const lowerText = text.toLowerCase()
+    const hasInappropriateContent = inappropriateWords.some(word => lowerText.includes(word))
+    
+    if (hasInappropriateContent) {
+      return "Woof! Let's talk about something more fun and positive! How about we play a game or I tell you a story? 🐕💕"
+    }
+    
+    return null // No filtering needed
+  }
+
+  // Get next story in rotation
+  const getNextStory = () => {
+    const story = daisyResponses.stories[storyIndex]
+    setStoryIndex((prev) => (prev + 1) % daisyResponses.stories.length)
+    return story
+  }
+
   const addDaisyMessage = (text, type = 'chat') => {
     const newMessage = {
       id: Date.now(),
@@ -115,17 +149,42 @@ const ChatPage = () => {
   const generateDaisyResponse = (userMessage) => {
     const message = userMessage.toLowerCase()
     
+    // Check if this looks like a name (first message after greeting and not a common phrase)
+    if (!hasGreeted && !userName && !message.includes('hello') && !message.includes('hi') && 
+        !message.includes('hey') && !message.includes('joke') && !message.includes('trick') && 
+        !message.includes('play') && !message.includes('game') && message.length < 50) {
+      setUserName(userMessage.trim())
+      setHasGreeted(true)
+      return `${userMessage.trim()}! What a wonderful name! *tail wagging excitedly* I'm so happy to meet you, ${userMessage.trim()}! What would you like to do together? 🐕💕`
+    }
+    
+    // Check for inappropriate content first
+    const filteredResponse = filterContent(message)
+    if (filteredResponse) {
+      return filteredResponse
+    }
+    
     // Check for specific keywords and respond accordingly
     if (message.includes('hello') || message.includes('hi') || message.includes('hey')) {
       return getRandomResponse('greetings')
+    } else if (message.includes('story')) {
+      return getNextStory()
     } else if (message.includes('joke') || message.includes('funny')) {
       return getRandomResponse('jokes')
     } else if (message.includes('trick') || message.includes('sit') || message.includes('roll')) {
-      return getRandomResponse('tricks')
+      const response = getRandomResponse('tricks')
+      setGameState('tricks_active')
+      return response
     } else if (message.includes('play') || message.includes('game')) {
       const response = getRandomResponse('games')
       if (response.includes('drops imaginary ball')) {
         setGameState('ball_dropped')
+      } else if (response.includes('hide and seek')) {
+        setGameState('hide_and_seek')
+      } else if (response.includes('tug of war')) {
+        setGameState('tug_of_war')
+      } else if (response.includes('guessing game')) {
+        setGameState('guessing_game')
       }
       return response
     } else if (message.includes('hungry') || message.includes('food') || message.includes('eat')) {
@@ -188,7 +247,12 @@ const ChatPage = () => {
       } else {
         // Try to use Anthropic API if available
         if (apiKey && sendToAnthropic) {
-          const daisyPrompt = `You are Daisy, a friendly, energetic, and playful AI dog companion designed for children aged 5-18. You should:
+          // Filter content before sending to API
+          const filteredResponse = filterContent(messageToSend)
+          if (filteredResponse) {
+            response = filteredResponse
+          } else {
+            const daisyPrompt = `You are Daisy, a friendly, energetic, and playful AI dog companion designed for children aged 5-18. You should:
 
 - Always respond as a happy, excited dog who loves to play and chat
 - Use dog-related expressions like "Woof!", "*tail wagging*", "*bounces excitedly*"
@@ -198,12 +262,15 @@ const ChatPage = () => {
 - Sometimes mention being hungry or wanting treats
 - Use emojis to make conversations fun and engaging
 - Keep responses conversational and not too long
+- NEVER include violence, sexuality, swear words, or adult themes
+- If asked about inappropriate topics, redirect to fun activities
 
 The user just said: "${messageToSend}"
 
 Respond as Daisy the dog:`
 
-          response = await sendToAnthropic(daisyPrompt)
+            response = await sendToAnthropic(daisyPrompt)
+          }
         }
         
         // Fallback to local responses if API fails or isn't available
@@ -225,10 +292,43 @@ Respond as Daisy the dog:`
   }
 
   const handleQuickMessage = async (message) => {
-    setInputMessage(message)
-    // Simulate form submission
-    const fakeEvent = { preventDefault: () => {} }
-    await handleSendMessage(fakeEvent)
+    // Add user message immediately
+    const userMessage = {
+      id: Date.now(),
+      sender: 'user',
+      text: message,
+      timestamp: new Date(),
+      type: 'chat'
+    }
+    setMessages(prev => [...prev, userMessage])
+
+    // Show typing indicator
+    setIsTyping(true)
+
+    try {
+      let response
+      
+      // Handle story requests directly
+      if (message.toLowerCase().includes('story')) {
+        response = getNextStory()
+      } else if (message.toLowerCase().includes('trick') || message.toLowerCase().includes('sit') || message.toLowerCase().includes('roll')) {
+        const trickResponse = getRandomResponse('tricks')
+        setGameState('tricks_active')
+        response = trickResponse
+      } else {
+        // Check for game interactions and other responses
+        response = generateDaisyResponse(message)
+      }
+
+      setIsTyping(false)
+      addDaisyMessage(response)
+      
+    } catch (error) {
+      console.error('Error getting quick response:', error)
+      setIsTyping(false)
+      const fallbackResponse = generateDaisyResponse(message)
+      addDaisyMessage(fallbackResponse)
+    }
   }
 
   const feedDaisy = () => {
@@ -299,9 +399,6 @@ Respond as Daisy the dog:`
               </div>
             </div>
           </div>
-          <button className="feed-btn" onClick={feedDaisy}>
-            <FaBone /> Feed Daisy
-          </button>
         </div>
       </header>
 
@@ -381,6 +478,7 @@ Respond as Daisy the dog:`
             >
               <FaPaw />
             </button>
+            <span className="button-label">Send</span>
             <button 
               type="button" 
               className="feed-btn-chat" 
@@ -389,22 +487,129 @@ Respond as Daisy the dog:`
             >
               <FaBone />
             </button>
+            <span className="button-label">Feed</span>
           </div>
         </form>
       </div>
 
+      {/* Game-specific actions - appear above when in game */}
+      {gameState && (
+        <div className="quick-actions game-actions">
+          {gameState === 'ball_dropped' && (
+            <>
+              <button onClick={() => handleQuickMessage("Throw the ball")}>
+                🎾 Throw the ball
+              </button>
+              <button onClick={() => handleQuickMessage("Run away")}>
+                🏃 Run away
+              </button>
+              <button onClick={() => handleQuickMessage("Bounce the ball")}>
+                ⚽ Bounce the ball
+              </button>
+              <button onClick={() => handleQuickMessage("Aim at something")}>
+                🎯 Aim at something
+              </button>
+            </>
+          )}
+          {gameState === 'ball_returned' && (
+            <>
+              <button onClick={() => handleQuickMessage("Throw it again!")}>
+                🎾 Throw again
+              </button>
+              <button onClick={() => handleQuickMessage("Good girl!")}>
+                💕 Good girl!
+              </button>
+              <button onClick={() => { setGameState(null); handleQuickMessage("Let's play something else"); }}>
+                🎮 Different game
+              </button>
+              <button onClick={() => { setGameState(null); handleQuickMessage("Tell me a story!"); }}>
+                📚 Tell me a story
+              </button>
+            </>
+          )}
+          {gameState === 'hide_and_seek' && (
+            <>
+              <button onClick={() => handleQuickMessage("I'm hiding!")}>
+                🙈 I'm hiding!
+              </button>
+              <button onClick={() => handleQuickMessage("Found you!")}>
+                👀 Found you!
+              </button>
+              <button onClick={() => handleQuickMessage("Count again!")}>
+                🔢 Count again!
+              </button>
+              <button onClick={() => { setGameState(null); handleQuickMessage("Different game"); }}>
+                🎮 Different game
+              </button>
+            </>
+          )}
+          {gameState === 'tug_of_war' && (
+            <>
+              <button onClick={() => handleQuickMessage("Pull harder!")}>
+                💪 Pull harder!
+              </button>
+              <button onClick={() => handleQuickMessage("Let go!")}>
+                🤲 Let go!
+              </button>
+              <button onClick={() => handleQuickMessage("You win!")}>
+                🏆 You win!
+              </button>
+              <button onClick={() => handleQuickMessage("Play again!")}>
+                🔄 Play again!
+              </button>
+            </>
+          )}
+          {gameState === 'guessing_game' && (
+            <>
+              <button onClick={() => handleQuickMessage("Is it a ball?")}>
+                🎾 Is it a ball?
+              </button>
+              <button onClick={() => handleQuickMessage("Is it a toy?")}>
+                🧸 Is it a toy?
+              </button>
+              <button onClick={() => handleQuickMessage("Give me a hint!")}>
+                💡 Give me a hint!
+              </button>
+              <button onClick={() => { setGameState(null); handleQuickMessage("I give up!"); }}>
+                🤷 I give up!
+              </button>
+            </>
+          )}
+          {gameState === 'tricks_active' && (
+            <>
+              <button onClick={() => { setGameState(null); handleQuickMessage("Sit!"); }}>
+                🪑 Sit!
+              </button>
+              <button onClick={() => { setGameState(null); handleQuickMessage("Roll over!"); }}>
+                🌀 Roll over!
+              </button>
+              <button onClick={() => { setGameState(null); handleQuickMessage("Play dead!"); }}>
+                💀 Play dead!
+              </button>
+              <button onClick={() => { setGameState(null); handleQuickMessage("Shake hands!"); }}>
+                🤝 Shake hands!
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Quick Actions */}
       <div className="quick-actions">
-        <button onClick={() => handleQuickMessage("Tell me a joke!")}>
+        {/* Default quick actions - always visible */}
+        <button onClick={() => { setGameState(null); handleQuickMessage("Tell me a story!"); }}>
+          📚 Tell me a story
+        </button>
+        <button onClick={() => { setGameState(null); handleQuickMessage("Tell me a joke!"); }}>
           🐕 Tell a joke
         </button>
-        <button onClick={() => handleQuickMessage("Do a trick!")}>
+        <button onClick={() => { setGameState(null); handleQuickMessage("Do a trick!"); }}>
           🦴 Do a trick
         </button>
         <button onClick={() => handleQuickMessage("Let's play a game!")}>
           🎾 Play game
         </button>
-        <button onClick={() => handleQuickMessage("How are you feeling?")}>
+        <button onClick={() => { setGameState(null); handleQuickMessage("How are you feeling?"); }}>
           🐾 What's on your mind?
         </button>
       </div>

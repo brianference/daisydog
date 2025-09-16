@@ -38,7 +38,7 @@ const LandingPage = () => {
             </motion.div>
             
             <motion.h1 
-              className="hero-title"
+              className="hero-title orange-text"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
