@@ -7,12 +7,12 @@
 
 /* Hero Section */
 .hero {
-  min-height: 40vh;
+  min-height: 4vh;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: 30px 0;
+  padding: 3px 0;
 }
 
 .hero-content {
@@ -267,11 +267,29 @@
   .hero-subtitle {
     font-size: 1.2rem;
     padding: 0 20px;
+    margin-bottom: 5px;
   }
   
   .hero-buttons {
     flex-direction: column;
     align-items: center;
+    gap: 25px;
+  }
+  
+  .btn {
+    padding: 24px 48px;
+    font-size: 1.8rem;
+    gap: 12px;
+  }
+  
+  .btn-large {
+    padding: 28px 56px;
+    font-size: 2.2rem;
+    gap: 15px;
+  }
+  
+  .hero-logo {
+    margin-bottom: 8px;
   }
   
   .hero-logo img {
@@ -311,7 +329,7 @@
 
 @media (max-width: 480px) {
   .hero {
-    padding: 40px 0;
+    padding: 2px 0;
   }
   
   .hero-title {
@@ -320,6 +338,27 @@
   
   .hero-subtitle {
     font-size: 1rem;
+    margin-bottom: 3px;
+  }
+  
+  .hero-logo {
+    margin-bottom: 5px;
+  }
+  
+  .btn {
+    padding: 20px 40px;
+    font-size: 1.6rem;
+    gap: 10px;
+  }
+  
+  .btn-large {
+    padding: 24px 48px;
+    font-size: 2rem;
+    gap: 12px;
+  }
+  
+  .hero-buttons {
+    gap: 20px;
   }
   
   .feature-card {
@@ -327,10 +366,10 @@
   }
   
   .features {
-    padding: 60px 0;
+    padding: 40px 0;
   }
   
   .cta {
-    padding: 60px 0;
+    padding: 40px 0;
   }
 }

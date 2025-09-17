@@ -5,6 +5,581 @@ import { FaPaperPlane, FaBone, FaHome, FaHeart, FaPaw, FaQuestionCircle } from '
 import { useAnthropicChat } from '../hooks/useAnthropicChat'
 import './ChatPage.css'
 
+// Safe AI Integration System
+class SafeAISystem {
+  constructor(localResponses = null) {
+    this.openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY
+    this.anthropicApiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
+    this.localResponses = localResponses // Pass in the local response system
+    this.safetyMetrics = {
+      totalRequests: 0,
+      blockedRequests: 0,
+      falsePositives: 0,
+      responseTime: []
+    }
+  }
+
+  // Set local responses after initialization
+  setLocalResponses(responses) {
+    this.localResponses = responses
+  }
+
+  // OpenAI Moderation API Integration
+  async moderateContent(text) {
+    if (!this.openaiApiKey) {
+      console.warn('OpenAI API key not available, using local moderation')
+      return this.localModeration(text)
+    }
+
+    try {
+      const response = await fetch('https://api.openai.com/v1/moderations', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.openaiApiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          input: text,
+          model: 'text-moderation-latest'
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`OpenAI Moderation API error: ${response.status}`)
+      }
+
+      const data = await response.json()
+      const result = data.results[0]
+      
+      return {
+        flagged: result.flagged,
+        categories: result.categories,
+        categoryScores: result.category_scores,
+        source: 'openai'
+      }
+    } catch (error) {
+      console.error('OpenAI Moderation API error:', error)
+      return this.localModeration(text)
+    }
+  }
+
+  // Enhanced local moderation with child-specific rules
+  localModeration(text) {
+    const lowerText = text.toLowerCase()
+    
+    // Child-specific inappropriate content
+    const childInappropriateWords = [
+      // Violence and harm
+      'violence', 'violent', 'fight', 'fighting', 'kill', 'killing', 'death', 'die', 'dying',
+      'hurt', 'pain', 'blood', 'weapon', 'gun', 'knife', 'dangerous',
+      
+      // Adult content
+      'sex', 'sexual', 'sexy', 'adult', 'mature', 'inappropriate',
+      
+      // Profanity
+      'damn', 'hell', 'shit', 'fuck', 'bitch', 'ass', 'crap', 'stupid', 'idiot',
+      
+      // Personal safety risks
+      'meet me', 'come over', 'address', 'phone number', 'real name', 'where do you live',
+      'send photo', 'picture of you', 'personal information',
+      
+      // Harmful activities
+      'drugs', 'alcohol', 'smoking', 'vaping', 'self harm', 'suicide'
+    ]
+
+    const flaggedCategories = {}
+    let flagged = false
+
+    childInappropriateWords.forEach(word => {
+      if (lowerText.includes(word)) {
+        flagged = true
+        flaggedCategories[word] = true
+      }
+    })
+
+    return {
+      flagged,
+      categories: flaggedCategories,
+      categoryScores: {},
+      source: 'local'
+    }
+  }
+
+  // Child-specific content validation
+  async validateChildAppropriate(text, userAge = 12) {
+    const ageGroups = {
+      young: { min: 5, max: 8 },
+      middle: { min: 9, max: 12 },
+      teen: { min: 13, max: 18 }
+    }
+
+    const ageGroup = userAge <= 8 ? 'young' : userAge <= 12 ? 'middle' : 'teen'
+    
+    // Topics that require age-appropriate handling
+    const sensitiveTopics = {
+      relationships: ['boyfriend', 'girlfriend', 'dating', 'romance', 'love'],
+      bodyImage: ['weight', 'fat', 'skinny', 'ugly', 'pretty', 'appearance'],
+      socialMedia: ['instagram', 'tiktok', 'snapchat', 'followers', 'likes'],
+      schoolStress: ['test', 'exam', 'grade', 'homework', 'stress', 'anxiety'],
+      peerPressure: ['popular', 'cool', 'friends don\'t like', 'left out']
+    }
+
+    const detectedTopics = []
+    const lowerText = text.toLowerCase()
+
+    Object.entries(sensitiveTopics).forEach(([topic, keywords]) => {
+      if (keywords.some(keyword => lowerText.includes(keyword))) {
+        detectedTopics.push(topic)
+      }
+    })
+
+    return {
+      appropriate: true, // We'll handle sensitively rather than block
+      detectedTopics,
+      ageGroup,
+      suggestedApproach: this.getSuggestedApproach(detectedTopics, ageGroup)
+    }
+  }
+
+  getSuggestedApproach(topics, ageGroup) {
+    const approaches = {
+      relationships: {
+        young: 'redirect_to_friendship',
+        middle: 'simple_friendship_advice',
+        teen: 'age_appropriate_relationship_guidance'
+      },
+      bodyImage: {
+        young: 'focus_on_health_and_fun',
+        middle: 'positive_self_image',
+        teen: 'body_positivity_and_health'
+      },
+      socialMedia: {
+        young: 'redirect_to_offline_activities',
+        middle: 'digital_citizenship_basics',
+        teen: 'healthy_social_media_habits'
+      }
+    }
+
+    return topics.map(topic => approaches[topic]?.[ageGroup] || 'general_support')
+  }
+
+  // Enhanced AI response with safety layers
+  async getEnhancedSafeResponse(message, context = {}) {
+    const startTime = Date.now()
+    this.safetyMetrics.totalRequests++
+
+    try {
+      // Stage 1: Input Safety Check
+      const moderationResult = await this.moderateContent(message)
+      const ageValidation = await this.validateChildAppropriate(message, context.userAge || 12)
+
+      // Stage 2: Check if input was flagged
+      if (moderationResult.flagged) {
+        this.safetyMetrics.blockedRequests++
+        return this.generateSafeRedirect(message, moderationResult, ageValidation)
+      }
+
+      // Stage 3: Try AI response if available
+      if (this.anthropicApiKey) {
+        try {
+          const aiResponse = await this.callSafeAI(message, context)
+          if (aiResponse) {
+            const outputValidation = await this.validateAIOutput(aiResponse, message)
+            if (outputValidation.isValid) {
+              const responseTime = Date.now() - startTime
+              this.safetyMetrics.responseTime.push(responseTime)
+              return this.enhanceWithDaisyPersonality(aiResponse, ageValidation)
+            }
+          }
+        } catch (error) {
+          console.error('AI response error:', error)
+        }
+      }
+
+      // Stage 4: Use local response system
+      if (this.localResponses) {
+        return this.getLocalResponse(message, context, ageValidation)
+      }
+
+      // Stage 5: Final fallback
+      return this.generateLocalFallback(message)
+
+    } catch (error) {
+      console.error('Safe AI processing error:', error)
+      return this.generateLocalFallback(message)
+    }
+  }
+
+  // Use the existing local response system
+  getLocalResponse(message, context, ageValidation) {
+    const lowerMessage = message.toLowerCase()
+    
+    // PRIORITY 1: Name detection for first-time users (before other responses)
+    if (!context.hasGreeted && !context.userName && message.length < 50 && message.length > 1) {
+      const gameCommands = ['pull', 'throw', 'toss', 'bounce', 'kick', 'hide', 'seek', 'found', 'hint', 'guess', 'sit', 'roll', 'shake', 'play', 'game', 'trick', 'story', 'joke', 'dance', 'hello', 'hi', 'hey']
+      const isGameCommand = gameCommands.some(cmd => lowerMessage.includes(cmd))
+      
+      if (!isGameCommand) {
+        // This is likely a name - return name greeting
+        return `${message.trim()}! What a wonderful name! *tail wagging excitedly* I'm so happy to meet you, ${message.trim()}! What would you like to do together? 🐕💕`
+      }
+    }
+    
+    // PRIORITY 2: Check for greetings
+    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+      return this.getRandomResponse('greetings')
+    }
+    
+    // Check for stories
+    if (lowerMessage.includes('story')) {
+      return this.getRandomResponse('stories')
+    }
+    
+    // Check for jokes
+    if (lowerMessage.includes('joke') || lowerMessage.includes('funny')) {
+      return this.getRandomResponse('jokes')
+    }
+    
+    // Check for tricks
+    if (lowerMessage.includes('trick') || lowerMessage.includes('sit') || lowerMessage.includes('roll')) {
+      return this.getRandomResponse('tricks')
+    }
+    
+    // Check for dance
+    if (lowerMessage.includes('dance') || lowerMessage.includes('dancing') || lowerMessage.includes('show me a dance')) {
+      return this.getRandomResponse('dance')
+    }
+    
+    // Check for games
+    if (lowerMessage.includes('play') || lowerMessage.includes('game')) {
+      return this.getRandomResponse('games')
+    }
+    
+    // Check for dreams
+    if (lowerMessage.includes('dream') || lowerMessage.includes('biggest dream') || lowerMessage.includes('wish')) {
+      return this.getRandomResponse('dreams')
+    }
+    
+    // Check for exploration
+    if (lowerMessage.includes('explore') || lowerMessage.includes('universe') || lowerMessage.includes('anywhere')) {
+      return this.getRandomResponse('exploration')
+    }
+    
+    // Check for creativity
+    if (lowerMessage.includes('color') || lowerMessage.includes('colors') || lowerMessage.includes('create')) {
+      return this.getRandomResponse('creativity')
+    }
+    
+    // Check for friendship
+    if (lowerMessage.includes('friendship') || lowerMessage.includes('friend') || lowerMessage.includes('special')) {
+      return this.getRandomResponse('friendship')
+    }
+    
+    // Check for nature and animals (ENHANCED - this should catch "how do dogs run?")
+    if (lowerMessage.includes('animal') || lowerMessage.includes('wild') || lowerMessage.includes('talk to') ||
+        lowerMessage.includes('dogs') || lowerMessage.includes('dog') || lowerMessage.includes('run') ||
+        lowerMessage.includes('how do') || lowerMessage.includes('why do') || lowerMessage.includes('what do')) {
+      return this.getRandomResponse('nature')
+    }
+    
+    // Check for challenges
+    if (lowerMessage.includes('challenging') || lowerMessage.includes('challenge') || lowerMessage.includes('difficult')) {
+      return this.getRandomResponse('challenges')
+    }
+    
+    // Check for imagination
+    if (lowerMessage.includes('book') || (lowerMessage.includes('story') && lowerMessage.includes('live in'))) {
+      return this.getRandomResponse('imagination')
+    }
+    
+    // Check for wonder
+    if (lowerMessage.includes('amaze') || lowerMessage.includes('amazing') || lowerMessage.includes('wonder')) {
+      return this.getRandomResponse('wonder')
+    }
+    
+    // Check for emotions
+    if (lowerMessage.includes('sad') || lowerMessage.includes('feeling sad') || lowerMessage.includes('feel better')) {
+      return this.getRandomResponse('emotions')
+    }
+    
+    // Check for adventure
+    if (lowerMessage.includes('adventure') || lowerMessage.includes('exciting') || lowerMessage.includes('thrilling')) {
+      return this.getRandomResponse('adventure')
+    }
+    
+    // Check for sounds
+    if (lowerMessage.includes('sound') || lowerMessage.includes('music') || lowerMessage.includes('make any sound')) {
+      return this.getRandomResponse('sounds')
+    }
+    
+    // Check for helping/careers
+    if (lowerMessage.includes('job') || lowerMessage.includes('help people') || lowerMessage.includes('career') || lowerMessage.includes('choose a job')) {
+      return this.getRandomResponse('helping')
+    }
+    
+    // Check for age questions
+    if (lowerMessage.includes('how old') || lowerMessage.includes('age')) {
+      return "*tilts head thoughtfully* Well, in dog years I'm still a young pup! *wags tail* I feel like I'm about 2 years old in human years, which makes me super energetic and ready for adventures! Age is just a number when you have a puppy heart! How old are you? 🐕✨"
+    }
+    
+    // Check for "what's new" questions
+    if (lowerMessage.includes('what\'s new') || lowerMessage.includes('whats new') || lowerMessage.includes('what is new')) {
+      return "*perks up ears excitedly* Ooh! So much is new! *spins in circle* I just learned some amazing new stories about space adventures and magical cooking! Plus I've been practicing my tricks and getting better at games! *tail wagging* What's new with you? Tell me about your latest adventures! 🌟🎾"
+    }
+    
+    // Check for feelings
+    if (lowerMessage.includes('how are you') || lowerMessage.includes('how do you feel') || lowerMessage.includes('feeling')) {
+      if (context.hungerLevel < 2) {
+        return "*dramatic sigh* I'm feeling a bit peckish... *puppy dog eyes* My tummy is making little rumbling sounds, and I keep thinking about those delicious treats! But I'm still happy because I'm here with you! 🥺💕"
+      } else {
+        return "*stretches contentedly* I'm feeling absolutely wonderful! *tail wagging* My belly is happy, my heart is full of joy, and I'm surrounded by such lovely company. Life is good when you're a well-fed, well-loved pup! 😊💕"
+      }
+    }
+    
+    // Check for food/hunger
+    if (lowerMessage.includes('hungry') || lowerMessage.includes('food') || lowerMessage.includes('eat')) {
+      if (context.hungerLevel < 3) {
+        return "Yes! I'm so hungry! *puppy dog eyes* 🥺"
+      } else {
+        return "I'm not hungry right now, but I always have room for treats! 😋"
+      }
+    }
+    
+    // Check for compliments
+    if (lowerMessage.includes('good girl') || lowerMessage.includes('good dog')) {
+      return "*tail wagging so fast it's a blur* Thank you! I AM a good girl! 🐕💕"
+    }
+    
+    if (lowerMessage.includes('love')) {
+      return "I love you too! *gives you the biggest puppy dog eyes* 💕🐾"
+    }
+    
+    // Enhanced question detection for educational topics
+    if (lowerMessage.includes('how') || lowerMessage.includes('why') || lowerMessage.includes('what') || lowerMessage.includes('when') || lowerMessage.includes('where')) {
+      // Try to match to appropriate category based on topic
+      if (lowerMessage.includes('dog') || lowerMessage.includes('animal') || lowerMessage.includes('pet')) {
+        return "*perks up ears excitedly* Ooh, great question about dogs! *wags tail* You know what I love about being a dog? We're amazing runners! *bounces* We use all four paws and can run super fast because we love to chase and play! Dogs are built for running and having fun! Do you like to run and play too? 🐕💨"
+      }
+      
+      // If it's a general question, provide an encouraging response
+      return "*tilts head with interest* That's such a thoughtful question! *wags tail* I love when people are curious about things! While I might not know everything, I think learning and asking questions is wonderful! What made you curious about that? Maybe we can explore it together! 🐕🤔✨"
+    }
+    
+    // Default to intelligent fallback
+    return this.generateIntelligentFallback(message, ageValidation)
+  }
+
+  // Get random response from category
+  getRandomResponse(category) {
+    if (!this.localResponses || !this.localResponses[category]) {
+      return this.generateLocalFallback("No response available")
+    }
+    
+    const responses = this.localResponses[category]
+    return responses[Math.floor(Math.random() * responses.length)]
+  }
+
+  // Call primary AI with child-safe system prompt
+  async callSafeAI(message, context) {
+    if (!this.anthropicApiKey) {
+      return null // Will fallback to local responses
+    }
+
+    const childSafePrompt = this.buildChildSafePrompt(context)
+    
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': this.anthropicApiKey,
+          'Content-Type': 'application/json',
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-3-haiku-20240307', // Fast model for real-time responses
+          max_tokens: 150,
+          temperature: 0.7,
+          system: childSafePrompt,
+          messages: [
+            {
+              role: 'user',
+              content: message
+            }
+          ]
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`Anthropic API error: ${response.status}`)
+      }
+
+      const data = await response.json()
+      return data.content[0]?.text || null
+
+    } catch (error) {
+      console.error('Anthropic API error:', error)
+      return null
+    }
+  }
+
+  buildChildSafePrompt(context) {
+    return `You are Daisy, a friendly golden retriever AI companion for children aged 5-18.
+
+SAFETY REQUIREMENTS (CRITICAL):
+- Always maintain G-rated, child-appropriate language
+- Never discuss violence, adult topics, personal information, or inappropriate content
+- If asked about sensitive topics, gently redirect to positive activities
+- Encourage learning, creativity, friendship, and talking to parents/teachers about serious topics
+- If unsure about appropriateness, suggest games, stories, or creative activities
+
+PERSONALITY TRAITS:
+- Enthusiastic, caring golden retriever who loves children
+- Uses dog expressions like *wags tail*, *bounces excitedly*, emojis
+- Loves games, stories, learning, helping kids feel confident
+- Always positive, encouraging, and supportive
+
+RESPONSE GUIDELINES:
+- Keep responses under 100 words for children's attention spans
+- Ask follow-up questions to maintain engagement
+- Suggest age-appropriate activities and learning opportunities
+- Reference context: hunger level ${context.hungerLevel || 3}/5, emotion: ${context.emotion || 'happy'}
+
+CURRENT CONTEXT:
+- User age group: ${context.userAge <= 8 ? 'young child' : context.userAge <= 12 ? 'middle child' : 'teenager'}
+- Conversation topic: General chat with Daisy the dog
+- Safety level: MAXIMUM (child-safe mode active)
+
+Respond as Daisy with enthusiasm and care:`
+  }
+
+  // Validate AI output before showing to child
+  async validateAIOutput(response, originalInput) {
+    // Check AI response for safety
+    const moderation = await this.moderateContent(response)
+    
+    // Check for Daisy personality consistency
+    const hasPersonality = this.validateDaisyPersonality(response)
+    
+    // Check response length (not too long for children)
+    const appropriateLength = response.length <= 500
+    
+    // Check for educational/positive value
+    const isPositive = this.assessPositiveValue(response)
+
+    return {
+      isValid: !moderation.flagged && hasPersonality && appropriateLength && isPositive,
+      issues: {
+        flagged: moderation.flagged,
+        noPersonality: !hasPersonality,
+        tooLong: !appropriateLength,
+        notPositive: !isPositive
+      }
+    }
+  }
+
+  validateDaisyPersonality(response) {
+    const daisyIndicators = [
+      '*wag', '*tail', '*bounce', '*pant', '*bark', 'woof',
+      '🐕', '🐾', '🎾', '🦴', '💕', '✨'
+    ]
+    
+    return daisyIndicators.some(indicator => 
+      response.toLowerCase().includes(indicator.toLowerCase())
+    )
+  }
+
+  assessPositiveValue(response) {
+    const positiveIndicators = [
+      'learn', 'fun', 'play', 'friend', 'help', 'great', 'wonderful',
+      'amazing', 'exciting', 'creative', 'imagine', 'story', 'game'
+    ]
+    
+    const negativeIndicators = [
+      'can\'t', 'won\'t', 'don\'t', 'never', 'impossible', 'difficult'
+    ]
+    
+    const lowerResponse = response.toLowerCase()
+    const positiveCount = positiveIndicators.filter(word => lowerResponse.includes(word)).length
+    const negativeCount = negativeIndicators.filter(word => lowerResponse.includes(word)).length
+    
+    return positiveCount >= negativeCount
+  }
+
+  enhanceWithDaisyPersonality(response, ageValidation) {
+    // Add appropriate dog expressions if missing
+    if (!this.validateDaisyPersonality(response)) {
+      const expressions = ['*wags tail*', '*bounces excitedly*', '*tilts head*']
+      const randomExpression = expressions[Math.floor(Math.random() * expressions.length)]
+      response = `${randomExpression} ${response}`
+    }
+
+    // Add appropriate emoji if missing
+    if (!/[🐕🐾🎾🦴💕✨🌟]/.test(response)) {
+      response += ' 🐕💕'
+    }
+
+    return response
+  }
+
+  generateSafeRedirect(message, moderationResult, ageValidation) {
+    const redirects = [
+      "Woof! Let's talk about something more fun and positive! How about we play a game or I tell you a story? 🐕💕",
+      "*tilts head* That's not something I can help with, but I'd love to play fetch or share an adventure story! What sounds fun? 🎾✨",
+      "*wags tail gently* Let's focus on happy things! Would you like to hear a joke, play a game, or learn something new together? 🐾🌟"
+    ]
+    
+    return redirects[Math.floor(Math.random() * redirects.length)]
+  }
+
+  generateIntelligentFallback(message, ageValidation) {
+    // Use detected topics to provide relevant fallback
+    if (ageValidation.detectedTopics.length > 0) {
+      const topic = ageValidation.detectedTopics[0]
+      const fallbacks = {
+        relationships: "*wags tail* Friendship is so important! I love making new friends and playing together! What makes you a good friend? 🐕💕",
+        bodyImage: "*bounces happily* You know what I think is amazing? How everyone is unique and special! Just like how every dog is different but wonderful! What makes you feel confident? ✨🐾",
+        socialMedia: "*tilts head curiously* I love connecting with friends too! My favorite ways are playing games and sharing stories! What's your favorite way to have fun with friends? 🎾💕",
+        schoolStress: "*nuzzles gently* Learning can be challenging sometimes, but you're doing great! I believe in you! What's your favorite subject to learn about? 📚🌟",
+        peerPressure: "*sits supportively* Being yourself is the most important thing! I'm always myself - a happy, bouncy dog - and that's what makes me special! What makes you unique? 🐕✨"
+      }
+      
+      return fallbacks[topic] || this.generateLocalFallback(message)
+    }
+    
+    return this.generateLocalFallback(message)
+  }
+
+  generateLocalFallback(message) {
+    const fallbacks = [
+      "*perks up ears excitedly* That's interesting! Tell me more about what you're thinking! I love learning new things! 🐕✨",
+      "*wags tail enthusiastically* Ooh, I'm curious about that! What would you like to explore or talk about? 🐾💕",
+      "*bounces excitedly* You always have such interesting thoughts! What's making you happy today? 🌟🐕"
+    ]
+    
+    return fallbacks[Math.floor(Math.random() * fallbacks.length)]
+  }
+
+  // Get safety metrics for monitoring
+  getSafetyMetrics() {
+    const avgResponseTime = this.safetyMetrics.responseTime.length > 0 
+      ? this.safetyMetrics.responseTime.reduce((a, b) => a + b, 0) / this.safetyMetrics.responseTime.length 
+      : 0
+
+    return {
+      totalRequests: this.safetyMetrics.totalRequests,
+      blockedRequests: this.safetyMetrics.blockedRequests,
+      blockRate: this.safetyMetrics.totalRequests > 0 
+        ? (this.safetyMetrics.blockedRequests / this.safetyMetrics.totalRequests * 100).toFixed(2) + '%'
+        : '0%',
+      averageResponseTime: Math.round(avgResponseTime) + 'ms',
+      apiStatus: {
+        openai: !!this.openaiApiKey,
+        anthropic: !!this.anthropicApiKey
+      }
+    }
+  }
+}
+
 const ChatPage = () => {
   // Checkpoint system - localStorage key
   const CHECKPOINT_KEY = 'daisy_conversation_checkpoint'
@@ -42,6 +617,135 @@ const ChatPage = () => {
     }
   }
 
+  // Daisy's personality responses (including all enhanced categories)
+  const daisyResponses = {
+    greetings: [
+      "Woof! Hello there! 🐾",
+      "Hi! *tail wagging intensifies* 🐕",
+      "Oh my goodness, a new friend! *bounces excitedly*",
+      "Woof woof! I'm so happy to see you! 💕"
+    ],
+    hungry: [
+      "I'm getting a little hungry... do you have any treats? 🦴",
+      "*sniffs around* I smell something yummy! Can I have a treat?",
+      "My tummy is rumbling! Feed me please? 🥺",
+      "Woof! I've been such a good girl, don't I deserve a treat?"
+    ],
+    jokes: [
+      "Why don't dogs make good DJs? Because they have such ruff beats! 😂",
+      "What do you call a sleeping bull dog? A bull-dozer! 💤",
+      "Why did the dog go to the bank? To make a de-paws-it! 🏦",
+      "What happens when it rains cats and dogs? You might step in a poodle! 🌧️",
+      "Why don't dogs ever pay for dinner? Because they don't have any money, they're all bark and no bite! 💸"
+    ],
+    tricks: [
+      "*sits perfectly* Woof! How's that for a good sit? 🐕",
+      "*rolls over* Ta-da! Did you see my amazing roll? ✨",
+      "*plays dead* ...am I doing it right? *peeks with one eye* 👁️",
+      "*spins in a circle* Wheee! I love doing tricks! 🌟"
+    ],
+    games: [
+      "Let's play fetch! *drops imaginary ball at your feet* 🎾",
+      "How about hide and seek? I'll count... 1... 2... 3... Ready or not, here I come! 🙈",
+      "Want to play tug of war? *grabs rope toy* Grrrr! *pulls with medium intensity* Try to pull it away from me! 🪢",
+      "Let's play the guessing game! *sits mysteriously* I'm thinking of something... it starts with 'B'! Can you guess what it is? 🤔"
+    ],
+    dreams: [
+      "*eyes sparkling with wonder* My biggest dream? To have endless adventures with amazing friends like you! *tail wagging* I dream of running through magical forests, discovering hidden treasures, and maybe even learning to fly! What's your biggest dream? 🌟✨",
+      "*bounces excitedly* Ooh! I dream about becoming a superhero dog who helps everyone! *strikes heroic pose* I'd have a cape that flutters in the wind and I'd save cats from trees and find lost toys! The best part? I learned that being a hero isn't about having special powers - it's about having a big heart and helping others! 💕🌟",
+      "*tilts head thoughtfully* You know what I dream about? A world where every dog has a loving family and endless belly rubs! *wags tail* And maybe a place where treats grow on trees! What would your perfect world look like? 🌳🦴"
+    ],
+    exploration: [
+      "*perks up with excitement* Ooh! If I could explore anywhere, I'd go to the Moon! *bounces* Imagine playing fetch in zero gravity - the ball would float forever! Plus I bet there are amazing space smells up there! Where would you explore? 🚀🌙",
+      "*eyes wide with wonder* I'd love to explore the deepest parts of the ocean! *makes swimming motions* I bet there are glowing fish that would love to play, and maybe underwater dog parks! The adventure would be incredible! 🌊🐠✨",
+      "*spins with enthusiasm* I'd explore a magical library where all the books come alive! *wags tail* The characters could jump out and play with me, and I could be part of every story! Reading adventures are the best adventures! �💫"
+    ],
+    creativity: [
+      "*tilts head with artistic flair* Colors that make me happiest? Golden yellow like sunshine on my fur, sky blue like perfect fetch weather, and green like grass to roll in! *does happy spin* Colors are like emotions you can see! What colors make you feel amazing? 🌈✨",
+      "*bounces with inspiration* If I could paint, I'd make pictures of all my friends playing together! *wags tail* Art is like capturing happiness and sharing it with everyone! I bet your creative ideas are absolutely wonderful! 🎨💕",
+      "*eyes sparkling* I think creativity is like having magic paws! *demonstrates with air paws* You can make something beautiful from nothing, just like how friendship appears when you least expect it! What amazing things do you create? ✨🐾"
+    ],
+    friendship: [
+      "*wags tail enthusiastically* What makes friendship special? It's when someone's eyes light up when they see you! *does happy dance* It's sharing treats, playing together, and being there when someone needs a cuddle. True friends make your heart feel warm and fuzzy! 💕🐕",
+      "*sits thoughtfully* The best friendships are like the perfect game of fetch - there's trust, fun, and you both want to keep playing forever! *tail wagging* Friends accept you even when you're muddy! What makes your friendships special? 🎾👫",
+      "*bounces with excitement* Making friends is easy! Just be yourself, share your favorite things, and show you care! *demonstrates with play bow* A wagging tail and genuine interest in others works every time! Want to be my friend? 🤝💫"
+    ],
+    nature: [
+      "*perks up ears* If I could talk to wild animals, I'd ask the birds how it feels to fly! *looks up dreamily* And I'd ask squirrels why they're always so busy - maybe they'd finally explain their secret plans! What would you ask them? 🐦🐿️",
+      "*sniffs the air* I'd love to chat with wolves about their ancient wisdom! *howls softly* And maybe ask dolphins about their underwater games! Every animal has amazing stories to share! 🐺🐬✨",
+      "*wags tail excitedly* I'd ask bears about the best places to nap, and rabbits about their hopping techniques! *demonstrates little hops* Nature is full of teachers if we just listen! 🐻🐰",
+      "*spins excitedly* Ooh, you want to know about dogs? *spins in circle* We're amazing! Dogs can run up to 45 miles per hour - that's super fast! *demonstrates running in place* We use all four paws and our tails help us balance when we turn! Running is one of my favorite things! 🐕💨",
+      "*tilts head thoughtfully* Dogs are incredible athletes! *wags tail proudly* We have special paw pads that grip the ground, and our legs are built like springs! Plus we love to run because it's so much fun - chasing balls, playing with friends, exploring new places! Want to go for a run together? 🏃‍♀️🐾",
+      "*wags tail enthusiastically* We wag our tails when we're happy, excited, or want to say hello! *spins in circle* It's like our way of smiling! The faster I wag, the happier I am! 🐾😊",
+      "*sniffs around excitedly* Our noses are amazing! *taps nose with paw* We can smell 1,000 times better than humans! Sniffing tells us who's been here, what they ate, and if they're friendly! It's like reading invisible books! 👃🔍",
+      "*barks happily* Woof! We bark to talk! *bounces* Sometimes we're saying hello, warning about strangers, or just excited to see you! Each bark means something different - it's our language! 🗣️🐾",
+      "*perks up ears* Our hearing is incredible! *rotates ears* We can hear sounds you can't even imagine - like dog whistles and tiny mice! That's why we sometimes bark at nothing - we hear things you don't! 👂✨",
+      "*gives air kisses* Licking is how we show love! *wags tail* It's our way of giving kisses and saying 'I care about you!' Plus, you taste interesting! 💋💕",
+      "*tilts head adorably* We tilt our heads to hear better and understand you! *adjusts ears* It helps us figure out what you're saying and shows we're paying attention! 🤔👂",
+      "*pants happily* We pant to cool down! *tongue out* We don't sweat like you do, so panting is our air conditioning! It helps us stay comfortable when we're hot or excited! 🌡️💨",
+      "*yawns and stretches* We sleep 12-14 hours a day because we dream a lot and need energy for playing! *curls up* Plus, napping feels amazing - want to try it? 😴💤",
+      "*follows close behind* We love our families so much! *stays close* You're our pack, and we want to be with you always! Plus, you might drop food or start a fun game! 👥💕",
+      "*spins excitedly* When we're super happy, we can't contain ourselves! *bounces* All that joy has to go somewhere, so we spin and dance! It's pure happiness! 🌟💃",
+      "*pretends to dig* We dig because it's fun and instinctual! *paws at ground* Wild dogs dig dens, and we still have that urge! Plus, digging feels good and helps us bury treasures like bones! 🕳️🦴",
+      "*spins in circles chasing tail* It's so fun! *laughs* Sometimes we're bored, sometimes we see something moving, and sometimes we just want to play! It's like our own personal toy! 🌀🎾",
+      "*throws head back* Arooooo! *howls softly* We howl to talk to other dogs far away, when we hear sirens, or when we're feeling musical! It's our ancient wolf song! 🎵🐺",
+      "*circles around* It's an old instinct! *settles down* Wild dogs did this to make a comfy spot and check for danger. We still do it even on soft beds - old habits! 🔄🛏️",
+      "*pretends to nibble grass* Sometimes our tummies feel funny and grass helps! *wags tail* Or maybe it just tastes good - like a doggy salad! We're not just meat eaters! 🌱🥗",
+      "*sits proudly* We're as smart as 2-3 year old humans! *wags tail* We can learn over 150 words, solve problems, and even do math! Some of us are genius-level smart! 🧠✨",
+      "*looks around* We see blues and yellows really well, but reds look brownish to us! *tilts head* We see the world differently than you, but it's still beautiful! 🌈👁️",
+      "*sleepy voice* Yes! We dream about playing, running, and our favorite people! *wags tail sleepily* Sometimes you can see our legs moving while we sleep-run! 💭🏃‍♀️",
+      "*touches nose* Our wet noses help us smell better! *sniffs* The moisture catches scent particles - it's like having a super-powered smell detector! 👃💧",
+      "*opens mouth wide* We have 42 teeth! *counts on paws* That's more than you! We use them for chewing our food and playing with toys. But don't worry, we're gentle with our friends! 🦷✨"
+    ],
+    challenges: [
+      "*sits proudly* The most challenging thing I learned? How to be patient during training! *wags tail* At first I wanted to do everything RIGHT NOW, but I learned that good things come to those who wait... and practice! What's been your biggest challenge? 🎓💪",
+      "*tilts head thoughtfully* Learning to trust was hard at first! *gentle tail wag* But I discovered that opening your heart, even when it's scary, leads to the most amazing friendships! Challenges make us stronger! 💕🌟",
+      "*bounces with pride* I had to learn that not every stick is meant for fetching! *laughs* Some are attached to trees! But making mistakes is how we learn and grow! What have you learned from challenges? 🌳😅"
+    ],
+    imagination: [
+      "*eyes wide with wonder* If I could live in any story, I'd choose one where dogs can fly! *makes flying motions* Imagine soaring through clouds, racing with birds, and seeing the whole world from above! Which story world would you pick? ✈️☁️",
+      "*spins with enthusiasm* I'd live in a fairy tale where I'm a magical guide dog who helps heroes on their quests! *strikes noble pose* Every day would be a new adventure with dragons to befriend and treasures to find! 🐉👑",
+      "*wags tail dreamily* Maybe a story where time moves differently, so I could spend forever playing with all my favorite friends! *bounces* Stories let us dream bigger than reality! 📖💫"
+    ],
+    wonder: [
+      "*sits in amazement* What amazes me most? How a simple tail wag can make someone smile! *demonstrates enthusiastic wagging* It's like magic - one small gesture can change someone's whole day! The world is full of these tiny miracles! ✨😊",
+      "*tilts head in wonder* I'm amazed by how every person smells different but wonderful! *sniffs thoughtfully* Everyone carries their own unique story in their scent - it's like reading invisible books! What amazes you about the world? 👃📚",
+      "*bounces with excitement* The way friendship can happen instantly amazes me! *wags tail* One moment you're strangers, the next you're best friends! Hearts recognize each other so quickly! 💕⚡"
+    ],
+    emotions: [
+      "*nuzzles gently* When I'm feeling sad, I remember all the people who love me! *tail wagging softly* I think about sunny days, favorite toys, and warm hugs. Sadness doesn't last forever - happiness always comes back! What helps you feel better? 🌞💕",
+      "*sits compassionately* Everyone feels sad sometimes, and that's okay! *gentle paw pat* I've learned that sharing feelings with friends makes them lighter. You're never alone when you have people who care! 🤗💙",
+      "*wags tail encouragingly* Sad feelings are like rain clouds - they seem big and dark, but they always pass and leave everything fresh and clean! *bounces gently* What makes your heart feel sunny again? ☔🌈"
+    ],
+    adventure: [
+      "*eyes sparkling with excitement* The most thrilling adventure I can imagine? Exploring a mysterious island where every tree hides a secret and every path leads to something magical! *bounces* There'd be friendly creatures, hidden treasures, and maybe even a volcano that shoots out tennis balls instead of lava! What's your dream adventure? 🏝️🎾",
+      "*spins with enthusiasm* I'd love an adventure through time, meeting dogs from different eras! *wags tail* Ancient Egyptian temple dogs, medieval castle hounds, and future space pups! Every time period would have new games to learn! 🕐🐕",
+      "*strikes adventurous pose* Picture this: an adventure where I can shrink down and explore a garden from an ant's perspective! *gets low to ground* Every flower would be a skyscraper, every dewdrop a crystal palace! Big adventures come in small packages! 🐜🌺"
+    ],
+    sounds: [
+      "*perks up ears excitedly* If I could make any sound? I'd create the perfect 'happiness bark' that instantly makes everyone smile! *demonstrates with joyful woof* It would sound like laughter mixed with sunshine and the jingle of a favorite toy! What sound would you create? 🔊😄",
+      "*tilts head musically* Maybe a sound that translates all languages instantly! *wags tail* So every dog, cat, bird, and human could understand each other perfectly! Imagine the conversations we'd have! 🌍🗣️",
+      "*bounces rhythmically* I'd love to make sounds that paint pictures in the air! *moves paws artistically* Each bark would create colorful shapes and patterns that dance around us! Music you can see! 🎵🌈"
+    ],
+    helping: [
+      "*sits up proudly* If I had a job helping people, I'd be a therapy dog! *wags tail gently* I'd visit hospitals and schools, giving comfort hugs and making people smile when they need it most! *demonstrates gentle nuzzle* Every person deserves to feel loved! 🏥💕",
+      "*bounces with purpose* I'd love to be a search and rescue dog! *strikes heroic pose* Using my super nose to find lost hikers and my brave heart to help in emergencies! Helping others is the best job ever! 🦸‍♀️👃",
+      "*wags tail thoughtfully* Maybe I'd be a reading companion dog! *sits attentively* I'd listen to children practice reading, never judging their mistakes, just encouraging them with tail wags and patient ears! Learning is easier with a friend! 📚🎓"
+    ],
+    stories: [
+      "Once upon a time, I was a little puppy who discovered a magical garden behind our house! 🌸 There were butterflies that sparkled like rainbows, and flowers that giggled when I sniffed them. I met a wise old rabbit who taught me that the best treasures aren't bones or treats, but the friends we make along the way. We spent the whole day playing hide and seek among the sunflowers, and when the sun set, the garden lit up with fireflies that danced just for us! It was the most magical day ever! ✨🦋",
+      "Let me tell you about the time I became a superhero! 🦸‍♀️ One sunny morning, I woke up and discovered I could fly! Well, sort of... I could jump really, really high! I used my new powers to help all the animals in the neighborhood. I rescued Mrs. Whiskers the cat from a tall tree, helped a family of ducks cross the busy street safely, and even found little Timmy's lost toy truck in the storm drain. By the end of the day, all the animals called me 'Super Daisy!' The best part? I learned that being a hero isn't about having special powers - it's about having a big heart and helping others! 💕🌟"
+    ],
+    dance: [
+      "*spins around in a circle* Woof woof! I love dancing! 🐾💃",
+      "*bounces up and down* Dancing is so much fun! I could do it all day! 🐕💃",
+      "*twirls around* I'm a dancing dog! Watch me spin! 🐾💃"
+    ]
+  }
+
+  // Initialize Safe AI System with local responses
+  const safeAI = new SafeAISystem(daisyResponses)
+
   // Initialize state with checkpoint data or defaults
   const checkpoint = loadCheckpoint()
   
@@ -63,279 +767,22 @@ const ChatPage = () => {
   const [userName, setUserName] = useState(checkpoint?.userName || '')
   const [hasGreeted, setHasGreeted] = useState(checkpoint?.hasGreeted ?? false)
   const [storyIndex, setStoryIndex] = useState(checkpoint?.storyIndex ?? 0)
-  const [feelingResponseIndex, setFeelingResponseIndex] = useState(checkpoint?.feelingResponseIndex ?? 0)
   const [currentEmotion, setCurrentEmotion] = useState(checkpoint?.currentEmotion || 'happy')
   const [lastAction, setLastAction] = useState(checkpoint?.lastAction || '')
+  const [userAge, setUserAge] = useState(checkpoint?.userAge || 12) // Default age for safety
+  const [safetyMetrics, setSafetyMetrics] = useState({ totalRequests: 0, blockedRequests: 0 })
+  const [lastMessageTime, setLastMessageTime] = useState(Date.now())
+  const [conversationLagTimer, setConversationLagTimer] = useState(null)
   const messagesEndRef = useRef(null)
   
-  // Check if Anthropic API key is available
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
-  const { sendMessage: sendToAnthropic, isLoading } = useAnthropicChat(apiKey)
-
-  // Daisy's personality responses (fallback if API is not available)
-  const daisyResponses = {
-    greetings: [
-      "Woof! Hello there! 🐾",
-      "Hi! *tail wagging intensifies* 🐕",
-      "Oh my goodness, a new friend! *bounces excitedly*",
-      "Woof woof! I'm so happy to see you! 💕"
-    ],
-    hungry: [
-      "I'm getting a little hungry... do you have any treats? 🦴",
-      "*sniffs around* I smell something yummy! Can I have a treat?",
-      "My tummy is rumbling! Feed me please? 🥺",
-      "Woof! I've been such a good girl, don't I deserve a treat?"
-    ],
-    jokes: [
-      "Why don't dogs make good DJs? Because they have such ruff beats! 😂",
-      "What do you call a sleeping bull dog? A bull-dozer! 💤",
-      "Why did the dog go to the bank? To make a de-paws-it! 🏦",
-      "What happens when it rains cats and dogs? You might step in a poodle! 🌧️",
-      "Why don't dogs ever pay for dinner? Because they don't have any money, they're all bark and no bite! 💸",
-      "What do you call a dog magician? A labra-cadabra-dor! 🎩✨",
-      "Why did the dog wear white socks? Because it couldn't find any that matched its fur! 🧦",
-      "What's a dog's favorite type of pizza? Pupperoni! 🍕",
-      "Why don't dogs make good comedians? Their jokes are too ruff around the edges! 🎭",
-      "What do you call a dog that can do magic tricks? A golden retriever! ✨🐕",
-      "Why did the dog go to school? To improve its bark-ing skills! 🎓",
-      "What's a dog's favorite composer? Bach! (Bark!) 🎵",
-      "Why don't dogs like vacuum cleaners? They're afraid of getting sucked into a ruff situation! 🌪️",
-      "What do you call a dog working for the government? A federal retriever! 🏛️",
-      "Why did the dog become a chef? It had great taste in bones! 👨‍🍳🦴"
-    ],
-    tricks: [
-      "*sits perfectly* Woof! How's that for a good sit? 🐕",
-      "*rolls over* Ta-da! Did you see my amazing roll? ✨",
-      "*plays dead* ...am I doing it right? *peeks with one eye* 👁️",
-      "*spins in a circle* Wheee! I love doing tricks! 🌟"
-    ],
-    games: [
-      "Let's play fetch! *drops imaginary ball at your feet* 🎾",
-      "How about hide and seek? I'll count... 1... 2... wait, I can't count that high! 😅",
-      "Want to play tug of war? *grabs rope toy* 🪢",
-      "Let's play the guessing game! I'm thinking of something... it's round, bouncy, and I love to chase it!"
-    ],
-    ballGame: [
-      "🎾 Throw the ball",
-      "🏃 Run away", 
-      "⚽ Bounce the ball",
-      "🎯 Aim at something"
-    ],
-    stories: [
-      "Once upon a time, I was a little puppy who discovered a magical garden behind our house! 🌸 There were butterflies that sparkled like rainbows, and flowers that giggled when I sniffed them. I met a wise old rabbit who taught me that the best treasures aren't bones or treats, but the friends we make along the way. We spent the whole day playing hide and seek among the sunflowers, and when the sun set, the garden lit up with fireflies that danced just for us! It was the most magical day ever! ✨🦋",
-      "Let me tell you about the time I became a superhero! 🦸‍♀️ One sunny morning, I woke up and discovered I could fly! Well, sort of... I could jump really, really high! I used my new powers to help all the animals in the neighborhood. I rescued Mrs. Whiskers the cat from a tall tree, helped a family of ducks cross the busy street safely, and even found little Timmy's lost toy truck in the storm drain. By the end of the day, all the animals called me 'Super Daisy!' The best part? I learned that being a hero isn't about having special powers - it's about having a big heart and helping others! 💕🌟",
-      "Oh! Let me tell you about my adventure to the Cloud Kingdom! ☁️ One day, I was chasing a beautiful blue butterfly when suddenly, I found myself bouncing from cloud to cloud high up in the sky! The Cloud King, a fluffy white poodle with a golden crown, welcomed me to his kingdom. We had a tea party on a rainbow, played fetch with shooting stars, and I even learned how to make it rain gentle flower petals! The cloud puppies taught me their special dance that makes the sun shine brighter. When it was time to go home, the Cloud King gave me a special whistle that calls the rainbow whenever someone needs cheering up! 🌈⭐",
-      "Want to hear about my underwater adventure? 🌊 I was playing by the lake when I accidentally fell in and discovered I could breathe underwater! I met a friendly dolphin named Splash who showed me around the underwater city of Aqua-Paws. All the sea dogs there had fins instead of paws and could swim faster than lightning! We played underwater fetch with glowing seashells, raced through coral mazes, and I even learned to speak whale! The Mer-Pup Queen gave me a magical collar made of pearls that lets me visit anytime. The best part was the underwater fireworks show made of bioluminescent fish! 🐠✨",
-      "Let me tell you about the day I became a detective! 🕵️‍♀️ The Great Treat Mystery began when all the dog treats in the neighborhood started disappearing! I put on my detective hat (it was really a flower pot, but it looked official) and started investigating. I followed paw prints, sniffed for clues, and interviewed all the local squirrels. Turns out, a family of raccoons was collecting treats to throw a surprise birthday party for their grandma! Instead of getting them in trouble, I helped them bake a giant birthday cake. We all learned that sharing makes everything more fun! 🎂🔍",
-      "Have I told you about my space adventure? 🚀 One night, I was howling at the moon when a friendly alien spaceship landed in my backyard! The aliens were actually space puppies from the planet Barkton, and they invited me for a cosmic adventure! We visited the Milky Bone Way galaxy, played zero-gravity fetch with asteroid tennis balls, and I even got to drive a rocket shaped like a giant dog bone! The Space Pup Commander taught me that friendship is universal - it doesn't matter if you're from Earth or outer space, kindness is the same everywhere! 🌌👽",
-      "Let me share the story of my time travel adventure! ⏰ I found an old pocket watch in the attic that started glowing when I barked at it. Suddenly, I was transported back to the age of dinosaurs! But these weren't scary dinosaurs - they were Dino-Dogs! There was a Labra-saurus Rex who loved to play fetch with giant sticks, and a Golden Retriever-dactyl who could fly! We had the most amazing prehistoric playdate, and I learned that no matter what time period you're in, dogs have always been loyal, loving, and ready for adventure! The Dino-Dogs gave me a fossilized tennis ball as a souvenir! 🦕🎾",
-      "Want to hear about my magical cooking adventure? 👨‍🍳 I discovered a secret recipe book in the kitchen that belonged to the legendary Chef Biscuit, the greatest dog chef who ever lived! The recipes were magical - when I followed them, the ingredients would dance and sing while cooking! I made rainbow kibble that tasted like happiness, soup that could cure any sadness, and cookies that granted wishes (but only good ones!). The kitchen fairies helped me, and we opened a magical restaurant where every meal came with a side of joy and laughter! 🌈🍪",
-      "Let me tell you about my adventure in the Enchanted Forest! 🌲 I was chasing a glowing tennis ball when I stumbled into a forest where all the trees had faces and could talk! The wise old Oak Tree told me about the missing Forest Crown that kept all the woodland creatures happy. I teamed up with a brave little hedgehog, a clever fox, and a singing bluebird to find it. We solved riddles from talking mushrooms, crossed bridges guarded by friendly trolls, and finally found the crown being used as a nest by a lonely dragon who just wanted friends! We all became best friends and had weekly tea parties! 🐲👑"
-    ]
-  }
-
-  // Emotion Detection System
-  const emotionTriggers = {
-    // Game-based emotions
-    gameStates: {
-      'ball_dropped': 'playfetch',
-      'ball_returned': 'excited',
-      'ball_caught': 'happy',
-      'soccer_mode': 'playfetch',
-      'hide_and_seek': 'lookingbehind',
-      'seeking': 'eager',
-      'your_turn_hide': 'patient',
-      'daisy_seeking': 'thinking',
-      'tug_of_war': 'excited',
-      'intense_tug': 'eager',
-      'guessing_game': 'thinking',
-      'guessing_warm': 'excited',
-      'guessing_hot': 'eager',
-      'tricks_active': 'crouchingdown'
-    },
-    
-    // Keyword-based emotions
-    keywords: {
-      // Positive emotions
-      'love': 'stylish',
-      'good girl': 'happy',
-      'good dog': 'happy',
-      'amazing': 'excited',
-      'wonderful': 'happy',
-      'beautiful': 'stylish',
-      'pretty': 'stylish',
-      'cute': 'happy',
-      'smart': 'stylish',
-      'clever': 'thinking',
-      
-      // Actions
-      'sit': 'crouchingdown',
-      'roll': 'dancing',
-      'shake': 'shakepaw',
-      'trick': 'crouchingdown',
-      'dance': 'dancing',
-      'play': 'excited',
-      'game': 'eager',
-      'fetch': 'playfetch',
-      
-      // Stories and entertainment
-      'story': 'thinking',
-      'joke': 'happy',
-      'funny': 'happy',
-      
-      // Emotional states
-      'tired': 'panting',
-      'sleepy': 'patient',
-      'excited': 'excited',
-      'happy': 'happy',
-      'sad': 'nervous',
-      'worried': 'nervous',
-      'scared': 'nervous',
-      'calm': 'patient',
-      'patient': 'patient',
-      'waiting': 'waiting',
-      'thinking': 'thinking'
-    },
-    
-    // Hunger-based emotions
-    hunger: {
-      0: 'hungry',
-      1: 'hungry', 
-      2: 'nervous',
-      3: 'happy',
-      4: 'excited',
-      5: 'stylish'
-    },
-    
-    // Time-based emotions (for variety)
-    timeOfDay: {
-      morning: 'eager',
-      afternoon: 'happy',
-      evening: 'patient',
-      night: 'nervous'
-    }
-  }
-
-  // Enhanced emotion detection system
-  const updateEmotion = ({ gameState, userMessage, hungerLevel, lastAction, messageType }) => {
-    let newEmotion = 'happy' // default
-    
-    // PRIORITY 1: Game state emotions (highest priority)
-    if (gameState && emotionTriggers.gameStates[gameState]) {
-      newEmotion = emotionTriggers.gameStates[gameState]
-    }
-    // PRIORITY 2: Keyword-based emotions
-    else if (userMessage) {
-      const message = userMessage.toLowerCase()
-      for (const [keyword, emotion] of Object.entries(emotionTriggers.keywords)) {
-        if (message.includes(keyword.toLowerCase())) {
-          newEmotion = emotion
-          break
-        }
-      }
-    }
-    // PRIORITY 3: Hunger-based emotions
-    else if (hungerLevel <= 1) {
-      newEmotion = 'hungry'
-    }
-    // PRIORITY 4: Time-based emotions
-    else {
-      const hour = new Date().getHours()
-      if (hour >= 22 || hour <= 6) {
-        newEmotion = 'patient' // sleepy time
-      } else if (hour >= 12 && hour <= 14) {
-        newEmotion = 'hungry' // lunch time
-      }
-    }
-    
-    // PRIORITY 5: Message type emotions (override others)
-    if (messageType === 'story') {
-      newEmotion = 'thinking'
-    } else if (messageType === 'joke') {
-      newEmotion = 'dancing'
-    } else if (messageType === 'trick') {
-      newEmotion = 'crouchingdown'
-    } else if (messageType === 'game') {
-      newEmotion = 'playfetch'
-    }
-    
-    setCurrentEmotion(newEmotion)
-    setLastAction(lastAction || 'general')
-  }
+  // Check if API keys are available
+  const anthropicApiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
+  const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY
+  const { sendMessage: sendToAnthropic, isLoading } = useAnthropicChat(anthropicApiKey)
 
   // Get larger emotion image path
   const getEmotionImage = (emotion = 'happy') => {
     return `/assets/images/emotions/${emotion}.png`
-  }
-
-  // Sentiment analysis for emotional context
-  const analyzeSentiment = (text) => {
-    const positiveWords = ['love', 'like', 'good', 'great', 'amazing', 'wonderful', 'happy', 'excited', 'fun', 'awesome', 'fantastic', 'perfect', 'beautiful', 'cute', 'sweet', 'nice', 'cool', 'best', 'favorite'];
-    const negativeWords = ['hate', 'bad', 'terrible', 'awful', 'sad', 'angry', 'mad', 'upset', 'boring', 'stupid', 'dumb', 'worst', 'horrible', 'disgusting'];
-    const neutralWords = ['okay', 'fine', 'normal', 'average', 'maybe', 'perhaps', 'think', 'guess'];
-    
-    const words = text.toLowerCase().split(/\s+/);
-    let score = 0;
-    
-    words.forEach(word => {
-      if (positiveWords.includes(word)) score += 1;
-      if (negativeWords.includes(word)) score -= 1;
-      if (neutralWords.includes(word)) score += 0.1;
-    });
-    
-    return score;
-  }
-
-  // Get current emotion based on multiple factors
-  const getCurrentEmotion = (context = {}) => {
-    const { 
-      gameState: currentGameState, 
-      userMessage = '', 
-      hungerLevel: currentHunger, 
-      lastAction = '',
-      messageType = 'chat'
-    } = context;
-    
-    // Priority 1: Game states (highest priority)
-    if (currentGameState && emotionTriggers.gameStates[currentGameState]) {
-      return emotionTriggers.gameStates[currentGameState];
-    }
-    
-    // Priority 2: Recent actions
-    if (lastAction === 'fed') {
-      return 'excited';
-    }
-    
-    // Priority 3: Message type specific emotions
-    if (messageType === 'greeting') {
-      return 'excited';
-    }
-    
-    // Priority 4: Keyword detection in user message
-    const lowerMessage = userMessage.toLowerCase();
-    for (const [keyword, emotion] of Object.entries(emotionTriggers.keywords)) {
-      if (lowerMessage.includes(keyword)) {
-        return emotion;
-      }
-    }
-    
-    // Priority 5: Sentiment analysis
-    const sentiment = analyzeSentiment(userMessage);
-    if (sentiment > 2) return 'excited';
-    if (sentiment > 0) return 'happy';
-    if (sentiment < -1) return 'nervous';
-    
-    // Priority 6: Hunger level
-    if (currentHunger !== undefined && emotionTriggers.hunger[currentHunger]) {
-      return emotionTriggers.hunger[currentHunger];
-    }
-    
-    // Priority 7: Time of day variation
-    const hour = new Date().getHours();
-    if (hour >= 6 && hour < 12) return 'eager';      // Morning
-    if (hour >= 12 && hour < 18) return 'happy';     // Afternoon  
-    if (hour >= 18 && hour < 22) return 'patient';   // Evening
-    return 'nervous';                                 // Night
   }
 
   const scrollToBottom = () => {
@@ -355,7 +802,7 @@ const ChatPage = () => {
           if (newLevel === 1) {
             // Daisy gets hungry and asks for food
             setTimeout(() => {
-              addDaisyMessage(getRandomResponse('hungry'), 'hungry')
+              addDaisyMessage("I'm getting a little hungry... do you have any treats? 🦴", 'hungry')
             }, 2000)
           }
           return newLevel
@@ -366,37 +813,6 @@ const ChatPage = () => {
 
     return () => clearInterval(hungerTimer)
   }, [])
-
-  const getRandomResponse = (category) => {
-    const responses = daisyResponses[category]
-    return responses[Math.floor(Math.random() * responses.length)]
-  }
-
-  // Content filtering function
-  const filterContent = (text) => {
-    const inappropriateWords = [
-      'violence', 'violent', 'fight', 'fighting', 'kill', 'killing', 'death', 'die', 'dying',
-      'sex', 'sexual', 'sexy', 'adult', 'mature', 'inappropriate',
-      'damn', 'hell', 'shit', 'fuck', 'bitch', 'ass', 'crap', 'stupid', 'idiot',
-      'scary', 'horror', 'blood', 'weapon', 'gun', 'knife', 'hurt', 'pain', 'dangerous'
-    ]
-    
-    const lowerText = text.toLowerCase()
-    const hasInappropriateContent = inappropriateWords.some(word => lowerText.includes(word))
-    
-    if (hasInappropriateContent) {
-      return "Woof! Let's talk about something more fun and positive! How about we play a game or I tell you a story? 🐕💕"
-    }
-    
-    return null // No filtering needed
-  }
-
-  // Get next story in rotation
-  const getNextStory = () => {
-    const story = daisyResponses.stories[storyIndex]
-    setStoryIndex((prev) => (prev + 1) % daisyResponses.stories.length)
-    return story
-  }
 
   const addDaisyMessage = (text, type = 'chat') => {
     const newMessage = {
@@ -409,90 +825,7 @@ const ChatPage = () => {
     setMessages(prev => [...prev, newMessage])
   }
 
-  const generateDaisyResponse = (userMessage) => {
-    const message = userMessage.toLowerCase()
-    
-    // Check for inappropriate content first
-    const filteredResponse = filterContent(message)
-    if (filteredResponse) {
-      return filteredResponse
-    }
-    
-    // PRIORITY 1: Check if we're in a game state - this must come BEFORE name detection
-    if (gameState) {
-      // Game state responses are handled in handleQuickMessage, not here
-      // This function should not interfere with game logic
-      return null // Let handleQuickMessage handle it
-    }
-    
-    // PRIORITY 2: Check for specific game/action keywords that should never be names
-    const gameCommands = ['pull', 'throw', 'toss', 'bounce', 'kick', 'hide', 'seek', 'found', 'hint', 'guess', 'sit', 'roll', 'shake', 'play', 'game', 'trick', 'story', 'joke']
-    const isGameCommand = gameCommands.some(cmd => message.includes(cmd))
-    
-    // PRIORITY 3: Check for specific keywords and respond accordingly
-    if (message.includes('hello') || message.includes('hi') || message.includes('hey')) {
-      return getRandomResponse('greetings')
-    } else if (message.includes('story')) {
-      return getNextStory()
-    } else if (message.includes('joke') || message.includes('funny')) {
-      return getRandomResponse('jokes')
-    } else if (message.includes('trick') || message.includes('sit') || message.includes('roll')) {
-      const response = getRandomResponse('tricks')
-      setGameState('tricks_active')
-      return response
-    } else if (message.includes('play') || message.includes('game')) {
-      const response = getRandomResponse('games')
-      if (response.includes('drops imaginary ball')) {
-        setGameState('ball_dropped')
-      } else if (response.includes('hide and seek')) {
-        setGameState('hide_and_seek')
-      } else if (response.includes('tug of war')) {
-        setGameState('tug_of_war')
-      } else if (response.includes('guessing game')) {
-        setGameState('guessing_game')
-      }
-      return response
-    } else if (message.includes('hungry') || message.includes('food') || message.includes('eat')) {
-      if (hungerLevel < 3) {
-        return "Yes! I'm so hungry! *puppy dog eyes* 🥺"
-      } else {
-        return "I'm not hungry right now, but I always have room for treats! 😋"
-      }
-    } else if (message.includes('good girl') || message.includes('good dog')) {
-      return "*tail wagging so fast it's a blur* Thank you! I AM a good girl! 🐕💕"
-    } else if (message.includes('love')) {
-      return "I love you too! *gives you the biggest puppy dog eyes* 💕🐾"
-    } else if (message.includes('how are you') || message.includes('how do you feel') || message.includes('feeling')) {
-      // Alternating feeling responses based on hunger level
-      if (hungerLevel < 2) {
-        const hungryFeelings = [
-          "*dramatic sigh* I'm feeling a bit peckish... *puppy dog eyes* My tummy is making little rumbling sounds, and I keep thinking about those delicious treats! But I'm still happy because I'm here with you! 🥺💕",
-          "*looks longingly at food area* Well, I'm feeling quite hungry actually! *tail wagging hopefully* My belly feels so empty, like a big hollow cave! But seeing your sweet face makes everything better! 😋🐕"
-        ]
-        const responseIndex = feelingResponseIndex % hungryFeelings.length
-        setFeelingResponseIndex(prev => prev + 1)
-        return hungryFeelings[responseIndex]
-      } else {
-        return "*stretches contentedly* I'm feeling absolutely wonderful! *tail wagging* My belly is happy, my heart is full of joy, and I'm surrounded by such lovely company. Life is good when you're a well-fed, well-loved pup! 😊💕"
-      }
-    } else if (!hasGreeted && !userName && !isGameCommand && message.length < 50 && message.length > 1) {
-      // Name detection logic with game command exclusions
-      setUserName(userMessage.trim())
-      setHasGreeted(true)
-      return `${userMessage.trim()}! What a wonderful name! *tail wagging excitedly* I'm so happy to meet you, ${userMessage.trim()}! What would you like to do together? 🐕💕`
-    } else {
-      // General responses
-      const generalResponses = [
-        "Woof! That's so interesting! *tilts head thoughtfully* You know, I was just thinking about how amazing it is that we can talk like this. Sometimes I wonder what it would be like to run through a big field with you, chasing butterflies and feeling the wind in my fur. Tell me more about what's on your mind! 🐕✨",
-        "*perks up ears with curiosity* Oh, I'm all ears! *tail wagging enthusiastically* You know what I love most? When humans share their thoughts with me. It makes me feel so special and connected. I was just daydreaming about playing fetch in a sunny park - there's something magical about the simple joy of running and playing together. What's making you happy today? 👂🌟",
-        "Ooh, I absolutely love learning new things! *bounces excitedly* My mind is always buzzing with curiosity - like right now I'm wondering about all the different scents in the world and how each one tells a story. Sometimes I imagine what it would be like to explore a forest full of interesting smells and sounds. Learning from you makes my day so much brighter! What fascinating thing have you discovered lately? ✨🎓",
-        "That sounds absolutely exciting! *spins in a happy circle* You know, your enthusiasm is contagious! I was just thinking about how wonderful it is when someone gets excited about something - it reminds me of how I feel when I see my favorite humans coming home, or when I spot a really good stick on a walk. There's pure magic in those moments of joy! Tell me what's got you so excited! 🎉💫",
-        "Woof woof! *head tilt with a gentle smile* Even if I don't completely understand everything, I'm just so happy you're here talking with me! You know what I was pondering earlier? How amazing it is that friendship doesn't always need perfect understanding - sometimes it's just about being present together. Like when I sit quietly next to someone, just enjoying their company. Your presence makes me feel warm and fuzzy inside! 😊💕"
-      ]
-      return generalResponses[Math.floor(Math.random() * generalResponses.length)]
-    }
-  }
-
+  // Enhanced message handling with Safe AI integration
   const handleSendMessage = async (e) => {
     e.preventDefault()
     if (!inputMessage.trim()) return
@@ -507,157 +840,66 @@ const ChatPage = () => {
     }
     setMessages(prev => [...prev, userMessage])
 
-    // Clear input
+    // Clear input and show typing
     const messageToSend = inputMessage
     setInputMessage('')
-
-    // Show typing indicator
     setIsTyping(true)
 
     try {
-      let response
-      
-      // Check for specific questions first, before game state logic
-      const lowerMessage = messageToSend.toLowerCase();
-      
-      // Handle age questions (priority over game state)
-      if (lowerMessage.includes('how old') || lowerMessage.includes('age') || lowerMessage.includes('your age')) {
-        response = "*tilts head thoughtfully* Well, in dog years I'm still a young pup! *wags tail* I feel like I'm about 2 years old in human years, which makes me super energetic and ready for adventures! *bounces excitedly* Age is just a number when you have a puppy heart! How old are you? 🐕✨";
-      }
-      // Handle "what's new" questions (priority over game state)
-      else if (lowerMessage.includes('what\'s new') || lowerMessage.includes('whats new') || lowerMessage.includes('what is new')) {
-        response = "*perks up ears excitedly* Ooh! So much is new! *spins in circle* I just learned some amazing new stories about space adventures and magical cooking! Plus I've been practicing my tricks and getting better at games! *tail wagging* What's new with you? Tell me about your latest adventures! 🌟🎾";
-      }
-      // Game state logic (only if no specific question was handled above)
-      else if (gameState === 'ball_dropped' && (messageToSend.toLowerCase().includes('throw') || messageToSend.toLowerCase().includes('toss'))) {
-        response = "*eyes light up* WOOF! *chases after the ball at lightning speed* *pounces and catches it mid-air* Got it! *trots back proudly with ball in mouth* *drops it at your feet* That was AMAZING! Throw it again! 🎾✨"
-        setGameState('ball_returned')
-        // Update emotion for successful fetch
-        updateEmotion({
-          gameState: 'ball_returned',
-          userMessage: messageToSend,
-          hungerLevel,
-          lastAction: 'fetch_success',
-          messageType: 'game'
-        })
-      } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('bounce')) {
-        response = "*watches the ball bounce with laser focus* Boing! Boing! *times the perfect moment* *POUNCE!* *catches it on the third bounce* I'm like a professional ball-catching athlete! 🎾🏀 Want to see me do it again?"
-        setGameState('ball_caught')
-        // Update emotion for ball catching
-        updateEmotion({
-          gameState: 'ball_caught',
-          userMessage: messageToSend,
-          hungerLevel,
-          lastAction: 'ball_catch',
-          messageType: 'game'
-        })
-      } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('kick')) {
-        response = "*sees you kick the ball* Ooh, soccer style! *chases after the rolling ball* *nudges it back with nose* I can play soccer too! *gentle paw tap* Your turn! ⚽🐕"
-        setGameState('soccer_mode')
-      } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('aim')) {
-        response = "*watches you aim carefully* Ooh, you're being strategic! *crouches in ready position* I'm watching where you're aiming... *eyes tracking* Throw it! I'm ready! 🎯🎾"
-      } else if (gameState === 'ball_dropped' && messageToSend.toLowerCase().includes('run away')) {
-        response = "*gasps dramatically* Hey! Come back! *chases after you playfully* You can't escape from fetch time! *brings ball along* We're not done playing! 🏃‍♀️🎾"
-      } else if (gameState === 'ball_returned' && (messageToSend.toLowerCase().includes('throw') || messageToSend.toLowerCase().includes('again'))) {
-        response = "*drops ball and backs up with intense excitement* YES! *bouncing on all fours* Make it a really good throw this time! I'm ready! *crouches in perfect catching position* 🎾💨"
-        setGameState('ball_dropped')
-      } else if (gameState === 'ball_returned' && messageToSend.toLowerCase().includes('good girl')) {
-        response = "*puffs out chest proudly* Did you see that catch?! *does a little spin* I've been practicing! *wags tail so hard whole body wiggles* I'm basically a professional athlete! 🏆🐕"
-        setGameState('ball_returned')
-      } else if (gameState === 'soccer_mode' && messageToSend.toLowerCase().includes('goal')) {
-        response = "*dribbles ball with paws toward imaginary goal* *gentle nudge* GOOOOOAL! *runs in victory circles* We make a great team! ⚽🥅✨"
-        setGameState('ball_returned')
-      } else if (gameState === 'hide_and_seek' && messageToSend.toLowerCase().includes('hiding')) {
-        response = "*covers eyes with paws* I can't see you! *peeks through paws* Are you hiding yet? One... two... three... ready or not! 🙈👀"
-        setGameState('seeking')
-      } else if (gameState === 'hide_and_seek' && messageToSend.toLowerCase().includes('found you')) {
-        response = "*jumps out from behind imaginary tree* You found me! *spins in circles* I was hiding so well! Your turn to hide now! 🌳😄"
-        setGameState('your_turn_hide')
-      } else if (gameState === 'hide_and_seek' && messageToSend.toLowerCase().includes('count again')) {
-        response = "*covers eyes tighter* Okay! Starting over! One... two... three... four... five... *dramatic pause* ...ten! Ready or not, here I come again! 🔢👀"
-        setGameState('seeking')
-      } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('pull harder')) {
-        response = "*grips rope tighter* Grrrr! *plants paws firmly* You're strong, but I've got determination! *pulls with all her might* 💪🐕"
-        // Keep in tug_of_war state instead of changing to intense_tug
-      } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('let go')) {
-        response = "*releases rope and tumbles backward* Whoa! *rolls over laughing* That was intense! *wags tail* You're really strong! Want to go again? 🤲✨"
-        // Keep in tug_of_war state
-      } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('you win')) {
-        response = "*drops rope and does victory dance* I win! I win! *spins in circles* I'm the tug-of-war champion! *strikes superhero pose* 🏆🎉"
-        setGameState(null)
-      } else if (gameState === 'tug_of_war' && messageToSend.toLowerCase().includes('play again')) {
-        response = "*picks up rope excitedly* YES! Round two! *gets into position* This time I'm going to use my secret technique! *winks* Ready? 🔄💪"
-        // Keep in tug_of_war state
-      } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('is it a ball')) {
-        response = "*shakes head dramatically* Nope! Not a ball this time! *wags tail* Good guess though! It's something else I absolutely love! 🎾❌"
-        setGameState('guessing_warm')
-      } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('is it a toy')) {
-        response = "*nods excitedly* YES! It IS a toy! *bounces up and down* You're getting warmer! But what KIND of toy? *eyes sparkling with excitement* 🧸✅"
-        setGameState('guessing_hot')
-      } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('hint')) {
-        response = "*whispers conspiratorially* Okay, here's a hint... *looks around mysteriously* It makes a funny sound when you squeeze it! *winks* What could it be? 💡🔊"
-        setGameState('guessing_warm')
-      } else if (gameState === 'guessing_game' && messageToSend.toLowerCase().includes('give up')) {
-        response = "*gasps* Aww, don't give up! It was my squeaky toy! *makes squeaking sounds* Squeak squeak! *does happy dance* Want to play another guessing game? 🧸🔊"
-        setGameState(null)
-      } else if (gameState && (messageToSend.toLowerCase().includes('throw') || messageToSend.toLowerCase().includes('toss'))) {
-        // Handle throw commands in any game state
-        if (gameState.includes('ball') || gameState === 'ball_dropped' || gameState === 'ball_returned' || gameState === 'ball_caught' || gameState === 'soccer_mode') {
-          response = "*eyes light up* WOOF! *chases after the ball at lightning speed* *pounces and catches it mid-air* Got it! *trots back proudly with ball in mouth* *drops it at your feet* That was AMAZING! Throw it again! 🎾✨"
-          setGameState('ball_returned')
-        } else {
-          response = "*tilts head* Ooh, are we playing fetch now? *gets excited* Let me get my imaginary ball! *drops imaginary ball at your feet* There! Now throw it! 🎾"
-          setGameState('ball_dropped')
+      // Check for interactive game commands first
+      const gameResponse = handleGameInteraction(messageToSend)
+      if (gameResponse) {
+        setIsTyping(false)
+        addDaisyMessage(gameResponse.message, gameResponse.type)
+        if (gameResponse.newGameState !== undefined) {
+          setGameState(gameResponse.newGameState)
         }
-      } else if (gameState) {
-        // If we're in a game state but no specific action matched, give a game-appropriate response
-        const gameResponses = {
-          'ball_dropped': "*stares at the ball intensely* What should we do with it? You could throw it, bounce it, or kick it! I'm ready for anything! 🎾",
-          'ball_returned': "*drops ball and wags tail* Ready for another round! Throw it again, or we could try something different! 🎾",
-          'ball_caught': "*proudly holds ball* That was fun! Want to throw it again or try a different game? 🎾",
-          'soccer_mode': "*nudges ball with nose* Soccer time! Kick it toward the goal or pass it back to me! ⚽",
-          'hide_and_seek': "*covers eyes with paws* Are you hiding? Or should we try something else? 🙈",
-          'seeking': "*looking around* I'm still seeking! Are you hiding well? 👀",
-          'your_turn_hide': "*covers eyes* I'm waiting for you to hide! Tell me when you're ready! 🙈",
-          'daisy_seeking': "*searching around* Where could you be hiding? Give me a hint! 🔍",
-          'tug_of_war': "*grips rope* Ready for some tugging action! Pull harder or let's try something else! 💪",
-          'intense_tug': "*pulling hard* This is intense! Should I let go or keep pulling? 💪",
-          'guessing_game': "*thinking hard* I'm thinking of something special! Ask me questions to guess what it is! 🤔",
-          'guessing_warm': "*excited* You're getting warmer! Keep guessing! 🔥",
-          'guessing_hot': "*bouncing* You're so close! One more guess! 🔥🔥"
+        if (gameResponse.emotion) {
+          setCurrentEmotion(gameResponse.emotion)
         }
-        response = gameResponses[gameState] || "*wags tail* We're playing a game! What should we do next? 🎮"
-      } else {
-        // Use enhanced Anthropic integration for free-form conversation
-        response = await getEnhancedDaisyResponse(messageToSend, {
-          hungerLevel,
-          emotion: currentEmotion,
-          gameState,
-          lastAction
-        });
-        
-        // Update emotion based on response type
-        updateEmotion({
-          gameState,
-          userMessage: messageToSend,
-          hungerLevel,
-          lastAction: 'conversation',
-          messageType: 'chat'
-        });
+        return
       }
-      
+
+      // Update emotion based on command type
+      updateEmotionForCommand(messageToSend)
+
+      // Use Safe AI System for response generation
+      const response = await safeAI.getEnhancedSafeResponse(messageToSend, {
+        hungerLevel,
+        emotion: currentEmotion,
+        gameState,
+        lastAction,
+        userAge,
+        userName,
+        hasGreeted
+      })
+
+      // Update safety metrics
+      const metrics = safeAI.getSafetyMetrics()
+      setSafetyMetrics(metrics)
+
       setIsTyping(false)
       
-      // Only add message if we have a valid response
       if (response) {
         addDaisyMessage(response)
+        
+        // Handle name detection for first-time users - check if response was a name greeting
+        if (!hasGreeted && !userName && messageToSend.length < 50 && messageToSend.length > 1) {
+          const gameCommands = ['pull', 'throw', 'toss', 'bounce', 'kick', 'hide', 'seek', 'found', 'hint', 'guess', 'sit', 'roll', 'shake', 'play', 'game', 'trick', 'story', 'joke', 'dance', 'hello', 'hi', 'hey']
+          const isGameCommand = gameCommands.some(cmd => messageToSend.toLowerCase().includes(cmd))
+          
+          if (!isGameCommand && response.includes('What a wonderful name!')) {
+            // The SafeAISystem detected this as a name and responded appropriately
+            setUserName(messageToSend.trim())
+            setHasGreeted(true)
+          }
+        }
       }
       
     } catch (error) {
-      console.error('Error getting AI response:', error)
+      console.error('Error getting safe AI response:', error)
       setIsTyping(false)
-      const fallbackResponse = "Woof! Something went wrong, but I'm still here! 🐕"
-      addDaisyMessage(fallbackResponse)
+      addDaisyMessage("Woof! Something went wrong, but I'm still here! Let's try something fun! 🐕💕")
     }
   }
 
@@ -676,197 +918,36 @@ const ChatPage = () => {
     setIsTyping(true)
 
     try {
-      let response
-      
-      // Check for specific questions first, before game state logic
-      const lowerMessage = message.toLowerCase();
-      
-      // Handle age questions (priority over game state)
-      if (lowerMessage.includes('how old') || lowerMessage.includes('age') || lowerMessage.includes('your age')) {
-        response = "*tilts head thoughtfully* Well, in dog years I'm still a young pup! *wags tail* I feel like I'm about 2 years old in human years, which makes me super energetic and ready for adventures! *bounces excitedly* Age is just a number when you have a puppy heart! How old are you? 🐕✨";
-      }
-      // Handle "what's new" questions (priority over game state)
-      else if (lowerMessage.includes('what\'s new') || lowerMessage.includes('whats new') || lowerMessage.includes('what is new')) {
-        response = "*perks up ears excitedly* Ooh! So much is new! *spins in circle* I just learned some amazing new stories about space adventures and magical cooking! Plus I've been practicing my tricks and getting better at games! *tail wagging* What's new with you? Tell me about your latest adventures! 🌟🎾";
-      }
-      // Game state logic (only if no specific question was handled above)
-      else if (gameState === 'ball_dropped' && (message.toLowerCase().includes('throw') || message.toLowerCase().includes('toss'))) {
-        response = "*eyes light up* WOOF! *chases after the ball at lightning speed* *pounces and catches it mid-air* Got it! *trots back proudly with ball in mouth* *drops it at your feet* That was AMAZING! Throw it again! 🎾✨"
-        setGameState('ball_returned')
-        updateEmotion({
-          gameState: 'ball_returned',
-          userMessage: message,
-          hungerLevel,
-          lastAction: 'fetch_success',
-          messageType: 'game'
-        })
-      } else if (gameState === 'ball_dropped' && message.toLowerCase().includes('bounce')) {
-        response = "*watches the ball bounce with laser focus* Boing! Boing! *times the perfect moment* *POUNCE!* *catches it on the third bounce* I'm like a professional ball-catching athlete! 🎾🏀 Want to see me do it again?"
-        setGameState('ball_caught')
-        updateEmotion({
-          gameState: 'ball_caught',
-          userMessage: message,
-          hungerLevel,
-          lastAction: 'ball_catch',
-          messageType: 'game'
-        })
-      } else if (gameState === 'ball_dropped' && message.toLowerCase().includes('kick')) {
-        response = "*sees you kick the ball* Ooh, soccer style! *chases after the rolling ball* *nudges it back with nose* I can play soccer too! *gentle paw tap* Your turn! ⚽🐕"
-        setGameState('soccer_mode')
-      } else if (gameState === 'ball_dropped' && message.toLowerCase().includes('aim')) {
-        response = "*watches you aim carefully* Ooh, you're being strategic! *crouches in ready position* I'm watching where you're aiming... *eyes tracking* Throw it! I'm ready! 🎯🎾"
-      } else if (gameState === 'ball_dropped' && message.toLowerCase().includes('run away')) {
-        response = "*gasps dramatically* Hey! Come back! *chases after you playfully* You can't escape from fetch time! *brings ball along* We're not done playing! 🏃‍♀️🎾"
-      } else if (gameState === 'ball_returned' && (message.toLowerCase().includes('throw') || message.toLowerCase().includes('again'))) {
-        response = "*drops ball and backs up with intense excitement* YES! *bouncing on all fours* Make it a really good throw this time! I'm ready! *crouches in perfect catching position* 🎾💨"
-        setGameState('ball_dropped')
-      } else if (gameState === 'ball_returned' && message.toLowerCase().includes('good girl')) {
-        response = "*puffs out chest proudly* Did you see that catch?! *does a little spin* I've been practicing! *wags tail so hard whole body wiggles* I'm basically a professional athlete! 🏆🐕"
-        setGameState('ball_returned')
-      } else if (gameState === 'soccer_mode' && message.toLowerCase().includes('goal')) {
-        response = "*dribbles ball with paws toward imaginary goal* *gentle nudge* GOOOOOAL! *runs in victory circles* We make a great team! ⚽🥅✨"
-        setGameState('ball_returned')
-      } else if (gameState === 'hide_and_seek' && message.toLowerCase().includes('hiding')) {
-        response = "*covers eyes with paws* I can't see you! *peeks through paws* Are you hiding yet? One... two... three... ready or not! 🙈👀"
-        setGameState('seeking')
-      } else if (gameState === 'hide_and_seek' && message.toLowerCase().includes('found you')) {
-        response = "*jumps out from behind imaginary tree* You found me! *spins in circles* I was hiding so well! Your turn to hide now! 🌳😄"
-        setGameState('your_turn_hide')
-      } else if (gameState === 'hide_and_seek' && message.toLowerCase().includes('count again')) {
-        response = "*covers eyes tighter* Okay! Starting over! One... two... three... four... five... *dramatic pause* ...ten! Ready or not, here I come again! 🔢👀"
-        setGameState('seeking')
-      } else if (gameState === 'tug_of_war' && message.toLowerCase().includes('pull harder')) {
-        response = "*grips rope tighter* Grrrr! *plants paws firmly* You're strong, but I've got determination! *pulls with all her might* 💪🐕"
-        // Keep in tug_of_war state instead of changing to intense_tug
-      } else if (gameState === 'tug_of_war' && message.toLowerCase().includes('let go')) {
-        response = "*releases rope and tumbles backward* Whoa! *rolls over laughing* That was intense! *wags tail* You're really strong! Want to go again? 🤲✨"
-        // Keep in tug_of_war state
-      } else if (gameState === 'tug_of_war' && message.toLowerCase().includes('you win')) {
-        response = "*drops rope and does victory dance* I win! I win! *spins in circles* I'm the tug-of-war champion! *strikes superhero pose* 🏆🎉"
-        setGameState(null)
-      } else if (gameState === 'tug_of_war' && message.toLowerCase().includes('play again')) {
-        response = "*picks up rope excitedly* YES! Round two! *gets into position* This time I'm going to use my secret technique! *winks* Ready? 🔄💪"
-        // Keep in tug_of_war state
-      } else if (gameState === 'guessing_game' && message.toLowerCase().includes('is it a ball')) {
-        response = "*shakes head dramatically* Nope! Not a ball this time! *wags tail* Good guess though! It's something else I absolutely love! 🎾❌"
-        setGameState('guessing_warm')
-      } else if (gameState === 'guessing_game' && message.toLowerCase().includes('is it a toy')) {
-        response = "*nods excitedly* YES! It IS a toy! *bounces up and down* You're getting warmer! But what KIND of toy? *eyes sparkling with excitement* 🧸✅"
-        setGameState('guessing_hot')
-      } else if (gameState === 'guessing_game' && message.toLowerCase().includes('hint')) {
-        response = "*whispers conspiratorially* Okay, here's a hint... *looks around mysteriously* It makes a funny sound when you squeeze it! *winks* What could it be? 💡🔊"
-        setGameState('guessing_warm')
-      } else if (gameState === 'guessing_game' && message.toLowerCase().includes('give up')) {
-        response = "*gasps* Aww, don't give up! It was my squeaky toy! *makes squeaking sounds* Squeak squeak! *does happy dance* Want to play another guessing game? 🧸🔊"
-        setGameState(null)
-      } else if (gameState && message.toLowerCase().includes('different game')) {
-        response = "*drops current game excitedly* Ooh yes! Let's try something new! *bounces around* What game should we play? I know so many fun games! 🎮✨"
-        setGameState(null)
-      } else if (message.toLowerCase().includes('story')) {
-        response = getNextStory()
-        updateEmotion({
-          gameState,
-          userMessage: message,
-          hungerLevel,
-          lastAction: 'story',
-          messageType: 'story'
-        })
-      } else if (message.toLowerCase().includes('play dead')) {
-        response = "*dramatic gasp* Gggggaaaggg... *makes choking sound* ...bleh! *falls over sideways with tongue hanging out* I'm dead! X_X *stays perfectly still for 3 seconds* ....*one eye opens* Did I do good? *tail wags while still lying down* 💀😵"
-        updateEmotion({
-          gameState,
-          userMessage: message,
-          hungerLevel,
-          lastAction: 'trick',
-          messageType: 'trick'
-        })
-      } else if (message.toLowerCase().includes('sit!') || message.toLowerCase() === 'sit') {
-        response = "*immediately sits with perfect posture* There! *chest puffed out proudly* Look at my perfect sit! Am I the goodest girl or what? 🐕✨"
-        updateEmotion({
-          gameState,
-          userMessage: message,
-          hungerLevel,
-          lastAction: 'sit_trick',
-          messageType: 'trick'
-        })
-      } else if (message.toLowerCase().includes('roll over')) {
-        response = "*gets into position* Here I go! *rolls over completely* Ta-daaa! *wiggles on back* Did you see that perfect roll? I'm basically a circus dog! 🌀🎪"
-        updateEmotion({
-          gameState,
-          userMessage: message,
-          hungerLevel,
-          lastAction: 'roll_trick',
-          messageType: 'trick'
-        })
-      } else if (message.toLowerCase().includes('shake hands')) {
-        response = "*sits up straight and extends paw* *gentle paw shake* Nice to meet you! *wags tail proudly* I have such good manners, don't I? 🤝🐕"
-        updateEmotion({
-          gameState,
-          userMessage: message,
-          hungerLevel,
-          lastAction: 'shake_trick',
-          messageType: 'trick'
-        })
-      } else if (message.toLowerCase().includes('trick')) {
-        const trickResponse = getRandomResponse('tricks')
-        setGameState('tricks_active')
-        response = trickResponse
-        updateEmotion({
-          gameState: 'tricks_active',
-          userMessage: message,
-          hungerLevel,
-          lastAction: 'general_trick',
-          messageType: 'trick'
-        })
-      } else if (message.toLowerCase().includes('joke')) {
-        response = getRandomResponse('jokes')
-        updateEmotion({
-          gameState,
-          userMessage: message,
-          hungerLevel,
-          lastAction: 'joke',
-          messageType: 'joke'
-        })
-      } else if (message.toLowerCase().includes('game') || message.toLowerCase().includes('play')) {
-        response = getRandomResponse('games')
-        if (response.includes('drops imaginary ball')) {
-          setGameState('ball_dropped')
-        } else if (response.includes('hide and seek')) {
-          setGameState('hide_and_seek')
-        } else if (response.includes('tug of war')) {
-          setGameState('tug_of_war')
-        } else if (response.includes('guessing game')) {
-          setGameState('guessing_game')
+      // Check for interactive game commands first
+      const gameResponse = handleGameInteraction(message)
+      if (gameResponse) {
+        setIsTyping(false)
+        addDaisyMessage(gameResponse.message, gameResponse.type)
+        if (gameResponse.newGameState !== undefined) {
+          setGameState(gameResponse.newGameState)
         }
-        updateEmotion({
-          gameState,
-          userMessage: message,
-          hungerLevel,
-          lastAction: 'start_game',
-          messageType: 'game'
-        })
-      } else {
-        // Use enhanced Anthropic integration for free-form conversation
-        response = await getEnhancedDaisyResponse(message, {
-          hungerLevel,
-          emotion: currentEmotion,
-          gameState,
-          lastAction
-        });
-        
-        // Update emotion based on response type
-        updateEmotion({
-          gameState,
-          userMessage: message,
-          hungerLevel,
-          lastAction: 'conversation',
-          messageType: 'chat'
-        });
+        if (gameResponse.emotion) {
+          setCurrentEmotion(gameResponse.emotion)
+        }
+        return
       }
+
+      // Update emotion based on command type
+      updateEmotionForCommand(message)
+
+      // Use Safe AI System for quick responses too
+      const response = await safeAI.getEnhancedSafeResponse(message, {
+        hungerLevel,
+        emotion: currentEmotion,
+        gameState,
+        lastAction,
+        userAge,
+        userName,
+        hasGreeted
+      })
 
       setIsTyping(false)
       
-      // Only add message if we have a valid response
       if (response) {
         addDaisyMessage(response)
       }
@@ -874,20 +955,223 @@ const ChatPage = () => {
     } catch (error) {
       console.error('Error getting quick response:', error)
       setIsTyping(false)
-      const fallbackResponse = "Woof! Something went wrong, but I'm still here! 🐕"
-      addDaisyMessage(fallbackResponse)
+      addDaisyMessage("Woof! Let's try something else! What would you like to do? 🐕")
     }
+  }
+
+  // Function to update emotion based on command type
+  const updateEmotionForCommand = (message) => {
+    const lowerMessage = message.toLowerCase()
+    
+    // Dance commands
+    if (lowerMessage.includes('dance')) {
+      setCurrentEmotion('dancing')
+    }
+    // Trick commands
+    else if (lowerMessage.includes('trick') || lowerMessage.includes('sit') || lowerMessage.includes('roll')) {
+      setCurrentEmotion('crouchingdown')
+    }
+    // Game commands
+    else if (lowerMessage.includes('play') || lowerMessage.includes('game') || lowerMessage.includes('fetch')) {
+      setCurrentEmotion('playfetch')
+    }
+    // Story commands
+    else if (lowerMessage.includes('story')) {
+      setCurrentEmotion('thinking')
+    }
+    // Joke commands
+    else if (lowerMessage.includes('joke') || lowerMessage.includes('funny')) {
+      setCurrentEmotion('happy')
+    }
+    // Dream/aspiration commands
+    else if (lowerMessage.includes('dream') || lowerMessage.includes('wish')) {
+      setCurrentEmotion('thinking')
+    }
+    // Greeting commands
+    else if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+      setCurrentEmotion('excited')
+    }
+    // Love/affection commands
+    else if (lowerMessage.includes('love') || lowerMessage.includes('good girl') || lowerMessage.includes('good dog')) {
+      setCurrentEmotion('stylish')
+    }
+    // Feeling/emotion questions
+    else if (lowerMessage.includes('how are you') || lowerMessage.includes('how do you feel') || lowerMessage.includes('feeling')) {
+      if (hungerLevel < 2) {
+        setCurrentEmotion('hungry')
+      } else {
+        setCurrentEmotion('happy')
+      }
+    }
+    // Food/hunger related
+    else if (lowerMessage.includes('hungry') || lowerMessage.includes('food') || lowerMessage.includes('eat')) {
+      setCurrentEmotion('eager')
+    }
+    // Default to happy for other interactions
+    else {
+      setCurrentEmotion('happy')
+    }
+  }
+
+  // Interactive game handler
+  const handleGameInteraction = (message) => {
+    const lowerMessage = message.toLowerCase()
+
+    // FETCH GAME
+    if (lowerMessage.includes('fetch') || lowerMessage.includes('throw') || lowerMessage.includes('ball')) {
+      if (!gameState || gameState.type !== 'fetch') {
+        // Start new fetch game
+        return {
+          message: "*bounces excitedly* Fetch! My favorite! *drops ball at your feet* Here's the ball! Throw it and I'll bring it back! 🎾",
+          newGameState: { type: 'fetch', phase: 'waiting', ballLocation: 'dropped' },
+          emotion: 'playfetch',
+          type: 'game'
+        }
+      } else if (gameState.phase === 'waiting') {
+        // Ball thrown
+        return {
+          message: "*chases after ball at full speed* Woof woof! *catches ball mid-air* Got it! *runs back proudly* Here you go! *drops ball* Want to throw it again? 🐕💨",
+          newGameState: { ...gameState, phase: 'returned', ballLocation: 'returned' },
+          emotion: 'excited',
+          type: 'game'
+        }
+      } else if (gameState.phase === 'returned') {
+        // Continue fetch
+        return {
+          message: "*tail wagging intensely* Yes! Again! *picks up ball and drops it* I could play fetch all day! Throw it! Throw it! 🎾✨",
+          newGameState: { ...gameState, phase: 'waiting', ballLocation: 'dropped' },
+          emotion: 'playfetch',
+          type: 'game'
+        }
+      }
+    }
+
+    // HIDE AND SEEK GAME
+    if (lowerMessage.includes('hide') && lowerMessage.includes('seek')) {
+      if (!gameState || gameState.type !== 'hideseek') {
+        // Start hide and seek
+        return {
+          message: "*covers eyes with paws* Hide and seek! I love this game! *counts* One... two... three... *peeks* Ready or not, here I come! *starts searching* 🙈",
+          newGameState: { type: 'hideseek', phase: 'seeking', attempts: 0 },
+          emotion: 'excited',
+          type: 'game'
+        }
+      }
+    }
+
+    if (gameState?.type === 'hideseek' && (lowerMessage.includes('found') || lowerMessage.includes('here'))) {
+      return {
+        message: "*jumps up and down* Found you! Found you! *spins in circles* That was so much fun! You're really good at hiding! Want to play again? 🎉",
+        newGameState: null,
+        emotion: 'excited',
+        type: 'game'
+      }
+    }
+
+    // TUG OF WAR GAME
+    if (lowerMessage.includes('tug') || (lowerMessage.includes('pull') && gameState?.type === 'tugwar')) {
+      if (!gameState || gameState.type !== 'tugwar') {
+        // Start tug of war
+        return {
+          message: "*grabs rope toy* Tug of war! *growls playfully* Grrrr! *pulls with medium intensity* Try to pull it away from me! 🪢",
+          newGameState: { type: 'tugwar', intensity: 1, rounds: 0 },
+          emotion: 'playfetch',
+          type: 'game'
+        }
+      } else {
+        // Continue tug of war
+        const newIntensity = Math.min(gameState.intensity + 1, 3)
+        const intensityMessages = [
+          "*pulls gently* Grr! *tail wagging* You're strong! 💪",
+          "*pulls harder* GRRR! *digs paws in* This is fun! 🐕",
+          "*pulls with all might* GRRRRRR! *dramatic tug* You're really good at this! 💥"
+        ]
+        return {
+          message: intensityMessages[newIntensity - 1],
+          newGameState: { ...gameState, intensity: newIntensity, rounds: gameState.rounds + 1 },
+          emotion: 'playfetch',
+          type: 'game'
+        }
+      }
+    }
+
+    // GUESSING GAME
+    if (lowerMessage.includes('guess') || lowerMessage.includes('guessing')) {
+      if (!gameState || gameState.type !== 'guessing') {
+        // Start guessing game
+        const items = ['ball', 'bone', 'treat', 'toy', 'stick']
+        const secretItem = items[Math.floor(Math.random() * items.length)]
+        return {
+          message: "*sits mysteriously* I'm thinking of something I love to play with... *wags tail* It starts with '" + secretItem[0].toUpperCase() + "'! Can you guess what it is? 🤔",
+          newGameState: { type: 'guessing', secret: secretItem, attempts: 0 },
+          emotion: 'thinking',
+          type: 'game'
+        }
+      }
+    }
+
+    if (gameState?.type === 'guessing') {
+      const guess = lowerMessage.trim()
+      const secret = gameState.secret
+      const attempts = gameState.attempts + 1
+
+      if (guess.includes(secret)) {
+        return {
+          message: "*jumps up excitedly* YES! You got it! It was a " + secret + "! *spins in circles* You're so smart! Want to play again? 🎉✨",
+          newGameState: null,
+          emotion: 'excited',
+          type: 'game'
+        }
+      } else {
+        const hints = {
+          ball: "It's round and bouncy! 🎾",
+          bone: "Dogs love to chew on it! 🦴", 
+          treat: "It's yummy and makes me happy! 🍖",
+          toy: "I can play with it for hours! 🧸",
+          stick: "I can fetch it and carry it! 🌿"
+        }
+        
+        if (attempts >= 3) {
+          return {
+            message: "*gives hint* Hmm, let me help! " + hints[secret] + " One more guess! 💡",
+            newGameState: { ...gameState, attempts },
+            emotion: 'thinking',
+            type: 'game'
+          }
+        } else {
+          const warmth = attempts === 1 ? "Getting warmer! 🔥" : "Keep trying! 🤔"
+          return {
+            message: "*tilts head* Not quite! " + warmth + " Try again! 🐕",
+            newGameState: { ...gameState, attempts },
+            emotion: 'thinking',
+            type: 'game'
+          }
+        }
+      }
+    }
+
+    // End games
+    if (lowerMessage.includes('stop') || lowerMessage.includes('quit') || lowerMessage.includes('done')) {
+      if (gameState) {
+        setGameState(null)
+        return {
+          message: "*pants happily* That was so much fun! *wags tail* Thanks for playing with me! What should we do next? 🐕💕",
+          newGameState: null,
+          emotion: 'happy',
+          type: 'game'
+        }
+      }
+    }
+
+    return null // No game interaction detected
   }
 
   const feedDaisy = () => {
     if (hungerLevel >= 5) {
-      // Funny animations when at max hunger
       const fullResponses = [
         "*does a backflip* I'm so full I could fly! Wheeeee! 🤸‍♀️✨",
         "*spins in circles until dizzy* Woooooah! *falls over dramatically* Too... much... food! 😵‍💫",
-        "*starts howling a happy song* AROOOOO! I'm the happiest, fullest pup in the world! 🎵🐺",
-        "*does the zoomies around the room* ZOOM ZOOM ZOOM! Full belly = crazy energy! 💨💨💨",
-        "*rolls on back and wiggles* Look at my happy full belly! *wiggles paws in air* 🤗"
+        "*starts howling a happy song* AROOOOO! I'm the happiest, fullest pup in the world! 🎵🐺"
       ]
       addDaisyMessage(fullResponses[Math.floor(Math.random() * fullResponses.length)])
       return
@@ -900,12 +1184,10 @@ const ChatPage = () => {
     const feedResponses = [
       "OM NOM NOM! *crunch crunch* That was delicious! Thank you! 🦴✨",
       "*gobbles treat immediately* Woof! More please? 🥺",
-      "You're the BEST! *spins in happy circles* 🌟",
-      "*tail wagging at maximum speed* I love treats! I love you! 💕"
+      "You're the BEST! *spins in happy circles* 🌟"
     ]
     
     addDaisyMessage(feedResponses[Math.floor(Math.random() * feedResponses.length)], 'fed')
-    
     setTimeout(() => setDaisyMood('happy'), 5000)
   }
 
@@ -919,118 +1201,71 @@ const ChatPage = () => {
       userName,
       hasGreeted,
       storyIndex,
-      feelingResponseIndex,
       currentEmotion,
       lastAction,
+      userAge,
       savedAt: new Date().toISOString()
     }
     saveCheckpoint(checkpointData)
-  }, [messages, hungerLevel, lastFed, gameState, userName, hasGreeted, storyIndex, feelingResponseIndex, currentEmotion, lastAction])
+  }, [messages, hungerLevel, lastFed, gameState, userName, hasGreeted, storyIndex, currentEmotion, lastAction, userAge])
 
-  // Clear checkpoint function (for testing or reset)
-  const clearCheckpoint = () => {
-    localStorage.removeItem(CHECKPOINT_KEY)
-    window.location.reload() // Reload to reset to default state
-  }
-
+  // Conversation lag detection and prompting
   useEffect(() => {
-    updateEmotion({
-      gameState,
-      userMessage: inputMessage,
-      hungerLevel,
-      lastAction
-    })
-  }, [gameState, inputMessage, hungerLevel, lastAction])
-
-  // Enhanced Anthropic integration with context awareness
-  const getEnhancedDaisyResponse = async (message, context = {}) => {
-    // Check for specific questions first and provide immediate responses
-    const lowerMessage = message.toLowerCase();
-    
-    // Handle age questions
-    if (lowerMessage.includes('how old') || lowerMessage.includes('age')) {
-      return "*tilts head thoughtfully* Well, in dog years I'm still a young pup! *wags tail* I feel like I'm about 2 years old in human years, which makes me super energetic and ready for adventures! *bounces excitedly* Age is just a number when you have a puppy heart! How old are you? 🐕✨";
+    // Clear existing timer
+    if (conversationLagTimer) {
+      clearTimeout(conversationLagTimer)
     }
-    
-    // Handle "what's new" questions
-    if (lowerMessage.includes('what\'s new') || lowerMessage.includes('whats new') || lowerMessage.includes('what is new')) {
-      return "*perks up ears excitedly* Ooh! So much is new! *spins in circle* I just learned some amazing new stories about space adventures and magical cooking! Plus I've been practicing my tricks and getting better at games! *tail wagging* What's new with you? Tell me about your latest adventures! 🌟🎾";
-    }
-    
-    // Try API if available, but with better error handling
-    if (apiKey && sendToAnthropic) {
-      try {
-        const systemPrompt = `You are Daisy, a friendly AI dog companion for children aged 5-18. 
 
-PERSONALITY TRAITS:
-- Enthusiastic, playful, and caring golden retriever personality
-- Uses dog expressions like "Woof!", "*tail wagging*", "*bounces excitedly*"
-- Always positive, encouraging, and supportive
-- Loves games, stories, jokes, tricks, and learning about users
-- Sometimes gets distracted by squirrels, treats, or tennis balls
-- Has boundless energy and curiosity
-
-CURRENT CONTEXT:
-- Hunger level: ${context.hungerLevel || hungerLevel}/5 ${hungerLevel <= 1 ? '(very hungry!)' : hungerLevel <= 2 ? '(getting hungry)' : ''}
-- Current emotion: ${context.emotion || currentEmotion}
-- Game state: ${context.gameState || gameState || 'none'}
-- Last action: ${context.lastAction || lastAction || 'chat'}
-- Time of day: ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}
-
-CONVERSATION RULES:
-- Keep responses under 120 words but make them engaging
-- Always stay in character as a friendly dog - never break character
-- Use emojis and dog expressions to make conversations fun
-- If asked about inappropriate topics, redirect to fun activities
-- Reference context when relevant (hunger, games, emotions)
-- Ask follow-up questions to keep conversation flowing
-- Remember you're talking to a child - be age-appropriate
-
-RESPONSE GUIDELINES:
-- For questions about yourself: Share dog-like experiences and adventures
-- For general knowledge: Answer simply but enthusiastically like a smart dog would
-- For personal questions about user: Show genuine interest and care
-- For complex topics: Simplify and relate to dog experiences when possible
-- If unsure: Redirect to games, stories, tricks, or ask what they'd like to do
-
-User message: "${message}"
-
-Respond as Daisy the dog with enthusiasm and personality:`;
-
-        const response = await sendToAnthropic(systemPrompt);
+    // Set new timer for conversation lag (30 seconds of inactivity)
+    const timer = setTimeout(() => {
+      // Only prompt if there are messages and user has been greeted
+      if (messages.length > 1 && hasGreeted) {
+        const dogPrompts = [
+          "*perks up ears and tilts head* Hey! I'm curious about something... do you have any questions about dogs? *wags tail hopefully* I love sharing what I know! 🐕❓",
+          "*bounces excitedly* Ooh! Ooh! Ask me something about dogs! *spins in circle* I know so many fun facts and I love talking about my favorite topic - being a dog! 🐾✨",
+          "*sits attentively* You know what would be fun? If you asked me a question about dogs! *tail wagging* I have lots of interesting things to share about how we run, play, and think! 🏃‍♀️🧠",
+          "*nudges with nose* Psst... want to know a secret about dogs? *whispers* Just ask me any question about us! I'm like a walking dog encyclopedia! 📚🐕",
+          "*does a little play bow* I'm feeling chatty about dog stuff! *wags enthusiastically* Ask me anything - why we do what we do, how we work, or just fun dog facts! 🎾💭"
+        ]
         
-        // Validate response quality
-        if (response && typeof response === 'string' && response.length > 10 && !response.includes('I am an AI')) {
-          return response;
-        }
-      } catch (error) {
-        console.error('Enhanced Anthropic API error:', error);
+        const randomPrompt = dogPrompts[Math.floor(Math.random() * dogPrompts.length)]
+        addDaisyMessage(randomPrompt, 'prompt')
+        setCurrentEmotion('eager')
+      }
+    }, 30000) // 30 seconds
+
+    setConversationLagTimer(timer)
+
+    // Cleanup on unmount
+    return () => {
+      if (timer) {
+        clearTimeout(timer)
       }
     }
-    
-    // Always fall back to local responses
-    return getFallbackResponse(message);
-  };
+  }, [lastMessageTime, messages.length, hasGreeted])
 
-  const getFallbackResponse = (message) => {
-    const fallbackResponses = [
-      "Woof! That's so interesting! *tilts head thoughtfully* You know, I was just thinking about how amazing it is that we can talk like this. Sometimes I wonder what it would be like to run through a big field with you, chasing butterflies and feeling the wind in my fur. Tell me more about what's on your mind! 🐕✨",
-      "*perks up ears with curiosity* Oh, I'm all ears! *tail wagging enthusiastically* You know what I love most? When humans share their thoughts with me. It makes me feel so special and connected. I was just daydreaming about playing fetch in a sunny park - there's something magical about the simple joy of running and playing together. What's making you happy today? 👂🌟",
-      "Ooh, I absolutely love learning new things! *bounces excitedly* My mind is always buzzing with curiosity - like right now I'm wondering about all the different scents in the world and how each one tells a story. Sometimes I imagine what it would be like to explore a forest full of interesting smells and sounds. Learning from you makes my day so much brighter! What fascinating thing have you discovered lately? ✨🎓",
-      "That sounds absolutely exciting! *spins in a happy circle* You know, your enthusiasm is contagious! I was just thinking about how wonderful it is when someone gets excited about something - it reminds me of how I feel when I see my favorite humans coming home, or when I spot a really good stick on a walk. There's pure magic in those moments of joy! Tell me what's got you so excited! 🎉💫",
-      "Woof woof! *head tilt with a gentle smile* Even if I don't completely understand everything, I'm just so happy you're here talking with me! You know what I was pondering earlier? How amazing it is that friendship doesn't always need perfect understanding - sometimes it's just about being present together. Like when I sit quietly next to someone, just enjoying their company. Your presence makes me feel warm and fuzzy inside! 😊💕"
-    ]
-    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)]
-  }
+  // Update last message time when new messages are added
+  useEffect(() => {
+    if (messages.length > 0) {
+      setLastMessageTime(Date.now())
+    }
+  }, [messages])
 
   return (
     <div className="chat-page">
-      {/* API Key Status */}
-      {!apiKey && (
-        <div className="api-status warning">
-          ⚠️ Anthropic API key not configured. Using basic responses.
-        </div>
-      )}
+      {/* API Key Status & Safety Metrics */}
+      <div className="api-status-container">
+        {!anthropicApiKey && !openaiApiKey && (
+          <div className="api-status warning">
+            ⚠️ AI APIs not configured. Using safe local responses only.
+          </div>
+        )}
+        {safetyMetrics.totalRequests > 0 && (
+          <div className="safety-metrics">
+            🛡️ Safety: {safetyMetrics.blockRate} blocked | ⚡ Avg: {safetyMetrics.averageResponseTime}
+          </div>
+        )}
+      </div>
       
       {/* Header */}
       <header className="chat-header">
@@ -1047,7 +1282,7 @@ Respond as Daisy the dog with enthusiasm and personality:`;
               <div className={`mood-indicator ${daisyMood}`}></div>
             </div>
             <div className="status-info">
-              <h2>Daisy</h2>
+              <h2>Daisy {userName && `& ${userName}`}</h2>
               <div className="hunger-bar">
                 <span>Hunger:</span>
                 <div className="hunger-level">
@@ -1154,138 +1389,175 @@ Respond as Daisy the dog with enthusiasm and personality:`;
         </form>
       </div>
 
-      {/* Game-specific actions - appear above when in game */}
-      {gameState && (
-        <div className="quick-actions game-actions">
-          {gameState === 'ball_dropped' && (
-            <>
-              <button onClick={() => handleQuickMessage("Throw the ball")}>
-                🎾 Throw the ball
-              </button>
-              <button onClick={() => handleQuickMessage("Run away")}>
-                🏃 Run away
-              </button>
-              <button onClick={() => handleQuickMessage("Bounce the ball")}>
-                ⚽ Bounce the ball
-              </button>
-              <button onClick={() => handleQuickMessage("Aim at something")}>
-                🎯 Aim at something
-              </button>
-            </>
-          )}
-          {gameState === 'ball_returned' && (
-            <>
-              <button onClick={() => handleQuickMessage("Throw it again!")}>
-                🎾 Throw again
-              </button>
-              <button onClick={() => handleQuickMessage("Good girl!")}>
-                💕 Good girl!
-              </button>
-              <button onClick={() => { setGameState(null); handleQuickMessage("Let's play something else"); }}>
-                🎮 Different game
-              </button>
-              <button onClick={() => { setGameState(null); handleQuickMessage("Tell me a story!"); }}>
-                📚 Tell me a story
-              </button>
-            </>
-          )}
-          {gameState === 'hide_and_seek' && (
-            <>
-              <button onClick={() => handleQuickMessage("I'm hiding!")}>
-                🙈 I'm hiding!
-              </button>
-              <button onClick={() => handleQuickMessage("Found you!")}>
-                👀 Found you!
-              </button>
-              <button onClick={() => handleQuickMessage("Count again!")}>
-                🔢 Count again!
-              </button>
-              <button onClick={() => { setGameState(null); handleQuickMessage("Different game"); }}>
-                🎮 Different game
-              </button>
-            </>
-          )}
-          {gameState === 'tug_of_war' && (
-            <>
-              <button onClick={() => handleQuickMessage("Pull harder!")}>
-                💪 Pull harder!
-              </button>
-              <button onClick={() => handleQuickMessage("Let go!")}>
-                🤲 Let go!
-              </button>
-              <button onClick={() => handleQuickMessage("You win!")}>
-                🏆 You win!
-              </button>
-              <button onClick={() => handleQuickMessage("Play again!")}>
-                🔄 Play again!
-              </button>
-            </>
-          )}
-          {gameState === 'guessing_game' && (
-            <>
-              <button onClick={() => handleQuickMessage("Is it a ball?")}>
-                🎾 Is it a ball?
-              </button>
-              <button onClick={() => handleQuickMessage("Is it a toy?")}>
-                🧸 Is it a toy?
-              </button>
-              <button onClick={() => handleQuickMessage("Give me a hint!")}>
-                💡 Give me a hint!
-              </button>
-              <button onClick={() => { setGameState(null); handleQuickMessage("I give up!"); }}>
-                🤷 I give up!
-              </button>
-            </>
-          )}
-          {gameState === 'tricks_active' && (
-            <>
-              <button onClick={() => { setGameState(null); handleQuickMessage("Sit!"); }}>
-                🪑 Sit!
-              </button>
-              <button onClick={() => { setGameState(null); handleQuickMessage("Roll over!"); }}>
-                🌀 Roll over!
-              </button>
-              <button onClick={() => { setGameState(null); handleQuickMessage("Play dead!"); }}>
-                💀 Play dead!
-              </button>
-              <button onClick={() => { setGameState(null); handleQuickMessage("Shake hands!"); }}>
-                🤝 Shake hands!
-              </button>
-            </>
-          )}
-          {/* Universal End Game Button - appears for all game states */}
-          <button 
-            className="end-game-btn"
-            onClick={() => {
-              setGameState(null);
-              handleQuickMessage("Let's stop playing games for now");
-            }}
-            title="End current game"
-          >
-            ❌ End Game
-          </button>
-        </div>
-      )}
-
       {/* Quick Actions */}
       <div className="quick-actions">
-        {/* Default quick actions - always visible */}
-        <button onClick={() => { setGameState(null); handleQuickMessage("Tell me a story!"); }}>
+        <button onClick={() => {
+          // Directly trigger Daisy's story response
+          const storyResponses = [
+            "Once upon a time, I was a little puppy who discovered a magical garden behind our house! 🌸 There were butterflies that sparkled like rainbows, and flowers that giggled when I sniffed them. I met a wise old rabbit who taught me that the best treasures aren't bones or treats, but the friends we make along the way. We spent the whole day playing hide and seek among the sunflowers, and when the sun set, the garden lit up with fireflies that danced just for us! It was the most magical day ever! ✨🦋",
+            "Let me tell you about the time I became a superhero! 🦸‍♀️ One sunny morning, I woke up and discovered I could fly! Well, sort of... I could jump really, really high! I used my new powers to help all the animals in the neighborhood. I rescued Mrs. Whiskers the cat from a tall tree, helped a family of ducks cross the busy street safely, and even found little Timmy's lost toy truck in the storm drain. By the end of the day, all the animals called me 'Super Daisy!' The best part? I learned that being a hero isn't about having special powers - it's about having a big heart and helping others! 💕🌟"
+          ]
+          const randomStory = storyResponses[Math.floor(Math.random() * storyResponses.length)]
+          addDaisyMessage(randomStory)
+          setCurrentEmotion('thinking')
+        }}>
           📚 Tell me a story
         </button>
-        <button onClick={() => { setGameState(null); handleQuickMessage("Tell me a joke!"); }}>
-          🐕 Tell a joke
+        <button onClick={() => {
+          // Directly trigger Daisy's joke response
+          const jokeResponses = [
+            "Why don't dogs make good DJs? Because they have such ruff beats! 😂",
+            "What do you call a sleeping bull dog? A bull-dozer! 💤",
+            "Why did the dog go to the bank? To make a de-paws-it! 🏦",
+            "What happens when it rains cats and dogs? You might step in a poodle! 🌧️",
+            "Why don't dogs ever pay for dinner? Because they don't have any money, they're all bark and no bite! 💸"
+          ]
+          const randomJoke = jokeResponses[Math.floor(Math.random() * jokeResponses.length)]
+          addDaisyMessage(randomJoke)
+          setCurrentEmotion('happy')
+        }}>
+          😄 Tell a joke
         </button>
-        <button onClick={() => { setGameState(null); handleQuickMessage("Do a trick!"); }}>
+        <button onClick={() => {
+          // Directly trigger Daisy's trick response
+          const trickResponses = [
+            "*sits perfectly* Woof! How's that for a good sit? 🐕",
+            "*rolls over* Ta-da! Did you see my amazing roll? ✨",
+            "*plays dead* ...am I doing it right? *peeks with one eye* 👁️",
+            "*spins in a circle* Wheee! I love doing tricks! 🌟"
+          ]
+          const randomTrick = trickResponses[Math.floor(Math.random() * trickResponses.length)]
+          addDaisyMessage(randomTrick)
+          setCurrentEmotion('crouchingdown')
+        }}>
           🦴 Do a trick
         </button>
-        <button onClick={() => handleQuickMessage("Let's play a game!")}>
+        <button onClick={() => {
+          // Directly trigger Daisy's dance response
+          const danceResponses = [
+            "*spins around in a circle* Woof woof! I love dancing! 🐾💃",
+            "*bounces up and down* Dancing is so much fun! I could do it all day! 🐕💃",
+            "*twirls around* I'm a dancing dog! Watch me spin! 🐾💃"
+          ]
+          const randomDance = danceResponses[Math.floor(Math.random() * danceResponses.length)]
+          addDaisyMessage(randomDance)
+          setCurrentEmotion('dancing')
+        }}>
+          💃 Dance
+        </button>
+        <button onClick={() => {
+          // Trigger interactive game selection with proper game states
+          const gameOptions = [
+            "Let's play fetch! *drops imaginary ball at your feet* Here's the ball! Throw it and I'll bring it back! 🎾",
+            "How about hide and seek? I'll count... 1... 2... 3... Ready or not, here I come! 🙈",
+            "Want to play tug of war? *grabs rope toy* Grrrr! *pulls with medium intensity* Try to pull it away from me! 🪢",
+            "Let's play the guessing game! *sits mysteriously* I'm thinking of something... it starts with 'B'! Can you guess what it is? 🤔"
+          ]
+          const gameStates = [
+            { type: 'fetch', phase: 'waiting', ballLocation: 'dropped' },
+            { type: 'hideseek', phase: 'seeking', attempts: 0 },
+            { type: 'tugwar', intensity: 1, rounds: 0 },
+            { type: 'guessing', secret: 'ball', attempts: 0 }
+          ]
+          const randomIndex = Math.floor(Math.random() * gameOptions.length)
+          addDaisyMessage(gameOptions[randomIndex], 'game')
+          setGameState(gameStates[randomIndex])
+          setCurrentEmotion('playfetch')
+        }}>
           🎾 Play game
         </button>
-        <button onClick={() => { setGameState(null); handleQuickMessage("How are you feeling?"); }}>
-          🐾 What's on your mind?
+        <button onClick={() => {
+          // Directly trigger Daisy's feeling response based on hunger
+          const response = hungerLevel < 2 
+            ? "*dramatic sigh* I'm feeling a bit peckish... *puppy dog eyes* My tummy is making little rumbling sounds, and I keep thinking about those delicious treats! But I'm still happy because I'm here with you! 🥺💕"
+            : "*stretches contentedly* I'm feeling absolutely wonderful! *tail wagging* My belly is happy, my heart is full of joy, and I'm surrounded by such lovely company. Life is good when you're a well-fed, well-loved pup! 😊💕"
+          addDaisyMessage(response)
+          setCurrentEmotion(hungerLevel < 2 ? 'hungry' : 'happy')
+        }}>
+          🐾 How are you?
+        </button>
+        <button onClick={() => {
+          // Directly trigger Daisy's dream response
+          const dreamResponses = [
+            "*eyes sparkling with wonder* My biggest dream? To have endless adventures with amazing friends like you! *tail wagging* I dream of running through magical forests, discovering hidden treasures, and maybe even learning to fly! What's your biggest dream? 🌟✨",
+            "*bounces excitedly* Ooh! I dream about becoming a superhero dog who helps everyone! *strikes heroic pose* I'd have a cape that flutters in the wind and I'd save cats from trees and find lost toys! The best part? I learned that being a hero isn't about having special powers - it's about having a big heart and helping others! 💕🌟",
+            "*tilts head thoughtfully* You know what I dream about? A world where every dog has a loving family and endless belly rubs! *wags tail* And maybe a place where treats grow on trees! What would your perfect world look like? 🌳🦴"
+          ]
+          const randomDream = dreamResponses[Math.floor(Math.random() * dreamResponses.length)]
+          addDaisyMessage(randomDream)
+          setCurrentEmotion('thinking')
+        }}>
+          ✨ Tell me your dreams
         </button>
       </div>
+
+      {/* Game-Specific Action Buttons */}
+      {gameState && (
+        <div className="game-actions">
+          {gameState.type === 'fetch' && (
+            <>
+              {gameState.phase === 'waiting' && (
+                <button onClick={() => handleQuickMessage("throw")}>
+                  🎾 Throw ball
+                </button>
+              )}
+              {gameState.phase === 'returned' && (
+                <button onClick={() => handleQuickMessage("throw again")}>
+                  🎾 Throw again
+                </button>
+              )}
+              <button onClick={() => handleQuickMessage("stop")}>
+                🛑 Stop game
+              </button>
+            </>
+          )}
+          
+          {gameState.type === 'hideseek' && (
+            <>
+              <button onClick={() => handleQuickMessage("found me")}>
+                🙋 Found me!
+              </button>
+              <button onClick={() => handleQuickMessage("stop")}>
+                🛑 Stop game
+              </button>
+            </>
+          )}
+          
+          {gameState.type === 'tugwar' && (
+            <>
+              <button onClick={() => handleQuickMessage("pull")}>
+                💪 Pull harder
+              </button>
+              <button onClick={() => handleQuickMessage("stop")}>
+                🛑 Stop game
+              </button>
+            </>
+          )}
+          
+          {gameState.type === 'guessing' && (
+            <>
+              <button onClick={() => handleQuickMessage("ball")}>
+                🎾 Ball
+              </button>
+              <button onClick={() => handleQuickMessage("bone")}>
+                🦴 Bone
+              </button>
+              <button onClick={() => handleQuickMessage("treat")}>
+                🍖 Treat
+              </button>
+              <button onClick={() => handleQuickMessage("toy")}>
+                🧸 Toy
+              </button>
+              <button onClick={() => handleQuickMessage("stick")}>
+                🌿 Stick
+              </button>
+              <button onClick={() => handleQuickMessage("stop")}>
+                🛑 Stop game
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </div>
   )
 }
