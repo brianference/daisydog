@@ -1117,7 +1117,7 @@ const ChatPage = () => {
 
       if (guess.includes(secret)) {
         return {
-          message: "*jumps up excitedly* YES! You got it! It was a " + secret + "! *spins in circles* You're so smart! Want to play again? 🎉✨",
+          message: "*jumps up excitedly* YES! You got it! It was a " + secret + "! *spins in circles* You're so smart! Want to play again? 🎉",
           newGameState: null,
           emotion: 'excited',
           type: 'game'
@@ -1391,102 +1391,25 @@ const ChatPage = () => {
 
       {/* Quick Actions */}
       <div className="quick-actions">
-        <button onClick={() => {
-          // Directly trigger Daisy's story response
-          const storyResponses = [
-            "Once upon a time, I was a little puppy who discovered a magical garden behind our house! 🌸 There were butterflies that sparkled like rainbows, and flowers that giggled when I sniffed them. I met a wise old rabbit who taught me that the best treasures aren't bones or treats, but the friends we make along the way. We spent the whole day playing hide and seek among the sunflowers, and when the sun set, the garden lit up with fireflies that danced just for us! It was the most magical day ever! ✨🦋",
-            "Let me tell you about the time I became a superhero! 🦸‍♀️ One sunny morning, I woke up and discovered I could fly! Well, sort of... I could jump really, really high! I used my new powers to help all the animals in the neighborhood. I rescued Mrs. Whiskers the cat from a tall tree, helped a family of ducks cross the busy street safely, and even found little Timmy's lost toy truck in the storm drain. By the end of the day, all the animals called me 'Super Daisy!' The best part? I learned that being a hero isn't about having special powers - it's about having a big heart and helping others! 💕🌟"
-          ]
-          const randomStory = storyResponses[Math.floor(Math.random() * storyResponses.length)]
-          addDaisyMessage(randomStory)
-          setCurrentEmotion('thinking')
-        }}>
+        <button onClick={() => handleQuickMessage("Tell me a story")}>
           📚 Tell me a story
         </button>
-        <button onClick={() => {
-          // Directly trigger Daisy's joke response
-          const jokeResponses = [
-            "Why don't dogs make good DJs? Because they have such ruff beats! 😂",
-            "What do you call a sleeping bull dog? A bull-dozer! 💤",
-            "Why did the dog go to the bank? To make a de-paws-it! 🏦",
-            "What happens when it rains cats and dogs? You might step in a poodle! 🌧️",
-            "Why don't dogs ever pay for dinner? Because they don't have any money, they're all bark and no bite! 💸"
-          ]
-          const randomJoke = jokeResponses[Math.floor(Math.random() * jokeResponses.length)]
-          addDaisyMessage(randomJoke)
-          setCurrentEmotion('happy')
-        }}>
+        <button onClick={() => handleQuickMessage("Tell me a joke")}>
           😄 Tell a joke
         </button>
-        <button onClick={() => {
-          // Directly trigger Daisy's trick response
-          const trickResponses = [
-            "*sits perfectly* Woof! How's that for a good sit? 🐕",
-            "*rolls over* Ta-da! Did you see my amazing roll? ✨",
-            "*plays dead* ...am I doing it right? *peeks with one eye* 👁️",
-            "*spins in a circle* Wheee! I love doing tricks! 🌟"
-          ]
-          const randomTrick = trickResponses[Math.floor(Math.random() * trickResponses.length)]
-          addDaisyMessage(randomTrick)
-          setCurrentEmotion('crouchingdown')
-        }}>
+        <button onClick={() => handleQuickMessage("Do a trick")}>
           🦴 Do a trick
         </button>
-        <button onClick={() => {
-          // Directly trigger Daisy's dance response
-          const danceResponses = [
-            "*spins around in a circle* Woof woof! I love dancing! 🐾💃",
-            "*bounces up and down* Dancing is so much fun! I could do it all day! 🐕💃",
-            "*twirls around* I'm a dancing dog! Watch me spin! 🐾💃"
-          ]
-          const randomDance = danceResponses[Math.floor(Math.random() * danceResponses.length)]
-          addDaisyMessage(randomDance)
-          setCurrentEmotion('dancing')
-        }}>
+        <button onClick={() => handleQuickMessage("Dance for me")}>
           💃 Dance
         </button>
-        <button onClick={() => {
-          // Trigger interactive game selection with proper game states
-          const gameOptions = [
-            "Let's play fetch! *drops imaginary ball at your feet* Here's the ball! Throw it and I'll bring it back! 🎾",
-            "How about hide and seek? I'll count... 1... 2... 3... Ready or not, here I come! 🙈",
-            "Want to play tug of war? *grabs rope toy* Grrrr! *pulls with medium intensity* Try to pull it away from me! 🪢",
-            "Let's play the guessing game! *sits mysteriously* I'm thinking of something... it starts with 'B'! Can you guess what it is? 🤔"
-          ]
-          const gameStates = [
-            { type: 'fetch', phase: 'waiting', ballLocation: 'dropped' },
-            { type: 'hideseek', phase: 'seeking', attempts: 0 },
-            { type: 'tugwar', intensity: 1, rounds: 0 },
-            { type: 'guessing', secret: 'ball', attempts: 0 }
-          ]
-          const randomIndex = Math.floor(Math.random() * gameOptions.length)
-          addDaisyMessage(gameOptions[randomIndex], 'game')
-          setGameState(gameStates[randomIndex])
-          setCurrentEmotion('playfetch')
-        }}>
+        <button onClick={() => handleQuickMessage("Let's play a game")}>
           🎾 Play game
         </button>
-        <button onClick={() => {
-          // Directly trigger Daisy's feeling response based on hunger
-          const response = hungerLevel < 2 
-            ? "*dramatic sigh* I'm feeling a bit peckish... *puppy dog eyes* My tummy is making little rumbling sounds, and I keep thinking about those delicious treats! But I'm still happy because I'm here with you! 🥺💕"
-            : "*stretches contentedly* I'm feeling absolutely wonderful! *tail wagging* My belly is happy, my heart is full of joy, and I'm surrounded by such lovely company. Life is good when you're a well-fed, well-loved pup! 😊💕"
-          addDaisyMessage(response)
-          setCurrentEmotion(hungerLevel < 2 ? 'hungry' : 'happy')
-        }}>
+        <button onClick={() => handleQuickMessage("How are you feeling?")}>
           🐾 How are you?
         </button>
-        <button onClick={() => {
-          // Directly trigger Daisy's dream response
-          const dreamResponses = [
-            "*eyes sparkling with wonder* My biggest dream? To have endless adventures with amazing friends like you! *tail wagging* I dream of running through magical forests, discovering hidden treasures, and maybe even learning to fly! What's your biggest dream? 🌟✨",
-            "*bounces excitedly* Ooh! I dream about becoming a superhero dog who helps everyone! *strikes heroic pose* I'd have a cape that flutters in the wind and I'd save cats from trees and find lost toys! The best part? I learned that being a hero isn't about having special powers - it's about having a big heart and helping others! 💕🌟",
-            "*tilts head thoughtfully* You know what I dream about? A world where every dog has a loving family and endless belly rubs! *wags tail* And maybe a place where treats grow on trees! What would your perfect world look like? 🌳🦴"
-          ]
-          const randomDream = dreamResponses[Math.floor(Math.random() * dreamResponses.length)]
-          addDaisyMessage(randomDream)
-          setCurrentEmotion('thinking')
-        }}>
+        <button onClick={() => handleQuickMessage("Tell me about your dreams")}>
           ✨ Tell me your dreams
         </button>
       </div>
