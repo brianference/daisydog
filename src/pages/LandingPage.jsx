@@ -244,18 +244,18 @@ const LandingPage = () => {
         <div className="container">
           <div className="footer-content">
             <div className="footer-logo">
-              <img src="/assets/images/daisy-logo.png" alt="Daisy" />
+              <img src="/assets/images/emotions/hungry.png" alt="Daisy" />
               <span>DaisyDog</span>
             </div>
             <div className="footer-links">
               <Link to="/about">About</Link>
               <Link to="/chat">Chat</Link>
-              <a href="#privacy">Privacy</a>
-              <a href="#contact">Contact</a>
+              <Link to="/privacy">Privacy</Link>
+              <Link to="/contact">Contact</Link>
             </div>
             <div className="footer-text">
               <p>Made with <FaHeart className="heart" /> for kids everywhere</p>
-              <p>&copy; 2024 DaisyDog. All rights reserved.</p>
+              <p>&copy; 2025 DaisyDog. All rights reserved.</p>
             </div>
           </div>
         </div>

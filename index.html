@@ -18,17 +18,36 @@
     <meta property="og:url" content="https://daisydog.netlify.app/" />
     <meta property="og:title" content="DaisyDog - Your AI Companion" />
     <meta property="og:description" content="Meet Daisy, your friendly AI companion! Chat, play, and learn together in a safe, fun environment designed for kids." />
-    <meta property="og:image" content="https://daisydog.netlify.app/assets/images/daisy-logo.png" />
+    <meta property="og:image" content="https://daisydog.netlify.app/assets/images/emotions/hungry.png" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://daisydog.netlify.app/" />
     <meta property="twitter:title" content="DaisyDog - Your AI Companion" />
     <meta property="twitter:description" content="Meet Daisy, your friendly AI companion! Chat, play, and learn together in a safe, fun environment designed for kids." />
-    <meta property="twitter:image" content="https://daisydog.netlify.app/assets/images/daisy-logo.png" />
+    <meta property="twitter:image" content="https://daisydog.netlify.app/assets/images/emotions/hungry.png" />
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- Hidden form for Netlify Forms detection -->
+    <form name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <select name="category">
+        <option value="general">General Question</option>
+        <option value="technical">Technical Support</option>
+        <option value="safety">Safety Concern</option>
+        <option value="feedback">Feedback/Suggestion</option>
+        <option value="privacy">Privacy Question</option>
+        <option value="partnership">Partnership/Business</option>
+      </select>
+      <input type="text" name="subject" />
+      <textarea name="message"></textarea>
+      <input type="text" name="isParent" />
+      <input name="bot-field" />
+    </form>
+    
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

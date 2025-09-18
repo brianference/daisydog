@@ -29,7 +29,7 @@ const AboutPage = () => {
           >
             <div className="hero-content">
               <div className="hero-image">
-                <img src="/assets/images/daisy-logo.png" alt="Daisy the Dog" />
+                <img src="/assets/images/daisy-new-logo.png" alt="Daisy the Dog" />
               </div>
               <div className="hero-text">
                 <h2>Meet Daisy! 🐕</h2>
