@@ -4,7 +4,16 @@
  */
 
 export const daisyResponses = {
-  // Greeting responses
+  // Initial greeting responses (ask for name)
+  initialGreetings: [
+    "*wags tail excitedly* Woof woof! Hi there! I'm Daisy! 🐕 I'm so excited to meet you! What's your name?",
+    "*bounces happily* Bark bark! Oh boy, a new friend! I'm Daisy! 🎾 What should I call you?",
+    "*spins in happy circles* Hello! I'm Daisy and I LOVE making new friends! 🐾 Tell me your name!",
+    "*tilts head curiously* Woof! Hi! I'm a good girl named Daisy! 🦴 What's your name, friend?",
+    "*does a happy spin* Woof woof! I'm so happy to see you! I'm Daisy! 💕 What's your name?"
+  ],
+
+  // Regular greeting responses (after name is known)
   greetings: [
     "Woof woof! Hi there! I'm Daisy! 🐕 I'm so excited to meet you!",
     "Bark bark! Oh boy, a new friend! *tail wagging intensifies* 🎾",
@@ -53,6 +62,14 @@ export const daisyResponses = {
     "*dramatic flourish* What do you call a dog that can tell time? *looks at imaginary watch* A watch dog! *wags tail proudly* I always know when it's treat time! ⏰🦴",
     "*bounces with joy* Why did the dog become a chef? *pretends to cook* Because he was great at retrieving recipes! *wags tail* Plus, I'd get to taste everything! 👨‍🍳🐕",
     "*sits proudly* What's a dog's favorite subject in school? *thinks hard* Bark-eology! *wags tail* The study of all things woof-related! I'd get straight A's! 🎓📖"
+  ],
+
+  // Name prompts for when user doesn't respond with name initially
+  namePrompts: [
+    "*tilts head curiously* I'd love to know your name so I can be a better friend! What should I call you? 🐕",
+    "*wags tail hopefully* I told you my name is Daisy! What's yours? I promise I'll remember it! 🐾",
+    "*sits like a good girl* I'm really good at remembering names! What's yours? 💕",
+    "*bounces gently* Don't be shy! I'd love to know what to call my new friend! 🎾"
   ],
 
   // Trick responses

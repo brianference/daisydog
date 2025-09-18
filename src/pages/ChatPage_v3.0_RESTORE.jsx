@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaPaw, FaBone, FaHome, FaQuestionCircle, FaPaperPlane, FaBrain, FaVolumeUp, FaVolumeMute } from 'react-icons/fa'
 import { daisyResponses } from '../data/daisyResponses'
-import { dogFacts, getRandomDogFact, getDogFactByKeyword, containsDogFactKeywords } from '../data/dogFacts'
 import GeminiService from '../services/GeminiService.js'
 import useSoundManagerModular from '../hooks/useSoundManagerModular.js'
 import SoundControls from '../components/SoundControls.jsx'
@@ -11,7 +10,7 @@ import SoundTestPanel from '../components/SoundTestPanel.jsx'
 import './ChatPage.css'
 
 const ChatPage = () => {
-  // Chat state
+  // Core state
   const [messages, setMessages] = useState([])
   const [inputMessage, setInputMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -30,11 +29,6 @@ const ChatPage = () => {
   const [showGameMenu, setShowGameMenu] = useState(false)
   const [ballCatchHeight, setBallCatchHeight] = useState('medium')
   const [showSoundTestPanel, setShowSoundTestPanel] = useState(false)
-  
-  // Inactivity system states
-  const [lastInteractionTime, setLastInteractionTime] = useState(Date.now())
-  const [inactivityTimer, setInactivityTimer] = useState(null)
-  const [inactivityType, setInactivityType] = useState('treat') // alternates between 'treat' and 'dogquestion'
   
   // API integration states
   const [geminiStatus, setGeminiStatus] = useState(null)
@@ -58,22 +52,8 @@ const ChatPage = () => {
   
   // Refs
   const messagesEndRef = useRef(null)
-  const messageIdCounter = useRef(0)
   
   // Helper functions
-  const generateUniqueMessageId = () => {
-    // Use crypto.randomUUID if available, otherwise fallback to timestamp + random
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-      return crypto.randomUUID()
-    }
-    
-    // Fallback: timestamp + random string + counter
-    const timestamp = Date.now()
-    const random = Math.random().toString(36).substr(2, 9)
-    const counter = messageIdCounter.current++
-    return `msg-${timestamp}-${random}-${counter}`
-  }
-  
   const getRandomResponse = (responses) => {
     if (!responses || !Array.isArray(responses) || responses.length === 0) {
       return "Woof! I'm having trouble finding my words right now! 🐕"
@@ -146,13 +126,10 @@ const ChatPage = () => {
       const savedState = localStorage.getItem('daisyDogState')
       if (savedState) {
         const state = JSON.parse(savedState)
-        const loadedMessages = state.messages.map(msg => ({
+        setMessages(state.messages.map(msg => ({
           ...msg,
           timestamp: new Date(msg.timestamp)
-        }))
-        setMessages(loadedMessages)
-        // Set message counter to avoid ID conflicts
-        messageIdCounter.current = loadedMessages.length
+        })))
         setCurrentEmotion(state.currentEmotion || 'happy')
         setHungerLevel(state.hungerLevel || 3)
         setGameState(state.gameState || null)
@@ -209,7 +186,7 @@ const ChatPage = () => {
     }
     
     const newMessage = {
-      id: generateUniqueMessageId(),
+      id: Date.now(),
       text,
       sender: 'daisy',
       timestamp: new Date(),
@@ -436,27 +413,8 @@ const ChatPage = () => {
       return story
     }
     
-    // Dog facts requests should be handled locally to ensure we get the full database
-    if (containsDogFactKeywords(userMessage)) {
-      console.log('Dog fact request detected, using local dog facts database')
-      setCurrentEmotion('excited')
-      const dogFact = getDogFactByKeyword(userMessage)
-      console.log('Dog fact delivered from database of', dogFacts.length, 'facts')
-      return { text: dogFact, emotion: 'excited' }
-    }
-    
     // Try Gemini AI for general responses (but not for name/critical logic)
-    const geminiAvailable = GeminiService.isAvailable()
-    
-    // Debug logging for availability
-    if (import.meta.env.VITE_DEBUG_MODE === 'true') {
-      console.log('🔧 Gemini Availability Check:', {
-        isAvailable: geminiAvailable,
-        status: GeminiService.getStatus()
-      })
-    }
-    
-    if (geminiAvailable) {
+    if (GeminiService.isAvailable()) {
       try {
         const context = {
           userName,
@@ -465,18 +423,7 @@ const ChatPage = () => {
           currentEmotion
         }
         const aiResponse = await GeminiService.generateResponse(userMessage, context)
-        
-        // Debug logging
-        if (import.meta.env.VITE_DEBUG_MODE === 'true') {
-          console.log('🤖 Gemini Response:', aiResponse)
-          console.log('🔍 Response Check:', {
-            hasResponse: !!aiResponse,
-            includesBasicResponses: aiResponse?.includes("basic responses"),
-            includesTroubleConnecting: aiResponse?.includes("trouble connecting")
-          })
-        }
-        
-        if (aiResponse && !aiResponse.includes("basic responses") && !aiResponse.includes("trouble connecting")) {
+        if (aiResponse && !aiResponse.includes("I'm using my basic responses") && !aiResponse.includes("trouble connecting")) {
           return aiResponse
         }
       } catch (error) {
@@ -624,7 +571,7 @@ const ChatPage = () => {
     
     // Add user message
     const userMessage = {
-      id: generateUniqueMessageId(),
+      id: Date.now(),
       text: message,
       sender: 'user',
       timestamp: new Date()
@@ -657,7 +604,7 @@ const ChatPage = () => {
     
     // Add user message
     const userMessage = {
-      id: generateUniqueMessageId(),
+      id: Date.now(),
       text: messageToSend,
       sender: 'user',
       timestamp: new Date()
@@ -714,21 +661,12 @@ const ChatPage = () => {
   // Initialize Gemini status
   useEffect(() => {
     const updateGeminiStatus = () => {
-      const status = GeminiService.getStatus()
-      setGeminiStatus(status)
-      
-      // Log status for debugging
-      if (import.meta.env.VITE_DEBUG_MODE === 'true') {
-        console.log('🔧 Gemini Status Update:', {
-          isAvailable: status.isAvailable,
-          apiWorking: status.apiWorking,
-          testAge: status.testAge ? `${Math.round(status.testAge / 1000)}s ago` : 'never'
-        })
-      }
+      setGeminiStatus(GeminiService.getStatus())
     }
     
     updateGeminiStatus()
-    const interval = setInterval(updateGeminiStatus, 10000) // Update every 10 seconds
+    // Update status every 30 seconds
+    const interval = setInterval(updateGeminiStatus, 30000)
     
     return () => clearInterval(interval)
   }, [])
@@ -771,53 +709,6 @@ const ChatPage = () => {
       saveState()
     }
   }, [messages, currentEmotion, hungerLevel, gameState, hasGreeted, userName, ballPosition, hideSeekCount, tugStrength, guessTarget, storyIndex, ballCatchHeight])
-
-  // Inactivity system
-  const resetInactivityTimer = () => {
-    setLastInteractionTime(Date.now())
-    if (inactivityTimer) {
-      clearTimeout(inactivityTimer)
-    }
-    
-    const timer = setTimeout(() => {
-      if (inactivityType === 'treat') {
-        // Send treat request
-        const treatPrompts = [
-          "*looks at you with hopeful eyes* I've been such a good dog... maybe I deserve a little treat? 🦴🥺",
-          "*sits perfectly and wags tail* You know what would make me even happier? A yummy treat! 🍖✨",
-          "*does a little spin* I've been thinking... it's been a while since I had a delicious bone! 🦴💭",
-          "*tilts head cutely* My tummy is making little rumbling sounds... treat time maybe? 🐕🍪",
-          "*wags tail hopefully* I promise I'll be extra good if you give me a treat! Pretty please? 🥺🦴"
-        ]
-        addDaisyMessage(getRandomResponse(treatPrompts), 'chat', 'hungry')
-        setInactivityType('dogquestion')
-      } else {
-        // Send dog question
-        const dogQuestions = [
-          "*perks up excitedly* Hey! Want to test your dog knowledge? Ask me for a dog fact! I know over 100 amazing things about dogs! 🧠🐕",
-          "*bounces with curiosity* I'm wondering... do you know how fast the fastest dog can run? Ask me 'dog facts' and I'll tell you! 🏃‍♀️💨",
-          "*tilts head thoughtfully* Here's a fun question: Do you think dogs can see colors? Ask me about dog facts to find out! 🌈👁️",
-          "*wags tail excitedly* I bet you don't know how many teeth dogs have! Want to learn something amazing about dogs? 🦷🤔",
-          "*sits attentively* Did you know dogs have some incredible superpowers? Ask me 'dog facts' and I'll blow your mind! 🦸‍♀️🐕",
-          "*excited bounce* I'm full of interesting dog knowledge! Ask me about dog breeds, abilities, or just say 'dog facts'! 📚🐾"
-        ]
-        addDaisyMessage(getRandomResponse(dogQuestions), 'chat', 'thinking')
-        setInactivityType('treat')
-      }
-    }, 45000) // 45 seconds of inactivity
-    
-    setInactivityTimer(timer)
-  }
-
-  // Reset inactivity timer on any interaction
-  useEffect(() => {
-    resetInactivityTimer()
-    return () => {
-      if (inactivityTimer) {
-        clearTimeout(inactivityTimer)
-      }
-    }
-  }, [messages])
 
   // Game action handlers
   const handleGameAction = (gameType) => {
@@ -1007,8 +898,7 @@ const ChatPage = () => {
             <div className="api-status">
               <FaBrain className={`brain-icon ${geminiStatus.isAvailable ? 'active' : 'inactive'}`} />
               <span className="status-text">
-                {geminiStatus.isAvailable ? 'AI Active' : 
-                 geminiStatus.apiKeyConfigured ? 'AI Inactive' : 'Local Mode'}
+                {geminiStatus.isAvailable ? 'AI Active' : 'Local Mode'}
               </span>
             </div>
           )}
@@ -1112,9 +1002,6 @@ const ChatPage = () => {
         </button>
         <button onClick={() => handleQuickMessage('Tell me a joke')}>
           😄 Tell a joke
-        </button>
-        <button onClick={() => handleQuickMessage('Dog facts')}>
-          🧠 Dog Facts
         </button>
         <button onClick={() => handleQuickMessage('Do a trick')}>
           🦴 Do a trick

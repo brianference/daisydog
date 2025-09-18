@@ -162,6 +162,18 @@
 15. **Hunger bones not red** - Bones should be red and flashing when hungry
 16. **Dog facts count wrong** - Should have 100 dog facts, currently only has 25
 17. **Keyword recognition broken** - Questions like "what breed of dog are you?" and "are dogs alive?" get standard responses instead of dog facts
+18. **Mobile UI issues** - Buttons look weird, misalignments on mobile phones
+19. **Touch targets too small** - Interactive elements don't meet minimum touch target sizes
+20. **Mobile browser compatibility** - Issues with Safari, Chrome, Firefox, Brave browsers
+21. **Responsive layout broken** - Layout doesn't adapt properly to different mobile screen sizes
+22. **Mobile keyboard handling** - Input fields cause layout shifts when mobile keyboard appears
+23. **Hunger system blink logic** - Bones should blink when hungry (low level ≤2), not when fed
+24. **Avatar sizes** - Header Daisy avatar should be 120px (200% larger), message avatars 80px (160% larger)
+25. **Sound system initialization** - Volume controls should load and work on page load
+26. **Sound triggers** - Feed button plays eating sounds, games play appropriate sounds
+27. **Volume controls UI** - Volume panel opens, sliders work, settings save automatically
+28. **Mute functionality** - Mute button works, persists across sessions
+29. **Game sound effects** - Ball games play bounce sounds, buttons play click sounds
 
 ### 🔴 **THESE MUST BE MANUALLY TESTED EVERY TIME:**
 - [ ] Click "Play game" → Does sub-menu with 5 games appear?
@@ -183,6 +195,41 @@
 - [ ] Ask "are dogs alive?" → Does Daisy give dog fact response?
 - [ ] Count dog facts → Should have 100+ dog facts available
 - [ ] Hunger bones → Should be red and flashing when hungry
+- [ ] Mobile layout → Test on phone: buttons readable, no misalignments?
+- [ ] Touch targets → All buttons meet 44px minimum touch target size?
+- [ ] Mobile browsers → Test Safari, Chrome, Firefox, Brave compatibility
+- [ ] Responsive scaling → Layout adapts to portrait/landscape orientations?
+- [ ] Keyboard handling → No layout shifts when mobile keyboard appears
+- [ ] Hunger blink logic → Bones blink when hungry (low level ≤2), not when fed
+- [ ] Avatar sizes → Header avatar 120px, message avatars 80px (significantly larger)
+- [ ] Sound system → Volume controls button visible and functional
+- [ ] Sound triggers → Feed plays eating sound, games play bounce sounds
+- [ ] Volume controls → Sliders adjust volume, settings auto-save
+- [ ] Mute functionality → Mute button works and persists
+- [ ] Hunger system corrected → Bones increase when fed (high hunger level = satisfied), decrease when hungry
+- [ ] Hunger bone colors → Bones turn red and flash when hungry (low hunger level ≤2)
+- [ ] Hunger decrease rate → More forgiving decrease (0.02 every 2 minutes)
+- [ ] Avatar sizes fixed → Header avatar 120px, message avatars 80px (200% larger)
+- [ ] Sound system comprehensive → Volume controls, mute, game-specific sounds
+- [ ] Game sounds implemented → Tug of war, hide & seek, guessing game, ball catch sounds
+- [ ] Quick action sounds → Stories, jokes, dances, tricks have appropriate audio
+- [ ] Eating sounds → Feed button plays crunchy treats sound
+- [ ] UI sounds → Button clicks, success/failure sounds throughout interface
+- [ ] Avatar sizes → Header avatar 120px, message avatars 80px (200% larger)
+- [ ] Sound system comprehensive → Volume controls, mute, game-specific sounds
+- [ ] Game sounds implemented → Tug of war, hide & seek, guessing game, ball catch sounds
+- [ ] Quick action sounds → Stories, jokes, dances, tricks have appropriate audio
+- [ ] Eating sounds → Feed button plays crunchy treats sound
+- [ ] UI sounds → Button clicks, success/failure sounds throughout interface
+- [ ] Hunger system corrected → Bones now increase when fed (high hunger level = satisfied), decrease when hungry
+- [ ] Hunger bone colors → Bones now turn red and flash when hungry (low hunger level ≤2)
+- [ ] Hunger decrease rate → More forgiving decrease (0.02 every 2 minutes instead of aggressive countdown)
+- [ ] Avatar sizes fixed → Header avatar 120px, message avatars 80px (200% larger)
+- [ ] Sound system comprehensive → Volume controls, mute, game-specific sounds
+- [ ] Game sounds implemented → Tug of war, hide & seek, guessing game, ball catch sounds
+- [ ] Quick action sounds → Stories, jokes, dances, tricks have appropriate audio
+- [ ] Eating sounds → Feed button plays crunchy treats sound
+- [ ] UI sounds → Button clicks, success/failure sounds throughout interface
 
 ## Critical Failure Points to Watch
 

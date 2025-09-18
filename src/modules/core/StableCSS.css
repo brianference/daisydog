@@ -20,12 +20,6 @@
   z-index: 100;
 }
 
-.header-controls {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
 .home-link, .about-link {
   display: flex;
   align-items: center;
@@ -68,12 +62,6 @@
   margin: 0;
   color: #666;
   font-size: 14px;
-}
-
-.checkpoint-status {
-  color: #888;
-  font-size: 11px;
-  font-style: italic;
 }
 
 /* Messages Container */
@@ -152,21 +140,12 @@
 }
 
 /* Input Form */
-.input-container {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 20px;
-}
-
 .input-form {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
   display: flex;
   gap: 12px;
   align-items: center;
-}
-
-.button-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 .message-input {
@@ -183,10 +162,11 @@
   border-color: #ff6b35;
 }
 
-.send-button, .feed-button {
+.input-form button {
   width: 50px;
   height: 50px;
   border: none;
+  background: #ff6b35;
   color: white;
   border-radius: 50%;
   cursor: pointer;
@@ -197,25 +177,12 @@
   transition: all 0.3s ease;
 }
 
-.send-button {
-  background: #ff6b35;
-}
-
-.feed-button {
-  background: #8B4513;
-}
-
-.send-button:hover:not(:disabled) {
+.input-form button:hover:not(:disabled) {
   background: #e55a2b;
   transform: scale(1.05);
 }
 
-.feed-button:hover:not(:disabled) {
-  background: #A0522D;
-  transform: scale(1.05);
-}
-
-.send-button:disabled, .feed-button:disabled {
+.input-form button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -250,185 +217,49 @@
   box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
 }
 
-.quick-actions button.active {
-  background: #ff6b35;
-  color: white;
-}
-
-/* Games Menu */
-.games-menu {
-  padding: 15px 20px;
-  background: rgba(255, 255, 255, 0.95);
-  margin: 0 20px 10px 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  animation: slideDown 0.3s ease;
-}
-
-.games-menu button {
-  padding: 10px 16px;
-  border: none;
-  background: #667eea;
-  color: white;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
-
-.games-menu button:hover {
-  background: #5a67d8;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* Hunger System */
-.hunger-system {
+.hunger-bar {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-top: 5px;
 }
 
-.hunger-label {
+.hunger-bar span {
   font-size: 12px;
   color: #666;
   font-weight: 600;
 }
 
-.hunger-bar {
-  width: 80px;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 107, 53, 0.3);
-}
-
-.hunger-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #ff6b35 0%, #ff8c42 100%);
-  transition: width 0.5s ease;
-  border-radius: 3px;
-}
 .hunger-level {
-  font-size: 11px;
-  color: #666;
-  font-weight: 600;
-  min-width: 25px;
-}
-
-.hunger-bones {
   display: flex;
   gap: 2px;
-  margin-left: 8px;
 }
 
 .hunger-bone {
-  font-size: 12px;
-  transition: all 0.3s ease;
-}
-
-.hunger-bone.filled {
-  color: #ff6b35;
-  animation: pulse-hunger 2s ease-in-out infinite;
-}
-
-.hunger-bone.empty {
-  color: rgba(102, 102, 102, 0.3);
-}
-
-@keyframes pulse-hunger {
-  0%, 100% { 
-    opacity: 1; 
-    transform: scale(1);
-  }
-  50% { 
-    opacity: 0.7; 
-    transform: scale(1.1);
-  }
-}
-
-/* API Status */
-.api-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.brain-icon {
-  font-size: 14px;
-  transition: all 0.3s ease;
-}
-
-.brain-icon.active {
-  color: #ff6b35;
-  animation: pulse-brain 2s ease-in-out infinite;
-}
-
-.brain-icon.inactive {
-  color: #999;
-}
-
-.status-text {
-  font-size: 10px;
-  color: #666;
-  font-weight: 600;
-}
-
-@keyframes pulse-brain {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.8; }
-}
-
-.bones {
-  display: flex;
-  gap: 2px;
-}
-
-.bone {
   transition: all 0.3s ease;
   font-size: 16px;
 }
 
-.bone.filled {
+.hunger-bone.filled {
   opacity: 1;
   filter: brightness(1);
-  color: #ff6b35;
+  color: #ff6b35; /* Orange for all filled bones */
 }
 
-.bone.empty {
+.hunger-bone.empty {
   opacity: 0.3;
   filter: grayscale(1);
-  color: #ccc;
+  color: #ccc; /* Light gray for empty bones */
 }
 
-.bone.hungry {
-  color: #ff4444;
+.hunger-bone.hungry {
+  color: #ff4444; /* Bright red for getting hungry */
   animation: flash-hunger 0.8s ease-in-out infinite alternate;
 }
 
-.bone.starving {
-  color: #ff0000;
+.hunger-bone.starving {
+  color: #ff0000; /* Bright red for very hungry */
   animation: flash-hunger 0.4s ease-in-out infinite alternate;
 }
 
@@ -474,17 +305,12 @@
 }
 
 /* Game System */
-.game-selection, .game-actions {
-  padding: 15px 20px;
+.game-selection, .game-controls {
+  padding: 20px;
   background: rgba(255, 255, 255, 0.95);
   margin: 10px 20px;
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  animation: slideDown 0.3s ease;
 }
 
 .game-selection h3, .game-controls h3 {
@@ -578,87 +404,4 @@
   font-weight: bold;
   white-space: nowrap;
   flex: 0 0 auto;
-}
-
-/* Checkpoint Controls */
-.checkpoint-controls {
-  padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.1);
-  display: flex;
-  justify-content: center;
-}
-
-.reset-button {
-  padding: 8px 16px;
-  border: none;
-  background: #dc3545;
-  color: white;
-  border-radius: 15px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.reset-button:hover {
-  background: #c82333;
-  transform: translateY(-1px);
-}
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
-  .chat-header {
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px 15px;
-  }
-  
-  .header-controls {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .daisy-info {
-    order: -1;
-  }
-  
-  .button-group {
-    flex-direction: row;
-    gap: 8px;
-  }
-  
-  .input-container {
-    padding: 15px;
-  }
-  
-  .message-input {
-    padding: 12px 16px;
-    font-size: 14px;
-  }
-  
-  .send-button, .feed-button {
-    width: 45px;
-    height: 45px;
-    font-size: 16px;
-  }
-  
-  .quick-actions {
-    padding: 15px;
-    gap: 8px;
-  }
-  
-  .quick-actions button {
-    padding: 10px 16px;
-    font-size: 13px;
-  }
-  
-  .game-actions {
-    gap: 6px;
-  }
-  
-  .game-actions button {
-    padding: 8px 12px;
-    font-size: 12px;
-    min-height: 36px;
-  }
 }

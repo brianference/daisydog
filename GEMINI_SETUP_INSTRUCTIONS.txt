@@ -1,0 +1,7 @@
+# DaisyDog Environment Configuration
+# Copy this content to a NEW file named .env.local in your project root
+
+# Replace 'your_actual_gemini_api_key_here' with your real Gemini API key
+# Get your key from: https://makersuite.google.com/app/apikey
+
+VITE_GEMINI_API_KEY=your_real_api_key_goes_here

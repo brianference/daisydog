@@ -1,15 +1,22 @@
 /**
  * Safe AI System for DaisyDog
- * Comprehensive AI safety and response management
+ * Comprehensive AI safety and response management using Google Gemini
  */
+
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 export class SafeAISystem {
   constructor(daisyResponses) {
     this.daisyResponses = daisyResponses
-    this.anthropicApiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
-    this.openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY
+    this.geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY
     this.debugMode = import.meta.env.VITE_DEBUG_MODE === 'true'
     this.shouldLogApiStatus = import.meta.env.VITE_LOG_API_STATUS === 'true'
+    
+    // Initialize Gemini
+    this.genAI = null
+    this.model = null
+    this.moderationModel = null
+    this.initializeGemini()
     
     // Safety configuration
     this.safetyConfig = {
@@ -31,11 +38,60 @@ export class SafeAISystem {
     this.logApiStatus()
   }
   
+  initializeGemini() {
+    if (!this.geminiApiKey || this.geminiApiKey === 'your_actual_gemini_api_key_here') {
+      console.warn('⚠️ Gemini API key not configured. Add VITE_GEMINI_API_KEY to .env.local for enhanced AI responses')
+      return
+    }
+
+    try {
+      this.genAI = new GoogleGenerativeAI(this.geminiApiKey)
+      
+      // Main conversation model
+      this.model = this.genAI.getGenerativeModel({
+        model: 'gemini-1.5-flash-latest',
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 300,
+          topP: 0.8,
+          topK: 40
+        },
+        safetySettings: [
+          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
+        ]
+      })
+      
+      // Content moderation model
+      this.moderationModel = this.genAI.getGenerativeModel({
+        model: 'gemini-1.5-flash-latest',
+        generationConfig: {
+          temperature: 0.1,
+          maxOutputTokens: 50,
+          topP: 0.5,
+          topK: 10
+        },
+        safetySettings: [
+          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_LOW_AND_ABOVE' },
+          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_LOW_AND_ABOVE' },
+          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_LOW_AND_ABOVE' },
+          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_LOW_AND_ABOVE' }
+        ]
+      })
+      
+      console.log('✅ Gemini AI initialized successfully')
+    } catch (error) {
+      console.warn('❌ Failed to initialize Gemini AI:', error)
+    }
+  }
+  
   logApiStatus() {
     if (this.shouldLogApiStatus) {
       console.log('🔧 SafeAI System Status:')
-      console.log(`  Anthropic API: ${this.anthropicApiKey ? '✅ Configured' : '❌ Not configured'}`)
-      console.log(`  OpenAI API: ${this.openaiApiKey ? '✅ Configured' : '❌ Not configured'}`)
+      console.log(`  Gemini API: ${this.geminiApiKey ? '✅ Configured' : '❌ Not configured'}`)
+      console.log(`  Gemini Model: ${this.model ? '✅ Ready' : '❌ Not ready'}`)
       console.log(`  Child Safety: ${this.safetyConfig.childSafetyMode ? '✅ Enabled' : '❌ Disabled'}`)
       console.log(`  Debug Mode: ${this.debugMode ? '✅ Enabled' : '❌ Disabled'}`)
     }
@@ -54,9 +110,9 @@ export class SafeAISystem {
       }
       
       // Step 2: Try AI response with safety validation
-      if (this.anthropicApiKey) {
+      if (this.model) {
         try {
-          const aiResponse = await this.getAnthropicResponse(message, userAge)
+          const aiResponse = await this.getGeminiResponse(message, userAge)
           if (aiResponse) {
             const validatedResponse = await this.validateAIResponse(aiResponse, userAge)
             if (validatedResponse.safe) {
@@ -66,7 +122,7 @@ export class SafeAISystem {
           }
         } catch (error) {
           if (this.debugMode) {
-            console.warn('Anthropic API error, falling back:', error.message)
+            console.warn('Gemini API error, falling back:', error.message)
           }
         }
       }
@@ -92,16 +148,16 @@ export class SafeAISystem {
       return localCheck
     }
     
-    // OpenAI moderation check (if available)
-    if (this.openaiApiKey) {
+    // Gemini moderation check (if available)
+    if (this.moderationModel) {
       try {
-        const moderationCheck = await this.checkWithOpenAI(message)
+        const moderationCheck = await this.checkWithGemini(message)
         if (!moderationCheck.safe) {
           return moderationCheck
         }
       } catch (error) {
         if (this.debugMode) {
-          console.warn('OpenAI moderation error, using local checks:', error.message)
+          console.warn('Gemini moderation error, using local checks:', error.message)
         }
       }
     }
@@ -150,31 +206,24 @@ export class SafeAISystem {
     return { safe: true }
   }
   
-  async checkWithOpenAI(message) {
+  async checkWithGemini(message) {
     try {
-      const response = await fetch('https://api.openai.com/v1/moderations', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.openaiApiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          input: message
-        })
-      })
+      const moderationPrompt = `Analyze this message for child safety. Is it appropriate for children aged 5-18? 
       
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`)
-      }
+Message: "${message}"
+
+Respond with only "SAFE" or "UNSAFE" followed by a brief reason if unsafe.
+Focus on: inappropriate content, personal information requests, harmful language, or adult topics.`
+
+      const result = await this.moderationModel.generateContent(moderationPrompt)
+      const response = await result.response
+      const text = response.text().trim().toUpperCase()
       
-      const data = await response.json()
-      const result = data.results[0]
-      
-      if (result.flagged) {
+      if (text.startsWith('UNSAFE')) {
         return {
           safe: false,
-          reason: 'openai_moderation',
-          categories: Object.keys(result.categories).filter(cat => result.categories[cat])
+          reason: 'gemini_moderation',
+          details: text
         }
       }
       
@@ -182,52 +231,31 @@ export class SafeAISystem {
       
     } catch (error) {
       if (this.debugMode) {
-        console.warn('OpenAI moderation check failed:', error.message)
+        console.warn('Gemini moderation check failed:', error.message)
       }
       throw error
     }
   }
   
-  async getAnthropicResponse(message, userAge) {
+  async getGeminiResponse(message, userAge) {
     try {
       const systemPrompt = this.buildSystemPrompt(userAge)
+      const fullPrompt = `${systemPrompt}\n\nUser: ${message}\n\nDaisyDog:`
       
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': this.anthropicApiKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-3-haiku-20240307',
-          max_tokens: 300,
-          system: systemPrompt,
-          messages: [
-            {
-              role: 'user',
-              content: message
-            }
-          ]
-        })
-      })
-      
-      if (!response.ok) {
-        throw new Error(`Anthropic API error: ${response.status}`)
-      }
-      
-      const data = await response.json()
+      const result = await this.model.generateContent(fullPrompt)
+      const response = await result.response
       this.safetyMetrics.apiCalls++
       
-      if (data.content && data.content[0] && data.content[0].text) {
-        return data.content[0].text
+      const text = response.text()
+      if (text && text.trim()) {
+        return text.trim()
       }
       
       return null
       
     } catch (error) {
       if (this.debugMode) {
-        console.warn('Anthropic API call failed:', error.message)
+        console.warn('Gemini API call failed:', error.message)
       }
       throw error
     }
@@ -329,7 +357,7 @@ Remember: You are a dog who loves treats, playing, and making children happy!`
         "Bark bark! I only like to chat about fun, positive stuff! Want to play a game? 🎮",
         "Woof woof! How about we talk about something that makes us both happy? I love belly rubs! 🐕💕"
       ],
-      openai_moderation: [
+      gemini_moderation: [
         "Woof! Let's keep our chat friendly and fun! What's your favorite animal? 🐾",
         "Bark bark! I love talking about positive things! Do you like dogs like me? 🐕",
         "Woof woof! Let's chat about something that makes us both happy! Want to hear a joke? 😄"
@@ -367,7 +395,7 @@ Remember: You are a dog who loves treats, playing, and making children happy!`
     return {
       ...this.safetyMetrics,
       blockRate: `${blockRate}%`,
-      apiAvailable: !!(this.anthropicApiKey || this.openaiApiKey),
+      apiAvailable: !!(this.geminiApiKey && this.model),
       safetyLevel: this.safetyConfig.childSafetyMode ? 'Strict' : 'Standard'
     }
   }

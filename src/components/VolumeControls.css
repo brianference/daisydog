@@ -1,0 +1,262 @@
+/* Volume Controls Component Styles */
+.volume-controls-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.volume-controls-panel {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 20px;
+  max-width: 400px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.volume-controls-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #ff6b35;
+}
+
+.volume-controls-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 5px;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-button:hover {
+  background: #ff6b35;
+  color: white;
+  transform: rotate(90deg);
+}
+
+.volume-controls-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.volume-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.volume-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.volume-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.volume-slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: #e0e0e0;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ff6b35;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(255, 107, 53, 0.3);
+  transition: all 0.3s ease;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.5);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ff6b35;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(255, 107, 53, 0.3);
+  transition: all 0.3s ease;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.5);
+}
+
+.volume-slider:focus {
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.3);
+}
+
+.volume-value {
+  font-weight: 600;
+  color: #ff6b35;
+  font-size: 12px;
+  min-width: 35px;
+  text-align: center;
+}
+
+.mute-group {
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.mute-button {
+  padding: 12px 24px;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+}
+
+.mute-button:hover {
+  background: #e55a2b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.5);
+}
+
+.mute-button.muted {
+  background: #dc3545;
+}
+
+.mute-button.muted:hover {
+  background: #c82333;
+}
+
+.volume-controls-footer {
+  text-align: center;
+  margin-top: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.volume-note {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Mobile optimizations for volume controls */
+@media screen and (max-width: 480px) {
+  .volume-controls-panel {
+    width: 95%;
+    padding: 16px;
+    max-height: 85vh;
+  }
+
+  .volume-controls-header h3 {
+    font-size: 16px;
+  }
+
+  .volume-label {
+    font-size: 13px;
+  }
+
+  .volume-slider-container {
+    gap: 8px;
+  }
+
+  .volume-value {
+    font-size: 11px;
+    min-width: 30px;
+  }
+
+  .mute-button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+/* Touch optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .volume-slider {
+    height: 8px;
+  }
+
+  .volume-slider::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+  }
+
+  .volume-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+  }
+
+  .mute-button {
+    min-height: 48px;
+    padding: 14px 28px;
+  }
+}

@@ -104,7 +104,7 @@ const PrivacyPage = () => {
           <section className="privacy-section">
             <h2>🔗 Third-Party Services</h2>
             <p>
-              DaisyDog may use AI services (OpenAI, Anthropic) to provide responses. These services:
+              DaisyDog uses Google Gemini AI service to provide enhanced responses. This service:
             </p>
             <ul>
               <li>Process messages through secure, encrypted connections</li>
@@ -115,8 +115,8 @@ const PrivacyPage = () => {
             <div className="service-links">
               <p><strong>Third-party privacy policies:</strong></p>
               <ul>
-                <li><a href="https://openai.com/privacy" target="_blank" rel="noopener noreferrer">OpenAI Privacy Policy</a></li>
-                <li><a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer">Anthropic Privacy Policy</a></li>
+                <li><a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a></li>
+                <li><a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener noreferrer">Gemini API Terms of Service</a></li>
               </ul>
             </div>
           </section>

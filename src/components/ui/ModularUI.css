@@ -1,0 +1,368 @@
+/**
+ * ModularUI.css - Styles for modular UI components
+ * Ensures all new modular components are properly styled
+ */
+
+/* Gemini Status Indicator */
+.gemini-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.gemini-status.active {
+  background: rgba(233, 30, 99, 0.2);
+  box-shadow: 0 0 10px rgba(233, 30, 99, 0.3);
+}
+
+.gemini-status.inactive {
+  background: rgba(204, 204, 204, 0.1);
+}
+
+.gemini-status:hover {
+  transform: scale(1.1);
+  background: rgba(233, 30, 99, 0.3);
+}
+
+/* Send and Feed Button Icons */
+.send-button, .feed-button {
+  width: 50px;
+  height: 50px;
+  border: none;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.send-button {
+  background: #ff6b35;
+}
+
+.feed-button {
+  background: #8B4513;
+}
+
+.send-button:hover:not(:disabled) {
+  background: #e55a2b;
+  transform: scale(1.05);
+}
+
+.feed-button:hover:not(:disabled) {
+  background: #A0522D;
+  transform: scale(1.05);
+}
+
+.send-button:disabled, .feed-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Game Selection Buttons */
+.game-sub-buttons {
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid #e0e0e0;
+}
+
+.game-title {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.game-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.game-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.game-action-button {
+  padding: 8px 16px;
+  border: none;
+  background: #ff6b35;
+  color: white;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-action-button:hover:not(:disabled) {
+  background: #e55a2b;
+  transform: translateY(-1px);
+}
+
+.game-action-button.stop-game {
+  background: #dc3545;
+}
+
+.game-action-button.stop-game:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.game-action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Quick Actions Grid */
+.quick-actions {
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid #e0e0e0;
+}
+
+.quick-actions.layout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.quick-action-button {
+  padding: 12px 8px;
+  border: none;
+  background: #28a745;
+  color: white;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 60px;
+}
+
+.quick-action-button:hover:not(:disabled) {
+  background: #218838;
+  transform: translateY(-2px);
+}
+
+.quick-action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-icon {
+  font-size: 16px;
+}
+
+.action-label {
+  font-size: 10px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Volume Controls */
+.volume-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.volume-main-button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.volume-main-button.enabled {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.volume-main-button.disabled {
+  background: rgba(204, 204, 204, 0.1);
+  color: #ccc;
+}
+
+.volume-main-button:hover {
+  transform: scale(1.1);
+}
+
+.volume-quick-slider {
+  width: 80px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.volume-quick-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #28a745;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .header-controls {
+    gap: 15px;
+  }
+  
+  .gemini-status {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .send-button, .feed-button {
+    width: 45px;
+    height: 45px;
+    font-size: 16px;
+  }
+  
+  .quick-actions.layout-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px;
+  }
+  
+  .quick-action-button {
+    padding: 10px 6px;
+    min-height: 50px;
+    font-size: 10px;
+  }
+  
+  .action-icon {
+    font-size: 14px;
+  }
+  
+  .action-label {
+    font-size: 9px;
+  }
+  
+  .game-actions {
+    gap: 6px;
+  }
+  
+  .game-action-button {
+    padding: 6px 12px;
+    font-size: 11px;
+    min-height: 32px;
+  }
+}
+
+/* Animation for game selection appearance */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.game-sub-buttons {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Hunger Progress Bar Styles */
+.hunger-level {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hunger-progress-container {
+  width: 100px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hunger-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #28a745, #ffc107, #fd7e14);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.hunger-progress-bar.low {
+  background: linear-gradient(90deg, #ffc107, #fd7e14);
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+.hunger-progress-bar.critical {
+  background: linear-gradient(90deg, #dc3545, #ff0000);
+  animation: pulse-critical 1s ease-in-out infinite;
+}
+
+.hunger-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  min-width: 30px;
+}
+
+@keyframes pulse-warning {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes pulse-critical {
+  0%, 100% { 
+    opacity: 1; 
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+  }
+  50% { 
+    opacity: 0.8; 
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.2);
+  }
+}
+
+/* Pulsing animation for Gemini status when active */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(233, 30, 99, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(233, 30, 99, 0);
+  }
+}
+
+.gemini-status.active {
+  animation: pulse 2s infinite;
+}
