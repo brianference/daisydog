@@ -12,9 +12,11 @@
   # Node.js version
   NODE_VERSION = "18"
   
-  # Environment variables for build
-  VITE_ANTHROPIC_API_KEY = "your_anthropic_api_key_here"
-  VITE_API_BASE_URL = "https://daisydog-api.herokuapp.com"
+  # Environment variables for build (v3.5.0 - Gemini Integration)
+  VITE_GEMINI_API_KEY = "AIzaSyCCJQpug2wG_Dm9cFsSiAV07hgwHw-iMmI"
+  VITE_DEBUG_MODE = "false"
+  VITE_CHILD_SAFETY_MODE = "true"
+  VITE_DEFAULT_USER_AGE = "12"
   NODE_ENV = "production"
 
 # Redirect rules for SPA
@@ -31,7 +33,7 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.anthropic.com https://daisydog-api.herokuapp.com;"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://generativelanguage.googleapis.com;"
 
 # Cache static assets
 [[headers]]
