@@ -209,7 +209,7 @@ const ChatPage = () => {
     }
     
     const newMessage = {
-      id: `daisy-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: generateUniqueMessageId(),
       text,
       sender: 'daisy',
       timestamp: new Date(),
@@ -533,6 +533,761 @@ const ChatPage = () => {
     if (lowerMessage.includes('guessing') && lowerMessage.includes('game')) {
       setGameState('guessing_game')
       setCurrentEmotion('thinking')
+      const target = Math.floor(Math.random() * 10) + 1
+      setGuessTarget(target)
+      return { text: "*thinks hard* Okay! I'm thinking of a number between 1 and 10! Can you guess it? 🤔", emotion: 'thinking' }
+    }
+    
+    if (lowerMessage.includes('ball') && lowerMessage.includes('catch')) {
+      setGameState('ball_catch')
+      setCurrentEmotion('playfetch')
+      setBallCatchHeight('medium')
+      return { text: "*gets ready to catch* Woof! I'm ready for ball catch! Throw it high, low, or bounce it! I'll try to catch it! ⚾", emotion: 'playfetch' }
+    }
+    
+    if (lowerMessage.includes('play') || lowerMessage.includes('game')) {
+      setCurrentEmotion('playfetch')
+      return { text: "*bounces excitedly* Woof! Let's play! What game should we play? 🎾", emotion: 'playfetch' }
+    }
+    
+    if (lowerMessage.includes('trick') || lowerMessage.includes('sit') || lowerMessage.includes('stay')) {
+      setCurrentEmotion('crouchingdown')
+      const trickResponse = getRandomResponse(daisyResponses.tricks)
+      return { text: trickResponse, emotion: 'crouchingdown' }
+    }
+    
+    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+      setCurrentEmotion('excited')
+      const greetingResponse = getRandomResponse(daisyResponses.greetings)
+      return { text: greetingResponse, emotion: 'excited' }
+    }
+    
+    // Priority 4: Name detection (only if no userName set)
+    if (!userName && !gameState) {
+      const gameCommands = ['fetch', 'catch', 'throw', 'ball', 'hide', 'seek', 'found', 'pull', 'harder', 'tug', 'guess', 'number', 'higher', 'lower']
+      const isGameCommand = gameCommands.some(cmd => lowerMessage.includes(cmd))
+      
+      if (!isGameCommand && userMessage.length > 1 && userMessage.length < 20) {
+        const possibleName = userMessage.trim()
+        if (/^[a-zA-Z\s]+$/.test(possibleName)) {
+          console.log('Setting userName to:', possibleName)
+          setUserName(possibleName)
+          setHasGreeted(true)
+          setCurrentEmotion('excited')
+          return `*wags tail enthusiastically* Nice to meet you, ${possibleName}! I'm Daisy! I love to play games, tell stories, and do tricks! What would you like to do together? 🐕✨`
+        }
+      }
+      
+      // If we've sent initial greeting but still no name, prompt again
+      if (messages.length > 0 && !hasGreeted) {
+        setCurrentEmotion('patient')
+        return getRandomResponse(daisyResponses.namePrompts)
+      }
+    }
+    
+    // Priority 5: Specific fallback responses for common questions
+    if (lowerMessage.includes('weather') || lowerMessage.includes('temperature')) {
+      setCurrentEmotion('patient')
+      const namePrefix = userName ? `${userName}, ` : ''
+      return `*tilts head* ${namePrefix}I'm just a virtual dog, so I can't check the weather! But I bet it's perfect weather for playing fetch! 🌤️🎾 Want to play a game instead?`
+    }
+    
+    if (lowerMessage.includes('time') || lowerMessage.includes('what time')) {
+      setCurrentEmotion('happy')
+      const namePrefix = userName ? `${userName}, ` : ''
+      return `*wags tail* ${namePrefix}I don't have a watch - I'm a dog! But I know it's always a good time to play! 🐕⏰ What should we do?`
+    }
+    
+    if (lowerMessage.includes('news') || lowerMessage.includes('today')) {
+      setCurrentEmotion('excited')
+      const namePrefix = userName ? `${userName}, ` : ''
+      return `*bounces excitedly* ${namePrefix}the best news is that we're here together! Want to hear a story or play a game? 📰🐕`
+    }
+    
+    // Priority 6: General responses with name personalization
+    setCurrentEmotion('happy')
+    const namePrefix = userName ? `${userName}, ` : ''
+    const generalResponses = [
+      `*tilts head curiously* ${namePrefix}that's interesting! Tell me more! 🐾`,
+      `*wags tail* ${namePrefix}I love chatting with you! What else is on your mind? 🐕`,
+      `*bounces playfully* ${namePrefix}woof! Want to play a game or hear a story? 🎾📚`
+    ]
+    return generalResponses[Math.floor(Math.random() * generalResponses.length)]
+  }
+  
+  // Handle quick action messages
+  const handleQuickMessage = (message) => {
+    // Play UI click sound
+    if (soundReady && !isMuted) {
+      playUISound('click')
+    }
+    
+    // Add user message
+    const userMessage = {
+      id: generateUniqueMessageId(),
+      text: message,
+      sender: 'user',
+      timestamp: new Date()
+    }
+    setMessages(prev => [...prev, userMessage])
+    
+    // Generate response with AI support
+    setIsTyping(true)
+    setTimeout(async () => {
+      setIsTyping(false)
+      const response = await generateDaisyResponse(message)
+      if (typeof response === 'object' && response.text) {
+        addDaisyMessage(response.text, 'chat', response.emotion)
+      } else {
+        addDaisyMessage(response)
+      }
+    }, 1000 + Math.random() * 1000)
+  }
+  
+  const handleSendMessage = (e) => {
+    e.preventDefault()
+    if (!inputMessage.trim()) return
+    
+    const messageToSend = inputMessage.trim()
+    
+    // Play send sound
+    if (soundReady && !isMuted) {
+      playUISound('send')
+    }
+    
+    // Add user message
+    const userMessage = {
+      id: generateUniqueMessageId(),
+      text: messageToSend,
+      sender: 'user',
+      timestamp: new Date()
+    }
+    setMessages(prev => [...prev, userMessage])
+    setInputMessage('')
+    
+    // Generate Daisy response with AI support
+    setIsTyping(true)
+    setTimeout(async () => {
+      setIsTyping(false)
+      const response = await generateDaisyResponse(messageToSend)
+      if (typeof response === 'object' && response.text) {
+        addDaisyMessage(response.text, 'chat', response.emotion)
+      } else {
+        addDaisyMessage(response)
+      }
+    }, 1000 + Math.random() * 1000)
+  }
+  
+  // Feed Daisy function (reduces hunger like treats stopping fatigue)
+  const feedDaisy = () => {
+    // Play eating sound immediately
+    if (soundReady && !isMuted) {
+      playEatingSound('treats')
+    }
+    
+    if (hungerLevel > 0) {
+      setHungerLevel(prev => Math.max(prev - 1, 0)) // Feeding reduces hunger
+      setCurrentEmotion('excited')
+      
+      const feedResponses = [
+        "*munches happily* Nom nom nom! Thank you! These treats are delicious! 🦴",
+        "*wags tail excitedly* Yummy! You're the best! I feel so much better now! 🐕",
+        "*does a happy spin* Woof! Those were tasty! I love treat time! ✨"
+      ]
+      
+      setTimeout(() => {
+        addDaisyMessage(getRandomResponse(feedResponses))
+      }, 500)
+    } else {
+      setCurrentEmotion('patient')
+      setTimeout(() => {
+        addDaisyMessage("*pats full belly* I'm not hungry right now! Thank you though! Maybe we can play instead? 🐾")
+      }, 500)
     }
   }
+  
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+  
+  // Initialize Gemini status
+  useEffect(() => {
+    const updateGeminiStatus = () => {
+      setGeminiStatus(GeminiService.getStatus())
+    }
+    
+    updateGeminiStatus()
+    // Update status every 10 seconds (was 30)
+    const interval = setInterval(updateGeminiStatus, 10000)
+    
+    return () => clearInterval(interval)
+  }, [])
+  
+  // Load saved state on mount
+  useEffect(() => {
+    const stateLoaded = loadState()
+    if (!stateLoaded && !hasGreeted && messages.length === 0) {
+      setTimeout(() => {
+        addDaisyMessage(getRandomResponse(daisyResponses.initialGreetings))
+        // Don't set hasGreeted = true yet, wait for name
+      }, 1000)
+    }
+  }, [])
+  
+  // Hunger increase over time (like fatigue)
+  useEffect(() => {
+    const hungerTimer = setInterval(() => {
+      setHungerLevel(prev => {
+        const newLevel = Math.min(prev + 1, 5) // Hunger increases over time
+        if (newLevel === 4 && prev < 4) {
+          setTimeout(() => {
+            addDaisyMessage("*stomach rumbles* I'm getting a little hungry... 🦴")
+          }, 1000)
+        } else if (newLevel === 5 && prev < 5) {
+          setTimeout(() => {
+            addDaisyMessage("*whimpers softly* I'm really hungry now... Could I have a treat please? 🥺🦴")
+          }, 1000)
+        }
+        return newLevel
+      })
+    }, 60000) // Increase every minute
+    
+    return () => clearInterval(hungerTimer)
+  }, [])
+  
+  // Auto-save state changes
+  useEffect(() => {
+    if (messages.length > 0) {
+      saveState()
+    }
+  }, [messages, currentEmotion, hungerLevel, gameState, hasGreeted, userName, ballPosition, hideSeekCount, tugStrength, guessTarget, storyIndex, ballCatchHeight])
+
+  // Game action handlers
+  const handleGameAction = (gameType) => {
+    switch (gameType) {
+      case 'fetch':
+        setGameState({ type: 'fetch', round: 1, score: 0 })
+        setCurrentEmotion('playfetch')
+        addDaisyMessage("*bounces excitedly* Woof! Let's play fetch! Choose how to throw the ball! 🎾", 'chat', 'playfetch')
+        break
+      case 'tug':
+        setGameState({ type: 'tug', strength: 50 })
+        setCurrentEmotion('eager')
+        addDaisyMessage("*grabs rope* Grrr! Let's see who's stronger! Choose your tug strategy! 🪢", 'chat', 'eager')
+        break
+      case 'hide':
+        setGameState({ type: 'hide', location: Math.floor(Math.random() * 4) + 1 })
+        setCurrentEmotion('lookingbehind')
+        addDaisyMessage("*covers eyes* I'm hiding! Try to find me! Where do you think I am? 🙈", 'chat', 'lookingbehind')
+        break
+      case 'ball':
+        setGameState({ type: 'ball', throws: 0, catches: 0 })
+        setCurrentEmotion('playfetch')
+        addDaisyMessage("*gets ready to catch* Let's play ball catch! Throw it however you want! 🏀", 'chat', 'playfetch')
+        break
+      case 'guess':
+        const target = Math.floor(Math.random() * 10) + 1
+        setGameState({ type: 'guess', target, attempts: 0 })
+        setCurrentEmotion('thinking')
+        addDaisyMessage("*thinks hard* I'm thinking of a number between 1 and 10! Can you guess it? 🤔", 'chat', 'thinking')
+        break
+    }
+  }
+
+  const handleFetchAction = (action) => {
+    const success = Math.random() > 0.3
+    const newScore = success ? gameState.score + (action === 'far' ? 2 : 1) : gameState.score
+    setGameState({ ...gameState, round: gameState.round + 1, score: newScore })
+    
+    const responses = {
+      throw: success ? "*catches ball perfectly* Got it! *wags tail proudly* Throw it again! 🎾✨" : "*misses ball* Oops! *chases after it* Almost had it! Try again! 🐕💨",
+      bounce: "*bounces ball back to you* Boing! *excited bouncing* Your turn! 🏀",
+      pretend: "*gets super excited* Wooo! *pretends to chase* That was a good pretend throw! *panting happily* 🎾😄",
+      far: success ? "*leaps high and catches far throw* Wow! *super excited* That was an amazing throw! You're the best! 🏆✨" : "*runs after far ball* Whew! *pants* That was far! Let me get it! 🏃‍♀️💨",
+      short: success ? "*catches easy throw* That was perfect! *wags tail* Nice and easy! 🎾😊" : "*playfully misses easy one* Oops! *giggles* That was too easy to miss! 😄"
+    }
+    
+    if (soundReady && !isMuted) {
+      setTimeout(() => playGameSound('fetch'), 300)
+    }
+    
+    addDaisyMessage(responses[action], 'chat', 'playfetch')
+  }
+
+  const handleTugAction = (action) => {
+    let newStrength = gameState.strength
+    const responses = {
+      pull: () => {
+        newStrength = Math.max(0, Math.min(100, gameState.strength + (Math.random() * 20 - 10)))
+        return newStrength > 80 ? "*pulls back hard* Grrr! You're strong! *determined face* 💪" : "*tugs with effort* Come on! Pull harder! 🪢"
+      },
+      gentle: () => {
+        newStrength = Math.max(0, gameState.strength - 5)
+        return "*tugs gently* Aww, that's nice and easy! *wags tail* 🤏"
+      },
+      shake: () => {
+        newStrength = Math.max(0, Math.min(100, gameState.strength + 15))
+        return "*shakes rope wildly* Woah! *spins around* That's a fun shake! 🌀"
+      },
+      release: () => {
+        newStrength = 0
+        return "*lets go of rope* Whew! *pants happily* Good game! 🤲"
+      },
+      victory: () => {
+        return "*does victory dance* I win! *spins in circles* That was so much fun! 🏆"
+      }
+    }
+    
+    setGameState({ ...gameState, strength: newStrength })
+    if (soundReady && !isMuted) {
+      setTimeout(() => playGameSound('tug'), 300)
+    }
+    addDaisyMessage(responses[action](), 'chat', 'eager')
+  }
+
+  const handleHideAction = (location) => {
+    const correctLocation = gameState.location
+    const locationNames = ['', 'tree', 'house', 'car', 'bush']
+    
+    if (location === 'found' || location === locationNames[correctLocation]) {
+      setCurrentEmotion('excited')
+      addDaisyMessage("*jumps out* You found me! *wags tail excitedly* I was hiding behind the " + locationNames[correctLocation] + "! Great job! 🎉", 'chat', 'excited')
+    } else if (location !== 'found') {
+      addDaisyMessage("*giggles from hiding spot* Nope! I'm not there! Keep looking! 🙈", 'chat', 'lookingbehind')
+    }
+  }
+
+  const handleBallAction = (action) => {
+    const success = Math.random() > 0.4
+    const newThrows = gameState.throws + 1
+    const newCatches = success ? gameState.catches + 1 : gameState.catches
+    setGameState({ ...gameState, throws: newThrows, catches: newCatches })
+    
+    const responses = {
+      high: success ? "*leaps high and catches* Got it! *proud panting* Great high throw! ⬆️✨" : "*jumps but misses* Whoa! *looks up* That was really high! 🌤️",
+      low: success ? "*dives low and catches* Perfect! *rolls over* Nice low throw! ⬇️🎯" : "*tries to catch low ball* Almost! *paws at ground* So close! 🐾",
+      spin: success ? "*spins and catches spinning ball* Whoa! *dizzy* That was a spinning catch! 🌀✨" : "*gets dizzy watching spin* Whoa! *wobbles* That made me dizzy! 😵",
+      gentle: success ? "*gently catches soft throw* Aww! *cuddles ball* That was so gentle and nice! 🤗" : "*ball bounces off nose gently* Boop! *giggles* That tickled! 😊",
+      trick: success ? "*does backflip catch* WOW! *amazed* That was an incredible trick shot! ✨🤸‍♀️" : "*tries trick catch but tumbles* Whoa! *rolls around* That was tricky! 🤹‍♀️"
+    }
+    
+    if (soundReady && !isMuted) {
+      setTimeout(() => playGameSound('fetch'), 300)
+    }
+    
+    addDaisyMessage(responses[action], 'chat', 'playfetch')
+  }
+
+  const handleGuessAction = (number) => {
+    const newAttempts = gameState.attempts + 1
+    setGameState({ ...gameState, attempts: newAttempts })
+    
+    if (number === gameState.target) {
+      setCurrentEmotion('excited')
+      if (soundReady && !isMuted) {
+        setTimeout(() => playGameSound('guess', 'correct'), 300)
+      }
+      addDaisyMessage(`*jumps up and down* YES! You got it! It was ${gameState.target}! You're so smart! 🎉`, 'chat', 'excited')
+    } else if (number < gameState.target) {
+      if (soundReady && !isMuted) {
+        setTimeout(() => playGameSound('guess', 'wrong'), 300)
+      }
+      addDaisyMessage("*wags tail* Higher! Try a bigger number! 📈", 'chat', 'eager')
+    } else {
+      if (soundReady && !isMuted) {
+        setTimeout(() => playGameSound('guess', 'wrong'), 300)
+      }
+      addDaisyMessage("*shakes head* Lower! Try a smaller number! 📉", 'chat', 'eager')
+    }
+  }
+
+  return (
+    <div className="chat-page">
+      {/* Header */}
+      <header className="chat-header">
+        <Link to="/" className="home-link">
+          <FaHome /> Home
+        </Link>
+        <div className="daisy-info">
+          <img 
+            src={getEmotionImage()} 
+            alt={`Daisy feeling ${currentEmotion}`}
+            className="daisy-avatar"
+            onError={(e) => {
+              e.target.src = '/assets/images/emotions/happy.png'
+            }}
+          />
+          <div className="daisy-details">
+            <h1>🐕 Daisy {userName && `& ${userName}`}</h1>
+            <p>Your friendly AI companion</p>
+            {lastSaved && (
+              <small className="checkpoint-status">
+                Last saved: {lastSaved.toLocaleTimeString()}
+              </small>
+            )}
+          </div>
+        </div>
+        <div className="header-controls">
+          <div className="hunger-system">
+            <span className="hunger-label">Hunger:</span>
+            <div className="hunger-bar">
+              <div 
+                className="hunger-fill" 
+                style={{ width: `${(hungerLevel / 5) * 100}%` }}
+              ></div>
+            </div>
+            <span className="hunger-level">{hungerLevel}/5</span>
+            <div className="hunger-bones">
+              {Array.from({ length: 5 }, (_, i) => (
+                <FaBone 
+                  key={i} 
+                  className={`hunger-bone ${i < hungerLevel ? 'filled' : 'empty'}`}
+                />
+              ))}
+            </div>
+          </div>
+          {geminiStatus && (
+            <div className="api-status">
+              <FaBrain className={`brain-icon ${geminiStatus.isAvailable ? 'active' : 'inactive'}`} />
+              <span className="status-text">
+                {geminiStatus.isAvailable ? 'AI Active' : 'Local Mode'}
+              </span>
+            </div>
+          )}
+          <SoundControls
+            volume={volumes.master}
+            muted={isMuted}
+            soundsEnabled={soundReady}
+            onVolumeChange={setMasterVolume}
+            onToggleMute={toggleMute}
+            onToggleSounds={toggleMute}
+          />
+          <button
+            onClick={() => {
+              console.log('🔧 DEBUG INFO:')
+              console.log('Gemini Available:', GeminiService.isAvailable())
+              console.log('API Key Present:', !!import.meta.env.VITE_GEMINI_API_KEY)
+              console.log('Hunger Level:', hungerLevel)
+              console.log('User Name:', userName)
+              console.log('Gemini Status:', GeminiService.getStatus())
+
+              // Test Gemini directly
+              if (GeminiService.isAvailable()) {
+                console.log('🧠 Testing Gemini API...')
+                GeminiService.generateResponse('Hello test!').then(response => {
+                  console.log('🎉 Gemini test response:', response)
+                }).catch(error => {
+                  console.error('❌ Gemini test failed:', error)
+                })
+              }
+            }}
+            className="debug-button"
+            title="Debug Status & Test Gemini"
+            style={{
+              background: 'none',
+              border: '1px solid #ccc',
+              borderRadius: '50%',
+              width: '30px',
+              height: '30px',
+              cursor: 'pointer',
+              marginLeft: '5px',
+              fontSize: '16px'
+            }}
+          >
+            🔧
+          </button>
+          <Link to="/about" className="about-link">
+            <FaQuestionCircle /> About
+          </Link>
+        </div>
+      </header>
+
+      {/* Messages Container */}
+      <div className="messages-container">
+        <AnimatePresence>
+          {messages.map((message) => (
+            <motion.div
+              key={message.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className={`message ${message.sender}`}
+            >
+              {message.sender === 'daisy' && (
+                <img 
+                  src={message.emotionImage || getEmotionImage()} 
+                  alt="Daisy"
+                  className="message-avatar"
+                  onError={(e) => {
+                    e.target.src = '/assets/images/emotions/happy.png'
+                  }}
+                />
+              )}
+              <div className="message-content">
+                <p>{message.text}</p>
+                <span className="timestamp">
+                  {message.timestamp.toLocaleTimeString()}
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+        
+        {isTyping && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="message daisy typing"
+          >
+            <img 
+              src={getEmotionImage()} 
+              alt="Daisy"
+              className="message-avatar"
+              onError={(e) => {
+                e.target.src = '/assets/images/emotions/happy.png'
+              }}
+            />
+            <div className="message-content">
+              <div className="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input Form */}
+      <div className="input-container">
+        <form onSubmit={handleSendMessage} className="input-form">
+          <input
+            type="text"
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            placeholder="Type a message to Daisy..."
+            className="message-input"
+            disabled={isTyping}
+          />
+          <div className="button-group">
+            <button type="submit" disabled={isTyping || !inputMessage.trim()} className="send-button">
+              <FaPaw />
+            </button>
+            <button type="button" onClick={feedDaisy} className="feed-button" disabled={isTyping}>
+              <FaBone />
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="quick-actions">
+        <button onClick={() => handleQuickMessage('Tell me a story')}>
+          📚 Tell me a story
+        </button>
+        <button onClick={() => handleQuickMessage('Tell me a joke')}>
+          😄 Tell a joke
+        </button>
+        <button onClick={() => handleQuickMessage('Do a trick')}>
+          🦴 Do a trick
+        </button>
+        <button onClick={() => handleQuickMessage('Dance for me')}>
+          💃 Dance
+        </button>
+        <button onClick={() => setGameState({ type: 'selection' })}>
+          🎮 Play Games
+        </button>
+        <button onClick={() => handleQuickMessage('How are you feeling?')}>
+          🐾 How are you?
+        </button>
+      </div>
+      
+      {/* Game Selection Menu */}
+      {gameState?.type === 'selection' && (
+        <div className="game-selection">
+          <h3>🎮 Choose a Game!</h3>
+          <div className="game-buttons">
+            <button onClick={() => handleGameAction('fetch')}>
+              🎾 Fetch Game
+            </button>
+            <button onClick={() => handleGameAction('tug')}>
+              🪢 Tug of War
+            </button>
+            <button onClick={() => handleGameAction('hide')}>
+              🙈 Hide & Seek
+            </button>
+            <button onClick={() => handleGameAction('ball')}>
+              🏀 Ball Catch
+            </button>
+            <button onClick={() => handleGameAction('guess')}>
+              🤔 Guessing Game
+            </button>
+            <button onClick={() => setGameState(null)} className="stop-game">
+              🛑 Maybe Later
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Active Game Controls */}
+      {gameState && gameState.type !== 'selection' && (
+        <div className="game-controls">
+          {gameState.type === 'fetch' && (
+            <div className="fetch-game">
+              <h3>🎾 Fetch Game - Round {gameState.round}</h3>
+              <p>Score: {gameState.score}</p>
+              <div className="game-actions">
+                <button onClick={() => handleFetchAction('throw')}>
+                  🎾 Throw Ball
+                </button>
+                <button onClick={() => handleFetchAction('bounce')}>
+                  🏀 Bounce Ball
+                </button>
+                <button onClick={() => handleFetchAction('pretend')}>
+                  🎭 Pretend Throw
+                </button>
+                <button onClick={() => handleFetchAction('far')}>
+                  🚀 Throw Far
+                </button>
+                <button onClick={() => handleFetchAction('short')}>
+                  🎯 Throw Short
+                </button>
+                <button onClick={() => setGameState(null)} className="stop-game">
+                  🛑 Stop Game
+                </button>
+              </div>
+            </div>
+          )}
+
+          {gameState.type === 'tug' && (
+            <div className="tug-game">
+              <h3>🪢 Tug of War</h3>
+              <p>Strength: {gameState.strength}%</p>
+              <div className="game-actions">
+                <button onClick={() => handleTugAction('pull')}>
+                  💪 Pull Hard
+                </button>
+                <button onClick={() => handleTugAction('gentle')}>
+                  🤏 Tug Gently
+                </button>
+                <button onClick={() => handleTugAction('shake')}>
+                  🌀 Shake Rope
+                </button>
+                <button onClick={() => handleTugAction('release')}>
+                  🤲 Let Go
+                </button>
+                <button onClick={() => handleTugAction('victory')}>
+                  🏆 Victory Dance
+                </button>
+                <button onClick={() => setGameState(null)} className="stop-game">
+                  🛑 Stop Game
+                </button>
+              </div>
+            </div>
+          )}
+
+          {gameState.type === 'hide' && (
+            <div className="hide-game">
+              <h3>🙈 Hide & Seek</h3>
+              <p>Where am I hiding?</p>
+              <div className="game-actions">
+                <button onClick={() => handleHideAction('tree')}>
+                  🌳 Behind Tree
+                </button>
+                <button onClick={() => handleHideAction('house')}>
+                  🏠 Behind House
+                </button>
+                <button onClick={() => handleHideAction('car')}>
+                  🚗 Under Car
+                </button>
+                <button onClick={() => handleHideAction('bush')}>
+                  🌿 In Bush
+                </button>
+                <button onClick={() => handleHideAction('found')}>
+                  👋 Found Me!
+                </button>
+                <button onClick={() => setGameState(null)} className="stop-game">
+                  🛑 Stop Game
+                </button>
+              </div>
+            </div>
+          )}
+
+          {gameState.type === 'ball' && (
+            <div className="ball-game">
+              <h3>🏀 Ball Catch Game</h3>
+              <p>Throws: {gameState.throws} | Catches: {gameState.catches}</p>
+              <div className="game-actions">
+                <button onClick={() => handleBallAction('high')}>
+                  ⬆️ Throw High
+                </button>
+                <button onClick={() => handleBallAction('low')}>
+                  ⬇️ Throw Low
+                </button>
+                <button onClick={() => handleBallAction('spin')}>
+                  🌀 Spin Throw
+                </button>
+                <button onClick={() => handleBallAction('gentle')}>
+                  🎯 Gentle Toss
+                </button>
+                <button onClick={() => handleBallAction('trick')}>
+                  ✨ Trick Shot
+                </button>
+                <button onClick={() => setGameState(null)} className="stop-game">
+                  🛑 Stop Game
+                </button>
+              </div>
+            </div>
+          )}
+
+          {gameState.type === 'guess' && (
+            <div className="guess-game">
+              <h3>🤔 Guessing Game</h3>
+              <p>Guess my number (1-10)! Attempts: {gameState.attempts}</p>
+              <div className="game-actions">
+                {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                  <button key={num} onClick={() => handleGuessAction(num)}>
+                    {num}
+                  </button>
+                ))}
+                <button onClick={() => setGameState(null)} className="stop-game">
+                  🛑 Stop Game
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Checkpoint Controls */}
+      <div className="checkpoint-controls">
+        <button onClick={resetState} className="reset-button">
+          🔄 Reset Chat
+        </button>
+        <button 
+          onClick={() => setShowSoundTestPanel(!showSoundTestPanel)} 
+          className="sound-test-toggle"
+          style={{
+            marginLeft: '10px',
+            padding: '8px 16px',
+            background: showSoundTestPanel ? '#dc3545' : '#28a745',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          {showSoundTestPanel ? '🔇 Hide Sound Test' : '🔊 Show Sound Test'}
+        </button>
+      </div>
+
+      {/* Sound Test Panel - Toggleable for testing */}
+      {showSoundTestPanel && <SoundTestPanel />}
+    </div>
+  )
 }
+
+export default ChatPage
