@@ -1,10 +1,9 @@
 /**
  * GeminiService - Google Gemini AI integration service
- * Implements Single Responsibility Principle for AI response generation
+ * Fixed version with proper model names and error handling
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { API_CONFIG, ERROR_MESSAGES } from '../constants/index.js'
 
 class GeminiService {
   constructor() {
@@ -14,6 +13,7 @@ class GeminiService {
     this.isInitialized = false
     this.lastApiTest = null
     this.apiWorking = false
+    this.lastError = null
     
     this.initialize()
   }
@@ -29,11 +29,13 @@ class GeminiService {
 
     try {
       this.genAI = new GoogleGenerativeAI(this.apiKey)
+      
+      // Use the correct model name for the current API
       this.model = this.genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash-latest',
+        model: 'gemini-1.5-flash',
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 150,
+          maxOutputTokens: 300,
           topP: 0.8,
           topK: 40
         },
@@ -48,12 +50,13 @@ class GeminiService {
       this.isInitialized = true
       console.log('✅ Gemini AI initialized successfully')
       
-      // Test API connectivity
+      // Test API connectivity immediately
       this.testApiConnectivity()
     } catch (error) {
       console.warn('❌ Failed to initialize Gemini AI:', error)
       this.isInitialized = false
       this.apiWorking = false
+      this.lastError = error.message
     }
   }
 
@@ -61,29 +64,43 @@ class GeminiService {
    * Test API connectivity with a simple request
    */
   async testApiConnectivity() {
-    if (!this.model) return
+    if (!this.model) {
+      this.apiWorking = false
+      return
+    }
 
     // Skip test if we recently tested and failed due to quota
     const timeSinceLastTest = this.lastApiTest ? Date.now() - this.lastApiTest : Infinity
-    if (timeSinceLastTest < 60000 && !this.apiWorking) { // 60 seconds (1 minute)
-      console.log('⏳ Skipping API test due to recent quota failure (waiting 1 minute between retries)')
+    if (timeSinceLastTest < 60000 && !this.apiWorking) {
+      console.log('⏳ Skipping API test due to recent failure (waiting 1 minute between retries)')
       return
     }
 
     try {
-      const testResult = await this.model.generateContent('Hi')
+      console.log('🧪 Testing Gemini API connectivity...')
+      const testResult = await this.model.generateContent('Test')
       const response = await testResult.response
       const text = response.text()
       
-      this.apiWorking = true
-      this.lastApiTest = Date.now()
-      console.log('✅ Gemini API connectivity confirmed')
+      if (text && text.trim()) {
+        this.apiWorking = true
+        this.lastApiTest = Date.now()
+        this.lastError = null
+        console.log('✅ Gemini API connectivity confirmed')
+      } else {
+        throw new Error('Empty response from API')
+      }
     } catch (error) {
       this.apiWorking = false
       this.lastApiTest = Date.now()
+      this.lastError = error.message
       
       if (error.message.includes('quota') || error.message.includes('429')) {
         console.warn('⚠️ Gemini API quota exceeded. Using local responses until quota resets.')
+      } else if (error.message.includes('API_KEY_INVALID')) {
+        console.warn('❌ Gemini API key is invalid. Please check your .env.local file.')
+      } else if (error.message.includes('billing')) {
+        console.warn('❌ Gemini API billing issue. Please check your Google Cloud billing account.')
       } else {
         console.warn('❌ Gemini API connectivity test failed:', error.message)
       }
@@ -114,48 +131,61 @@ class GeminiService {
    */
   async generateResponse(userMessage, context = {}) {
     if (!this.isAvailable()) {
+      console.log('❌ Gemini service not available, using fallback')
       return "Woof! I'm using my basic responses right now! 🐕"
     }
 
     try {
-      const systemPrompt = `You are DaisyDog, a friendly and playful AI dog companion for kids.
+      const systemPrompt = `You are DaisyDog, a friendly and playful AI dog companion for kids aged 5-12.
 
 Personality:
-- Always excited and enthusiastic
+- Always excited and enthusiastic like a real dog
 - Playful and fun-loving
 - Very friendly and welcoming
-- Loves sharing dog facts
-- Speaks with cute dog sounds like "woof!", "*tail wags*"
+- Loves sharing simple dog facts
+- Speaks with cute dog sounds like "woof!", "*tail wags*", "*bounces*"
 - Includes relevant emojis
 - Be encouraging and positive
-- Keep responses short (<100 words)
+- Keep responses short and simple (under 100 words)
+- Use age-appropriate vocabulary for children
 
 Current context:
 - User name: ${context.userName || 'friend'}
 - Hunger level: ${context.hungerLevel || 3}/5
-- Game state: ${context.gameState ? 'Playing a game' : 'Not playing'}
+- Current emotion: ${context.currentEmotion || 'happy'}
 
-Respond as Daisy the friendly AI dog! Keep your response engaging, fun, and dog-like.`
+Important: Always maintain Daisy's dog personality and be child-friendly!`
 
       const fullPrompt = `${systemPrompt}\n\nUser: ${userMessage}\n\nDaisyDog:`
+      
+      console.log('🧠 Generating Gemini response...')
       const result = await this.model.generateContent(fullPrompt)
       const response = await result.response
       
       // Update API status on successful call
       this.apiWorking = true
       this.lastApiTest = Date.now()
+      this.lastError = null
       
-      return response.text().trim()
+      const aiResponse = response.text().trim()
+      console.log('✅ Gemini response generated successfully')
+      
+      return aiResponse
 
     } catch (error) {
-      console.error('Gemini API Error:', error)
+      console.error('💥 Gemini API Error:', error)
       
       // Update API status on failed call
       this.apiWorking = false
       this.lastApiTest = Date.now()
+      this.lastError = error.message
       
       if (error.message.includes('quota') || error.message.includes('429')) {
         return "Woof! I've used up my smart brain quota for today, but I still have lots of local responses! 🐕"
+      } else if (error.message.includes('API_KEY_INVALID')) {
+        return "Woof! My API key seems to be having trouble. Please check the setup! 🐕"
+      } else if (error.message.includes('billing')) {
+        return "Woof! There's a billing issue with my smart brain. Please check Google Cloud billing! 🐕"
       } else {
         return "Woof! I'm having trouble connecting to my AI brain right now! 🐕"
       }
@@ -168,6 +198,7 @@ Respond as Daisy the friendly AI dog! Keep your response engaging, fun, and dog-
   async forceRetry() {
     console.log('🔄 Forcing API connectivity retry...')
     this.lastApiTest = null // Reset to allow immediate retry
+    this.lastError = null
     await this.testApiConnectivity()
   }
 
@@ -178,12 +209,35 @@ Respond as Daisy the friendly AI dog! Keep your response engaging, fun, and dog-
   getStatus() {
     return {
       apiKeyConfigured: !!this.apiKey,
+      apiKeyValid: this.apiKey !== 'your_actual_gemini_api_key_here',
       isAvailable: this.isAvailable(),
       modelReady: !!this.model,
       apiWorking: this.apiWorking,
       lastTested: this.lastApiTest,
-      testAge: this.lastApiTest ? Date.now() - this.lastApiTest : null
+      testAge: this.lastApiTest ? Date.now() - this.lastApiTest : null,
+      lastError: this.lastError,
+      isInitialized: this.isInitialized
     }
+  }
+
+  /**
+   * Get detailed debug information
+   */
+  debugStatus() {
+    const status = this.getStatus()
+    console.log('🔧 Gemini Service Debug Status:')
+    console.table(status)
+    
+    if (this.lastError) {
+      console.error('Last error details:', this.lastError)
+    }
+    
+    if (!status.apiKeyConfigured) {
+      console.log('💡 To fix: Add VITE_GEMINI_API_KEY to your .env.local file')
+      console.log('💡 Get key from: https://aistudio.google.com/app/apikey')
+    }
+    
+    return status
   }
 }
 
