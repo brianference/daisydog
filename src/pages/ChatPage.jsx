@@ -209,7 +209,7 @@ const ChatPage = () => {
     }
     
     const newMessage = {
-      id: generateUniqueMessageId(),
+      id: `daisy-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       text,
       sender: 'daisy',
       timestamp: new Date(),
@@ -657,7 +657,7 @@ const ChatPage = () => {
     
     // Add user message
     const userMessage = {
-      id: generateUniqueMessageId(),
+      id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       text: messageToSend,
       sender: 'user',
       timestamp: new Date()
@@ -1054,21 +1054,21 @@ const ChatPage = () => {
                 </span>
               </div>
             </motion.div>
-          ))}
-        </AnimatePresence>
-        
-        {isTyping && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+                const status = GeminiService.debugStatus()
+                console.log('Current State:', {
+                  userName,
+                  hungerLevel,
+                  gameState,
+                  geminiAvailable
+                })
             animate={{ opacity: 1, y: 0 }}
-            className="message daisy typing"
-          >
-            <img 
-              src={getEmotionImage()} 
-              alt="Daisy"
-              className="message-avatar"
-              onError={(e) => {
-                e.target.src = '/assets/images/emotions/happy.png'
+                // Test Gemini API
+                console.log('🧠 Testing Gemini API...')
+                GeminiService.generateResponse('Hello Daisy! How are you?').then(response => {
+                  console.log('🎉 Gemini test response:', response)
+                }).catch(error => {
+                  console.error('❌ Gemini test failed:', error)
+                })
               }}
             />
             <div className="message-content">

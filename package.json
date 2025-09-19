@@ -1,7 +1,7 @@
 {
   "name": "daisydog",
   "private": true,
-  "version": "3.6.0",
+  "version": "3.6.1",
   "description": "Safe Google Gemini AI-powered virtual dog companion for children with hunger bar system, dance functionality, collapsible games menu, comprehensive safety features, and educational system",
   "type": "module",
   "scripts": {
@@ -12,7 +12,7 @@
     "test:local": "echo 'Testing local response system...' && node -e 'console.log(\"Run test cases from TEST_LOCAL_RESPONSES.md\")'",
     "test:safety": "echo 'Testing safety systems...' && node -e 'console.log(\"Run test cases from SAFE_AI_TESTING.md\")'",
     "setup:apis": "node scripts/setup-apis.js",
-    "version": "echo 'Daisy Dog v3.6.0 - Enhanced Sound System & Polish'"
+    "version": "echo 'Daisy Dog v3.6.1 - Fixed Gemini AI Integration'"
   },
   "homepage": "https://brianference.github.io/daisydog",
   "keywords": [
