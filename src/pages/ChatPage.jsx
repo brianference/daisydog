@@ -532,4 +532,4 @@ const ChatPage = () => {
     
     if (lowerMessage.includes('guessing') && lowerMessage.includes('game')) {
       setGameState('guessing_game')
-      setCurrentEmotion('thinking
+      setCurrentEmotion('thinking')
