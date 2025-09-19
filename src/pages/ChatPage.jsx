@@ -317,7 +317,7 @@ const ChatPage = () => {
       setGameState(null)
       setGuessTarget(null)
       setCurrentEmotion('patient')
-      return "*drops thinking pose* Okay! The number was ${guessTarget}! Good game! What should we do next? 🐾"
+      return `*drops thinking pose* Okay! The number was ${guessTarget}! Good game! What should we do next? 🐾`
     }
     
     const guess = parseInt(message)
@@ -1054,82 +1054,32 @@ const ChatPage = () => {
                 </span>
               </div>
             </motion.div>
+          ))}
+          {isTyping && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="message daisy"
+            >
+              <img 
+                src={getEmotionImage()} 
+                alt="Daisy"
+                className="message-avatar"
+                onError={(e) => {
+                  e.target.src = '/assets/images/emotions/happy.png'
+                }}
+              />
+              <div className="message-content">
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </motion.div>
           )}
           <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input Form */}
-        <div className="input-container">
-          <form onSubmit={handleSendMessage} className="input-form">
-            <input
-              type="text"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Type a message to Daisy..."
-              className="message-input"
-              disabled={isTyping}
-            />
-            <div className="button-group">
-              <button type="submit" disabled={isTyping || !inputMessage.trim()} className="send-button">
-                <FaPaw />
-              </button>
-              <button type="button" onClick={feedDaisy} className="feed-button" disabled={isTyping}>
-                <FaBone />
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="quick-actions">
-          <button onClick={() => handleQuickMessage('Tell me a story')}>
-            📚 Tell me a story
-          </button>
-          <button onClick={() => handleQuickMessage('Tell me a joke')}>
-            😄 Tell a joke
-          </button>
-          <button onClick={() => handleQuickMessage('Do a trick')}>
-            🦴 Do a trick
-          </button>
-          <button onClick={() => handleQuickMessage('Dance for me')}>
-            💃 Dance
-          </button>
-          <button onClick={() => setShowGameMenu(!showGameMenu)} className={showGameMenu ? 'active' : ''}>
-            🎮 Play Games {showGameMenu ? '▼' : '▶'}
-          </button>
-          <button onClick={() => handleQuickMessage('How are you feeling?')}>
-            🐾 How are you?
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-export default ChatPage
-                  gameState,
-                  geminiAvailable
-                })
-            animate={{ opacity: 1, y: 0 }}
-                // Test Gemini API
-                console.log('🧠 Testing Gemini API...')
-                GeminiService.generateResponse('Hello Daisy! How are you?').then(response => {
-                  console.log('🎉 Gemini test response:', response)
-                }).catch(error => {
-                  console.error('❌ Gemini test failed:', error)
-                })
-              }}
-            />
-            <div className="message-content">
-              <div className="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-        <div ref={messagesEndRef} />
+        </AnimatePresence>
       </div>
 
       {/* Input Form */}
