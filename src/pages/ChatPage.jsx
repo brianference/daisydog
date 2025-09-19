@@ -1054,10 +1054,59 @@ const ChatPage = () => {
                 </span>
               </div>
             </motion.div>
-                const status = GeminiService.debugStatus()
-                console.log('Current State:', {
-                  userName,
-                  hungerLevel,
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Form */}
+        <div className="input-container">
+          <form onSubmit={handleSendMessage} className="input-form">
+            <input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="Type a message to Daisy..."
+              className="message-input"
+              disabled={isTyping}
+            />
+            <div className="button-group">
+              <button type="submit" disabled={isTyping || !inputMessage.trim()} className="send-button">
+                <FaPaw />
+              </button>
+              <button type="button" onClick={feedDaisy} className="feed-button" disabled={isTyping}>
+                <FaBone />
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="quick-actions">
+          <button onClick={() => handleQuickMessage('Tell me a story')}>
+            📚 Tell me a story
+          </button>
+          <button onClick={() => handleQuickMessage('Tell me a joke')}>
+            😄 Tell a joke
+          </button>
+          <button onClick={() => handleQuickMessage('Do a trick')}>
+            🦴 Do a trick
+          </button>
+          <button onClick={() => handleQuickMessage('Dance for me')}>
+            💃 Dance
+          </button>
+          <button onClick={() => setShowGameMenu(!showGameMenu)} className={showGameMenu ? 'active' : ''}>
+            🎮 Play Games {showGameMenu ? '▼' : '▶'}
+          </button>
+          <button onClick={() => handleQuickMessage('How are you feeling?')}>
+            🐾 How are you?
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default ChatPage
                   gameState,
                   geminiAvailable
                 })
