@@ -120,6 +120,18 @@ class GeminiService {
     const testAge = this.lastApiTest ? Date.now() - this.lastApiTest : Infinity
     const testStale = testAge > 5 * 60 * 1000 // 5 minutes
     
+    if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+      console.log('🔧 Gemini Availability Check:', {
+        hasKey,
+        hasModel,
+        isInitialized: this.isInitialized,
+        isWorking,
+        testAge: testAge < Infinity ? `${Math.round(testAge / 1000)}s ago` : 'never',
+        testStale,
+        apiKey: this.apiKey ? `${this.apiKey.substring(0, 10)}...` : 'none'
+      })
+    }
+    
     return hasKey && hasModel && this.isInitialized && isWorking && !testStale
   }
 
