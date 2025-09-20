@@ -46,7 +46,7 @@ class SoundService {
         buttonClick: '/sounds/ui/button-click.mp3',
         storyTell: '/sounds/dog/happy-bark.mp3', // Use happy bark for stories
         jokeLaugh: '/sounds/dog/excited-bark.mp3', // Use excited bark for jokes
-        danceMusic: '/sounds/dog/excited-bark.mp3', // Use excited bark for dance
+        danceMusic: '/sounds/dog/dance-sound.mp3', // Use dance-sound.mp3 for dance
         gameStart: '/sounds/dog/happy-bark.mp3',
         success: '/sounds/dog/excited-bark.mp3',
         failure: '/sounds/dog/mixkit-dog-whimper-sad-466.wav'
