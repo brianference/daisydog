@@ -5,6 +5,7 @@ import { FaPaw, FaBone, FaHome, FaQuestionCircle, FaPaperPlane, FaBrain, FaVolum
 import { daisyResponses } from '../data/daisyResponses'
 import { dogFacts, getRandomDogFact, getDogFactByKeyword, containsDogFactKeywords } from '../data/dogFacts'
 import GeminiService from '../services/GeminiService.js'
+import SupabaseService from '../services/SupabaseService.js'
 import useSoundManagerModular from '../hooks/useSoundManagerModular.js'
 import SoundControls from '../components/SoundControls.jsx'
 import SoundTestPanel from '../components/SoundTestPanel.jsx'
@@ -38,6 +39,7 @@ const ChatPage = () => {
   
   // API integration states
   const [geminiStatus, setGeminiStatus] = useState(null)
+  const [supabaseStatus, setSupabaseStatus] = useState(null)
   
   // Sound system integration
   const {
@@ -730,6 +732,19 @@ const ChatPage = () => {
     return () => clearInterval(interval)
   }, [])
   
+  // Initialize Supabase status
+  useEffect(() => {
+    const updateSupabaseStatus = () => {
+      setSupabaseStatus(SupabaseService.getStatus())
+    }
+    
+    updateSupabaseStatus()
+    // Update status every 10 seconds (was 30)
+    const interval = setInterval(updateSupabaseStatus, 10000)
+    
+    return () => clearInterval(interval)
+  }, [])
+  
   // Load saved state on mount
   useEffect(() => {
     const stateLoaded = loadState()
@@ -961,6 +976,14 @@ const ChatPage = () => {
               </span>
             </div>
           )}
+          {supabaseStatus && (
+            <div className="api-status">
+              <FaBrain className={`brain-icon ${supabaseStatus.isAvailable ? 'active' : 'inactive'}`} />
+              <span className="status-text">
+                {supabaseStatus.isAvailable ? 'Supabase Active' : 'Offline Mode'}
+              </span>
+            </div>
+          )}
           <SoundControls
             volume={volumes.master}
             muted={isMuted}
@@ -971,25 +994,54 @@ const ChatPage = () => {
           />
           <button
             onClick={() => {
-              console.log('🔧 DEBUG INFO:')
-              console.log('Gemini Available:', GeminiService.isAvailable())
-              console.log('API Key Present:', !!import.meta.env.VITE_GEMINI_API_KEY)
-              console.log('Hunger Level:', hungerLevel)
-              console.log('User Name:', userName)
-              console.log('Gemini Status:', GeminiService.getStatus())
+              try {
+                console.log('🔧 DEBUG BUTTON CLICKED!')
+                console.log('🔧 DEBUG INFO:')
+                console.log('Gemini Available:', GeminiService.isAvailable())
+                console.log('API Key Present:', !!import.meta.env.VITE_GEMINI_API_KEY)
+                console.log('Hunger Level:', hungerLevel)
+                console.log('User Name:', userName)
+                console.log('Gemini Status:', GeminiService.getStatus())
+                
+                // Check if SupabaseService exists
+                if (typeof SupabaseService !== 'undefined') {
+                  console.log('Supabase Status:', SupabaseService.getStatus())
+                } else {
+                  console.error('❌ SupabaseService not found!')
+                }
 
-              // Test Gemini directly
-              if (GeminiService.isAvailable()) {
-                console.log('🧠 Testing Gemini API...')
-                GeminiService.generateResponse('Hello test!').then(response => {
-                  console.log('🎉 Gemini test response:', response)
-                }).catch(error => {
-                  console.error('❌ Gemini test failed:', error)
-                })
+                // Test Gemini directly
+                if (GeminiService.isAvailable()) {
+                  console.log('🧠 Testing Gemini API...')
+                  GeminiService.generateResponse('Hello test!').then(response => {
+                    console.log('🎉 Gemini test response:', response)
+                  }).catch(error => {
+                    console.error('❌ Gemini test failed:', error)
+                  })
+                }
+
+                // Test Supabase directly
+                if (typeof SupabaseService !== 'undefined') {
+                  if (SupabaseService.isAvailable()) {
+                    console.log('🗄️ Testing Supabase connection...')
+                    SupabaseService.testConnection().then(result => {
+                      console.log('🎉 Supabase test result:', result)
+                    }).catch(error => {
+                      console.error('❌ Supabase test failed:', error)
+                    })
+                  } else {
+                    console.log('🗄️ Supabase not available - check credentials')
+                    SupabaseService.debugStatus()
+                  }
+                } else {
+                  console.error('❌ SupabaseService not imported properly!')
+                }
+              } catch (error) {
+                console.error('❌ Debug button error:', error)
               }
             }}
             className="debug-button"
-            title="Debug Status & Test Gemini"
+            title="Debug Status & Test Services"
             style={{
               background: 'none',
               border: '1px solid #ccc',

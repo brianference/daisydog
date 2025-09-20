@@ -1,4 +1,4 @@
-name: Deploy DaisyDog v1.5.0
+name: Deploy DaisyDog v3.8.0
 
 on:
   push:
@@ -32,12 +32,13 @@ jobs:
     - name: Build application
       run: npm run build
       env:
-        VITE_ANTHROPIC_API_KEY: ${{ secrets.VITE_ANTHROPIC_API_KEY }}
-        VITE_OPENAI_API_KEY: ${{ secrets.VITE_OPENAI_API_KEY }}
+        VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         VITE_DEBUG_MODE: false
-        VITE_LOG_API_STATUS: false
-        VITE_SAFETY_LEVEL: strict
-        VITE_VERSION: 1.5.0
+        VITE_CHILD_SAFETY_MODE: true
+        VITE_DEFAULT_USER_AGE: 12
+        VITE_VERSION: 3.8.0
         VITE_ENVIRONMENT: production
         
     - name: Deploy to GitHub Pages
