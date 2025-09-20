@@ -106,14 +106,9 @@ const useSoundManagerModular = () => {
       hungry: 'sadWhimper',
       sleepy: 'sadWhimper',
       playfetch: 'excitedBark',
-      dancing: 'danceMusic', // Use dance music for dancing emotion
+      dancing: 'happyBark', // Use happy bark for dancing emotion (dance music handled separately)
       thinking: 'happyBark',
       victory: 'victoryBark'
-    }
-    
-    // Special handling for dancing emotion - use UI sound instead of dog sound
-    if (emotion === 'dancing') {
-      return playSound('ui', 'danceMusic')
     }
     
     const soundName = emotionSoundMap[emotion] || 'happyBark'
@@ -199,7 +194,7 @@ const useSoundManagerModular = () => {
       playUISound('story')
     } else if (lowerText.includes('joke') || lowerText.includes('funny')) {
       playUISound('joke')
-    } else if (lowerText.includes('dance') || lowerText.includes('spin') || lowerText.includes('ta-da') || emotion === 'dancing') {
+    } else if (lowerText.includes('dance') || lowerText.includes('spin') || lowerText.includes('ta-da')) {
       playUISound('dance')
     } else if (lowerText.includes('treat') || lowerText.includes('food')) {
       playEatingSound()

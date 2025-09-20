@@ -422,6 +422,12 @@ const ChatPage = () => {
     if (lowerMessage.includes('dance') || lowerMessage.includes('dancing')) {
       console.log('Dance request detected, setting emotion to dancing')
       setCurrentEmotion('dancing')
+      
+      // Reset emotion back to happy after dance is done (3 seconds)
+      setTimeout(() => {
+        setCurrentEmotion('happy')
+      }, 3000)
+      
       const danceResponse = getRandomResponse(daisyResponses.dances)
       // Return response with emotion for proper image display
       return { text: danceResponse, emotion: 'dancing' }
