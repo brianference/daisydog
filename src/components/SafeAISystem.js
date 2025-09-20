@@ -49,7 +49,7 @@ export class SafeAISystem {
       
       // Main conversation model
       this.model = this.genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash-latest',
+        model: 'gemini-1.5-flash',
         generationConfig: {
           temperature: 0.7,
           maxOutputTokens: 300,
@@ -66,7 +66,7 @@ export class SafeAISystem {
       
       // Content moderation model
       this.moderationModel = this.genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash-latest',
+        model: 'gemini-1.5-flash',
         generationConfig: {
           temperature: 0.1,
           maxOutputTokens: 50,

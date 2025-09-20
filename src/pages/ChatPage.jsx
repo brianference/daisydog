@@ -317,7 +317,7 @@ const ChatPage = () => {
       setGameState(null)
       setGuessTarget(null)
       setCurrentEmotion('patient')
-      return "*drops thinking pose* Okay! The number was ${guessTarget}! Good game! What should we do next? 🐾"
+      return `*drops thinking pose* Okay! The number was ${guessTarget}! Good game! What should we do next? 🐾`
     }
     
     const guess = parseInt(message)
@@ -714,21 +714,12 @@ const ChatPage = () => {
   // Initialize Gemini status
   useEffect(() => {
     const updateGeminiStatus = () => {
-      const status = GeminiService.getStatus()
-      setGeminiStatus(status)
-      
-      // Log status for debugging
-      if (import.meta.env.VITE_DEBUG_MODE === 'true') {
-        console.log('🔧 Gemini Status Update:', {
-          isAvailable: status.isAvailable,
-          apiWorking: status.apiWorking,
-          testAge: status.testAge ? `${Math.round(status.testAge / 1000)}s ago` : 'never'
-        })
-      }
+      setGeminiStatus(GeminiService.getStatus())
     }
     
     updateGeminiStatus()
-    const interval = setInterval(updateGeminiStatus, 10000) // Update every 10 seconds
+    // Update status every 10 seconds (was 30)
+    const interval = setInterval(updateGeminiStatus, 10000)
     
     return () => clearInterval(interval)
   }, [])
@@ -771,53 +762,6 @@ const ChatPage = () => {
       saveState()
     }
   }, [messages, currentEmotion, hungerLevel, gameState, hasGreeted, userName, ballPosition, hideSeekCount, tugStrength, guessTarget, storyIndex, ballCatchHeight])
-
-  // Inactivity system
-  const resetInactivityTimer = () => {
-    setLastInteractionTime(Date.now())
-    if (inactivityTimer) {
-      clearTimeout(inactivityTimer)
-    }
-    
-    const timer = setTimeout(() => {
-      if (inactivityType === 'treat') {
-        // Send treat request
-        const treatPrompts = [
-          "*looks at you with hopeful eyes* I've been such a good dog... maybe I deserve a little treat? 🦴🥺",
-          "*sits perfectly and wags tail* You know what would make me even happier? A yummy treat! 🍖✨",
-          "*does a little spin* I've been thinking... it's been a while since I had a delicious bone! 🦴💭",
-          "*tilts head cutely* My tummy is making little rumbling sounds... treat time maybe? 🐕🍪",
-          "*wags tail hopefully* I promise I'll be extra good if you give me a treat! Pretty please? 🥺🦴"
-        ]
-        addDaisyMessage(getRandomResponse(treatPrompts), 'chat', 'hungry')
-        setInactivityType('dogquestion')
-      } else {
-        // Send dog question
-        const dogQuestions = [
-          "*perks up excitedly* Hey! Want to test your dog knowledge? Ask me for a dog fact! I know over 100 amazing things about dogs! 🧠🐕",
-          "*bounces with curiosity* I'm wondering... do you know how fast the fastest dog can run? Ask me 'dog facts' and I'll tell you! 🏃‍♀️💨",
-          "*tilts head thoughtfully* Here's a fun question: Do you think dogs can see colors? Ask me about dog facts to find out! 🌈👁️",
-          "*wags tail excitedly* I bet you don't know how many teeth dogs have! Want to learn something amazing about dogs? 🦷🤔",
-          "*sits attentively* Did you know dogs have some incredible superpowers? Ask me 'dog facts' and I'll blow your mind! 🦸‍♀️🐕",
-          "*excited bounce* I'm full of interesting dog knowledge! Ask me about dog breeds, abilities, or just say 'dog facts'! 📚🐾"
-        ]
-        addDaisyMessage(getRandomResponse(dogQuestions), 'chat', 'thinking')
-        setInactivityType('treat')
-      }
-    }, 45000) // 45 seconds of inactivity
-    
-    setInactivityTimer(timer)
-  }
-
-  // Reset inactivity timer on any interaction
-  useEffect(() => {
-    resetInactivityTimer()
-    return () => {
-      if (inactivityTimer) {
-        clearTimeout(inactivityTimer)
-      }
-    }
-  }, [messages])
 
   // Game action handlers
   const handleGameAction = (gameType) => {
@@ -1007,8 +951,7 @@ const ChatPage = () => {
             <div className="api-status">
               <FaBrain className={`brain-icon ${geminiStatus.isAvailable ? 'active' : 'inactive'}`} />
               <span className="status-text">
-                {geminiStatus.isAvailable ? 'AI Active' : 
-                 geminiStatus.apiKeyConfigured ? 'AI Inactive' : 'Local Mode'}
+                {geminiStatus.isAvailable ? 'AI Active' : 'Local Mode'}
               </span>
             </div>
           )}
@@ -1020,6 +963,40 @@ const ChatPage = () => {
             onToggleMute={toggleMute}
             onToggleSounds={toggleMute}
           />
+          <button
+            onClick={() => {
+              console.log('🔧 DEBUG INFO:')
+              console.log('Gemini Available:', GeminiService.isAvailable())
+              console.log('API Key Present:', !!import.meta.env.VITE_GEMINI_API_KEY)
+              console.log('Hunger Level:', hungerLevel)
+              console.log('User Name:', userName)
+              console.log('Gemini Status:', GeminiService.getStatus())
+
+              // Test Gemini directly
+              if (GeminiService.isAvailable()) {
+                console.log('🧠 Testing Gemini API...')
+                GeminiService.generateResponse('Hello test!').then(response => {
+                  console.log('🎉 Gemini test response:', response)
+                }).catch(error => {
+                  console.error('❌ Gemini test failed:', error)
+                })
+              }
+            }}
+            className="debug-button"
+            title="Debug Status & Test Gemini"
+            style={{
+              background: 'none',
+              border: '1px solid #ccc',
+              borderRadius: '50%',
+              width: '30px',
+              height: '30px',
+              cursor: 'pointer',
+              marginLeft: '5px',
+              fontSize: '16px'
+            }}
+          >
+            🔧
+          </button>
           <Link to="/about" className="about-link">
             <FaQuestionCircle /> About
           </Link>
@@ -1112,9 +1089,6 @@ const ChatPage = () => {
         </button>
         <button onClick={() => handleQuickMessage('Tell me a joke')}>
           😄 Tell a joke
-        </button>
-        <button onClick={() => handleQuickMessage('Dog facts')}>
-          🧠 Dog Facts
         </button>
         <button onClick={() => handleQuickMessage('Do a trick')}>
           🦴 Do a trick

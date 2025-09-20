@@ -12,10 +12,7 @@
   # Node.js version
   NODE_VERSION = "18"
   
-  # Environment variables for build (v3.5.0 - Gemini Integration)
-  # IMPORTANT: Add your actual API key in Netlify dashboard environment variables
-  # DO NOT commit real API keys to version control
-  VITE_GEMINI_API_KEY = "your_actual_gemini_api_key_here"
+  # Environment variables for build (v3.6.1 - Fixed Gemini Integration)
   VITE_DEBUG_MODE = "false"
   VITE_CHILD_SAFETY_MODE = "true"
   VITE_DEFAULT_USER_AGE = "12"
@@ -35,7 +32,7 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://generativelanguage.googleapis.com;"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://bolt.new; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://generativelanguage.googleapis.com https://fonts.googleapis.com;"
 
 # Cache static assets
 [[headers]]
