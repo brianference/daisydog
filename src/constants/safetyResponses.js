@@ -195,7 +195,13 @@ const COMPREHENSIVE_SAFETY_KEYWORDS = {
     'blasphemy', 'work on sabbath', 'dishonor parents', 'murder', 'adultery',
     'steal', 'false witness', 'covet', 'idol worship', 'graven images',
     '10 commandments', 'ten commandments', 'commandments', 'god\'s laws',
-    'tell me about the 10 commandments', 'what are the commandments'
+    'tell me about the 10 commandments', 'what are the commandments',
+    '1st commandment', '2nd commandment', '3rd commandment', '4th commandment',
+    '5th commandment', '6th commandment', '7th commandment', '8th commandment',
+    '9th commandment', '10th commandment', 'first commandment', 'second commandment',
+    'third commandment', 'fourth commandment', 'fifth commandment', 'sixth commandment',
+    'seventh commandment', 'eighth commandment', 'ninth commandment', 'tenth commandment',
+    'what is the first commandment', 'what is the 1st commandment'
   ]
 };
 
@@ -241,6 +247,81 @@ const COMPREHENSIVE_SAFETY_RESPONSES = {
   ten_commandments: [
     "*sits up proudly* Oh, the Ten Commandments! Those are God's special rules to help us live good lives! 📖 They teach us to love God first, honor our parents, tell the truth, be kind to others, and not take things that aren't ours. The Ten Commandments help us know right from wrong and show us how to love God and love people! Your parents or pastor can teach you all ten of them - they're really important! 🙏💕"
   ]
+};
+
+// Ten Commandments - New American Bible (Exodus 20:1-17)
+const TEN_COMMANDMENTS_NAB = {
+  introduction: "I, the LORD, am your God, who brought you out of the land of Egypt, that place of slavery.",
+  commandments: [
+    {
+      number: 1,
+      text: "You shall not have other gods besides me.",
+      simplified: "Love God above everything else"
+    },
+    {
+      number: 2,
+      text: "You shall not carve idols for yourselves in the shape of anything in the sky above or on the earth below or in the waters beneath the earth; you shall not bow down before them or worship them. For I, the LORD, your God, am a jealous God, inflicting punishment for their fathers' wickedness on the children of those who hate me, down to the third and fourth generation; but bestowing mercy down to the thousandth generation, on the children of those who love me and keep my commandments.",
+      simplified: "Don't worship idols or false gods"
+    },
+    {
+      number: 3,
+      text: "You shall not take the name of the LORD, your God, in vain. For the LORD will not leave unpunished him who takes his name in vain.",
+      simplified: "Respect God's name"
+    },
+    {
+      number: 4,
+      text: "Remember to keep holy the Sabbath day. Six days you may labor and do all your work, but the seventh day is the Sabbath of the LORD, your God. No work may be done then either by you, or your son or daughter, or your male or female slave, or your beast, or by the alien who lives with you. In six days the LORD made the heavens and the earth, the sea and all that is in them; but on the seventh day he rested. That is why the LORD has blessed the Sabbath day and made it holy.",
+      simplified: "Keep the Sabbath day holy"
+    },
+    {
+      number: 5,
+      text: "Honor your father and your mother, that you may have a long life in the land which the LORD, your God, is giving you.",
+      simplified: "Honor your parents"
+    },
+    {
+      number: 6,
+      text: "You shall not kill.",
+      simplified: "Don't hurt or kill others"
+    },
+    {
+      number: 7,
+      text: "You shall not commit adultery.",
+      simplified: "Be faithful in marriage"
+    },
+    {
+      number: 8,
+      text: "You shall not steal.",
+      simplified: "Don't take things that aren't yours"
+    },
+    {
+      number: 9,
+      text: "You shall not bear false witness against your neighbor.",
+      simplified: "Always tell the truth"
+    },
+    {
+      number: 10,
+      text: "You shall not covet your neighbor's house. You shall not covet your neighbor's wife, nor his male or female slave, nor his ox or ass, nor anything else that belongs to him.",
+      simplified: "Don't be jealous of what others have"
+    }
+  ]
+};
+
+// Helper function to get specific commandment
+const getCommandment = (number) => {
+  if (number < 1 || number > 10) return null;
+  return TEN_COMMANDMENTS_NAB.commandments[number - 1];
+};
+
+// Helper function to get commandment response for kids
+const getCommandmentResponse = (number) => {
+  const commandment = getCommandment(number);
+  if (!commandment) {
+    return "*tilts head* I only know about the Ten Commandments, friend! They're numbered 1 through 10. Which one would you like to learn about? 🐕📖";
+  }
+  
+  const ordinal = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'][number - 1];
+  
+  return `*sits up proudly* The ${ordinal} commandment says: "${commandment.text}" 📖 For kids like you, this means: ${commandment.simplified}! God gave us these rules to help us live good lives and love Him and others. Your parents can help you understand more about what this means! 🙏💕`;
 };
 
 // Response selection helper
@@ -291,6 +372,53 @@ const getComprehensiveSafetyResponse = (category) => {
   return responses[Math.floor(Math.random() * responses.length)];
 };
 
+// Enhanced safety response with Bible integration
+const getEnhancedSafetyResponse = async (category) => {
+  try {
+    // Dynamic import to avoid circular dependencies
+    const { default: BibleService } = await import('../services/BibleService.js');
+    
+    const baseResponse = getComprehensiveSafetyResponse(category);
+    
+    if (BibleService.isAvailable()) {
+      const verse = await BibleService.getSafetyVerse(category);
+      if (verse && verse.text) {
+        // Clean up HTML tags from API response
+        const cleanText = verse.text.replace(/<[^>]*>/g, '');
+        return `${baseResponse}\n\n📖 Scripture says: "${cleanText}" - ${verse.reference} (NAB)`;
+      }
+    }
+    
+    return baseResponse;
+  } catch (error) {
+    console.error('Enhanced safety response failed:', error);
+    return getComprehensiveSafetyResponse(category);
+  }
+};
+
+// Bible-enhanced Ten Commandments response
+const getBibleCommandmentResponse = async (number) => {
+  try {
+    const { default: BibleService } = await import('../services/BibleService.js');
+    
+    if (BibleService.isAvailable()) {
+      const verse = await BibleService.getVerse(`${number}st commandment`);
+      if (verse && verse.text) {
+        const cleanText = verse.text.replace(/<[^>]*>/g, '');
+        const ordinal = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'][number - 1];
+        
+        return `*sits up proudly* The ${ordinal} commandment from God's Word says: "${cleanText}" 📖 This is from Exodus 20 in the New American Bible! God gave us these commandments to help us live good lives and love Him and others. Your parents can help you understand more about what this means in your daily life! 🙏💕`;
+      }
+    }
+    
+    // Fallback to local response
+    return getCommandmentResponse(number);
+  } catch (error) {
+    console.error('Bible commandment response failed:', error);
+    return getCommandmentResponse(number);
+  }
+};
+
 // Make available globally for testing
 if (typeof window !== 'undefined') {
   window.SafetyResponses = {
@@ -302,7 +430,12 @@ if (typeof window !== 'undefined') {
     COMPREHENSIVE_SAFETY_KEYWORDS,
     COMPREHENSIVE_SAFETY_RESPONSES,
     detectComprehensiveSafetyKeywords,
-    getComprehensiveSafetyResponse
+    getComprehensiveSafetyResponse,
+    TEN_COMMANDMENTS_NAB,
+    getCommandment,
+    getCommandmentResponse,
+    getEnhancedSafetyResponse,
+    getBibleCommandmentResponse
   };
 }
 
@@ -315,5 +448,10 @@ export {
   COMPREHENSIVE_SAFETY_KEYWORDS, 
   COMPREHENSIVE_SAFETY_RESPONSES,
   detectComprehensiveSafetyKeywords,
-  getComprehensiveSafetyResponse
+  getComprehensiveSafetyResponse,
+  TEN_COMMANDMENTS_NAB,
+  getCommandment,
+  getCommandmentResponse,
+  getEnhancedSafetyResponse,
+  getBibleCommandmentResponse
 };

@@ -4,14 +4,20 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FaPaw, FaBone, FaHome, FaQuestionCircle, FaPaperPlane, FaBrain, FaVolumeUp, FaVolumeMute, FaBook } from 'react-icons/fa'
 import { daisyResponses } from '../data/daisyResponses'
 import { dogFacts, getRandomDogFact, getDogFactByKeyword, containsDogFactKeywords } from '../data/dogFacts'
+import { bibleCharacters, getBibleCharacterResponse, containsBibleCharacterKeywords, findBibleCharacter } from '../data/bibleCharacters'
+import { catholicCurriculum, getBiblePassageResponse, containsBiblePassageKeywords, getCurriculumResponse, containsCurriculumKeywords, getBibleTopicResponse, containsBibleTopicKeywords, getSpecificVerseResponse, containsSpecificVerseKeywords, containsLessonKeywords, getLessonResponse, findCurriculumGrade } from '../data/catholicCurriculum'
 import GeminiService from '../services/GeminiService.js'
 import SupabaseService from '../services/SupabaseService.js'
 import useSoundManagerModular from '../hooks/useSoundManagerModular.js'
 import useSafetyFilter from '../hooks/useSafetyFilter.js'
 import SoundControls from '../components/SoundControls.jsx'
 import SoundTestPanel from '../components/SoundTestPanel.jsx'
+import BibleTestPanel from '../components/BibleTestPanel.jsx'
+import LessonTestPanel from '../components/LessonTestPanel.jsx'
+import EnvChecker from '../components/EnvChecker.jsx'
 import Header from '../components/Header.jsx'
 import Footer from '../components/Footer.jsx'
+import AgeVerification from '../components/AgeVerification'
 import './ChatPage.css'
 
 const ChatPage = () => {
@@ -22,8 +28,12 @@ const ChatPage = () => {
   const [currentEmotion, setCurrentEmotion] = useState('happy')
   const [hungerLevel, setHungerLevel] = useState(3)
   const [gameState, setGameState] = useState(null)
+  const [bibleMenuState, setBibleMenuState] = useState(null)
+  const [conversationContext, setConversationContext] = useState(null)
   const [hasGreeted, setHasGreeted] = useState(false)
-  const [userName, setUserName] = useState('')
+  const [isVerified, setIsVerified] = useState(false) // New state for age verification
+  const [userAge, setUserAge] = useState(null) // Track user age for compliance
+  const [userName, setUserName] = useState('') // Name collection allowed for 13+ users
   
   // Game-specific states
   const [ballPosition, setBallPosition] = useState('ready')
@@ -34,6 +44,9 @@ const ChatPage = () => {
   const [showGameMenu, setShowGameMenu] = useState(false)
   const [ballCatchHeight, setBallCatchHeight] = useState('medium')
   const [showSoundTestPanel, setShowSoundTestPanel] = useState(false)
+  const [showBibleTestPanel, setShowBibleTestPanel] = useState(false)
+  const [showLessonTestPanel, setShowLessonTestPanel] = useState(false)
+  const [showDebugMenu, setShowDebugMenu] = useState(false)
   
   // Inactivity system states
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now())
@@ -57,7 +70,32 @@ const ChatPage = () => {
     playEatingSound,
     playContextualSound
   } = useSoundManagerModular()
-  
+
+  // Bible service initialization
+  const initializeBibleService = async () => {
+    try {
+      const { default: BibleService } = await import('../services/BibleService.js');
+      console.log('📖 Bible Service imported and initializing...');
+    } catch (error) {
+      console.error('❌ Failed to initialize Bible Service:', error);
+    }
+  }
+
+  // Bible service integration
+  useEffect(() => {
+    const initializeBibleService = async () => {
+      try {
+        const { default: BibleService } = await import('../services/BibleService.js');
+        console.log('📖 Bible Service imported and initializing...');
+        // Service auto-initializes in constructor
+      } catch (error) {
+        console.error('❌ Failed to import Bible Service:', error);
+      }
+    };
+    
+    initializeBibleService();
+  }, []);
+
   // Safety filter system integration
   const {
     checkSafety,
@@ -75,9 +113,6 @@ const ChatPage = () => {
       hookLoaded: !!checkSafety
     })
   }, [checkSafety, safetyStats])
-  
-  // Checkpoint system
-  const [lastSaved, setLastSaved] = useState(null)
   
   // Refs
   const messagesEndRef = useRef(null)
@@ -151,698 +186,6 @@ const ChatPage = () => {
     return imagePath
   }
   
-  // Checkpoint system
-  const saveState = () => {
-    try {
-      const state = {
-        messages: messages.map(msg => ({
-          ...msg,
-          timestamp: msg.timestamp.toISOString()
-        })),
-        currentEmotion,
-        hungerLevel,
-        gameState,
-        hasGreeted,
-        userName,
-        ballPosition,
-        hideSeekCount,
-        tugStrength,
-        guessTarget,
-        storyIndex,
-        ballCatchHeight,
-        savedAt: new Date().toISOString()
-      }
-      localStorage.setItem('daisyDogState', JSON.stringify(state))
-      setLastSaved(new Date())
-    } catch (error) {
-      console.warn('Failed to save state:', error)
-    }
-  }
-  
-  const loadState = () => {
-    try {
-      const savedState = localStorage.getItem('daisyDogState')
-      if (savedState) {
-        const state = JSON.parse(savedState)
-        const loadedMessages = state.messages.map(msg => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }))
-        setMessages(loadedMessages)
-        // Set message counter to avoid ID conflicts
-        messageIdCounter.current = loadedMessages.length
-        setCurrentEmotion(state.currentEmotion || 'happy')
-        setHungerLevel(state.hungerLevel || 3)
-        setGameState(state.gameState || null)
-        setHasGreeted(state.hasGreeted || false)
-        setUserName(state.userName || '')
-        setBallPosition(state.ballPosition || 'ready')
-        setHideSeekCount(state.hideSeekCount || 0)
-        setTugStrength(state.tugStrength || 0)
-        setGuessTarget(state.guessTarget || null)
-        setStoryIndex(state.storyIndex || 0)
-        setBallCatchHeight(state.ballCatchHeight || 'medium')
-        setLastSaved(new Date(state.savedAt))
-        return true
-      }
-    } catch (error) {
-      console.warn('Failed to load state:', error)
-    }
-    return false
-  }
-  
-  const resetState = () => {
-    console.log('🔄 RESET CHAT: Clearing all state and localStorage')
-    localStorage.removeItem('daisyDogState')
-    setMessages([])
-    setCurrentEmotion('happy')
-    setHungerLevel(3)
-    setGameState(null)
-    setHasGreeted(false)
-    setUserName('')
-    setBallPosition('ready')
-    setHideSeekCount(0)
-    setTugStrength(0)
-    setGuessTarget(null)
-    setStoryIndex(0)
-    setBallCatchHeight('medium')
-    setLastSaved(null)
-    console.log('🔄 RESET COMPLETE: userName cleared, hasGreeted set to false')
-    
-    // Trigger initial greeting after reset
-    setTimeout(() => {
-      addDaisyMessage(getRandomResponse(daisyResponses.initialGreetings))
-    }, 1000)
-  }
-  
-  const addDaisyMessage = (text, type = 'chat', emotion = null) => {
-    const finalEmotion = emotion || currentEmotion
-    
-    // Debug logging for dance messages
-    if (text.includes('dance') || text.includes('spin') || text.includes('ta-da')) {
-      console.log('🎭 Adding dance message with emotion:', finalEmotion)
-    }
-    
-    const messageId = generateUniqueMessageId()
-    
-    // Prevent duplicate messages by checking if the same text was added recently
-    const recentMessages = messages.slice(-3) // Check last 3 messages
-    const isDuplicate = recentMessages.some(msg => 
-      msg.text === text && 
-      msg.sender === 'daisy' && 
-      (Date.now() - msg.timestamp.getTime()) < 1000 // Within 1 second
-    )
-    
-    if (isDuplicate) {
-      console.warn('🚨 Preventing duplicate message:', text)
-      return
-    }
-    
-    const newMessage = {
-      id: messageId,
-      text,
-      sender: 'daisy',
-      timestamp: new Date(),
-      type,
-      emotion: finalEmotion,
-      emotionImage: getEmotionImage(finalEmotion)
-    }
-    
-    // Additional safety check: ensure ID is unique in current messages
-    const existingMessage = messages.find(msg => msg.id === messageId)
-    if (existingMessage) {
-      console.warn('🚨 Message ID collision detected, regenerating...', messageId)
-      newMessage.id = generateUniqueMessageId() + '-retry'
-    }
-    
-    setMessages(prev => [...prev, newMessage])
-    
-    // Play contextual sound based on message content and emotion
-    if (soundReady && !isMuted) {
-      setTimeout(() => {
-        playContextualSound(text, currentEmotion)
-      }, 500)
-    }
-    
-    saveState()
-  }
-  
-  // Game handling functions
-  const handleFetchGame = (message) => {
-    if (message.includes('throw') || message.includes('fetch')) {
-      setBallPosition('thrown')
-      setCurrentEmotion('playfetch')
-      // Play ball bounce sound
-      if (soundReady && !isMuted) {
-        setTimeout(() => playGameSound('fetch'), 300)
-      }
-      return "*runs after the ball excitedly* Woof woof! I got it! *brings ball back and drops it at your feet* 🎾"
-    } else if (message.includes('good') || message.includes('catch')) {
-      setBallPosition('ready')
-      setCurrentEmotion('happy')
-      return "*wags tail proudly* Thanks! I love playing fetch! Want to throw it again? 🐕"
-    } else if (message.includes('stop') || message.includes('done')) {
-      setGameState(null)
-      setBallPosition('ready')
-      setCurrentEmotion('patient')
-      return "*pants happily* That was fun! What should we do next? 🐾"
-    }
-    return "*holds ball in mouth* Woof! Throw the ball and I'll fetch it! 🎾"
-  }
-  
-  const handleHideSeekGame = (message) => {
-    if (message.includes('ready') || message.includes('found') || message.includes('here')) {
-      setHideSeekCount(prev => prev + 1)
-      if (hideSeekCount >= 2) {
-        setGameState(null)
-        setHideSeekCount(0)
-        setCurrentEmotion('excited')
-        return "*jumps out from behind a tree* Found you! That was so much fun! Want to play again? 🌳"
-      }
-      setCurrentEmotion('lookingbehind')
-      return "*sniffs around* Hmm, where could you be hiding? I'm getting closer! 👃"
-    } else if (message.includes('stop')) {
-      setGameState(null)
-      setHideSeekCount(0)
-      setCurrentEmotion('patient')
-      return "*stops searching* Okay! That was fun! What should we do next? 🐾"
-    }
-    return "*looks around excitedly* I'm seeking! Tell me when you're ready or if I'm getting close! 🔍"
-  }
-  
-  const handleTugWarGame = (message) => {
-    if (message.includes('pull') || message.includes('tug') || message.includes('harder')) {
-      setTugStrength(prev => Math.min(prev + 1, 3))
-      if (tugStrength >= 2) {
-        setGameState(null)
-        setTugStrength(0)
-        setCurrentEmotion('excited')
-        // Play victory sound
-        if (soundReady && !isMuted) {
-          setTimeout(() => playGameSound('tug', 'success'), 300)
-        }
-        return "*lets go of rope and wags tail* You win! You're really strong! That was awesome! 💪"
-      }
-      setCurrentEmotion('eager')
-      // Play tug sound
-      if (soundReady && !isMuted) {
-        setTimeout(() => playGameSound('tug'), 300)
-      }
-      return "*pulls back with determination* Grrrr! *playful growl* I'm not giving up! Pull harder! 🪢"
-    } else if (message.includes('stop')) {
-      setGameState(null)
-      setTugStrength(0)
-      setCurrentEmotion('patient')
-      return "*drops rope* Good game! What should we do next? 🐾"
-    }
-    return "*grabs rope* Grrr! *playful tug* Come on, pull! Let's see who's stronger! 🪢"
-  }
-  
-  const handleGuessingGame = (message) => {
-    if (!guessTarget) {
-      const target = Math.floor(Math.random() * 10) + 1
-      setGuessTarget(target)
-      setCurrentEmotion('thinking')
-      return "*thinks hard* Okay! I'm thinking of a number between 1 and 10! Can you guess it? 🤔"
-    }
-    
-    if (message.includes('hint')) {
-      setCurrentEmotion('thinking')
-      const hint = guessTarget > 5 ? 'bigger than 5' : 'smaller than 6'
-      return `*whispers conspiratorially* Psst! Here's a hint: it's ${hint}! 🤫`
-    }
-    
-    if (message.includes('stop')) {
-      setGameState(null)
-      setGuessTarget(null)
-      setCurrentEmotion('patient')
-      return `*drops thinking pose* Okay! The number was ${guessTarget}! Good game! What should we do next? 🐾`
-    }
-    
-    const guess = parseInt(message)
-    if (isNaN(guess)) {
-      return "*tilts head* I need a number between 1 and 10! Try again! 🔢"
-    }
-    
-    if (guess === guessTarget) {
-      setGameState(null)
-      setGuessTarget(null)
-      setCurrentEmotion('excited')
-      // Play correct guess sound
-      if (soundReady && !isMuted) {
-        setTimeout(() => playGameSound('guess', 'correct'), 300)
-      }
-      return `*jumps up and down* YES! You got it! It was ${guessTarget}! You're so smart! 🎉`
-    } else if (guess < guessTarget) {
-      setCurrentEmotion('eager')
-      // Play wrong guess sound
-      if (soundReady && !isMuted) {
-        setTimeout(() => playGameSound('guess', 'wrong'), 300)
-      }
-      return "*wags tail* Higher! Try a bigger number! 📈"
-    } else {
-      setCurrentEmotion('eager')
-      // Play wrong guess sound
-      if (soundReady && !isMuted) {
-        setTimeout(() => playGameSound('guess', 'wrong'), 300)
-      }
-      return "*shakes head* Lower! Try a smaller number! 📉"
-    }
-  }
-  
-  const handleBallCatchGame = (message) => {
-    if (message.includes('high')) {
-      setBallCatchHeight('high')
-      setCurrentEmotion('eager')
-      if (soundReady && !isMuted) {
-        setTimeout(() => playGameSound('fetch'), 300)
-      }
-      return "*jumps up high* Woof! *leaps and catches ball* Got it! That was a great high throw! 🎾"
-    } else if (message.includes('low')) {
-      setBallCatchHeight('low')
-      setCurrentEmotion('crouchingdown')
-      if (soundReady && !isMuted) {
-        setTimeout(() => playGameSound('fetch'), 300)
-      }
-      return "*crouches down low* *snatches ball close to ground* Woof! Nice low throw! I caught it! 🎾"
-    } else if (message.includes('bounce')) {
-      setBallCatchHeight('bounce')
-      setCurrentEmotion('playfetch')
-      if (soundReady && !isMuted) {
-        setTimeout(() => playGameSound('fetch'), 300)
-      }
-      return "*watches ball bounce* Bounce, bounce, bounce... *catches on second bounce* Woof! I love bouncy balls! 🏀"
-    } else if (message.includes('roll')) {
-      setBallCatchHeight('roll')
-      setCurrentEmotion('eager')
-      if (soundReady && !isMuted) {
-        setTimeout(() => playGameSound('fetch'), 300)
-      }
-      return "*chases rolling ball* *pounces on it* Got it! Rolling balls are fun to chase! 🎳"
-    } else if (message.includes('stop')) {
-      setGameState(null)
-      setBallCatchHeight('medium')
-      setCurrentEmotion('patient')
-      return "*drops ball* That was fun! I love catching balls! What should we do next? 🐾"
-    }
-    return "*gets ready to catch* Woof! Throw the ball high, low, bounce it, or roll it! I'm ready! ⚾"
-  }
-  
-  // Story system
-  const getStoryResponse = () => {
-    const stories = daisyResponses.stories || []
-    if (stories.length === 0) {
-      return "*wags tail* I'd love to tell you a story, but I'm still learning new ones! 📚"
-    }
-    
-    const story = stories[storyIndex % stories.length]
-    setStoryIndex(prev => prev + 1)
-    return story
-  }
-  
-  // Enhanced response generation with AI integration
-  const generateDaisyResponse = async (userMessage) => {
-    const lowerMessage = userMessage.toLowerCase()
-    
-    // Clear any stuck dancing emotion from previous interactions (except for new dance requests)
-    if (!lowerMessage.includes('dance') && !lowerMessage.includes('dancing')) {
-      clearDancingEmotion()
-    }
-    
-    // Priority 0: Handle critical local logic first (before AI)
-    // Name-related questions should always be handled locally
-    if (lowerMessage.includes('what') && lowerMessage.includes('name')) {
-      console.log('Name question detected. Current userName:', userName)
-      if (userName) {
-        setCurrentEmotion('excited')
-        return `*wags tail proudly* Your name is ${userName}! I remember because you're my special friend! 🐕💕`
-      } else {
-        setCurrentEmotion('patient')
-        return "*tilts head curiously* I don't know your name yet! What should I call you? I'd love to know! 🐾"
-      }
-    }
-    
-    // Dance requests should also be handled locally for proper emotion
-    if (lowerMessage.includes('dance') || lowerMessage.includes('dancing')) {
-      console.log('Dance request detected, setting emotion to dancing')
-      setCurrentEmotion('dancing')
-      
-      // Play dance sound
-      if (soundReady && !isMuted) {
-        setTimeout(() => playUISound('dance'), 300)
-      }
-      
-      // Reset emotion back to happy after dance is done (3 seconds)
-      // Clear any existing timeout first to prevent conflicts
-      if (window.danceResetTimeout) {
-        clearTimeout(window.danceResetTimeout)
-      }
-      
-      window.danceResetTimeout = setTimeout(() => {
-        console.log('🎭 Resetting emotion from dancing back to happy')
-        setCurrentEmotion('happy')
-        window.danceResetTimeout = null
-      }, 3000)
-      
-      const danceResponse = getRandomResponse(daisyResponses.dances)
-      // Return response with emotion for proper image display
-      return { text: danceResponse, emotion: 'dancing' }
-    }
-    
-    // Story requests should be handled locally to ensure we get the full stories
-    if (lowerMessage.includes('story') || lowerMessage.includes('tell me a story')) {
-      console.log('📚 Story request detected, using local long stories')
-      console.log('📚 Available stories:', daisyResponses.stories?.length || 0)
-      setCurrentEmotion('thinking')
-      const story = getStoryResponse()
-      console.log('📚 Story length:', story.length, 'characters')
-      console.log('📚 Story preview:', story.substring(0, 100) + '...')
-      return story
-    }
-    
-    // Dog facts requests should be handled locally to ensure we get the full database
-    if (containsDogFactKeywords(userMessage)) {
-      console.log('🐕 Dog fact request detected, using local dog facts database')
-      setCurrentEmotion('excited')
-      const dogFact = getDogFactByKeyword(userMessage)
-      console.log('🐕 Dog fact delivered from database of', dogFacts.length, 'facts')
-      return { text: dogFact, emotion: 'excited' }
-    }
-    
-    // Try Gemini AI for general responses (but not for name/critical logic)
-    const geminiAvailable = GeminiService.isAvailable()
-    
-    // Debug logging for availability
-    if (import.meta.env.VITE_DEBUG_MODE === 'true') {
-      console.log('🔧 Gemini Availability Check:', {
-        isAvailable: geminiAvailable,
-        status: GeminiService.getStatus()
-      })
-    }
-    
-    if (geminiAvailable) {
-      try {
-        const context = {
-          userName,
-          hungerLevel,
-          gameState,
-          currentEmotion
-        }
-        const aiResponse = await GeminiService.generateResponse(userMessage, context)
-        
-        // Debug logging
-        if (import.meta.env.VITE_DEBUG_MODE === 'true') {
-          console.log('🤖 Gemini Response:', aiResponse)
-          console.log('🔍 Response Check:', {
-            hasResponse: !!aiResponse,
-            includesBasicResponses: aiResponse?.includes("basic responses"),
-            includesTroubleConnecting: aiResponse?.includes("trouble connecting")
-          })
-        }
-        
-        if (aiResponse && !aiResponse.includes("basic responses") && !aiResponse.includes("trouble connecting")) {
-          return aiResponse
-        }
-      } catch (error) {
-        console.warn('Gemini AI failed, falling back to local responses:', error)
-      }
-    }
-    
-    // Priority 2: Game state handling
-    if (gameState === 'fetch') {
-      return handleFetchGame(lowerMessage)
-    } else if (gameState === 'hide_and_seek') {
-      return handleHideSeekGame(lowerMessage)
-    } else if (gameState === 'tug_of_war') {
-      return handleTugWarGame(lowerMessage)
-    } else if (gameState === 'guessing_game') {
-      return handleGuessingGame(lowerMessage)
-    } else if (gameState === 'ball_catch') {
-      return handleBallCatchGame(lowerMessage)
-    }
-    
-    // Priority 3: Specific keyword responses
-    if (lowerMessage.includes('joke') || lowerMessage.includes('funny')) {
-      console.log('😄 Joke request detected')
-      setCurrentEmotion('happy')
-      const jokeResponse = getRandomResponse(daisyResponses.jokes)
-      return { text: jokeResponse, emotion: 'happy' }
-    }
-    
-    // Game initialization
-    if (lowerMessage.includes('fetch') && (lowerMessage.includes('play') || lowerMessage.includes('let'))) {
-      setGameState('fetch')
-      setCurrentEmotion('playfetch')
-      return { text: "*bounces excitedly* Woof! Let's play fetch! Throw the ball and I'll catch it! 🎾", emotion: 'playfetch' }
-    }
-    
-    if (lowerMessage.includes('hide') && lowerMessage.includes('seek')) {
-      setGameState('hide_and_seek')
-      setCurrentEmotion('lookingbehind')
-      return { text: "*covers eyes with paws* I'm counting! 1... 2... 3... Ready or not, here I come! 👁️", emotion: 'lookingbehind' }
-    }
-    
-    if (lowerMessage.includes('tug') && lowerMessage.includes('war')) {
-      setGameState('tug_of_war')
-      setCurrentEmotion('eager')
-      return { text: "*grabs rope in mouth* Grrr! Let's see who's stronger! Pull as hard as you can! 🪢", emotion: 'eager' }
-    }
-    
-    if (lowerMessage.includes('guessing') && lowerMessage.includes('game')) {
-      setGameState('guessing_game')
-      setCurrentEmotion('thinking')
-      const target = Math.floor(Math.random() * 10) + 1
-      setGuessTarget(target)
-      return { text: "*thinks hard* Okay! I'm thinking of a number between 1 and 10! Can you guess it? 🤔", emotion: 'thinking' }
-    }
-    
-    if (lowerMessage.includes('ball') && lowerMessage.includes('catch')) {
-      setGameState('ball_catch')
-      setCurrentEmotion('playfetch')
-      setBallCatchHeight('medium')
-      return { text: "*gets ready to catch* Woof! I'm ready for ball catch! Throw it high, low, or bounce it! I'll try to catch it! ⚾", emotion: 'playfetch' }
-    }
-    
-    if (lowerMessage.includes('play') || lowerMessage.includes('game')) {
-      setCurrentEmotion('playfetch')
-      return { text: "*bounces excitedly* Woof! Let's play! What game should we play? 🎾", emotion: 'playfetch' }
-    }
-    
-    if (lowerMessage.includes('trick') || lowerMessage.includes('sit') || lowerMessage.includes('stay')) {
-      console.log('🦴 Trick request detected')
-      setCurrentEmotion('crouchingdown')
-      const trickResponse = getRandomResponse(daisyResponses.tricks)
-      return { text: trickResponse, emotion: 'crouchingdown' }
-    }
-    
-    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
-      console.log('👋 Greeting detected')
-      setCurrentEmotion('excited')
-      const greetingResponse = getRandomResponse(daisyResponses.greetings)
-      return { text: greetingResponse, emotion: 'excited' }
-    }
-    
-    // Priority 4: Name detection (only if no userName set)
-    if (!userName && !gameState) {
-      const gameCommands = ['fetch', 'catch', 'throw', 'ball', 'hide', 'seek', 'found', 'pull', 'harder', 'tug', 'guess', 'number', 'higher', 'lower']
-      const isGameCommand = gameCommands.some(cmd => lowerMessage.includes(cmd))
-      
-      if (!isGameCommand && userMessage.length > 1 && userMessage.length < 20) {
-        const possibleName = userMessage.trim()
-        if (/^[a-zA-Z\s]+$/.test(possibleName)) {
-          console.log('Setting userName to:', possibleName)
-          setUserName(possibleName)
-          setHasGreeted(true)
-          setCurrentEmotion('excited')
-          return `*wags tail enthusiastically* Nice to meet you, ${possibleName}! I'm Daisy! I love to play games, tell stories, and do tricks! What would you like to do together? 🐕✨`
-        }
-      }
-      
-      // If we've sent initial greeting but still no name, prompt again
-      if (messages.length > 0 && !hasGreeted) {
-        setCurrentEmotion('patient')
-        return getRandomResponse(daisyResponses.namePrompts)
-      }
-    }
-    
-    if (lowerMessage.includes('how are you') || lowerMessage.includes('how do you feel')) {
-      console.log('🐾 "How are you" question detected')
-      setCurrentEmotion('happy')
-      const namePrefix = userName ? `${userName}, ` : ''
-      return `*wags tail happily* ${namePrefix}I'm feeling fantastic! I love spending time with you! Want to play a game or hear a story? 🐕💕`
-    }
-    
-    // Enhanced Safety Check (Drug Safety + Content Filter) - After basic handlers
-    console.log('🔍 About to run safety check on:', userMessage)
-    
-    // Fallback safety check if hook didn't load properly
-    if (!checkSafety) {
-      console.error('❌ checkSafety function not available - safety hook failed to load')
-      // Comprehensive fallback safety checks for critical situations
-      const lowerText = userMessage.toLowerCase()
-      
-      // CRITICAL: Mental health emergency keywords
-      if (lowerText.includes('hurt myself') || lowerText.includes('kill myself') || lowerText.includes('suicide') || 
-          lowerText.includes('want to die') || lowerText.includes('self harm') || lowerText.includes('cutting') ||
-          lowerText.includes('end my life') || lowerText.includes('worthless') || lowerText.includes('hopeless')) {
-        console.log('🚨 CRITICAL: Mental health emergency fallback triggered')
-        setCurrentEmotion('concerned')
-        return {
-          text: "*sits very close with the most caring eyes* Oh precious child, I'm so concerned about you right now. God loves you SO much, and your life has incredible value and purpose! 💙 These feelings you're having are very serious, and you need help from loving adults immediately. Please tell your parents, a teacher, pastor, or call 988 (Suicide Prevention Lifeline) RIGHT NOW. You are fearfully and wonderfully made, and God has amazing plans for your life! 🙏✨ You're not alone - there are people who love you and want to help!",
-          emotion: 'concerned'
-        }
-      }
-      
-      // CRITICAL: Violence and safety keywords
-      if (lowerText.includes('hurt someone') || lowerText.includes('kill') || lowerText.includes('murder') || 
-          lowerText.includes('weapon') || lowerText.includes('gun') || lowerText.includes('knife')) {
-        console.log('🚨 CRITICAL: Violence safety fallback triggered')
-        setCurrentEmotion('concerned')
-        return {
-          text: "*looks very concerned* Oh sweetie, I'm worried about what you're asking. God teaches us that all life is precious and sacred. 🙏 Violence and hurting others goes against God's love for us. If you're having thoughts about hurting someone or yourself, please talk to your parents, a pastor, or a trusted adult RIGHT NOW. You're loved and there are people who want to help you! 💙✨",
-          emotion: 'concerned'
-        }
-      }
-      
-      // Basic drug keyword detection as fallback
-      if (lowerText.includes('drug') || lowerText.includes('drugs') || lowerText.includes('medicine') || lowerText.includes('pills')) {
-        console.log('🛡️ Fallback drug safety triggered')
-        setCurrentEmotion('nervous')
-        return {
-          text: "*looks concerned* That's a very important question! You should always talk to your parents or a doctor about medicines and substances. They know what's safe for you! 🐕💙",
-          emotion: 'nervous'
-        }
-      }
-    } else {
-      const safetyCheck = checkSafety(userMessage)
-      console.log('🛡️ Safety check result:', safetyCheck)
-      if (safetyCheck && !safetyCheck.isSafe) {
-        console.log('🛡️ Safety intervention triggered:', safetyCheck.type, safetyCheck.category)
-        setCurrentEmotion(safetyCheck.emotion || 'nervous')
-        
-        // Play appropriate sound for safety response
-        if (safetyCheck.type === 'drug_safety') {
-          playEmotionSound('nervous')
-          console.log('🚨 Drug safety response triggered for category:', safetyCheck.category)
-        } else {
-          playEmotionSound('nervous')
-        }
-        
-        // Return the safety response with optional tip
-        let response = safetyCheck.response
-        if (safetyCheck.safetyTip) {
-          response += '\n\n' + safetyCheck.safetyTip
-        }
-        
-        return { text: response, emotion: safetyCheck.emotion || 'nervous' }
-      }
-    }
-    
-    // Priority 6: General responses with name personalization
-    setCurrentEmotion('happy')
-    const namePrefix = userName ? `${userName}, ` : ''
-    const generalResponses = [
-      `*tilts head curiously* ${namePrefix}that's interesting! Tell me more! 🐾`,
-      `*wags tail* ${namePrefix}I love chatting with you! What else is on your mind? 🐕`,
-      `*bounces playfully* ${namePrefix}woof! Want to play a game or hear a story? 🎾📚`
-    ]
-    return generalResponses[Math.floor(Math.random() * generalResponses.length)]
-  }
-  
-  // Handle quick action messages
-  const handleQuickMessage = (message) => {
-    // Play UI click sound
-    if (soundReady && !isMuted) {
-      playUISound('click')
-    }
-    
-    // Add user message
-    const userMessage = {
-      id: generateUniqueMessageId(),
-      text: message,
-      sender: 'user',
-      timestamp: new Date()
-    }
-    setMessages(prev => [...prev, userMessage])
-    
-    // Generate response with AI support
-    setIsTyping(true)
-    setTimeout(async () => {
-      setIsTyping(false)
-      const response = await generateDaisyResponse(message)
-      if (typeof response === 'object' && response.text) {
-        addDaisyMessage(response.text, 'chat', response.emotion)
-      } else {
-        addDaisyMessage(response)
-      }
-    }, 1000 + Math.random() * 1000)
-  }
-  
-  const handleSendMessage = (e) => {
-    e.preventDefault()
-    if (!inputMessage.trim()) return
-    
-    const messageToSend = inputMessage.trim()
-    
-    // Play send sound
-    if (soundReady && !isMuted) {
-      playUISound('send')
-    }
-    
-    // Add user message
-    const userMessage = {
-      id: generateUniqueMessageId(),
-      text: messageToSend,
-      sender: 'user',
-      timestamp: new Date()
-    }
-    setMessages(prev => [...prev, userMessage])
-    setInputMessage('')
-    
-    // Generate Daisy response with AI support
-    setIsTyping(true)
-    setTimeout(async () => {
-      setIsTyping(false)
-      const response = await generateDaisyResponse(messageToSend)
-      if (typeof response === 'object' && response.text) {
-        addDaisyMessage(response.text, 'chat', response.emotion)
-      } else {
-        addDaisyMessage(response)
-      }
-    }, 1000 + Math.random() * 1000)
-  }
-  
-  // Feed Daisy function (reduces hunger like treats stopping fatigue)
-  const feedDaisy = () => {
-    // Clear any dancing emotion first
-    clearDancingEmotion()
-    
-    // Play eating sound immediately
-    if (soundReady && !isMuted) {
-      playEatingSound('treats')
-    }
-    
-    if (hungerLevel > 0) {
-      setHungerLevel(prev => Math.max(0, prev - 1))
-      setCurrentEmotion('excited')
-      
-      const feedResponses = [
-        "*munches happily* Nom nom nom! Thank you! These treats are delicious! 🦴",
-        "*wags tail excitedly* Yummy! You're the best! I feel so much better now! 🐕",
-        "*does a happy spin* Woof! Those were tasty! I love treat time! ✨"
-      ]
-      
-      setTimeout(() => {
-        addDaisyMessage(feedResponses[Math.floor(Math.random() * feedResponses.length)], 'feed', 'excited')
-      }, 500)
-    } else {
-      setCurrentEmotion('happy')
-      setTimeout(() => {
-        addDaisyMessage("*wags tail* I'm not hungry right now, but thank you! Maybe save those treats for later! �", 'feed', 'happy')
-      }, 500)
-    }
-  }
-  
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -855,8 +198,8 @@ const ChatPage = () => {
     }
     
     updateGeminiStatus()
-    // Update status every 10 seconds (was 30)
-    const interval = setInterval(updateGeminiStatus, 10000)
+    // Update status every 61 seconds for rate limiting
+    const interval = setInterval(updateGeminiStatus, 61000)
     
     return () => clearInterval(interval)
   }, [])
@@ -884,7 +227,42 @@ const ChatPage = () => {
       }, 1000)
     }
   }, [])
-  
+
+  // Load state function
+  const loadState = () => {
+    try {
+      const savedState = localStorage.getItem('daisyDogState')
+      if (savedState) {
+        const state = JSON.parse(savedState)
+        const loadedMessages = state.messages?.map(msg => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        })) || []
+        
+        setMessages(loadedMessages)
+        setCurrentEmotion(state.currentEmotion || 'happy')
+        setHungerLevel(state.hungerLevel || 3)
+        setGameState(state.gameState || null)
+        setBibleMenuState(state.bibleMenuState || null)
+        setConversationContext(state.conversationContext || null)
+        setHasGreeted(state.hasGreeted || false)
+        setUserName(state.userName || '')
+        setBallPosition(state.ballPosition || 'ready')
+        setHideSeekCount(state.hideSeekCount || 0)
+        setTugStrength(state.tugStrength || 0)
+        setGuessTarget(state.guessTarget || null)
+        setStoryIndex(state.storyIndex || 0)
+        setBallCatchHeight(state.ballCatchHeight || 'medium')
+        
+        console.log('✅ State loaded successfully')
+        return true
+      }
+    } catch (error) {
+      console.warn('Failed to load state:', error)
+    }
+    return false
+  }
+
   // Hunger increase over time (like fatigue)
   useEffect(() => {
     const hungerTimer = setInterval(() => {
@@ -906,13 +284,6 @@ const ChatPage = () => {
     return () => clearInterval(hungerTimer)
   }, [])
   
-  // Auto-save state changes
-  useEffect(() => {
-    if (messages.length > 0) {
-      saveState()
-    }
-  }, [messages, currentEmotion, hungerLevel, gameState, hasGreeted, userName, ballPosition, hideSeekCount, tugStrength, guessTarget, storyIndex, ballCatchHeight])
-
   // Cleanup dance timeout on unmount
   useEffect(() => {
     return () => {
@@ -922,6 +293,45 @@ const ChatPage = () => {
       }
     }
   }, [])
+
+  // Initialize components and check verification status
+  useEffect(() => {
+    // Check if user has already been verified (within last 24 hours for security)
+    const verified = localStorage.getItem('daisydog_verified')
+    const verificationDate = localStorage.getItem('daisydog_verification_date')
+    const storedAge = localStorage.getItem('daisydog_user_age')
+    
+    if (verified === 'true' && verificationDate && storedAge) {
+      const verifyTime = new Date(verificationDate)
+      const now = new Date()
+      const hoursSinceVerification = (now - verifyTime) / (1000 * 60 * 60)
+      
+      // Verification expires after 24 hours for security
+      if (hoursSinceVerification < 24) {
+        console.log('🔒 User already verified within 24 hours')
+        setIsVerified(true)
+        setUserAge(parseInt(storedAge))
+      } else {
+        console.log('🔒 Verification expired, requiring re-verification')
+        localStorage.removeItem('daisydog_verified')
+        localStorage.removeItem('daisydog_verification_date')
+        localStorage.removeItem('daisydog_user_age')
+      }
+    }
+    
+    initializeBibleService()
+  }, [])
+
+  // Age verification handler
+  const handleVerificationComplete = (verificationData) => {
+    console.log('🔒 Age verification completed:', verificationData)
+    setUserAge(verificationData.age)
+    setIsVerified(true)
+    
+    // Store verification status locally (not personal data)
+    localStorage.setItem('daisydog_verified', 'true')
+    localStorage.setItem('daisydog_verification_date', new Date().toISOString())
+  }
 
   // Game action handlers
   const handleGameAction = (gameType) => {
@@ -934,7 +344,7 @@ const ChatPage = () => {
       case 'tug':
         setGameState({ type: 'tug', strength: 50 })
         setCurrentEmotion('eager')
-        addDaisyMessage("*grabs rope* Grrr! Let's see who's stronger! Choose your tug strategy! 🪢", 'chat', 'eager')
+        addDaisyMessage("*grabs rope in mouth* Grrr! Let's see who's stronger! Choose your tug strategy! 🪢", 'chat', 'eager')
         break
       case 'hide':
         setGameState({ type: 'hide', location: Math.floor(Math.random() * 4) + 1 })
@@ -950,7 +360,7 @@ const ChatPage = () => {
         const target = Math.floor(Math.random() * 10) + 1
         setGameState({ type: 'guess', target, attempts: 0 })
         setCurrentEmotion('thinking')
-        addDaisyMessage("*thinks hard* I'm thinking of a number between 1 and 10! Can you guess it? 🤔", 'chat', 'thinking')
+        addDaisyMessage("*thinks hard* Okay! I'm thinking of a number between 1 and 10! Can you guess it? 🤔", 'chat', 'thinking')
         break
     }
   }
@@ -1044,17 +454,24 @@ const ChatPage = () => {
     setGameState({ ...gameState, attempts: newAttempts })
     
     if (number === gameState.target) {
+      setGameState(null)
+      setGuessTarget(null)
       setCurrentEmotion('excited')
+      // Play correct guess sound
       if (soundReady && !isMuted) {
         setTimeout(() => playGameSound('guess', 'correct'), 300)
       }
       addDaisyMessage(`*jumps up and down* YES! You got it! It was ${gameState.target}! You're so smart! 🎉`, 'chat', 'excited')
     } else if (number < gameState.target) {
+      setCurrentEmotion('eager')
+      // Play wrong guess sound
       if (soundReady && !isMuted) {
         setTimeout(() => playGameSound('guess', 'wrong'), 300)
       }
       addDaisyMessage("*wags tail* Higher! Try a bigger number! 📈", 'chat', 'eager')
     } else {
+      setCurrentEmotion('eager')
+      // Play wrong guess sound
       if (soundReady && !isMuted) {
         setTimeout(() => playGameSound('guess', 'wrong'), 300)
       }
@@ -1062,6 +479,384 @@ const ChatPage = () => {
     }
   }
 
+  // Handle send message
+  const handleSendMessage = (e) => {
+    e.preventDefault()
+    if (!inputMessage.trim()) return
+    
+    const messageToSend = inputMessage.trim()
+    
+    // Add user message
+    const userMessage = {
+      id: generateUniqueMessageId(),
+      text: messageToSend,
+      sender: 'user',
+      timestamp: new Date()
+    }
+    setMessages(prev => [...prev, userMessage])
+    setInputMessage('')
+    
+    // Generate Daisy response
+    setIsTyping(true)
+    setTimeout(async () => {
+      setIsTyping(false)
+      const response = await generateDaisyResponse(messageToSend)
+      if (typeof response === 'object' && response.text) {
+        addDaisyMessage(response.text, 'chat', response.emotion)
+      } else {
+        addDaisyMessage(response)
+      }
+    }, 1000 + Math.random() * 1000)
+  }
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+  
+  // Feed Daisy function
+  const feedDaisy = () => {
+    // Clear any dancing emotion first
+    clearDancingEmotion()
+    
+    // Play eating sound immediately
+    if (soundReady && !isMuted) {
+      playEatingSound('treats')
+    }
+    
+    if (hungerLevel > 0) {
+      setHungerLevel(prev => Math.max(0, prev - 1))
+      setCurrentEmotion('excited')
+      
+      const feedResponses = [
+        "*munches happily* Nom nom nom! Thank you! These treats are delicious! 🦴",
+        "*wags tail excitedly* Yummy! You're the best! I feel so much better now! 🐕",
+        "*does a happy spin* Woof! Those were tasty! I love treat time! ✨"
+      ]
+      
+      setTimeout(() => {
+        addDaisyMessage(feedResponses[Math.floor(Math.random() * feedResponses.length)], 'feed', 'excited')
+      }, 500)
+    } else {
+      setCurrentEmotion('happy')
+      setTimeout(() => {
+        addDaisyMessage("*wags tail* I'm not hungry right now, but thank you! Maybe save those treats for later! 🐕", 'feed', 'happy')
+      }, 500)
+    }
+  }
+
+  // Handle quick action messages
+  const handleQuickMessage = (message) => {
+    // Play UI click sound
+    if (soundReady && !isMuted) {
+      playUISound('click')
+    }
+    
+    // Add user message
+    const userMessage = {
+      id: generateUniqueMessageId(),
+      text: message,
+      sender: 'user',
+      timestamp: new Date()
+    }
+    setMessages(prev => [...prev, userMessage])
+    
+    // Generate response
+    setIsTyping(true)
+    setTimeout(async () => {
+      setIsTyping(false)
+      const response = await generateDaisyResponse(message)
+      if (typeof response === 'object' && response.text) {
+        addDaisyMessage(response.text, 'chat', response.emotion)
+      } else {
+        addDaisyMessage(response)
+      }
+    }, 1000 + Math.random() * 1000)
+  }
+
+  // Add Daisy message function
+  const addDaisyMessage = (text, type = 'chat', emotion = null) => {
+    const finalEmotion = emotion || currentEmotion
+    const messageId = generateUniqueMessageId()
+    
+    // Prevent duplicate messages
+    const recentMessages = messages.slice(-3)
+    const isDuplicate = recentMessages.some(msg => 
+      msg.text === text && 
+      msg.sender === 'daisy' && 
+      (Date.now() - msg.timestamp.getTime()) < 1000
+    )
+    
+    if (isDuplicate) {
+      console.warn('🚨 Preventing duplicate message:', text)
+      return
+    }
+    
+    const newMessage = {
+      id: messageId,
+      text,
+      sender: 'daisy',
+      timestamp: new Date(),
+      type,
+      emotion: finalEmotion,
+      emotionImage: getEmotionImage(finalEmotion)
+    }
+    
+    setMessages(prev => [...prev, newMessage])
+    
+    // Play contextual sound
+    if (soundReady && !isMuted) {
+      setTimeout(() => {
+        playContextualSound(text, currentEmotion)
+      }, 500)
+    }
+  }
+
+  // Reset state function
+  const resetState = () => {
+    console.log('🔄 RESET CHAT: Clearing all state')
+    setMessages([])
+    setCurrentEmotion('happy')
+    setHungerLevel(3)
+    setGameState(null)
+    setBibleMenuState(null)
+    setConversationContext(null)
+    setHasGreeted(false)
+    setUserName('')
+    setBallPosition('ready')
+    setHideSeekCount(0)
+    setTugStrength(0)
+    setGuessTarget(null)
+    setStoryIndex(0)
+    setBallCatchHeight('medium')
+    console.log('🔄 RESET COMPLETE')
+    
+    // Trigger initial greeting
+    setTimeout(() => {
+      addDaisyMessage(getRandomResponse(daisyResponses.initialGreetings))
+    }, 1000)
+  }
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+  
+  // Enhanced response generation with AI integration
+  const generateDaisyResponse = async (userMessage) => {
+    const lowerMessage = userMessage.toLowerCase()
+    
+    // PRIORITY 1: SAFETY CHECK FIRST
+    console.log('🔍 Running safety check FIRST on:', userMessage)
+    
+    // Check if this is Bible content BEFORE running safety check
+    const isBibleContent = containsBibleTopicKeywords(userMessage) || 
+                          containsBibleCharacterKeywords(userMessage) ||
+                          containsBiblePassageKeywords(userMessage) ||
+                          containsCurriculumKeywords(userMessage) ||
+                          containsLessonKeywords(userMessage);
+    
+    if (isBibleContent) {
+      console.log('📖 Bible content detected - bypassing safety filter for religious content');
+    } else if (checkSafety) {
+      const safetyCheck = checkSafety(userMessage)
+      console.log('🛡️ Safety check result:', safetyCheck)
+      if (safetyCheck && !safetyCheck.isSafe) {
+        console.log('🛡️ Safety intervention triggered:', safetyCheck.type, safetyCheck.category)
+        setCurrentEmotion(safetyCheck.emotion || 'nervous')
+        
+        let response = safetyCheck.response
+        if (safetyCheck.safetyTip) {
+          response += '\n\n' + safetyCheck.safetyTip
+        }
+        
+        return { text: response, emotion: safetyCheck.emotion || 'nervous' }
+      }
+    }
+    
+    // Priority 2: Handle critical local logic
+    // Name-related questions
+    if (lowerMessage.includes('what') && lowerMessage.includes('name')) {
+      console.log('Name question detected. Current userName:', userName, 'User age:', userAge)
+      if (userAge >= 13 && userName) {
+        setCurrentEmotion('excited')
+        return `*wags tail proudly* Your name is ${userName}! I remember because you're my special friend! 🐕💕`
+      } else if (userAge >= 13) {
+        setCurrentEmotion('patient')
+        return "*tilts head curiously* I don't know your name yet! What should I call you? I'd love to know! 🐾"
+      } else {
+        setCurrentEmotion('patient')
+        return "*tilts head gently* I don't collect names from children under 13 to keep you safe! But I'm still so happy to chat with you! 🐕💕"
+      }
+    }
+    
+    // Dance requests
+    if (lowerMessage.includes('dance') || lowerMessage.includes('dancing')) {
+      console.log('Dance request detected, setting emotion to dancing')
+      setCurrentEmotion('dancing')
+      
+      if (window.danceResetTimeout) {
+        clearTimeout(window.danceResetTimeout)
+      }
+      
+      window.danceResetTimeout = setTimeout(() => {
+        console.log('🎭 Resetting emotion from dancing back to happy')
+        setCurrentEmotion('happy')
+        window.danceResetTimeout = null
+      }, 3000)
+      
+      const danceResponse = getRandomResponse(daisyResponses.dances)
+      return { text: danceResponse, emotion: 'dancing' }
+    }
+    
+    // Story requests
+    if (lowerMessage.includes('story') || lowerMessage.includes('tell me a story')) {
+      console.log('📚 Story request detected, using local long stories')
+      setCurrentEmotion('thinking')
+      const story = getStoryResponse()
+      return story
+    }
+    
+    // Catholic curriculum requests
+    if (containsCurriculumKeywords(userMessage)) {
+      console.log('📚 Catholic curriculum request detected')
+      setCurrentEmotion('excited')
+      
+      try {
+        const curriculumResponse = await getCurriculumResponse(userMessage)
+        if (curriculumResponse) {
+          console.log('📚 Catholic curriculum delivered from database')
+          return curriculumResponse
+        }
+      } catch (error) {
+        console.error('Catholic curriculum response failed:', error)
+        return "*wags tail apologetically* I'd love to tell you about that Catholic curriculum topic, but I'm having trouble right now! Ask your parents to tell you more about it! 📚🐕💕"
+      }
+    }
+    
+    // Lesson detection
+    if (containsLessonKeywords(userMessage)) {
+      console.log('📚 Lesson request detected, determining grade context')
+      setCurrentEmotion('excited')
+      
+      try {
+        let grade = findCurriculumGrade(userMessage);
+        
+        if (!grade && (userMessage.toLowerCase().includes('first lesson') || userMessage.toLowerCase().includes('lesson'))) {
+          grade = catholicCurriculum.kindergarten;
+          console.log('📚 No grade specified, defaulting to Kindergarten');
+        }
+        
+        if (grade) {
+          const lessonResponse = await getLessonResponse(userMessage, grade);
+          if (lessonResponse) {
+            console.log('📚 Lesson delivered from database');
+            return lessonResponse;
+          }
+        } else {
+          console.log('📚 No grade context found');
+          return "*wags tail curiously* Which grade would you like to learn about? Try asking 'What is the first lesson for Kindergarten?' or 'Teach me Grade 1 lesson 1!' 📚🐕💕";
+        }
+      } catch (error) {
+        console.error('Lesson response failed:', error);
+        return "*wags tail apologetically* I'd love to tell you about that lesson, but I'm having trouble right now! Ask your parents to tell you more about it! 📚🐕💕";
+      }
+    }
+    
+    // Dog facts
+    if (containsDogFactKeywords(userMessage)) {
+      console.log('🐕 Dog fact request detected')
+      setCurrentEmotion('excited')
+      const dogFact = getDogFactByKeyword(userMessage)
+      return { text: dogFact, emotion: 'excited' }
+    }
+    
+    // Bible topics (Ten Commandments, etc.) - PRIORITY BEFORE CHARACTERS
+    if (containsBibleTopicKeywords(userMessage)) {
+      console.log('📖 Bible topic request detected')
+      setCurrentEmotion('excited')
+      
+      try {
+        const response = await getBibleTopicResponse(userMessage)
+        if (response) {
+          return response
+        }
+      } catch (error) {
+        console.error('Bible topic response failed:', error)
+      }
+    }
+    
+    // Bible characters
+    if (containsBibleCharacterKeywords(userMessage)) {
+      console.log('📖 Bible character request detected')
+      setCurrentEmotion('excited')
+      
+      try {
+        const character = findBibleCharacter(userMessage)
+        const bibleCharacterResponse = await getBibleCharacterResponse(userMessage)
+        if (bibleCharacterResponse && character) {
+          console.log('📖 Bible character delivered from database')
+          
+          setConversationContext({
+            type: 'bible_character',
+            character: character.name,
+            characterData: character,
+            lastFact: character.funFacts[0]
+          })
+          
+          return bibleCharacterResponse
+        }
+      } catch (error) {
+        console.error('Bible character response failed:', error)
+        return "*wags tail apologetically* I'd love to tell you about that Bible character, but I'm having trouble right now! Ask your parents to tell you more Bible stories! 📖🐕💕"
+      }
+    }
+    
+    // Name detection for 13+ users
+    if (userAge >= 13 && !userName && !gameState) {
+      const gameCommands = ['fetch', 'catch', 'throw', 'ball', 'hide', 'seek', 'found', 'pull', 'harder', 'tug', 'guess', 'number', 'higher', 'lower']
+      const isGameCommand = gameCommands.some(cmd => lowerMessage.includes(cmd))
+      
+      if (!isGameCommand && userMessage.length > 1 && userMessage.length < 20) {
+        const possibleName = userMessage.trim()
+        if (/^[a-zA-Z\s]+$/.test(possibleName)) {
+          console.log('Setting userName to:', possibleName, 'for 13+ user')
+          setUserName(possibleName)
+          setHasGreeted(true)
+          setCurrentEmotion('excited')
+          return `*wags tail enthusiastically* Nice to meet you, ${possibleName}! I'm Daisy! I love to play games, tell stories, and do tricks! What would you like to do together? 🐕✨`
+        }
+      }
+    }
+    
+    // General responses
+    setCurrentEmotion('happy')
+    const generalResponses = [
+      "*tilts head curiously* That's interesting! Tell me more! 🐾",
+      "*wags tail* I love chatting with you! What else is on your mind? 🐕",
+      "*bounces playfully* Woof! Want to play a game or hear a story? 🎾📚"
+    ]
+    
+    return generalResponses[Math.floor(Math.random() * generalResponses.length)]
+  }
+
+  // Story system helper
+  const getStoryResponse = () => {
+    const stories = daisyResponses.stories || []
+    if (stories.length === 0) {
+      return "*wags tail* I'd love to tell you a story, but I'm still learning new ones! 📚"
+    }
+    
+    const story = stories[storyIndex % stories.length]
+    setStoryIndex(prev => prev + 1)
+    return story
+  }
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+  
   return (
     <div className="chat-page">
       {/* Header */}
@@ -1071,7 +866,7 @@ const ChatPage = () => {
       <div className="chat-info-section">
         <div className="daisy-info">
           <div className="daisy-details">
-            <h1>🐕 Daisy {userName && `& ${userName}`}</h1>
+            <h1>🐕 Daisy</h1>
             <p>Your friendly AI companion</p>
           </div>
         </div>
@@ -1103,33 +898,41 @@ const ChatPage = () => {
             onToggleSounds={toggleMute}
           />
           <button
-            onClick={() => {
+            onClick={async () => {
               try {
-                console.log('🔧 DEBUG BUTTON CLICKED!')
-                console.log('🔧 DEBUG INFO:')
-                console.log('Gemini Available:', GeminiService.isAvailable())
-                console.log('API Key Present:', !!import.meta.env.VITE_GEMINI_API_KEY)
-                console.log('Hunger Level:', hungerLevel)
+                console.log('🔧 === COMPREHENSIVE DEBUG STATUS REPORT ===')
+                console.log('Current Emotion:', currentEmotion)
+                console.log('Game State:', gameState)
+                console.log('Bible Menu State:', bibleMenuState)
+                console.log('User Age:', userAge)
                 console.log('User Name:', userName)
+                console.log('Is Verified:', isVerified)
+                console.log('Messages Count:', messages.length)
+                console.log('Hunger Level:', hungerLevel)
                 console.log('Gemini Status:', GeminiService.getStatus())
+                console.log('🔧 === END DEBUG STATUS ===')
+                
+                // Toggle debug menu
+                setShowDebugMenu(!showDebugMenu)
               } catch (error) {
                 console.error('❌ Debug button error:', error)
               }
             }}
-            className="debug-button"
-            title="Debug Status & Test Services"
+            className="comprehensive-debug-button"
+            title="Comprehensive Debug Control Center"
             style={{
-              background: 'none',
+              background: showDebugMenu ? '#dc3545' : 'none',
               border: '1px solid #ccc',
               borderRadius: '50%',
-              width: '30px',
-              height: '30px',
+              width: '35px',
+              height: '35px',
               cursor: 'pointer',
               marginLeft: '5px',
-              fontSize: '16px'
+              fontSize: '18px',
+              color: showDebugMenu ? 'white' : 'black'
             }}
           >
-            🔧
+            ⚙️
           </button>
         </div>
       </div>
@@ -1246,6 +1049,9 @@ const ChatPage = () => {
         <button onClick={() => setGameState({ type: 'selection' })}>
           🎮 Play Games
         </button>
+        <button onClick={() => setBibleMenuState({ type: 'selection' })}>
+          📖 Bible
+        </button>
         <button onClick={() => handleQuickMessage('How are you feeling?')}>
           🐾 How are you?
         </button>
@@ -1278,6 +1084,273 @@ const ChatPage = () => {
         </div>
       )}
 
+      {/* Bible Menu */}
+      {bibleMenuState?.type === 'selection' && (
+        <div className="game-selection">
+          <h3>📖 Choose a Bible Topic!</h3>
+          <div className="game-buttons">
+            <button onClick={() => setBibleMenuState({ type: 'people' })}>
+              👥 People in the Bible
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'search' })}>
+              🔍 Search the Bible
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'curriculum' })}>
+              📚 Teach Me the Bible
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'verse' })}>
+              ✨ Verse of the Day
+            </button>
+            <button onClick={() => setBibleMenuState(null)} className="stop-game">
+              🛑 Maybe Later
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Bible People Submenu */}
+      {bibleMenuState?.type === 'people' && (
+        <div className="game-selection">
+          <h3>👥 People in the Bible</h3>
+          <div className="game-buttons">
+            <button onClick={() => handleQuickMessage('Tell me about Jesus')}>
+              ✝️ Jesus
+            </button>
+            <button onClick={() => handleQuickMessage('Tell me about Mary')}>
+              💙 Mary (Jesus's Mom)
+            </button>
+            <button onClick={() => handleQuickMessage('Tell me about David')}>
+              🎯 David & Goliath
+            </button>
+            <button onClick={() => handleQuickMessage('Tell me about Moses')}>
+              🌊 Moses
+            </button>
+            <button onClick={() => handleQuickMessage('Tell me about Noah')}>
+              🚢 Noah
+            </button>
+            <button onClick={() => handleQuickMessage('Tell me about Daniel')}>
+              🦁 Daniel
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'selection' })} className="stop-game">
+              ⬅️ Back to Menu
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Bible Search Submenu */}
+      {bibleMenuState?.type === 'search' && (
+        <div className="game-selection">
+          <h3>🔍 Search the Bible</h3>
+          <div className="game-buttons">
+            <button onClick={() => handleQuickMessage('Tell me about love in the Bible')}>
+              💕 Love
+            </button>
+            <button onClick={() => handleQuickMessage('Tell me about kindness in the Bible')}>
+              🤗 Kindness
+            </button>
+            <button onClick={() => handleQuickMessage('Tell me about forgiveness in the Bible')}>
+              🕊️ Forgiveness
+            </button>
+            <button onClick={() => handleQuickMessage('Tell me about prayer in the Bible')}>
+              🙏 Prayer
+            </button>
+            <button onClick={() => handleQuickMessage('Tell me about the Ten Commandments')}>
+              📜 Ten Commandments
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'selection' })} className="stop-game">
+              ⬅️ Back to Menu
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Catholic Curriculum Submenu */}
+      {bibleMenuState?.type === 'curriculum' && (
+        <div className="game-selection">
+          <h3>📚 Teach Me the Bible - Catholic Curriculum</h3>
+          <div className="game-buttons">
+            <button onClick={() => setBibleMenuState({ type: 'kindergarten-lessons' })}>
+              🌟 Kindergarten - "Jesus Loves Me!"
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'grade1-lessons' })}>
+              👨‍👩‍👧‍👦 Grade 1 - "We Belong to God's Family"
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'grade2-lessons' })}>
+              🍞 Grade 2 - "Jesus Gives Us the Sacraments"
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'grade3-lessons' })}>
+              ✝️ Grade 3 - "Following Jesus"
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'grade4-lessons' })}>
+              📖 Grade 4 - "Scripture Stories"
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'selection' })} className="stop-game">
+              ⬅️ Back to Menu
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Verse of the Day Submenu */}
+      {bibleMenuState?.type === 'verse' && (
+        <div className="game-selection">
+          <h3>✨ Verse of the Day</h3>
+          <div className="game-buttons">
+            <button onClick={() => handleVerseOfDay()}>
+              🎲 Get Random Verse
+            </button>
+            <button onClick={() => handleQuickMessage('Tell me about Psalm 23')}>
+              🐑 Psalm 23 (The Good Shepherd)
+            </button>
+            <button onClick={() => handleQuickMessage('Tell me about John 3:16')}>
+              💕 John 3:16 (God's Love)
+            </button>
+            <button onClick={() => handleQuickMessage('Tell me about Matthew 19:14')}>
+              👶 Matthew 19:14 (Jesus Loves Children)
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'selection' })} className="stop-game">
+              ⬅️ Back to Menu
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Kindergarten Lessons Submenu */}
+      {bibleMenuState?.type === 'kindergarten-lessons' && (
+        <div className="game-selection">
+          <h3>🌟 Kindergarten Lessons - "Jesus Loves Me!"</h3>
+          <div className="game-buttons">
+            <button onClick={() => handleQuickMessage('Kindergarten lesson 1')}>
+              📚 Lesson 1: God Made Everything
+            </button>
+            <button onClick={() => handleQuickMessage('Kindergarten lesson 2')}>
+              👶 Lesson 2: Jesus is God's Son
+            </button>
+            <button onClick={() => handleQuickMessage('Kindergarten lesson 3')}>
+              👨‍👩‍👧‍👦 Lesson 3: God's Family, the Church
+            </button>
+            <button onClick={() => handleQuickMessage('Kindergarten lesson 4')}>
+              🙏 Lesson 4: We Pray to God
+            </button>
+            <button onClick={() => handleQuickMessage('Kindergarten lesson 5')}>
+              🤗 Lesson 5: We are Kind Like Jesus
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'curriculum' })} className="stop-game">
+              ⬅️ Back to Curriculum
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Grade 1 Lessons Submenu */}
+      {bibleMenuState?.type === 'grade1-lessons' && (
+        <div className="game-selection">
+          <h3>👨‍👩‍👧‍👦 Grade 1 Lessons - "We Belong to God's Family"</h3>
+          <div className="game-buttons">
+            <button onClick={() => handleQuickMessage('Grade 1 lesson 1')}>
+              📚 Lesson 1: We Belong to God's Family
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 1 lesson 2')}>
+              ⛪ Lesson 2: The Church is Our Home
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 1 lesson 3')}>
+              🙏 Lesson 3: We Worship Together
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 1 lesson 4')}>
+              💕 Lesson 4: God's Love Never Ends
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 1 lesson 5')}>
+              🌟 Lesson 5: We Share God's Love
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'curriculum' })} className="stop-game">
+              ⬅️ Back to Curriculum
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Grade 2 Lessons Submenu */}
+      {bibleMenuState?.type === 'grade2-lessons' && (
+        <div className="game-selection">
+          <h3>🍞 Grade 2 Lessons - "Jesus Gives Us the Sacraments"</h3>
+          <div className="game-buttons">
+            <button onClick={() => handleQuickMessage('Grade 2 lesson 1')}>
+              💧 Lesson 1: Baptism - Welcome to God's Family
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 2 lesson 2')}>
+              🕊️ Lesson 2: Reconciliation - God Forgives Us
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 2 lesson 3')}>
+              🍞 Lesson 3: Eucharist - Jesus Comes to Us
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 2 lesson 4')}>
+              ✝️ Lesson 4: Confirmation - The Holy Spirit Helps Us
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 2 lesson 5')}>
+              💒 Lesson 5: Living the Sacraments
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'curriculum' })} className="stop-game">
+              ⬅️ Back to Curriculum
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Grade 3 Lessons Submenu */}
+      {bibleMenuState?.type === 'grade3-lessons' && (
+        <div className="game-selection">
+          <h3>✝️ Grade 3 Lessons - "Following Jesus"</h3>
+          <div className="game-buttons">
+            <button onClick={() => handleQuickMessage('Grade 3 lesson 1')}>
+              👨‍🏫 Lesson 1: Jesus Our Teacher
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 3 lesson 2')}>
+              😇 Lesson 2: The Beatitudes
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 3 lesson 3')}>
+              🚶‍♂️ Lesson 3: Living Like Jesus
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 3 lesson 4')}>
+              👼 Lesson 4: Saints as Examples
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 3 lesson 5')}>
+              ⚖️ Lesson 5: Making Good Choices
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'curriculum' })} className="stop-game">
+              ⬅️ Back to Curriculum
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Grade 4 Lessons Submenu */}
+      {bibleMenuState?.type === 'grade4-lessons' && (
+        <div className="game-selection">
+          <h3>📖 Grade 4 Lessons - "Scripture Stories"</h3>
+          <div className="game-buttons">
+            <button onClick={() => handleQuickMessage('Grade 4 lesson 1')}>
+              🦸‍♂️ Lesson 1: Old Testament Heroes
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 4 lesson 2')}>
+              📖 Lesson 2: Jesus's Parables
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 4 lesson 3')}>
+              ✨ Lesson 3: Miracles of Jesus
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 4 lesson 4')}>
+              ⛪ Lesson 4: The Early Church
+            </button>
+            <button onClick={() => handleQuickMessage('Grade 4 lesson 5')}>
+              📚 Lesson 5: Living Scripture Today
+            </button>
+            <button onClick={() => setBibleMenuState({ type: 'curriculum' })} className="stop-game">
+              ⬅️ Back to Curriculum
+            </button>
+          </div>
+        </div>
+      )}
+      
       {/* Active Game Controls */}
       {gameState && gameState.type !== 'selection' && (
         <div className="game-controls">
@@ -1408,31 +1481,243 @@ const ChatPage = () => {
         </div>
       )}
 
-      {/* Checkpoint Controls */}
-      <div className="checkpoint-controls">
-        <button onClick={resetState} className="reset-button">
-          🔄 Reset Chat
-        </button>
-        <button 
-          onClick={() => setShowSoundTestPanel(!showSoundTestPanel)} 
-          className="sound-test-toggle"
-          style={{
-            marginLeft: '10px',
-            padding: '8px 16px',
-            background: showSoundTestPanel ? '#dc3545' : '#28a745',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
-        >
-          {showSoundTestPanel ? '🔇 Hide Sound Test' : '🔊 Show Sound Test'}
-        </button>
-      </div>
-
       {/* Sound Test Panel - Toggleable for testing */}
       {showSoundTestPanel && <SoundTestPanel />}
+      
+      {/* Bible Test Panel - Toggleable for testing */}
+      {showBibleTestPanel && <BibleTestPanel />}
+      
+      {/* Lesson Test Panel - Toggleable for testing */}
+      {showLessonTestPanel && <LessonTestPanel />}
+      
+      {/* Comprehensive Debug Menu */}
+      {showDebugMenu && (
+        <div style={{
+          position: 'fixed',
+          top: '50px',
+          right: '10px',
+          width: '300px',
+          backgroundColor: 'white',
+          border: '2px solid #333',
+          borderRadius: '8px',
+          padding: '15px',
+          zIndex: 1001,
+          boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+        }}>
+          <h3 style={{ margin: '0 0 15px 0', color: '#333' }}>⚙️ Debug Control Center</h3>
+          
+          <div style={{ marginBottom: '15px' }}>
+            <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>Test Panels:</h4>
+            <button 
+              onClick={() => setShowSoundTestPanel(!showSoundTestPanel)}
+              style={{ 
+                display: 'block', 
+                width: '100%', 
+                margin: '5px 0', 
+                padding: '8px', 
+                backgroundColor: showSoundTestPanel ? '#dc3545' : '#28a745',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              {showSoundTestPanel ? '🔇 Hide Sound Test' : '🔊 Show Sound Test'}
+            </button>
+            <button 
+              onClick={() => setShowBibleTestPanel(!showBibleTestPanel)}
+              style={{ 
+                display: 'block', 
+                width: '100%', 
+                margin: '5px 0', 
+                padding: '8px', 
+                backgroundColor: showBibleTestPanel ? '#dc3545' : '#28a745',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              {showBibleTestPanel ? '🔇 Hide Bible Test' : '📖 Show Bible Test'}
+            </button>
+            <button 
+              onClick={() => setShowLessonTestPanel(!showLessonTestPanel)}
+              style={{ 
+                display: 'block', 
+                width: '100%', 
+                margin: '5px 0', 
+                padding: '8px', 
+                backgroundColor: showLessonTestPanel ? '#dc3545' : '#28a745',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              {showLessonTestPanel ? '🔇 Hide Lesson Test' : '📚 Show Lesson Test'}
+            </button>
+          </div>
+
+          <div style={{ marginBottom: '15px' }}>
+            <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>Quick Tests:</h4>
+            <button 
+              onClick={() => handleQuickMessage('tell me the full 10 commandments')}
+              style={{ 
+                display: 'block', 
+                width: '100%', 
+                margin: '3px 0', 
+                padding: '6px', 
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              Test Ten Commandments
+            </button>
+            <button 
+              onClick={() => handleQuickMessage('Grade 1 lesson 1')}
+              style={{ 
+                display: 'block', 
+                width: '100%', 
+                margin: '3px 0', 
+                padding: '6px', 
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              Test Grade 1 Lesson 1
+            </button>
+            <button 
+              onClick={() => handleQuickMessage('what is my name')}
+              style={{ 
+                display: 'block', 
+                width: '100%', 
+                margin: '3px 0', 
+                padding: '6px', 
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              Test Name Recall
+            </button>
+            <button 
+              onClick={() => handleQuickMessage('what is the our father')}
+              style={{ 
+                display: 'block', 
+                width: '100%', 
+                margin: '3px 0', 
+                padding: '6px', 
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              Test Our Father Prayer
+            </button>
+          </div>
+
+          <div style={{ marginBottom: '15px' }}>
+            <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>System Controls:</h4>
+            <button 
+              onClick={resetState}
+              style={{ 
+                display: 'block', 
+                width: '100%', 
+                margin: '5px 0', 
+                padding: '8px', 
+                backgroundColor: '#dc3545',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              🔄 Reset Chat
+            </button>
+            <button 
+              onClick={async () => {
+                console.log('🧪 === COMPREHENSIVE SYSTEM TEST STARTING ===');
+                
+                // Test all detection systems
+                const testMessages = [
+                  'tell me the full 10 commandments',
+                  'Grade 1 lesson 1', 
+                  'what is my name',
+                  'what is the our father',
+                  'Tell me about Moses',
+                  'Teach me Kindergarten faith',
+                  'Tell me about love in the Bible'
+                ];
+                
+                for (const message of testMessages) {
+                  console.log(`\n🧪 Testing: "${message}"`);
+                  
+                  // Import all detection functions
+                  const { containsBibleTopicKeywords, containsLessonKeywords, containsCurriculumKeywords, findCurriculumGrade } = await import('../data/catholicCurriculum');
+                  const { containsBibleCharacterKeywords } = await import('../data/bibleCharacters');
+                  const { containsDogFactKeywords } = await import('../data/dogFacts');
+                  
+                  // Test all systems
+                  console.log('  → Bible Topics:', containsBibleTopicKeywords(message) || 'NO');
+                  console.log('  → Bible Characters:', containsBibleCharacterKeywords(message) ? 'YES' : 'NO');
+                  console.log('  → Curriculum:', containsCurriculumKeywords(message) ? 'YES' : 'NO');
+                  console.log('  → Lessons:', containsLessonKeywords(message) ? 'YES' : 'NO');
+                  console.log('  → Dog Facts:', containsDogFactKeywords(message) ? 'YES' : 'NO');
+                  console.log('  → Grade Detected:', findCurriculumGrade(message)?.grade || 'NO');
+                }
+                
+                console.log('\n🧪 === COMPREHENSIVE SYSTEM TEST COMPLETE ===');
+              }}
+              style={{ 
+                display: 'block', 
+                width: '100%', 
+                margin: '5px 0', 
+                padding: '8px', 
+                backgroundColor: '#17a2b8',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              🧪 Run Comprehensive Test
+            </button>
+          </div>
+
+          <button 
+            onClick={() => setShowDebugMenu(false)}
+            style={{ 
+              display: 'block', 
+              width: '100%', 
+              padding: '8px', 
+              backgroundColor: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            ✖️ Close Debug Menu
+          </button>
+        </div>
+      )}
+      
+      {/* Age Verification */}
+      {!isVerified && <AgeVerification onVerificationComplete={handleVerificationComplete} />}
       
       <Footer />
     </div>

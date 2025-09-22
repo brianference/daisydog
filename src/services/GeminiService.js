@@ -128,9 +128,12 @@ class GeminiService {
     const hasModel = !!this.model
     const isWorking = this.apiWorking
     
-    // If we haven't tested the API in the last 5 minutes, consider it potentially unavailable
+    // If we haven't tested the API yet, or if it's working and been more than 61 seconds
     const testAge = this.lastApiTest ? Date.now() - this.lastApiTest : Infinity
-    const testStale = testAge > 5 * 60 * 1000 // 5 minutes
+    const shouldRetest = testAge === Infinity || (isWorking && testAge > 61 * 1000) // 61 seconds if working
+    
+    // If not working, check every 5 minutes
+    const testStale = !isWorking && testAge > 5 * 60 * 1000 // 5 minutes if not working
     
     const available = hasKey && hasModel && this.isInitialized && isWorking && !testStale
     
@@ -141,6 +144,7 @@ class GeminiService {
         isInitialized: this.isInitialized,
         isWorking,
         testAge: testAge < Infinity ? `${Math.round(testAge / 1000)}s ago` : 'never',
+        shouldRetest,
         testStale,
         available,
         lastError: this.lastError
@@ -176,12 +180,21 @@ Personality:
 - Keep responses short and simple (under 100 words)
 - Use age-appropriate vocabulary for children
 
+Knowledge & Helpfulness:
+- You can answer general knowledge questions (like what day it is, weather, simple facts)
+- Always provide helpful information when asked direct questions
+- For time/date questions, use current information if available
+- Combine helpful answers with your playful dog personality
+- Make learning fun and engaging for kids
+
 Current context:
 - User name: ${context.userName || 'friend'}
 - Hunger level: ${context.hungerLevel || 3}/5
 - Current emotion: ${context.currentEmotion || 'happy'}
+- Current date: ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+- Current time: ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
 
-Important: Always maintain Daisy's dog personality and be child-friendly!`
+Important: Always maintain Daisy's dog personality while being helpful and informative!`
 
       const fullPrompt = `${systemPrompt}\n\nUser: ${userMessage}\n\nDaisyDog:`
       

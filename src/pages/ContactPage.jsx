@@ -265,7 +265,6 @@ const ContactPage = () => {
                 <FaPhone className="info-icon" />
                 <h3>Response Times</h3>
                 <ul>
-                  <li><strong>Safety Issues:</strong> Within 2 hours</li>
                   <li><strong>Technical Support:</strong> Within 24 hours</li>
                   <li><strong>General Questions:</strong> Within 48 hours</li>
                   <li><strong>Feedback:</strong> Within 1 week</li>
@@ -303,7 +302,7 @@ const ContactPage = () => {
                 <p>
                   If you encounter any inappropriate content, safety concerns, or technical issues 
                   that could affect child safety, please use the <strong>"Safety Concerns"</strong> option above 
-                  to contact us immediately. We take all safety reports seriously and respond within 2 hours.
+                  to contact us immediately.
                 </p>
               </div>
             </div>
