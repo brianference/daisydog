@@ -1,5 +1,9 @@
 # DaisyDog Comprehensive Testing & Regression Plan
 
+**Version:** 5.0.0+  
+**Last Updated:** September 22, 2025  
+**Test Coverage:** Complete Catholic curriculum, debug system, and all core functionality  
+
 ## 🎯 Critical Testing Requirements
 
 ### **SINGLE-CLICK REQUIREMENT**
@@ -7,212 +11,286 @@
 
 ## 📋 Test Categories
 
-### 1. **Quick Action Buttons (Main Chat Page)**
-**Location:** Bottom of chat page
-**Requirement:** Single click only
+### **NEW IN VERSION 5.0:**
+### 1. **📚 Catholic Curriculum System Tests**
+### 2. **🔧 Debug Control Center Tests**
+### 3. **📖 Bible Integration Tests**
+### 4. **🔢 Basic Question Handler Tests**
+### 5. **👤 Name System Tests (COPPA Compliant)**
+
+### **EXISTING SYSTEMS:**
+### 6. **🎮 Game Mechanics Tests**
+### 7. **🍖 Feeding System Tests**
+### 8. **🎭 Emotion System Tests**
+### 9. **🛡️ Safety System Tests**
+### 10. **📱 Mobile Layout Tests**
+
+---
+
+## 📚 1. CATHOLIC CURRICULUM SYSTEM TESTS
+
+### **Test 1.1: Curriculum Overview Detection**
+**Location:** Chat input or Bible menu
+**Requirement:** Single click/message only
 
 #### Test Cases:
-- [ ] **📚 Tell me a story** - Single click → Immediate response
-- [ ] **😄 Tell a joke** - Single click → Immediate response  
-- [ ] **🦴 Do a trick** - Single click → Immediate response
-- [ ] **💃 Dance** - Single click → Immediate response
-- [ ] **🎾 Play game** - Single click → Shows game selection menu
-- [ ] **🐾 How are you?** - Single click → Shows feelings response
-- [ ] **✨ Tell me your dreams** - Single click → Immediate response
+- [ ] **"Teach me Kindergarten faith"** → Grade overview with "Jesus Loves Me!" theme
+- [ ] **"Teach me Grade 1 faith"** → "We Belong to God's Family" overview
+- [ ] **"Teach me Grade 2 faith"** → "Jesus Gives Us the Sacraments" overview
+- [ ] **"Teach me Grade 3 faith"** → "Following Jesus" overview
+- [ ] **"Teach me Grade 4 faith"** → "Scripture Stories" overview
 
-### 2. **Game Selection Menu**
-**Triggered by:** Clicking "🎾 Play game"
-**Requirement:** Single click only
+### **Test 1.2: Lesson Detection System**
+**Requirement:** Proper grade context detection
 
 #### Test Cases:
-- [ ] **🎾 Fetch** - Single click → Starts fetch game immediately
-- [ ] **🙋 Hide and Seek** - Single click → Starts hide and seek immediately
-- [ ] **💪 Tug of War** - Single click → Starts tug of war immediately  
-- [ ] **🤔 Guessing Game** - Single click → Starts guessing game immediately
+- [ ] **"Kindergarten lesson 1"** → "God Made Everything" full lesson
+- [ ] **"Grade 1 lesson 1"** → "We Belong to God's Family" full lesson
+- [ ] **"Grade 2 lesson 1"** → "Baptism - Welcome to God's Family" lesson
+- [ ] **"what is the first lesson?"** → Defaults to Kindergarten lesson 1
+- [ ] **"Grade 1 lesson 2"** → "The Church is Our Home" lesson
+- [ ] **"Grade 2 lesson 3"** → "Eucharist - Jesus Comes to Us" lesson
 
-### 3. **Fetch Game Buttons**
-**Phases:** Waiting & Returned
-**Requirement:** Single click only
-
-#### Waiting Phase:
-- [ ] **🎾 Throw ball** - Single click → Ball thrown, phase changes
-- [ ] **⬆️ Throw high** - Single click → Ball thrown high, phase changes
-- [ ] **🌀 Roll ball** - Single click → Ball rolled, phase changes
-
-#### Returned Phase:
-- [ ] **🎾 Throw again** - Single click → New throw, back to waiting
-- [ ] **⭐ Good girl!** - Single click → Praise response
-- [ ] **🎯 Catch this!** - Single click → Catch response
-
-### 4. **Hide and Seek Game Buttons**
-**Requirement:** Single click only
+### **Test 1.3: Bible Menu Navigation**
+**Location:** Bible > Teach Me the Bible
+**Requirement:** Menus stay open after responses
 
 #### Test Cases:
-- [ ] **🙋 Found me!** - Single click → Game ends with celebration
-- [ ] **🙈 Still hiding** - Single click → Continue hiding response
-- [ ] **🔄 Your turn to hide** - Single click → Role reversal response
-- [ ] **👀 Peek-a-boo!** - Single click → Peek response
+- [ ] **Bible > Teach Me > Kindergarten** → Shows 5 lesson buttons (menu persists)
+- [ ] **Bible > Teach Me > Grade 1** → Shows 5 lesson buttons (menu persists)
+- [ ] **Bible > Teach Me > Grade 2** → Shows 5 lesson buttons (menu persists)
+- [ ] **Bible > Teach Me > Grade 3** → Shows 5 lesson buttons (menu persists)
+- [ ] **Bible > Teach Me > Grade 4** → Shows 5 lesson buttons (menu persists)
+- [ ] **Lesson button click** → Shows full lesson content, menu stays open
 
-### 5. **Tug of War Game Buttons**
-**Requirement:** Single click only
+---
 
-#### Test Cases:
-- [ ] **💪 Pull harder** - Single click → Intensity increases
-- [ ] **🤏 Pull gently** - Single click → Gentle pull response
-- [ ] **💥 Tug hard!** - Single click → Hard tug response
-- [ ] **🤲 Let go** - Single click → Let go response
-- [ ] **🌀 Shake rope** - Single click → Shake response
+## 🔧 2. DEBUG CONTROL CENTER TESTS
 
-### 6. **Guessing Game Buttons**
-**Requirement:** Single click only
+### **Test 2.1: Debug Gear Button**
+**Location:** Top-right corner ⚙️ button
+**Requirement:** Single click opens comprehensive menu
 
 #### Test Cases:
-- [ ] **🎾 Ball** - Single click → Guess processed
-- [ ] **🦴 Bone** - Single click → Guess processed
-- [ ] **🍖 Treat** - Single click → Guess processed
-- [ ] **🧸 Toy** - Single click → Guess processed
-- [ ] **🌿 Stick** - Single click → Guess processed
-- [ ] **🥏 Frisbee** - Single click → Guess processed
-- [ ] **🪢 Rope** - Single click → Guess processed
-- [ ] **💡 Hint please!** - Single click → Hint given
+- [ ] **⚙️ Gear button click** → Opens debug control center
+- [ ] **Debug menu displays** → Shows all test panels and controls
+- [ ] **Console logging** → Shows comprehensive debug status report
 
-### 7. **Universal Game Controls**
-**Available in all games**
-**Requirement:** Single click only
+### **Test 2.2: Test Panel Controls**
+**Location:** Inside debug control center
+**Requirement:** Toggle functionality works
 
 #### Test Cases:
-- [ ] **🛑 Stop game** - Single click → Game ends, returns to normal chat
+- [ ] **"Show Sound Test" button** → Toggles sound test panel
+- [ ] **"Show Bible Test" button** → Toggles Bible test panel  
+- [ ] **"Show Lesson Test" button** → Toggles lesson test panel
+- [ ] **Multiple panels** → Can have multiple panels open simultaneously
 
-## 🔧 Technical Testing
+### **Test 2.3: Quick Test Buttons**
+**Location:** Debug control center quick tests
+**Requirement:** One-click testing
 
-### Button Click Behavior
-**Expected:** `handleSendMessage(fakeEvent)` called immediately
-**Not Expected:** `setTimeout(() => handleSendMessage(fakeEvent), 100)`
+#### Test Cases:
+- [ ] **"Test Ten Commandments"** → Sends "tell me the full 10 commandments"
+- [ ] **"Test Grade 1 Lesson 1"** → Sends "Grade 1 lesson 1"
+- [ ] **"Test Name Recall"** → Sends "what is my name"
+- [ ] **"Test Our Father Prayer"** → Sends "what is the our father"
 
-### State Management
-- [ ] Game state properly set when game starts
-- [ ] Game state properly cleared when game ends
-- [ ] Emotion changes appropriately with each action
-- [ ] Message history preserved correctly
+### **Test 2.4: Comprehensive System Test**
+**Location:** Debug control center
+**Requirement:** Tests all detection systems
 
-### Response System
-- [ ] "How are you?" button uses `daisyResponses.feelings` array
-- [ ] Stories are significantly longer (5x previous length)
-- [ ] Emotion variation works for all quick actions
-- [ ] All responses appear immediately after button click
+#### Test Cases:
+- [ ] **"Run Comprehensive Test"** → Tests all detection systems in console
+- [ ] **Console output** → Shows detection results for all test messages
+- [ ] **System coverage** → Tests Bible topics, lessons, curriculum, characters, etc.
 
-## 🎮 Game Flow Testing
+---
 
-### Complete Game Cycles
-1. **Fetch Cycle:**
-   - Click "Play game" → Select "Fetch" → Throw ball → Ball returns → Throw again → Stop game
+## 📖 3. BIBLE INTEGRATION TESTS
 
-2. **Hide and Seek Cycle:**
-   - Click "Play game" → Select "Hide and Seek" → Found me → Game ends
+### **Test 3.1: Ten Commandments Detection**
+**Requirement:** Full NAB Exodus 20:1-17 text display
 
-3. **Tug of War Cycle:**
-   - Click "Play game" → Select "Tug of War" → Pull harder → Tug hard → Stop game
+#### Test Cases:
+- [ ] **"tell me the full 10 commandments"** → Full NAB text with formatting
+- [ ] **"what are the 10 commandments?"** → Full NAB text
+- [ ] **"show me the ten commandments"** → Full NAB text
+- [ ] **Bible > Search > Ten Commandments** → Ten Commandments (NOT Moses)
 
-4. **Guessing Game Cycle:**
-   - Click "Play game" → Select "Guessing Game" → Make guesses → Get hint → Correct answer → Game ends
+### **Test 3.2: Prayer Detection**
+**Requirement:** Complete prayer text display
 
-## 🚨 Critical Issues to Test
+#### Test Cases:
+- [ ] **"what is the our father?"** → Complete Our Father prayer text
+- [ ] **"tell me the lords prayer"** → Complete Our Father prayer text
+- [ ] **"lords prayer"** → Complete Our Father prayer text
 
-### Previously Reported Issues:
-1. **Double-click requirement** - MUST BE FIXED
-2. **"How are you?" button not working** - MUST BE FIXED  
-3. **Stop game button not working in guessing game** - MUST BE FIXED
-4. **Game selection buttons requiring double-click** - MUST BE FIXED
+### **Test 3.3: Bible Character vs Topics Priority**
+**Requirement:** Proper detection order
 
-### Regression Testing:
-- [ ] All previously working features still work
-- [ ] No new bugs introduced
-- [ ] Performance remains good
-- [ ] Mobile responsiveness maintained
+#### Test Cases:
+- [ ] **"Tell me about the Ten Commandments"** → Ten Commandments (NOT Moses)
+- [ ] **"Tell me about Moses"** → Moses character response
+- [ ] **"commandments"** → Ten Commandments topic response
 
-## 📱 Device Testing
+### **Test 3.4: Random Verse System**
+**Location:** Bible menu
+**Requirement:** No function errors
 
-### Desktop Testing:
-- [ ] Chrome browser
-- [ ] Firefox browser  
-- [ ] Safari browser
-- [ ] Edge browser
+#### Test Cases:
+- [ ] **"Get a Random Verse" button** → Shows random child-friendly verse
+- [ ] **No console errors** → handleVerseOfDay function works properly
+- [ ] **Fallback system** → Works even if Bible API fails
 
-### Mobile Testing:
-- [ ] iOS Safari
-- [ ] Android Chrome
-- [ ] Responsive design works
-- [ ] Touch interactions work properly
+---
 
-## ✅ Success Criteria
+## 🔢 4. BASIC QUESTION HANDLER TESTS
 
-### Must Pass All:
-1. **Every button works with single click only**
-2. **No double-click requirements anywhere**
-3. **All games start and end properly**
-4. **"How are you?" button shows feelings responses**
-5. **Stop game button works in all games**
-6. **Stories are significantly longer**
-7. **Emotion variation works**
-8. **No JavaScript errors in console**
+### **Test 4.1: Date and Time Questions**
+**Requirement:** Current date/time responses
 
-## 🔄 Testing Procedure
+#### Test Cases:
+- [ ] **"what day is it?"** → Shows current day and full date
+- [ ] **"what is today?"** → Shows current day and full date
+- [ ] **"what time is it?"** → Shows current time in 12-hour format
+- [ ] **"what is the time?"** → Shows current time
 
-### For Each Button:
-1. **Single Click Test:** Click once, verify immediate response
-2. **No Double Click:** Ensure single click is sufficient
-3. **State Verification:** Check that appropriate state changes occur
-4. **Response Verification:** Confirm correct response is shown
-5. **Console Check:** Verify no JavaScript errors
+### **Test 4.2: Math Questions**
+**Requirement:** Correct mathematical responses
 
-### Automated Testing Commands:
-```bash
-# Start development server
-npm run dev
+#### Test Cases:
+- [ ] **"what is 2+2?"** → "*counts on paws* 2 plus 2 equals 4! Math is fun! 🐕🔢"
+- [ ] **"what is 5 plus 3?"** → Correct addition result
+- [ ] **"what is 10-4?"** → Correct subtraction result
+- [ ] **"what is 7 minus 2?"** → Correct subtraction result
 
-# Run in browser at localhost:5173
-# Open browser console to monitor for errors
-# Follow testing checklist systematically
-```
+### **Test 4.3: Personal Questions**
+**Requirement:** Engaging personality responses
+
+#### Test Cases:
+- [ ] **"how old are you?"** → Age response about being a young pup
+- [ ] **"what is your favorite color?"** → Rainbow colors response
+- [ ] **"what do you eat?"** → Dog treats and bacon response
+- [ ] **"what's the weather?"** → Weather check suggestion
+
+### **Test 4.4: Basic Interactions**
+**Requirement:** Proper response categories
+
+#### Test Cases:
+- [ ] **"hello"** → Greeting from daisyResponses.greetings
+- [ ] **"how are you?"** → "I'm feeling fantastic!" response
+- [ ] **"tell me a joke"** → Joke from daisyResponses.jokes
+- [ ] **"do a trick"** → Trick response from daisyResponses.tricks
+
+---
+
+## 👤 5. NAME SYSTEM TESTS (COPPA COMPLIANT)
+
+### **Test 5.1: Age Verification System**
+**Requirement:** Mandatory age verification before name collection
+
+#### Test Cases:
+- [ ] **Age verification modal** → Blocks access until age entered
+- [ ] **13+ users** → Can proceed to name collection
+- [ ] **Under 13 users** → Requires parental consent workflow
+- [ ] **24-hour expiry** → Verification expires after 24 hours
+
+### **Test 5.2: Name Collection (13+ Only)**
+**Requirement:** Names only collected from verified 13+ users
+
+#### Test Cases:
+- [ ] **13+ user says "John"** → "Nice to meet you, John! I'm Daisy!"
+- [ ] **"what is my name?" (13+)** → "Your name is John!"
+- [ ] **Under 13 name attempt** → "I don't collect names from children under 13"
+- [ ] **Name persistence** → Names remembered across sessions for 13+ users
+
+### **Test 5.3: COPPA Compliance**
+**Requirement:** Full legal compliance
+
+#### Test Cases:
+- [ ] **No data collection under 13** → No personal information stored
+- [ ] **Local storage only** → No server-side data collection
+- [ ] **Parental consent workflow** → Proper consent process for under 13
+- [ ] **Privacy notices** → Clear explanations of data practices
+
+---
+
+## 🚨 CRITICAL REGRESSION TESTS
+
+### **Must Pass All:**
+1. **"what day is it?"** → Must show current date (NOT generic response)
+2. **"what is 2+2?"** → Must show "4" with math response (NOT generic)
+3. **"tell me the full 10 commandments"** → Must show full NAB text
+4. **"Kindergarten lesson 1"** → Must show full lesson content
+5. **Bible menu navigation** → Menus must stay open after responses
+6. **⚙️ Debug gear button** → Must open control center without errors
+7. **Name system** → Must work for 13+ only, COPPA compliant
+
+### **Common Failure Patterns:**
+- ❌ **Generic responses** for basic questions
+- ❌ **"Function is not defined" errors** in console
+- ❌ **Moses appearing** for Ten Commandments requests
+- ❌ **Menus disappearing** after lesson responses
+- ❌ **Safety system blocking** Bible content
+- ❌ **Name collection** from under-13 users
+
+---
+
+## 🔍 DETECTION ORDER (CRITICAL)
+
+**Must follow this exact order:**
+1. **Safety Filter** (with Bible content bypass)
+2. **Name Questions**
+3. **Date/Time Questions**
+4. **Math Questions**
+5. **Dance Requests**
+6. **Stories**
+7. **Catholic Curriculum**
+8. **Lessons**
+9. **Dog Facts**
+10. **Bible Topics** (Ten Commandments)
+11. **Bible Characters** (Moses, etc.)
+12. **Basic Interactions**
+13. **General Responses**
+
+---
+
+## ✅ SUCCESS CRITERIA
+
+### **Version 5.0 Must Pass:**
+1. **All curriculum grades and lessons work**
+2. **Ten Commandments shows full NAB text**
+3. **Basic questions (date, time, math) work properly**
+4. **Debug control center functions completely**
+5. **Bible menus stay open after responses**
+6. **Name system is COPPA compliant**
+7. **No "function is not defined" errors**
+8. **Safety system doesn't block Bible content**
+
+---
 
 ## 📊 Test Results Template
 
 ```
 Date: ___________
 Tester: ___________
+Version: 5.0.0+
 Browser: ___________
 Device: ___________
 
-Quick Actions: ✅/❌
-Game Selection: ✅/❌  
-Fetch Game: ✅/❌
-Hide & Seek: ✅/❌
-Tug of War: ✅/❌
-Guessing Game: ✅/❌
-Stop Game: ✅/❌
-Single Click: ✅/❌
-No Errors: ✅/❌
+Catholic Curriculum: ✅/❌
+Debug Control Center: ✅/❌
+Bible Integration: ✅/❌
+Basic Questions: ✅/❌
+Name System (COPPA): ✅/❌
+Ten Commandments: ✅/❌
+Menu Navigation: ✅/❌
+No Console Errors: ✅/❌
 
 Notes: ___________
 ```
 
-## 🎯 Priority Order
-
-### P0 (Critical - Must Fix):
-1. Single-click functionality for all buttons
-2. "How are you?" button working
-3. Stop game button working
-
-### P1 (High Priority):
-1. Game flow completeness
-2. Story length improvements
-3. Emotion variation
-
-### P2 (Medium Priority):
-1. Performance optimization
-2. Mobile responsiveness
-3. Browser compatibility
-
 ---
 
-**Remember: Every button must work with a single click. No exceptions!**
+**Remember: Version 5.0 introduces comprehensive Catholic curriculum and debug systems. All new features must work flawlessly alongside existing functionality!**

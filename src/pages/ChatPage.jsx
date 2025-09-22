@@ -695,6 +695,14 @@ const ChatPage = () => {
       console.log('Dance request detected, setting emotion to dancing')
       setCurrentEmotion('dancing')
       
+      // Play dance music
+      if (soundReady && !isMuted) {
+        setTimeout(() => {
+          playUISound('dance')
+          console.log('🎵 Playing dance music (dance-sound.mp3)')
+        }, 300)
+      }
+      
       if (window.danceResetTimeout) {
         clearTimeout(window.danceResetTimeout)
       }
@@ -771,6 +779,40 @@ const ChatPage = () => {
       return { text: dogFact, emotion: 'excited' }
     }
     
+    // Specific verses (John 3:16, Matthew 19:14, etc.) - PRIORITY BEFORE GENERAL PASSAGES
+    if (containsSpecificVerseKeywords(userMessage)) {
+      console.log('📖 Specific verse request detected')
+      setCurrentEmotion('excited')
+      
+      try {
+        const specificVerseResponse = await getSpecificVerseResponse(userMessage)
+        if (specificVerseResponse) {
+          console.log('📖 Specific verse delivered from database')
+          return specificVerseResponse
+        }
+      } catch (error) {
+        console.error('Specific verse response failed:', error)
+        return "*wags tail apologetically* I'd love to tell you about that specific verse, but I'm having trouble right now! Ask your parents to read you that verse! 📖🐕💕"
+      }
+    }
+    
+    // Bible passages (general passage detection)
+    if (containsBiblePassageKeywords(userMessage)) {
+      console.log('📖 Bible passage request detected')
+      setCurrentEmotion('excited')
+      
+      try {
+        const biblePassageResponse = await getBiblePassageResponse(userMessage)
+        if (biblePassageResponse) {
+          console.log('📖 Bible passage delivered from database')
+          return biblePassageResponse
+        }
+      } catch (error) {
+        console.error('Bible passage response failed:', error)
+        return "*wags tail apologetically* I'd love to tell you about that Bible verse, but I'm having trouble right now! Ask your parents to read you that verse! 📖🐕💕"
+      }
+    }
+    
     // Bible topics (Ten Commandments, etc.) - PRIORITY BEFORE CHARACTERS
     if (containsBibleTopicKeywords(userMessage)) {
       console.log('📖 Bible topic request detected')
@@ -829,6 +871,132 @@ const ChatPage = () => {
       }
     }
     
+    // Game state handling
+    if (gameState === 'fetch') {
+      return handleFetchGame(lowerMessage)
+    } else if (gameState === 'hide_and_seek') {
+      return handleHideSeekGame(lowerMessage)
+    } else if (gameState === 'tug_of_war') {
+      return handleTugWarGame(lowerMessage)
+    } else if (gameState === 'guessing_game') {
+      return handleGuessingGame(lowerMessage)
+    } else if (gameState === 'ball_catch') {
+      return handleBallCatchGame(lowerMessage)
+    }
+    
+    // Priority 4: Specific keyword responses
+    if (lowerMessage.includes('what day') || lowerMessage.includes('what is today')) {
+      setCurrentEmotion('thinking')
+      const today = new Date()
+      const dayName = today.toLocaleDateString('en-US', { weekday: 'long' })
+      const fullDate = today.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      })
+      return `*tilts head thoughtfully* Today is ${dayName}! The full date is ${fullDate}. What a wonderful day to chat with you! 🐕📅`
+    }
+    
+    if (lowerMessage.includes('what time') || lowerMessage.includes('what is the time')) {
+      setCurrentEmotion('thinking')
+      const now = new Date()
+      const timeString = now.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      })
+      return `*looks around* It's ${timeString} right now! Time flies when we're having fun together! 🐕⏰`
+    }
+    
+    // Math questions
+    if (lowerMessage.includes('what is') && (lowerMessage.includes('+') || lowerMessage.includes('plus'))) {
+      setCurrentEmotion('thinking')
+      
+      // Simple addition detection
+      const mathMatch = lowerMessage.match(/what is (\d+) ?\+ ?(\d+)|what is (\d+) plus (\d+)/)
+      if (mathMatch) {
+        const num1 = parseInt(mathMatch[1] || mathMatch[3])
+        const num2 = parseInt(mathMatch[2] || mathMatch[4])
+        const result = num1 + num2
+        return `*counts on paws* ${num1} plus ${num2} equals ${result}! Math is fun! 🐕🔢`
+      }
+    }
+    
+    if (lowerMessage.includes('what is') && (lowerMessage.includes('-') || lowerMessage.includes('minus'))) {
+      setCurrentEmotion('thinking')
+      
+      const mathMatch = lowerMessage.match(/what is (\d+) ?- ?(\d+)|what is (\d+) minus (\d+)/)
+      if (mathMatch) {
+        const num1 = parseInt(mathMatch[1] || mathMatch[3])
+        const num2 = parseInt(mathMatch[2] || mathMatch[4])
+        const result = num1 - num2
+        return `*thinks carefully* ${num1} minus ${num2} equals ${result}! Good math question! 🐕🔢`
+      }
+    }
+    
+    // Weather questions
+    if (lowerMessage.includes('weather') || lowerMessage.includes('how is it outside')) {
+      setCurrentEmotion('happy')
+      return "*looks out window* I can't check the weather for you, but I hope it's a beautiful day! Ask your parents to check the weather, or look outside together! 🐕🌤️"
+    }
+    
+    // Age questions about Daisy
+    if (lowerMessage.includes('how old are you') || lowerMessage.includes('what is your age')) {
+      setCurrentEmotion('happy')
+      return "*wags tail proudly* I'm a young pup in dog years, but I've been learning and growing every day! I love being your friend no matter what age I am! 🐕💕"
+    }
+    
+    // Color questions
+    if (lowerMessage.includes('what is your favorite color') || lowerMessage.includes('favorite colour')) {
+      setCurrentEmotion('excited')
+      return "*spins happily* I love all the colors of the rainbow! But I especially love the golden color of sunshine and the blue of a clear sky! What's your favorite color? 🌈🐕"
+    }
+    
+    // Food questions
+    if (lowerMessage.includes('what do you eat') || lowerMessage.includes('favorite food')) {
+      setCurrentEmotion('excited')
+      return "*wags tail excitedly* I love dog treats, especially the crunchy ones! And I dream about bacon sometimes! *drools a little* What's your favorite food? 🦴🥓🐕"
+    }
+    
+    // Joke requests
+    if (lowerMessage.includes('joke') || lowerMessage.includes('funny')) {
+      console.log('😄 Joke request detected')
+      setCurrentEmotion('happy')
+      const jokeResponse = getRandomResponse(daisyResponses.jokes)
+      return { text: jokeResponse, emotion: 'happy' }
+    }
+    
+    // Trick requests
+    if (lowerMessage.includes('trick') || lowerMessage.includes('sit') || lowerMessage.includes('stay')) {
+      console.log('🦴 Trick request detected')
+      setCurrentEmotion('crouchingdown')
+      const trickResponse = getRandomResponse(daisyResponses.tricks)
+      return { text: trickResponse, emotion: 'crouchingdown' }
+    }
+    
+    // Greeting responses
+    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+      console.log('👋 Greeting detected')
+      setCurrentEmotion('excited')
+      const greetingResponse = getRandomResponse(daisyResponses.greetings)
+      return { text: greetingResponse, emotion: 'excited' }
+    }
+    
+    // How are you responses
+    if (lowerMessage.includes('how are you') || lowerMessage.includes('how do you feel')) {
+      console.log('🐾 "How are you" question detected')
+      setCurrentEmotion('happy')
+      const namePrefix = (userAge >= 13 && userName) ? `${userName}, ` : ''
+      return `*wags tail happily* ${namePrefix}I'm feeling fantastic! I love spending time with you! Want to play a game or hear a story? 🐕💕`
+    }
+    
+    // Game initialization
+    if (lowerMessage.includes('play') || lowerMessage.includes('game')) {
+      setCurrentEmotion('playfetch')
+      return { text: "*bounces playfully* Woof! Let's play! What game should we play? 🎾", emotion: 'playfetch' }
+    }
+    
     // General responses
     setCurrentEmotion('happy')
     const generalResponses = [
@@ -850,6 +1018,80 @@ const ChatPage = () => {
     const story = stories[storyIndex % stories.length]
     setStoryIndex(prev => prev + 1)
     return story
+  }
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+  
+  // Handle Verse of the Day - randomly generated full verse
+  const handleVerseOfDay = async () => {
+    console.log('✨ Verse of the Day requested')
+    setCurrentEmotion('excited')
+    setBibleMenuState(null) // Close menu
+    
+    try {
+      const { default: BibleService } = await import('../services/BibleService.js');
+      if (BibleService.isAvailable()) {
+        // Popular verses for children
+        const childFriendlyVerses = [
+          'Psalm 23:1',
+          'John 3:16', 
+          'Matthew 19:14',
+          'Psalm 139:14',
+          'Jeremiah 29:11',
+          'Philippians 4:13',
+          'Proverbs 3:5-6',
+          '1 John 4:19',
+          'Matthew 5:16',
+          'Psalm 118:24'
+        ];
+        
+        const randomVerse = childFriendlyVerses[Math.floor(Math.random() * childFriendlyVerses.length)];
+        const verse = await BibleService.getVerse(randomVerse);
+        
+        if (verse && verse.cleanText) {
+          // Detect Bible version
+          let version = 'Bible';
+          const bibleId = BibleService.confirmedNabId?.toLowerCase() || '';
+          if (bibleId.includes('douay') || bibleId.includes('rheims') || bibleId.includes('dra')) {
+            version = 'Douay-Rheims American Bible (1899)';
+          } else if (bibleId.includes('kjv') || bibleId.includes('king')) {
+            version = 'King James Version (KJV)';
+          } else if (bibleId.includes('catholic')) {
+            version = 'Catholic Bible';
+          }
+          
+          const verseMessage = `*sits up proudly with sparkling eyes* Here's your special verse for today! ✨
+
+📖 "${verse.cleanText}" - ${verse.reference} (${version})
+
+*wags tail happily* This is such a beautiful verse! God's word is full of love and wisdom just for you! Would you like to hear about what this verse means? 🐕💕`;
+          
+          addDaisyMessage(verseMessage, 'chat', 'excited');
+          return;
+        }
+      }
+      
+      // Fallback if API unavailable
+      const fallbackVerses = [
+        "*bounces excitedly* Here's a wonderful verse for you! ✨\n\n📖 'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.' - John 3:16\n\n*wags tail* This verse tells us how much God loves us! 🐕💕",
+        "*sits proudly* Here's your special verse! ✨\n\n📖 'The Lord is my shepherd; I shall not want.' - Psalm 23:1\n\n*tilts head thoughtfully* This means God takes care of us just like a shepherd takes care of sheep! 🐑💕",
+        "*spins happily* Here's a beautiful verse! ✨\n\n📖 'Let the little children come to me, and do not hinder them, for the kingdom of heaven belongs to such as these.' - Matthew 19:14\n\n*wags tail excitedly* Jesus loves children so much! 👶💕",
+        "*sits reverently* Here's a special verse! ✨\n\n📖 'I praise you because I am fearfully and wonderfully made; your works are wonderful, I know that full well.' - Psalm 139:14\n\n*tilts head lovingly* God made you perfectly special! 🌟💕",
+        "*bounces with joy* Here's an encouraging verse! ✨\n\n📖 'For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, to give you hope and a future.' - Jeremiah 29:11\n\n*wags tail hopefully* God has wonderful plans for you! 🌈💕",
+        "*stands proudly* Here's a strong verse! ✨\n\n📖 'I can do all things through Christ who strengthens me.' - Philippians 4:13\n\n*flexes playfully* With Jesus, you can do amazing things! 💪✨",
+        "*sits thoughtfully* Here's a wise verse! ✨\n\n📖 'Trust in the Lord with all your heart and lean not on your own understanding.' - Proverbs 3:5\n\n*nods wisely* God knows what's best for us! 🧠💕",
+        "*cuddles close* Here's a loving verse! ✨\n\n📖 'We love because he first loved us.' - 1 John 4:19\n\n*snuggles* God's love helps us love others! 🤗💕"
+      ];
+      
+      const fallbackMessage = fallbackVerses[Math.floor(Math.random() * fallbackVerses.length)];
+      addDaisyMessage(fallbackMessage, 'chat', 'excited');
+    } catch (error) {
+      console.error('Verse of the Day failed:', error);
+      addDaisyMessage("*wags tail apologetically* I'm having trouble getting your verse right now, but I know God loves you very much! Ask your parents to read you a Bible verse! 📖🐕💕", 'chat', 'happy');
+    }
   }
 
   // Auto-scroll to bottom
