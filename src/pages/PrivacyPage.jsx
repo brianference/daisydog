@@ -1,20 +1,17 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { FaHome, FaShieldAlt, FaUserShield, FaLock, FaEye, FaTrash } from 'react-icons/fa'
+import { FaHome, FaShieldAlt, FaUserShield, FaLock, FaEye, FaTrash, FaBook } from 'react-icons/fa'
+import Header from '../components/Header.jsx'
+import Footer from '../components/Footer.jsx'
 import './PrivacyPage.css'
 
 const PrivacyPage = () => {
   return (
     <div className="privacy-page">
-      <header className="privacy-header">
-        <div className="header-content">
-          <Link to="/" className="home-btn">
-            <FaHome /> Home
-          </Link>
-          <h1><FaShieldAlt /> Privacy Policy</h1>
-          <p className="last-updated">Last Updated: September 17, 2025</p>
-        </div>
-      </header>
+      <Header 
+        title={<><FaShieldAlt /> Privacy Policy</>}
+        subtitle="Last Updated: September 17, 2025"
+      />
 
       <div className="privacy-content">
         <div className="privacy-container">
@@ -190,17 +187,7 @@ const PrivacyPage = () => {
             </div>
           </section>
 
-          <div className="privacy-footer">
-            <p>
-              <strong>Remember:</strong> DaisyDog is designed to be a safe, private, and educational 
-              companion for children. Your privacy and safety are our top priorities.
-            </p>
-            <div className="footer-actions">
-              <Link to="/" className="btn-primary">Return Home</Link>
-              <Link to="/contact" className="btn-secondary">Contact Us</Link>
-            </div>
-          </div>
-
+          <Footer />
         </div>
       </div>
     </div>

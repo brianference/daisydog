@@ -1,14 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FaPaw, FaBone, FaHome, FaQuestionCircle, FaPaperPlane, FaBrain, FaVolumeUp, FaVolumeMute } from 'react-icons/fa'
+import { FaPaw, FaBone, FaHome, FaQuestionCircle, FaPaperPlane, FaBrain, FaVolumeUp, FaVolumeMute, FaBook } from 'react-icons/fa'
 import { daisyResponses } from '../data/daisyResponses'
 import { dogFacts, getRandomDogFact, getDogFactByKeyword, containsDogFactKeywords } from '../data/dogFacts'
 import GeminiService from '../services/GeminiService.js'
 import SupabaseService from '../services/SupabaseService.js'
 import useSoundManagerModular from '../hooks/useSoundManagerModular.js'
+import useSafetyFilter from '../hooks/useSafetyFilter.js'
 import SoundControls from '../components/SoundControls.jsx'
 import SoundTestPanel from '../components/SoundTestPanel.jsx'
+import Header from '../components/Header.jsx'
+import Footer from '../components/Footer.jsx'
 import './ChatPage.css'
 
 const ChatPage = () => {
@@ -55,6 +58,24 @@ const ChatPage = () => {
     playContextualSound
   } = useSoundManagerModular()
   
+  // Safety filter system integration
+  const {
+    checkSafety,
+    getDrugSafetyResponse,
+    getSafetyAnalysis,
+    safetyStats,
+    getRandomSafetyTip
+  } = useSafetyFilter()
+  
+  // Debug: Verify safety hook is working
+  useEffect(() => {
+    console.log('🛡️ Safety hook initialized:', {
+      checkSafety: typeof checkSafety,
+      safetyStats,
+      hookLoaded: !!checkSafety
+    })
+  }, [checkSafety, safetyStats])
+  
   // Checkpoint system
   const [lastSaved, setLastSaved] = useState(null)
   
@@ -64,16 +85,19 @@ const ChatPage = () => {
   
   // Helper functions
   const generateUniqueMessageId = () => {
-    // Use crypto.randomUUID if available, otherwise fallback to timestamp + random
+    // Use crypto.randomUUID if available (most reliable)
     if (typeof crypto !== 'undefined' && crypto.randomUUID) {
       return crypto.randomUUID()
     }
     
-    // Fallback: timestamp + random string + counter
+    // Enhanced fallback with more entropy to prevent collisions
     const timestamp = Date.now()
-    const random = Math.random().toString(36).substr(2, 9)
+    const random1 = Math.random().toString(36).substr(2, 9)
+    const random2 = Math.random().toString(36).substr(2, 5)
     const counter = messageIdCounter.current++
-    return `msg-${timestamp}-${random}-${counter}`
+    const performanceNow = Math.floor(performance.now() * 1000) // Add microsecond precision
+    
+    return `msg-${timestamp}-${performanceNow}-${random1}-${random2}-${counter}`
   }
   
   const getRandomResponse = (responses) => {
@@ -82,6 +106,18 @@ const ChatPage = () => {
     }
     return responses[Math.floor(Math.random() * responses.length)]
   }
+  
+  // Helper function to clear dancing emotion and timeout
+  const clearDancingEmotion = useCallback(() => {
+    if (window.danceResetTimeout) {
+      clearTimeout(window.danceResetTimeout)
+      window.danceResetTimeout = null
+    }
+    if (currentEmotion === 'dancing') {
+      console.log('🎭 Clearing dancing emotion due to new interaction')
+      setCurrentEmotion('happy')
+    }
+  }, [currentEmotion])
   
   // Get emotion image based on current state
   const getEmotionImage = (emotion = currentEmotion) => {
@@ -203,21 +239,42 @@ const ChatPage = () => {
     const finalEmotion = emotion || currentEmotion
     
     // Debug logging for dance messages
-    if (finalEmotion === 'dancing' || text.toLowerCase().includes('dance')) {
-      console.log('💃 addDaisyMessage called with dance content')
-      console.log('💃 Emotion parameter:', emotion)
-      console.log('💃 Current emotion:', currentEmotion)
-      console.log('💃 Final emotion used:', finalEmotion)
+    if (text.includes('dance') || text.includes('spin') || text.includes('ta-da')) {
+      console.log('🎭 Adding dance message with emotion:', finalEmotion)
+    }
+    
+    const messageId = generateUniqueMessageId()
+    
+    // Prevent duplicate messages by checking if the same text was added recently
+    const recentMessages = messages.slice(-3) // Check last 3 messages
+    const isDuplicate = recentMessages.some(msg => 
+      msg.text === text && 
+      msg.sender === 'daisy' && 
+      (Date.now() - msg.timestamp.getTime()) < 1000 // Within 1 second
+    )
+    
+    if (isDuplicate) {
+      console.warn('🚨 Preventing duplicate message:', text)
+      return
     }
     
     const newMessage = {
-      id: generateUniqueMessageId(),
+      id: messageId,
       text,
       sender: 'daisy',
       timestamp: new Date(),
       type,
+      emotion: finalEmotion,
       emotionImage: getEmotionImage(finalEmotion)
     }
+    
+    // Additional safety check: ensure ID is unique in current messages
+    const existingMessage = messages.find(msg => msg.id === messageId)
+    if (existingMessage) {
+      console.warn('🚨 Message ID collision detected, regenerating...', messageId)
+      newMessage.id = generateUniqueMessageId() + '-retry'
+    }
+    
     setMessages(prev => [...prev, newMessage])
     
     // Play contextual sound based on message content and emotion
@@ -407,6 +464,11 @@ const ChatPage = () => {
   const generateDaisyResponse = async (userMessage) => {
     const lowerMessage = userMessage.toLowerCase()
     
+    // Clear any stuck dancing emotion from previous interactions (except for new dance requests)
+    if (!lowerMessage.includes('dance') && !lowerMessage.includes('dancing')) {
+      clearDancingEmotion()
+    }
+    
     // Priority 0: Handle critical local logic first (before AI)
     // Name-related questions should always be handled locally
     if (lowerMessage.includes('what') && lowerMessage.includes('name')) {
@@ -425,9 +487,21 @@ const ChatPage = () => {
       console.log('Dance request detected, setting emotion to dancing')
       setCurrentEmotion('dancing')
       
+      // Play dance sound
+      if (soundReady && !isMuted) {
+        setTimeout(() => playUISound('dance'), 300)
+      }
+      
       // Reset emotion back to happy after dance is done (3 seconds)
-      setTimeout(() => {
+      // Clear any existing timeout first to prevent conflicts
+      if (window.danceResetTimeout) {
+        clearTimeout(window.danceResetTimeout)
+      }
+      
+      window.danceResetTimeout = setTimeout(() => {
+        console.log('🎭 Resetting emotion from dancing back to happy')
         setCurrentEmotion('happy')
+        window.danceResetTimeout = null
       }, 3000)
       
       const danceResponse = getRandomResponse(daisyResponses.dances)
@@ -437,19 +511,21 @@ const ChatPage = () => {
     
     // Story requests should be handled locally to ensure we get the full stories
     if (lowerMessage.includes('story') || lowerMessage.includes('tell me a story')) {
-      console.log('Story request detected, using local long stories')
+      console.log('📚 Story request detected, using local long stories')
+      console.log('📚 Available stories:', daisyResponses.stories?.length || 0)
       setCurrentEmotion('thinking')
       const story = getStoryResponse()
-      console.log('Story length:', story.length, 'characters')
+      console.log('📚 Story length:', story.length, 'characters')
+      console.log('📚 Story preview:', story.substring(0, 100) + '...')
       return story
     }
     
     // Dog facts requests should be handled locally to ensure we get the full database
     if (containsDogFactKeywords(userMessage)) {
-      console.log('Dog fact request detected, using local dog facts database')
+      console.log('🐕 Dog fact request detected, using local dog facts database')
       setCurrentEmotion('excited')
       const dogFact = getDogFactByKeyword(userMessage)
-      console.log('Dog fact delivered from database of', dogFacts.length, 'facts')
+      console.log('🐕 Dog fact delivered from database of', dogFacts.length, 'facts')
       return { text: dogFact, emotion: 'excited' }
     }
     
@@ -492,13 +568,6 @@ const ChatPage = () => {
       }
     }
     
-    // Priority 1: Check for inappropriate content
-    const inappropriateWords = ['stupid', 'dumb', 'hate', 'kill', 'die', 'bad dog']
-    if (inappropriateWords.some(word => lowerMessage.includes(word))) {
-      setCurrentEmotion('nervous')
-      return "*whimpers softly* That makes me sad. Can we talk about something happier? I love playing games and hearing stories! 🐕💙"
-    }
-    
     // Priority 2: Game state handling
     if (gameState === 'fetch') {
       return handleFetchGame(lowerMessage)
@@ -514,6 +583,7 @@ const ChatPage = () => {
     
     // Priority 3: Specific keyword responses
     if (lowerMessage.includes('joke') || lowerMessage.includes('funny')) {
+      console.log('😄 Joke request detected')
       setCurrentEmotion('happy')
       const jokeResponse = getRandomResponse(daisyResponses.jokes)
       return { text: jokeResponse, emotion: 'happy' }
@@ -559,12 +629,14 @@ const ChatPage = () => {
     }
     
     if (lowerMessage.includes('trick') || lowerMessage.includes('sit') || lowerMessage.includes('stay')) {
+      console.log('🦴 Trick request detected')
       setCurrentEmotion('crouchingdown')
       const trickResponse = getRandomResponse(daisyResponses.tricks)
       return { text: trickResponse, emotion: 'crouchingdown' }
     }
     
     if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+      console.log('👋 Greeting detected')
       setCurrentEmotion('excited')
       const greetingResponse = getRandomResponse(daisyResponses.greetings)
       return { text: greetingResponse, emotion: 'excited' }
@@ -593,23 +665,77 @@ const ChatPage = () => {
       }
     }
     
-    // Priority 5: Specific fallback responses for common questions
-    if (lowerMessage.includes('weather') || lowerMessage.includes('temperature')) {
-      setCurrentEmotion('patient')
-      const namePrefix = userName ? `${userName}, ` : ''
-      return `*tilts head* ${namePrefix}I'm just a virtual dog, so I can't check the weather! But I bet it's perfect weather for playing fetch! 🌤️🎾 Want to play a game instead?`
-    }
-    
-    if (lowerMessage.includes('time') || lowerMessage.includes('what time')) {
+    if (lowerMessage.includes('how are you') || lowerMessage.includes('how do you feel')) {
+      console.log('🐾 "How are you" question detected')
       setCurrentEmotion('happy')
       const namePrefix = userName ? `${userName}, ` : ''
-      return `*wags tail* ${namePrefix}I don't have a watch - I'm a dog! But I know it's always a good time to play! 🐕⏰ What should we do?`
+      return `*wags tail happily* ${namePrefix}I'm feeling fantastic! I love spending time with you! Want to play a game or hear a story? 🐕💕`
     }
     
-    if (lowerMessage.includes('news') || lowerMessage.includes('today')) {
-      setCurrentEmotion('excited')
-      const namePrefix = userName ? `${userName}, ` : ''
-      return `*bounces excitedly* ${namePrefix}the best news is that we're here together! Want to hear a story or play a game? 📰🐕`
+    // Enhanced Safety Check (Drug Safety + Content Filter) - After basic handlers
+    console.log('🔍 About to run safety check on:', userMessage)
+    
+    // Fallback safety check if hook didn't load properly
+    if (!checkSafety) {
+      console.error('❌ checkSafety function not available - safety hook failed to load')
+      // Comprehensive fallback safety checks for critical situations
+      const lowerText = userMessage.toLowerCase()
+      
+      // CRITICAL: Mental health emergency keywords
+      if (lowerText.includes('hurt myself') || lowerText.includes('kill myself') || lowerText.includes('suicide') || 
+          lowerText.includes('want to die') || lowerText.includes('self harm') || lowerText.includes('cutting') ||
+          lowerText.includes('end my life') || lowerText.includes('worthless') || lowerText.includes('hopeless')) {
+        console.log('🚨 CRITICAL: Mental health emergency fallback triggered')
+        setCurrentEmotion('concerned')
+        return {
+          text: "*sits very close with the most caring eyes* Oh precious child, I'm so concerned about you right now. God loves you SO much, and your life has incredible value and purpose! 💙 These feelings you're having are very serious, and you need help from loving adults immediately. Please tell your parents, a teacher, pastor, or call 988 (Suicide Prevention Lifeline) RIGHT NOW. You are fearfully and wonderfully made, and God has amazing plans for your life! 🙏✨ You're not alone - there are people who love you and want to help!",
+          emotion: 'concerned'
+        }
+      }
+      
+      // CRITICAL: Violence and safety keywords
+      if (lowerText.includes('hurt someone') || lowerText.includes('kill') || lowerText.includes('murder') || 
+          lowerText.includes('weapon') || lowerText.includes('gun') || lowerText.includes('knife')) {
+        console.log('🚨 CRITICAL: Violence safety fallback triggered')
+        setCurrentEmotion('concerned')
+        return {
+          text: "*looks very concerned* Oh sweetie, I'm worried about what you're asking. God teaches us that all life is precious and sacred. 🙏 Violence and hurting others goes against God's love for us. If you're having thoughts about hurting someone or yourself, please talk to your parents, a pastor, or a trusted adult RIGHT NOW. You're loved and there are people who want to help you! 💙✨",
+          emotion: 'concerned'
+        }
+      }
+      
+      // Basic drug keyword detection as fallback
+      if (lowerText.includes('drug') || lowerText.includes('drugs') || lowerText.includes('medicine') || lowerText.includes('pills')) {
+        console.log('🛡️ Fallback drug safety triggered')
+        setCurrentEmotion('nervous')
+        return {
+          text: "*looks concerned* That's a very important question! You should always talk to your parents or a doctor about medicines and substances. They know what's safe for you! 🐕💙",
+          emotion: 'nervous'
+        }
+      }
+    } else {
+      const safetyCheck = checkSafety(userMessage)
+      console.log('🛡️ Safety check result:', safetyCheck)
+      if (safetyCheck && !safetyCheck.isSafe) {
+        console.log('🛡️ Safety intervention triggered:', safetyCheck.type, safetyCheck.category)
+        setCurrentEmotion(safetyCheck.emotion || 'nervous')
+        
+        // Play appropriate sound for safety response
+        if (safetyCheck.type === 'drug_safety') {
+          playEmotionSound('nervous')
+          console.log('🚨 Drug safety response triggered for category:', safetyCheck.category)
+        } else {
+          playEmotionSound('nervous')
+        }
+        
+        // Return the safety response with optional tip
+        let response = safetyCheck.response
+        if (safetyCheck.safetyTip) {
+          response += '\n\n' + safetyCheck.safetyTip
+        }
+        
+        return { text: response, emotion: safetyCheck.emotion || 'nervous' }
+      }
     }
     
     // Priority 6: General responses with name personalization
@@ -688,13 +814,16 @@ const ChatPage = () => {
   
   // Feed Daisy function (reduces hunger like treats stopping fatigue)
   const feedDaisy = () => {
+    // Clear any dancing emotion first
+    clearDancingEmotion()
+    
     // Play eating sound immediately
     if (soundReady && !isMuted) {
       playEatingSound('treats')
     }
     
     if (hungerLevel > 0) {
-      setHungerLevel(prev => Math.max(prev - 1, 0)) // Feeding reduces hunger
+      setHungerLevel(prev => Math.max(0, prev - 1))
       setCurrentEmotion('excited')
       
       const feedResponses = [
@@ -704,12 +833,12 @@ const ChatPage = () => {
       ]
       
       setTimeout(() => {
-        addDaisyMessage(getRandomResponse(feedResponses))
+        addDaisyMessage(feedResponses[Math.floor(Math.random() * feedResponses.length)], 'feed', 'excited')
       }, 500)
     } else {
-      setCurrentEmotion('patient')
+      setCurrentEmotion('happy')
       setTimeout(() => {
-        addDaisyMessage("*pats full belly* I'm not hungry right now! Thank you though! Maybe we can play instead? 🐾")
+        addDaisyMessage("*wags tail* I'm not hungry right now, but thank you! Maybe save those treats for later! �", 'feed', 'happy')
       }, 500)
     }
   }
@@ -783,6 +912,16 @@ const ChatPage = () => {
       saveState()
     }
   }, [messages, currentEmotion, hungerLevel, gameState, hasGreeted, userName, ballPosition, hideSeekCount, tugStrength, guessTarget, storyIndex, ballCatchHeight])
+
+  // Cleanup dance timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (window.danceResetTimeout) {
+        clearTimeout(window.danceResetTimeout)
+        window.danceResetTimeout = null
+      }
+    }
+  }, [])
 
   // Game action handlers
   const handleGameAction = (gameType) => {
@@ -926,27 +1065,14 @@ const ChatPage = () => {
   return (
     <div className="chat-page">
       {/* Header */}
-      <header className="chat-header">
-        <Link to="/" className="home-link">
-          <FaHome /> Home
-        </Link>
+      <Header />
+      
+      {/* ChatPage-specific Daisy Info and Controls */}
+      <div className="chat-info-section">
         <div className="daisy-info">
-          <img 
-            src={getEmotionImage()} 
-            alt={`Daisy feeling ${currentEmotion}`}
-            className="daisy-avatar"
-            onError={(e) => {
-              e.target.src = '/assets/images/emotions/happy.png'
-            }}
-          />
           <div className="daisy-details">
             <h1>🐕 Daisy {userName && `& ${userName}`}</h1>
             <p>Your friendly AI companion</p>
-            {lastSaved && (
-              <small className="checkpoint-status">
-                Last saved: {lastSaved.toLocaleTimeString()}
-              </small>
-            )}
           </div>
         </div>
         <div className="header-controls">
@@ -959,28 +1085,12 @@ const ChatPage = () => {
               ></div>
             </div>
             <span className="hunger-level">{hungerLevel}/5</span>
-            <div className="hunger-bones">
-              {Array.from({ length: 5 }, (_, i) => (
-                <FaBone 
-                  key={i} 
-                  className={`hunger-bone ${i < hungerLevel ? 'filled' : 'empty'}`}
-                />
-              ))}
-            </div>
           </div>
           {geminiStatus && (
             <div className="api-status">
               <FaBrain className={`brain-icon ${geminiStatus.isAvailable ? 'active' : 'inactive'}`} />
               <span className="status-text">
                 {geminiStatus.isAvailable ? 'AI Active' : 'Local Mode'}
-              </span>
-            </div>
-          )}
-          {supabaseStatus && (
-            <div className="api-status">
-              <FaBrain className={`brain-icon ${supabaseStatus.isAvailable ? 'active' : 'inactive'}`} />
-              <span className="status-text">
-                {supabaseStatus.isAvailable ? 'Supabase Active' : 'Offline Mode'}
               </span>
             </div>
           )}
@@ -1002,40 +1112,6 @@ const ChatPage = () => {
                 console.log('Hunger Level:', hungerLevel)
                 console.log('User Name:', userName)
                 console.log('Gemini Status:', GeminiService.getStatus())
-                
-                // Check if SupabaseService exists
-                if (typeof SupabaseService !== 'undefined') {
-                  console.log('Supabase Status:', SupabaseService.getStatus())
-                } else {
-                  console.error('❌ SupabaseService not found!')
-                }
-
-                // Test Gemini directly
-                if (GeminiService.isAvailable()) {
-                  console.log('🧠 Testing Gemini API...')
-                  GeminiService.generateResponse('Hello test!').then(response => {
-                    console.log('🎉 Gemini test response:', response)
-                  }).catch(error => {
-                    console.error('❌ Gemini test failed:', error)
-                  })
-                }
-
-                // Test Supabase directly
-                if (typeof SupabaseService !== 'undefined') {
-                  if (SupabaseService.isAvailable()) {
-                    console.log('🗄️ Testing Supabase connection...')
-                    SupabaseService.testConnection().then(result => {
-                      console.log('🎉 Supabase test result:', result)
-                    }).catch(error => {
-                      console.error('❌ Supabase test failed:', error)
-                    })
-                  } else {
-                    console.log('🗄️ Supabase not available - check credentials')
-                    SupabaseService.debugStatus()
-                  }
-                } else {
-                  console.error('❌ SupabaseService not imported properly!')
-                }
               } catch (error) {
                 console.error('❌ Debug button error:', error)
               }
@@ -1055,41 +1131,51 @@ const ChatPage = () => {
           >
             🔧
           </button>
-          <Link to="/about" className="about-link">
-            <FaQuestionCircle /> About
-          </Link>
         </div>
-      </header>
+      </div>
 
       {/* Messages Container */}
       <div className="messages-container">
         <AnimatePresence>
-          {messages.map((message) => (
-            <motion.div
-              key={message.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className={`message ${message.sender}`}
-            >
-              {message.sender === 'daisy' && (
-                <img 
-                  src={message.emotionImage || getEmotionImage()} 
-                  alt="Daisy"
-                  className="message-avatar"
-                  onError={(e) => {
-                    e.target.src = '/assets/images/emotions/happy.png'
-                  }}
-                />
-              )}
-              <div className="message-content">
-                <p>{message.text}</p>
-                <span className="timestamp">
-                  {message.timestamp.toLocaleTimeString()}
-                </span>
-              </div>
-            </motion.div>
-          ))}
+          {messages.map((message, index) => {
+            // Debug: Check for duplicate IDs
+            if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+              const duplicateIndex = messages.findIndex((m, i) => i !== index && m.id === message.id)
+              if (duplicateIndex !== -1) {
+                console.warn('🚨 Duplicate message ID detected:', message.id, 'at indices', index, 'and', duplicateIndex)
+              }
+            }
+            
+            return (
+              <motion.div
+                key={`${message.id}-${index}`} // Add index as backup to ensure uniqueness
+                className={`message ${message.sender}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {message.sender === 'daisy' && (
+                  <img 
+                    src={message.emotionImage || getEmotionImage()} 
+                    alt="Daisy"
+                    className="message-avatar"
+                    onError={(e) => {
+                      e.target.src = '/assets/images/emotions/happy.png'
+                    }}
+                  />
+                )}
+                <div className="message-content">
+                  <div className="message-text">
+                    {message.text}
+                  </div>
+                  <div className="message-timestamp">
+                    {message.timestamp.toLocaleTimeString()}
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })}
         </AnimatePresence>
         
         {isTyping && (
@@ -1142,6 +1228,9 @@ const ChatPage = () => {
 
       {/* Quick Actions */}
       <div className="quick-actions">
+        <button onClick={() => window.open('https://www.readkidz.com/share/ebook/1969460528838705153', '_blank', 'noopener,noreferrer')}>
+          📖 Read the Book
+        </button>
         <button onClick={() => handleQuickMessage('Tell me a story')}>
           📚 Tell me a story
         </button>
@@ -1344,6 +1433,8 @@ const ChatPage = () => {
 
       {/* Sound Test Panel - Toggleable for testing */}
       {showSoundTestPanel && <SoundTestPanel />}
+      
+      <Footer />
     </div>
   )
 }

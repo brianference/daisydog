@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FaHome, FaEnvelope, FaPhone, FaExclamationTriangle, FaBug, FaQuestionCircle, FaHeart, FaPaperPlane } from 'react-icons/fa'
+import { FaHome, FaEnvelope, FaPhone, FaExclamationTriangle, FaBug, FaQuestionCircle, FaHeart, FaPaperPlane, FaBook } from 'react-icons/fa'
+import Header from '../components/Header.jsx'
+import Footer from '../components/Footer.jsx'
 import './ContactPage.css'
 
 const ContactPage = () => {
@@ -54,11 +56,17 @@ const ContactPage = () => {
   if (isSubmitted) {
     return (
       <div className="contact-page">
+        <Header 
+          title={<><FaEnvelope /> Thank You!</>}
+          subtitle="Your message has been sent successfully"
+        />
         <div className="success-message">
           <div className="success-content">
             <FaHeart className="success-icon" />
-            <h2>Thank You!</h2>
-            <p>Your message has been received. We'll get back to you within 24-48 hours.</p>
+            <h2>Message Sent Successfully! 🎉</h2>
+            <p>
+              Thank you for contacting us! We've received your message and will get back to you soon.
+            </p>
             <div className="success-actions">
               <Link to="/" className="btn-primary">Return Home</Link>
               <button onClick={() => {
@@ -75,22 +83,17 @@ const ContactPage = () => {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     )
   }
 
   return (
     <div className="contact-page">
-      <header className="contact-header">
-        <div className="header-content">
-          <Link to="/" className="home-btn">
-            <FaHome /> Home
-          </Link>
-          <h1><FaEnvelope /> Contact Us</h1>
-          <p>We'd love to hear from you! Get in touch with questions, feedback, or concerns.</p>
-        </div>
-      </header>
-
+      <Header 
+        title={<><FaEnvelope /> Contact Us</>}
+        subtitle="We'd love to hear from you! Get in touch with questions, feedback, or concerns."
+      />
       <div className="contact-content">
         <div className="contact-container">
           
@@ -315,6 +318,7 @@ const ContactPage = () => {
 
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

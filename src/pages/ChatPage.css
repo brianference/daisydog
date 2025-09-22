@@ -6,42 +6,19 @@
   flex-direction: column;
 }
 
-/* Header */
-.chat-header {
+/* ChatPage-specific info section */
+.chat-info-section {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  padding: 15px 20px;
+  padding: 8px 15px;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header-controls {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.home-link, .about-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: #ff6b35;
-  color: white;
-  text-decoration: none;
-  border-radius: 25px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.home-link:hover, .about-link:hover {
-  background: #e55a2b;
-  transform: translateY(-2px);
+  top: 80px;
+  z-index: 999;
+  margin-top: 0;
 }
 
 .daisy-info {
@@ -54,26 +31,35 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  border: 3px solid #ff6b35;
   object-fit: cover;
+  border: 3px solid #667eea;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .daisy-details h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 1.5rem;
   color: #333;
+  font-weight: 700;
 }
 
 .daisy-details p {
-  margin: 0;
+  margin: 5px 0 0 0;
   color: #666;
-  font-size: 14px;
+  font-size: 0.9rem;
 }
 
 .checkpoint-status {
   color: #888;
-  font-size: 11px;
-  font-style: italic;
+  font-size: 0.8rem;
+  display: block;
+  margin-top: 5px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 /* Messages Container */
@@ -607,26 +593,6 @@
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-  .chat-header {
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px 15px;
-  }
-  
-  .header-controls {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .daisy-info {
-    order: -1;
-  }
-  
-  .button-group {
-    flex-direction: row;
-    gap: 8px;
-  }
-  
   .input-container {
     padding: 15px;
   }
@@ -660,5 +626,42 @@
     padding: 8px 12px;
     font-size: 12px;
     min-height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .input-container {
+    padding: 10px;
+  }
+  
+  .message-input {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  
+  .send-button, .feed-button {
+    width: 40px;
+    height: 40px;
+    font-size: 15px;
+  }
+  
+  .quick-actions {
+    padding: 10px;
+    gap: 6px;
+  }
+  
+  .quick-actions button {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+  
+  .game-actions {
+    gap: 4px;
+  }
+  
+  .game-actions button {
+    padding: 6px 10px;
+    font-size: 11px;
+    min-height: 32px;
   }
 }

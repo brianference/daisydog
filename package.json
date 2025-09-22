@@ -1,8 +1,8 @@
 {
   "name": "daisydog",
   "private": true,
-  "version": "3.8.0",
-  "description": "Safe Google Gemini AI-powered virtual dog companion for children with Supabase database integration, enhanced dance sound system, hunger bar system, collapsible games menu, comprehensive safety features, and educational system",
+  "version": "4.1.0",
+  "description": "Safe Google Gemini AI-powered virtual dog companion for children with comprehensive drug safety response system, Supabase database integration, enhanced child protection, educational safety guidance, trusted adult communication prompts, and integrated ReadKidz ebook access",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,7 @@
     "test:local": "echo 'Testing local response system...' && node -e 'console.log(\"Run test cases from TEST_LOCAL_RESPONSES.md\")'",
     "test:safety": "echo 'Testing safety systems...' && node -e 'console.log(\"Run test cases from SAFE_AI_TESTING.md\")'",
     "setup:apis": "node scripts/setup-apis.js",
-    "version": "echo 'Daisy Dog v3.8.0 - Supabase Database Integration & Enhanced Debug System'"
+    "version": "echo 'Daisy Dog v4.1.0 - Read the Book Integration & Enhanced Educational Features'"
   },
   "homepage": "https://brianference.github.io/daisydog",
   "keywords": [

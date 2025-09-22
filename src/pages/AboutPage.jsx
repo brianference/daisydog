@@ -1,21 +1,17 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FaHome, FaHeart, FaShieldAlt, FaUsers, FaGamepad } from 'react-icons/fa'
+import { FaHome, FaHeart, FaShieldAlt, FaUsers, FaGamepad, FaBook } from 'react-icons/fa'
+import Header from '../components/Header.jsx'
+import Footer from '../components/Footer.jsx'
 import './AboutPage.css'
 
 const AboutPage = () => {
   return (
     <div className="about-page">
-      {/* Header */}
-      <header className="about-header">
-        <div className="container">
-          <Link to="/" className="home-btn">
-            <FaHome /> Back to Home
-          </Link>
-          <h1>About DaisyDog</h1>
-        </div>
-      </header>
+      <Header 
+        title={<><FaShieldAlt /> About DaisyDog</>}
+      />
 
       {/* Main Content */}
       <main className="about-content">
@@ -29,7 +25,7 @@ const AboutPage = () => {
           >
             <div className="hero-content">
               <div className="hero-image">
-                <img src="/assets/images/daisy-new-logo.png" alt="Daisy the Dog" />
+                <img src="/assets/images/emotions/happy.png" alt="Daisy the Dog" />
               </div>
               <div className="hero-text">
                 <h2>Meet Daisy! 🐕</h2>
@@ -180,12 +176,7 @@ const AboutPage = () => {
       </main>
 
       {/* Footer */}
-      <footer className="about-footer">
-        <div className="container">
-          <p>Made with <FaHeart className="heart" /> for kids everywhere</p>
-          <p>&copy; 2024 DaisyDog. Designed for safe, educational fun.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

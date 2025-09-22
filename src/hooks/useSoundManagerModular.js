@@ -194,8 +194,6 @@ const useSoundManagerModular = () => {
       playUISound('story')
     } else if (lowerText.includes('joke') || lowerText.includes('funny')) {
       playUISound('joke')
-    } else if (lowerText.includes('dance') || lowerText.includes('spin') || lowerText.includes('ta-da')) {
-      playUISound('dance')
     } else if (lowerText.includes('treat') || lowerText.includes('food')) {
       playEatingSound()
     } else {

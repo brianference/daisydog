@@ -1,27 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FaPlay, FaInfoCircle, FaHeart, FaPaw } from 'react-icons/fa'
+import { FaPlay, FaInfoCircle, FaHeart, FaPaw, FaBook } from 'react-icons/fa'
+import Header from '../components/Header.jsx'
+import Footer from '../components/Footer.jsx'
 import './LandingPage.css'
 
 const LandingPage = () => {
-  // Random emotion image selection
-  const emotionImages = [
-    'crouchingdown', 'dancing', 'eager', 'excited', 'happy', 
-    'hungry', 'lookingbehind', 'nervous', 'panting', 'patient', 
-    'playfetch', 'shakepaw', 'stylish', 'thinking', 'waiting'
-  ]
-  
-  const [currentEmotion, setCurrentEmotion] = useState('happy')
-  
-  useEffect(() => {
-    // Select random emotion on page load
-    const randomEmotion = emotionImages[Math.floor(Math.random() * emotionImages.length)]
-    setCurrentEmotion(randomEmotion)
-  }, [])
-
   return (
     <div className="landing-page">
+      <Header />
+      
       {/* Hero Section */}
       <section className="hero">
         <div className="container">
@@ -37,7 +26,7 @@ const LandingPage = () => {
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
             >
-              <img src={`/assets/images/emotions/${currentEmotion}.png`} alt="Daisy the Dog" />
+              <img src="/assets/images/emotions/happy.png" alt="Daisy the Dog" />
               <motion.div 
                 className="logo-glow"
                 animate={{ 
@@ -82,6 +71,9 @@ const LandingPage = () => {
               <Link to="/about" className="btn btn-secondary">
                 <FaInfoCircle /> Learn More
               </Link>
+              <a href="https://www.readkidz.com/share/ebook/1969460528838705153" target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
+                <FaBook /> Read the Book
+              </a>
             </motion.div>
           </motion.div>
         </div>
@@ -189,9 +181,9 @@ const LandingPage = () => {
               transition={{ delay: 0.4 }}
               whileHover={{ scale: 1.05 }}
             >
-              <div className="feature-icon">🛡️</div>
-              <h3>Safe & Secure</h3>
-              <p>Designed with kids in mind - completely safe, educational, and parent-approved!</p>
+              <div className="feature-icon">✝️</div>
+              <h3>Christian Values & Safety</h3>
+              <p>Built with Christian values in mind - promoting kindness, honesty, and biblical teachings in a safe environment!</p>
             </motion.div>
             
             <motion.div 
@@ -240,26 +232,7 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-content">
-            <div className="footer-logo">
-              <img src="/assets/images/emotions/hungry.png" alt="Daisy" />
-              <span>DaisyDog</span>
-            </div>
-            <div className="footer-links">
-              <Link to="/about">About</Link>
-              <Link to="/chat">Chat</Link>
-              <Link to="/privacy">Privacy</Link>
-              <Link to="/contact">Contact</Link>
-            </div>
-            <div className="footer-text">
-              <p>Made with <FaHeart className="heart" /> for kids everywhere</p>
-              <p>&copy; 2025 DaisyDog. All rights reserved.</p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
