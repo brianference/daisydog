@@ -81,8 +81,12 @@ const useStableVideoIntegration = (options = {}) => {
     }
 
     // Learning videos - specific learning questions, Bible, education
+    // Make Bible detection more specific to avoid false positives
+    const hasBibleQuestion = (text.includes('bible') && (text.includes('tell me about') || text.includes('what') || text.includes('who') || text.includes('how'))) ||
+                           text.includes('jesus') || text.includes('prayer')
+    
     if (text.includes('how does') || text.includes('what is') || text.includes('why does') || 
-        text.includes('bible') || text.includes('jesus') || text.includes('prayer') ||
+        hasBibleQuestion ||
         text.includes('explain') || text.includes('teach me')) {
       logMessage('learning', '🎬 Learning content detected, enabling ears-up video')
       return {

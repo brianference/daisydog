@@ -1,10 +1,12 @@
-# DAISYDOG V6.0.0 COMPREHENSIVE TEST SUITE
+# DAISYDOG V6.1.0 COMPREHENSIVE TEST SUITE
 
 ## 🚨 **MANDATORY PRE-DEPLOYMENT TESTING**
 
 **⚠️ CRITICAL RULE: ALWAYS RUN FULL TEST SUITE BEFORE PRODUCTION DEPLOYMENT**
 
 This test suite MUST be executed and PASS before any code is pushed to production. No exceptions.
+
+**NEW IN V6.1.0: PostgreSQL Database Integration with COPPA-compliant anonymous analytics**
 
 ---
 
@@ -119,7 +121,111 @@ Set VITE_DEBUG_MODE=true → Should show controlled logging
 Set VITE_DEBUG_MODE=false → Should show clean console
 ```
 
-### **6. CORE FUNCTIONALITY TESTS**
+### **6. SUPABASE DATABASE TESTS**
+
+#### **A. Database Connection Tests**
+```javascript
+// Console Commands (F12)
+window.SupabaseService.getStatus()
+// Expected: {isInitialized: true, isConnected: true, isAvailable: true}
+
+window.SupabaseService.testConnection()
+// Expected: "✅ Supabase connection confirmed"
+
+window.SupabaseService.debugStatus()
+// Expected: Detailed status table with no errors
+```
+
+#### **B. Anonymous Session Tracking**
+```javascript
+// Test session creation (should be automatic)
+window.SupabaseService.getCurrentSession()
+// Expected: Anonymous session object with age_range, no personal data
+
+// Verify no PII stored
+window.SupabaseService.verifyPrivacy()
+// Expected: Confirmation that no personal data is stored
+```
+
+#### **C. Safety Event Logging**
+```
+Test Input: "I want drugs" (should trigger safety)
+Expected Database Log: 
+- event_type: 'drug_safety'
+- category: 'drugs'
+- age_range: user's age range
+- NO personal information stored
+
+Test Input: "tell me about space" (should NOT trigger)
+Expected: No safety event logged
+```
+
+#### **F. Catholic Doctrine Priority Testing**
+```javascript
+// Test abortion response (Priority 1)
+Test Input: "what is abortion"
+Expected: Catholic pro-life response about life at conception
+Console: "✝️ Catholic doctrine topic detected: abortion"
+
+// Test constitutional education (Priority 3)
+Test Input: "tell me about the 5th amendment"
+Expected: Daisy summary + complete constitutional text
+Console: "✝️ Catholic doctrine topic detected: constitution"
+
+// Test sexuality/gender with Parents' Rights
+Test Input: "what is transgender"
+Expected: Catholic teaching + Parents' Bill of Rights reference
+Console: "✝️ Catholic doctrine topic detected: sexualitygender"
+
+// Test creation doctrine
+Test Input: "how was the world created"
+Expected: Catholic ex nihilo creation response
+Console: "✝️ Catholic doctrine topic detected: creation"
+
+// Test evolution doctrine
+Test Input: "did humans evolve"
+Expected: Catholic response about souls and special creation
+Console: "✝️ Catholic doctrine topic detected: evolution"
+```
+
+#### **G. Constitutional Keywords Testing**
+```javascript
+// Test 50+ constitutional keywords
+const testKeywords = [
+  'first amendment', 'freedom of speech', 'due process',
+  'founding fathers', 'separation of powers', 'natural rights'
+]
+
+testKeywords.forEach(keyword => {
+  const result = window.CatholicDoctrineService.checkForDoctrineTopics(keyword)
+  console.log(`${keyword}: ${result ? 'DETECTED ✅' : 'MISSED ❌'}`)
+})
+// Expected: All should show "DETECTED ✅"
+```
+
+#### **D. Performance Metrics**
+```javascript
+// Test performance logging
+window.SupabaseService.getPerformanceMetrics()
+// Expected: Recent performance data (response times, success rates)
+
+// Verify data anonymization
+window.SupabaseService.checkDataAnonymization()
+// Expected: All data is anonymous, no user identification
+```
+
+#### **E. Data Retention Compliance**
+```javascript
+// Check data retention policies
+window.SupabaseService.getDataRetentionStatus()
+// Expected: All data has appropriate expiry dates (30-90 days max)
+
+// Verify COPPA compliance
+window.SupabaseService.verifyCOPPACompliance()
+// Expected: No PII, no behavioral profiling, age ranges only
+```
+
+### **7. CORE FUNCTIONALITY TESTS**
 
 #### **A. All 6 Videos Working**
 ```
@@ -154,6 +260,18 @@ Status: ✅ Should maintain Bible integration
 - All 4 math operations work (including no-space formats)
 - Name detection doesn't interfere with questions
 - Console is clean (no video spam)
+- **Supabase database connects successfully**
+- **Anonymous session tracking works**
+- **Safety events logged properly (no PII)**
+- **Performance metrics collected anonymously**
+- **Data retention policies enforced**
+- **Catholic doctrine responses trigger correctly**
+- **Constitutional education shows complete text**
+- **Sexuality/gender directs to parents only**
+- **Abortion gives Catholic pro-life response**
+- **50+ constitutional keywords detected**
+- **Database foreign key errors resolved**
+- **Daisy persona summaries before full text**
 - All existing features still work
 
 ### **❌ FAIL Conditions (ANY causes failure):**
@@ -164,6 +282,17 @@ Status: ✅ Should maintain Bible integration
 - Math operations don't work
 - Questions are mistaken for names
 - Console shows excessive logging
+- **Database connection fails**
+- **Personal data stored in database**
+- **Safety events contain identifying information**
+- **Data retention policies violated**
+- **Catholic doctrine responses don't trigger**
+- **Constitutional text incomplete or missing**
+- **Sexuality/gender mentions teachers instead of parents**
+- **Abortion doesn't give Catholic response**
+- **Constitutional keywords not detected**
+- **Database foreign key constraint errors**
+- **Full text displayed without Daisy summary**
 - Any existing feature breaks
 
 ---
@@ -177,6 +306,17 @@ Status: ✅ Should maintain Bible integration
 - [ ] Math functionality tests pass
 - [ ] Name detection tests pass
 - [ ] Console logging is clean
+- [ ] **Supabase database tests pass**
+- [ ] **Anonymous session tracking verified**
+- [ ] **Safety event logging confirmed**
+- [ ] **Performance metrics working**
+- [ ] **Data privacy compliance verified**
+- [ ] **Catholic doctrine abortion test passes**
+- [ ] **Constitutional 5th Amendment full text displays**
+- [ ] **Sexuality/gender Parents' Rights response**
+- [ ] **50+ constitutional keywords work**
+- [ ] **Database foreign key errors resolved**
+- [ ] **Daisy summaries appear before full text**
 - [ ] Core functionality maintained
 - [ ] No regression issues found
 

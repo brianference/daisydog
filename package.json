@@ -1,7 +1,7 @@
 {
   "name": "daisydog",
   "private": true,
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "Safe Google Gemini AI-powered virtual dog companion for children with comprehensive drug safety response system, Supabase database integration, enhanced child protection, educational safety guidance, trusted adult communication prompts, and integrated ReadKidz ebook access - Updated to new Gemini API",
   "type": "module",
   "scripts": {

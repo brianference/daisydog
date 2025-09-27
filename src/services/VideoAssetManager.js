@@ -38,7 +38,7 @@ class VideoAssetManager {
         fallback: '/assets/images/emotions/happy.png',
         preload: true,
         priority: 'medium',
-        emotions: ['happy', 'excited', 'joyful', 'playful', 'loving']
+        emotions: ['happy', 'excited', 'joyful', 'loving']
       },
       // Lay down video - for calm, relaxed, resting situations
       'lay-down': {
@@ -290,9 +290,9 @@ class VideoAssetManager {
     if (['playful'].includes(emotion)) {
       // Reduced logging - only log in debug mode
       if (import.meta.env.VITE_DEBUG_MODE === 'true') {
-        console.log(`🎬 Mapping playful emotion "${emotion}" to video "happy"`)
+        console.log(`🎬 Mapping playful emotion "${emotion}" to video "roll-over"`)
       }
-      return 'happy'
+      return 'roll-over'
     }
     
     if (['dance', 'dancing', 'music', 'rhythm', 'celebration', 'party', 'festive', 'groove'].includes(emotion)) {
