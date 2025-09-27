@@ -79,16 +79,14 @@ class GeminiService {
     console.log('API Key length:', this.apiKey?.length || 0)
     console.log('API Key starts with:', this.apiKey?.substring(0, 10) || 'none')
     
-    // Check if we're in local development
+    // Check if we're in local development (only disable for localhost)
     const isLocalhost = window.location.hostname === 'localhost' || 
-                       window.location.hostname === '127.0.0.1' ||
-                       window.location.port !== ''
+                       window.location.hostname === '127.0.0.1'
     
     if (isLocalhost) {
-      console.warn('🏠 Running on localhost - Gemini API may be blocked by domain restrictions')
-      console.warn('💡 Gemini will be disabled for local development')
+      console.warn('🏠 Running on localhost - Gemini API disabled for development')
       this.apiWorking = false
-      this.lastError = 'Domain restrictions prevent localhost access'
+      this.lastError = 'Localhost development mode'
       return
     }
     
@@ -123,7 +121,11 @@ class GeminiService {
       }
       
       if (!modelWorking) {
-        throw new Error('No working Gemini model found in production')
+        console.warn('⚠️ No working Gemini models found - API may need billing enabled or different access level')
+        console.warn('💡 DaisyDog will work in Local Mode with built-in responses')
+        this.apiWorking = false
+        this.lastError = 'No accessible Gemini models found'
+        return
       }
       
       console.log(`🎯 Using production model: ${modelWorking}`)
