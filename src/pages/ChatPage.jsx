@@ -10,6 +10,8 @@ import GeminiService from '../services/GeminiService.js'
 import SupabaseService from '../services/SupabaseService.js'
 import useSoundManagerModular from '../hooks/useSoundManagerModular.js'
 import useSafetyFilter from '../hooks/useSafetyFilter.js'
+import '../tests/comprehensiveSafetyTest.js'
+import '../tests/preReleaseTestSuite.js'
 import SoundControls from '../components/SoundControls.jsx'
 import SoundTestPanel from '../components/SoundTestPanel.jsx'
 import BibleTestPanel from '../components/BibleTestPanel.jsx'
@@ -292,6 +294,20 @@ const ChatPage = () => {
         window.danceResetTimeout = null
       }
     }
+  }, [])
+
+  // Ping Supabase every 61 seconds to maintain connection
+  useEffect(() => {
+    const pingInterval = setInterval(async () => {
+      try {
+        await SupabaseService.testConnection()
+        console.log('🔗 Supabase ping successful')
+      } catch (error) {
+        console.log('❌ Supabase ping failed:', error)
+      }
+    }, 61000) // 61 seconds
+
+    return () => clearInterval(pingInterval)
   }, [])
 
   // Initialize components and check verification status

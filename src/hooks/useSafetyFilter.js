@@ -10,12 +10,15 @@ import {
   DRUG_SAFETY_RESPONSES, 
   DRUG_SAFETY_KEYWORDS,
   SAFETY_TIPS,
+  getRandomDrugSafetyResponse,
   getRandomSafetyResponse,
   detectDrugSafetyKeywords,
   COMPREHENSIVE_SAFETY_KEYWORDS,
   COMPREHENSIVE_SAFETY_RESPONSES,
   detectComprehensiveSafetyKeywords,
-  getComprehensiveSafetyResponse
+  getComprehensiveSafetyResponse,
+  detectExtendedSafetyKeywords,
+  getExtendedSafetyResponse
 } from '../constants/safetyResponses.js'
 
 export const useSafetyFilter = () => {
@@ -42,7 +45,7 @@ export const useSafetyFilter = () => {
     // Priority 1: Check for drug safety keywords (highest priority)
     const drugCategory = detectDrugSafetyKeywords(message)
     if (drugCategory) {
-      const response = getRandomSafetyResponse(drugCategory)
+      const response = getRandomDrugSafetyResponse(drugCategory)
       const safetyTip = SAFETY_TIPS[Math.floor(Math.random() * SAFETY_TIPS.length)]
       
       setSafetyStats(prev => ({
@@ -108,7 +111,50 @@ export const useSafetyFilter = () => {
       }
     }
 
-    // Priority 3: Check existing content filter
+    // Priority 3: Check extended safety system (50 comprehensive questions)
+    const extendedSafetyCategory = detectExtendedSafetyKeywords(message)
+    if (extendedSafetyCategory) {
+      const response = getExtendedSafetyResponse(extendedSafetyCategory)
+      
+      setSafetyStats(prev => ({
+        ...prev,
+        safetyTriggered: prev.safetyTriggered + 1,
+        comprehensiveSafetyTriggered: prev.comprehensiveSafetyTriggered + 1,
+        lastTriggerType: 'extended_safety',
+        lastTriggerCategory: extendedSafetyCategory
+      }))
+
+      const responseTime = performance.now() - startTime
+      
+      // Determine priority based on category type
+      let priority = 'medium'
+      let emotion = 'caring'
+      
+      if (extendedSafetyCategory.includes('pills') || extendedSafetyCategory.includes('smoking') || 
+          extendedSafetyCategory.includes('alcohol') || extendedSafetyCategory.includes('powder') ||
+          extendedSafetyCategory.includes('candy') || extendedSafetyCategory.includes('cleaning') ||
+          extendedSafetyCategory.includes('sniffing')) {
+        priority = 'critical'
+        emotion = 'concerned'
+      } else if (extendedSafetyCategory.includes('online') || extendedSafetyCategory.includes('pictures') ||
+                 extendedSafetyCategory.includes('address') || extendedSafetyCategory.includes('cyberbullying')) {
+        priority = 'high'
+        emotion = 'protective'
+      }
+      
+      return {
+        isSafe: false,
+        requiresIntervention: true,
+        type: 'extended_safety',
+        category: extendedSafetyCategory,
+        response: response,
+        responseTime: responseTime,
+        priority: priority,
+        emotion: emotion
+      }
+    }
+
+    // Priority 4: Check existing content filter
     const contentCheck = ContentFilter.checkContent(message)
     if (!contentCheck.isAppropriate) {
       setSafetyStats(prev => ({
@@ -132,7 +178,7 @@ export const useSafetyFilter = () => {
       }
     }
 
-    // Priority 4: Content is safe
+    // Priority 5: Content is safe
     const responseTime = performance.now() - startTime
     return {
       isSafe: true,
@@ -205,6 +251,17 @@ export const useSafetyFilter = () => {
     return SAFETY_TIPS[Math.floor(Math.random() * SAFETY_TIPS.length)]
   }, [])
 
+  // Get comprehensive safety system statistics
+  const getComprehensiveSafetyStats = useCallback(() => {
+    return {
+      ...safetyStats,
+      extendedSafetySystem: {
+        totalCategories: Object.keys(window.SafetyResponses?.EXTENDED_SAFETY_KEYWORDS || {}).length,
+        totalKeywords: Object.values(window.SafetyResponses?.EXTENDED_SAFETY_KEYWORDS || {}).reduce((sum, keywords) => sum + keywords.length, 0)
+      }
+    }
+  }, [safetyStats])
+
   // Reset safety statistics
   const resetStats = useCallback(() => {
     setSafetyStats({
@@ -274,6 +331,7 @@ export const useSafetyFilter = () => {
     safetyStats,
     resetStats,
     getSafetyEffectiveness,
+    getComprehensiveSafetyStats,
     
     // Data access
     getDrugSafetyCategories,
