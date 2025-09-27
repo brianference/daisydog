@@ -22,6 +22,55 @@ class GeminiService {
   }
 
   /**
+   * Test available models by trying to use them
+   */
+  async testAvailableModels() {
+    if (!this.genAI) {
+      console.error('❌ genAI not initialized')
+      return []
+    }
+    
+    console.log('🔍 Testing available models...')
+    const modelsToTest = [
+      'gemini-1.5-flash-latest',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro-latest',
+      'gemini-1.5-pro',
+      'gemini-pro',
+      'gemini-1.0-pro',
+      'models/gemini-1.5-flash',
+      'models/gemini-pro',
+      'models/gemini-1.0-pro'
+    ]
+    
+    const workingModels = []
+    
+    for (const modelName of modelsToTest) {
+      try {
+        console.log(`🧪 Testing model: ${modelName}`)
+        const testModel = this.genAI.getGenerativeModel({ model: modelName })
+        
+        // Quick test with timeout
+        const result = await Promise.race([
+          testModel.generateContent('Hi'),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+        ])
+        
+        const response = await result.response
+        const text = await response.text()
+        
+        console.log(`✅ Model ${modelName} works! Response: ${text.substring(0, 30)}...`)
+        workingModels.push(modelName)
+      } catch (error) {
+        console.log(`❌ Model ${modelName} failed: ${error.message}`)
+      }
+    }
+    
+    console.log(`📊 Working models found: ${workingModels.length}`)
+    return workingModels
+  }
+
+  /**
    * Initialize Gemini AI service
    */
   async initialize() {
@@ -29,6 +78,19 @@ class GeminiService {
     console.log('API Key present:', !!this.apiKey)
     console.log('API Key length:', this.apiKey?.length || 0)
     console.log('API Key starts with:', this.apiKey?.substring(0, 10) || 'none')
+    
+    // Check if we're in local development
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                       window.location.hostname === '127.0.0.1' ||
+                       window.location.port !== ''
+    
+    if (isLocalhost) {
+      console.warn('🏠 Running on localhost - Gemini API may be blocked by domain restrictions')
+      console.warn('💡 Gemini will be disabled for local development')
+      this.apiWorking = false
+      this.lastError = 'Domain restrictions prevent localhost access'
+      return
+    }
     
     if (!this.apiKey || this.apiKey === 'your_actual_gemini_api_key_here') {
       console.warn('⚠️ Gemini API key not configured properly')
@@ -38,9 +100,37 @@ class GeminiService {
     try {
       this.genAI = new GoogleGenerativeAI(this.apiKey)
       
-      // Use the stable model name for production
+      // For production, try a simple model first
+      const productionModels = ['gemini-pro', 'gemini-1.5-flash', 'gemini-1.0-pro']
+      let modelWorking = null
+      
+      for (const modelName of productionModels) {
+        try {
+          console.log(`🧪 Testing production model: ${modelName}`)
+          const testModel = this.genAI.getGenerativeModel({ model: modelName })
+          
+          // Quick test
+          const result = await testModel.generateContent('Hi')
+          const response = await result.response
+          await response.text()
+          
+          console.log(`✅ Production model ${modelName} works!`)
+          modelWorking = modelName
+          break
+        } catch (error) {
+          console.log(`❌ Production model ${modelName} failed: ${error.message}`)
+        }
+      }
+      
+      if (!modelWorking) {
+        throw new Error('No working Gemini model found in production')
+      }
+      
+      console.log(`🎯 Using production model: ${modelWorking}`)
+      
+      // Use the working model
       this.model = this.genAI.getGenerativeModel({
-        model: 'gemini-pro',
+        model: modelWorking,
         generationConfig: {
           temperature: 0.7,
           maxOutputTokens: 200,
@@ -119,7 +209,6 @@ class GeminiService {
       return false
     }
   }
-
   /**
    * Check if Gemini is available and ready
    * @returns {boolean} Whether Gemini is available
@@ -129,15 +218,15 @@ class GeminiService {
     const hasModel = !!this.model
     const isWorking = this.apiWorking
     
-    // Check if we're in production (daisydog.org)
-    const isProduction = window.location.hostname === 'daisydog.org' || 
-                        window.location.hostname.includes('netlify.app') ||
-                        window.location.protocol === 'https:'
+    // Check if we're in production vs localhost
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                       window.location.hostname === '127.0.0.1' ||
+                       window.location.port !== ''
+    const isProduction = !isLocalhost
     
     // If we haven't tested the API yet, or if it's working and been more than 61 seconds
     const testAge = this.lastApiTest ? Date.now() - this.lastApiTest : Infinity
     const shouldRetest = testAge === Infinity || (isWorking && testAge > 61 * 1000) // 61 seconds if working
-    
     // If not working, check every 5 minutes
     const testStale = !isWorking && testAge > 5 * 60 * 1000 // 5 minutes if not working
     
@@ -311,12 +400,27 @@ Important: Always maintain Daisy's dog personality while being helpful and infor
   }
 }
 
-// Export singleton instance
-const geminiServiceInstance = new GeminiService()
+// Create singleton instance
+const geminiService = new GeminiService()
 
-// Expose to window for console debugging
+// Make available globally for testing
 if (typeof window !== 'undefined') {
-  window.GeminiService = geminiServiceInstance
+  window.GeminiService = geminiService
+  window.testGemini = () => geminiService.testApiConnectivity()
+  window.geminiStatus = () => geminiService.getStatus()
+  window.testGeminiModels = () => geminiService.testAvailableModels()
+  window.debugGeminiKey = () => {
+    console.log('🔑 API Key Debug:')
+    console.log('  Present:', !!geminiService.apiKey)
+    console.log('  Length:', geminiService.apiKey?.length || 0)
+    console.log('  Starts with:', geminiService.apiKey?.substring(0, 15) || 'none')
+    console.log('  Format check:', geminiService.apiKey?.startsWith('AIza') ? '✅ Correct format' : '❌ Wrong format')
+    console.log('  Environment:', import.meta.env.VITE_GEMINI_API_KEY ? 'Set in env' : 'Not in env')
+  }
+  window.reinitGemini = () => {
+    console.log('🔄 Reinitializing Gemini Service...')
+    return geminiService.initialize()
+  }
 }
 
-export default geminiServiceInstance
+export default geminiService
