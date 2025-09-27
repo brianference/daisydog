@@ -75,7 +75,7 @@ const ChatPage = () => {
     playContextualSound
   } = useSoundManagerModular()
 
-  // Stable video system with quick restore capability
+  // Re-enable video system with proper fixes
   const {
     shouldMessageUseVideo,
     getVideoPropsForMessage,
@@ -83,9 +83,9 @@ const ChatPage = () => {
     enableFallbackMode,
     getSystemStatus: getVideoSystemStatus
   } = useStableVideoIntegration({
-    enableVideo: true, // Re-enabled with stable implementation
-    fallbackMode: false, // Set to true for quick restore to images
-    debugMode: true // Enable debug mode to see what's happening
+    enableVideo: true,
+    fallbackMode: false,
+    debugMode: false // Disable debug mode to prevent excessive logging
   })
 
   // Bible service initialization
@@ -203,7 +203,7 @@ const ChatPage = () => {
     return imagePath
   }
   
-  // Auto-scroll to bottom
+  // Simple auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
@@ -543,11 +543,6 @@ const ChatPage = () => {
     }, 1000 + Math.random() * 1000)
   }
 
-  // Auto-scroll to bottom
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-  
   // Feed Daisy function
   const feedDaisy = () => {
     // Clear any dancing emotion first
@@ -675,11 +670,6 @@ const ChatPage = () => {
     }, 1000)
   }
 
-  // Auto-scroll to bottom
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-  
   // Enhanced response generation with AI integration
   const generateDaisyResponse = async (userMessage) => {
     const lowerMessage = userMessage.toLowerCase()
@@ -1063,11 +1053,6 @@ const ChatPage = () => {
     return story
   }
 
-  // Auto-scroll to bottom
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-  
   // Handle Verse of the Day - randomly generated full verse
   const handleVerseOfDay = async () => {
     console.log('✨ Verse of the Day requested')
@@ -1137,11 +1122,6 @@ const ChatPage = () => {
     }
   }
 
-  // Auto-scroll to bottom
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-  
   return (
     <div className="chat-page">
       {/* Header */}
@@ -1248,21 +1228,18 @@ const ChatPage = () => {
                   <SmartDaisyAvatar
                     message={message}
                     emotion={message.emotion || currentEmotion}
-                    useVideo={shouldMessageUseVideo(message)}
-                    videoProps={getVideoPropsForMessage(message)}
+                    useVideo={false} // Keep avatar as static image
                     className="message-avatar"
                     fallbackSrc={message.emotionImage || getEmotionImage()}
-                    onVideoError={(error) => console.warn('Message video error:', error)}
-                    onVideoComplete={() => console.log('Message video completed')}
                   />
                 )}
                 <div className="message-content">
                   {message.sender === 'daisy' ? (
                     <InlineVideoMessage
-                      emotion={message.emotion || currentEmotion}
+                      emotion={shouldMessageUseVideo(message) ? getVideoPropsForMessage(message).emotion : (message.emotion || currentEmotion)}
                       message={message.text}
                       shouldShowVideo={shouldMessageUseVideo(message)}
-                      priority={message.safetyContext ? 'high' : 'medium'}
+                      priority={shouldMessageUseVideo(message) ? getVideoPropsForMessage(message).priority : 'medium'}
                       onVideoComplete={() => console.log('Inline video completed')}
                       onVideoError={(error) => console.warn('Inline video error:', error)}
                     />

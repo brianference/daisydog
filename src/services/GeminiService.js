@@ -140,8 +140,8 @@ class GeminiService {
     // If not working, check every 5 minutes
     const testStale = !isWorking && testAge > 5 * 60 * 1000 // 5 minutes if not working
     
-    // In production, assume API is available if we have key and model (bypass connectivity test)
-    const available = hasKey && hasModel && this.isInitialized && (isProduction || (isWorking && !testStale))
+    // In production, be more strict about API availability
+    const available = hasKey && hasModel && this.isInitialized && (isProduction ? this.apiWorking !== false : (isWorking && !testStale))
     
     if (import.meta.env.VITE_DEBUG_MODE === 'true') {
       console.log('🔧 Gemini Availability Check:', {
@@ -172,6 +172,7 @@ class GeminiService {
   async generateResponse(userMessage, context = {}) {
     if (!this.isAvailable()) {
       console.log('❌ Gemini service not available, using fallback')
+      console.log('🔧 Gemini status:', this.getStatus())
       return "Woof! I'm using my basic responses right now! 🐕"
     }
 

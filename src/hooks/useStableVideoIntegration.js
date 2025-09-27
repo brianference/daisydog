@@ -1,223 +1,180 @@
 /**
- * useStableVideoIntegration - Stable video integration hook
- * Prevents re-render loops while providing video functionality
- * Includes quick restore mechanism to image-based system
+ * useStableVideoIntegration - Simple video integration hook
+ * Focuses only on safety responses to prevent infinite loops
  */
 
-import { useState, useEffect, useMemo, useRef } from 'react'
-import useVideoEmotion from './useVideoEmotion.js'
-import videoAssetManager from '../services/VideoAssetManager.js'
+import { useState, useEffect, useCallback } from 'react'
 
 const useStableVideoIntegration = (options = {}) => {
   const {
     enableVideo = true,
-    fallbackMode = false, // Quick restore flag
+    fallbackMode = false,
     debugMode = false
   } = options
 
-  const [isVideoSystemReady, setIsVideoSystemReady] = useState(false)
-  const [videoDecisions, setVideoDecisions] = useState(new Map())
-  const analysisCache = useRef(new Map())
-  const { analyzeResponseForVideo } = useVideoEmotion()
+  const [isVideoSystemReady, setIsVideoSystemReady] = useState(true)
 
   /**
-   * Initialize video system safely
+   * Simple video analysis - only for safety responses
    */
-  useEffect(() => {
+  const analyzeMessageForVideo = useCallback((message) => {
     if (!enableVideo || fallbackMode) {
-      setIsVideoSystemReady(false)
-      return
+      return { useVideo: false, emotion: 'happy', reason: 'disabled' }
     }
 
-    let mounted = true
+    // Enable videos for different categories
     
-    const initVideo = async () => {
-      try {
-        // Wait for video system to be ready
-        const checkReady = () => {
-          if (!mounted) return
-          
-          const ready = videoAssetManager.isReady()
-          if (ready !== isVideoSystemReady) {
-            setIsVideoSystemReady(ready)
-            if (debugMode && ready) {
-              console.log('🎬 Stable video system ready')
-            }
-          }
-        }
-
-        checkReady()
-        
-        // Check periodically until ready
-        const interval = setInterval(() => {
-          if (!mounted) return
-          checkReady()
-          if (videoAssetManager.isReady()) {
-            clearInterval(interval)
-          }
-        }, 2000)
-
-        return () => {
-          clearInterval(interval)
-        }
-      } catch (error) {
-        console.warn('Video system init failed:', error)
-        setIsVideoSystemReady(false)
-      }
-    }
-
-    initVideo()
-
-    return () => {
-      mounted = false
-    }
-  }, [enableVideo, fallbackMode, debugMode])
-
-  /**
-   * Stable video analysis with caching
-   */
-  const analyzeMessageForVideo = useMemo(() => {
-    return (message) => {
-      if (!enableVideo || fallbackMode || !isVideoSystemReady) {
-        return { useVideo: false, emotion: 'happy', reason: 'disabled' }
-      }
-
-      try {
-        // Create cache key from message properties
-        const cacheKey = JSON.stringify({
-          text: message.text?.substring(0, 100),
-          safetyContext: message.safetyContext,
-          responseType: message.responseType,
-          emotion: message.emotion
-        })
-
-        // Check cache first
-        if (analysisCache.current.has(cacheKey)) {
-          return analysisCache.current.get(cacheKey)
-        }
-
-        // Perform analysis
-        const analysis = analyzeResponseForVideo(message)
-        
-        // Debug logging
-        if (debugMode) {
-          console.log('🔍 Analysis input:', message)
-          console.log('🔍 Analysis output:', analysis)
-        }
-        
-        const result = {
-          useVideo: analysis.priority === 'high' || analysis.confidence > 0.7,
-          emotion: analysis.videoEmotion,
-          videoEmotion: analysis.videoEmotion, // Add this for test compatibility
-          priority: analysis.priority,
-          reason: analysis.reason,
-          confidence: analysis.confidence
-        }
-        
-        if (debugMode) {
-          console.log('🔍 Final result:', result)
-        }
-
-        // Cache result
-        analysisCache.current.set(cacheKey, result)
-        
-        // Limit cache size
-        if (analysisCache.current.size > 50) {
-          const firstKey = analysisCache.current.keys().next().value
-          analysisCache.current.delete(firstKey)
-        }
-
-        if (debugMode) {
-          console.log('🎬 Stable video analysis:', result)
-        }
-
-        return result
-      } catch (error) {
-        console.warn('Video analysis failed:', error)
-        return { useVideo: false, emotion: 'happy', reason: 'error' }
-      }
-    }
-  }, [enableVideo, fallbackMode, isVideoSystemReady, analyzeResponseForVideo, debugMode])
-
-  /**
-   * Get video props for a message (stable)
-   */
-  const getVideoPropsForMessage = useMemo(() => {
-    return (message) => {
-      const analysis = analyzeMessageForVideo(message)
-      
+    // 1. Safety responses (highest priority)
+    if (message?.safetyContext) {
+      console.log('🎬 Safety message detected, enabling barking video:', message.safetyContext)
       return {
-        emotion: analysis.emotion || message.emotion || 'happy',
-        priority: analysis.priority || 'medium',
-        useVideo: analysis.useVideo,
-        fallbackOnly: !analysis.useVideo,
-        message: message.text || '',
-        key: `video-${message.id}` // Stable key for React
+        useVideo: true,
+        emotion: 'barking',
+        videoEmotion: 'barking',
+        priority: 'high',
+        reason: 'safety_response',
+        confidence: 1.0
       }
     }
+
+    // 2. Check message text for other video categories
+    const text = message?.text?.toLowerCase() || ''
+    
+    // Dance videos - music, celebration, party
+    if (text.includes('dance') || text.includes('music') || text.includes('celebrate') || 
+        text.includes('party') || text.includes('song') || text.includes('rhythm')) {
+      console.log('🎬 Dance content detected, enabling dance video')
+      return {
+        useVideo: true,
+        emotion: 'dance',
+        videoEmotion: 'dance',
+        priority: 'medium',
+        reason: 'dance_content',
+        confidence: 0.8
+      }
+    }
+
+    // Tricks videos - check first for specific tricks keywords
+    if (text.includes('trick') || text.includes('silly') || text.includes('performance') || 
+        text.includes('entertaining') || text.includes('flip') || text.includes('acrobat')) {
+      console.log('🎬 Tricks content detected, enabling roll-over video')
+      return {
+        useVideo: true,
+        emotion: 'roll-over',
+        videoEmotion: 'roll-over',
+        priority: 'low',
+        reason: 'tricks_content',
+        confidence: 0.7
+      }
+    }
+
+    // Learning videos - specific learning questions, Bible, education
+    if (text.includes('how does') || text.includes('what is') || text.includes('why does') || 
+        text.includes('bible') || text.includes('jesus') || text.includes('prayer') ||
+        text.includes('explain') || text.includes('teach me')) {
+      console.log('🎬 Learning content detected, enabling ears-up video')
+      return {
+        useVideo: true,
+        emotion: 'ears-up',
+        videoEmotion: 'ears-up',
+        priority: 'medium',
+        reason: 'learning_content',
+        confidence: 0.8
+      }
+    }
+
+    // Joy videos - jokes, fun, games, excitement
+    if (text.includes('joke') || text.includes('funny') || text.includes('amazing') || 
+        text.includes('excited') || text.includes('happy') || text.includes('game')) {
+      console.log('🎬 Joy content detected, enabling happy video')
+      return {
+        useVideo: true,
+        emotion: 'happy',
+        videoEmotion: 'happy',
+        priority: 'medium',
+        reason: 'joy_content',
+        confidence: 0.8
+      }
+    }
+
+    // Calm videos - tired, rest, sleep, peaceful
+    if (text.includes('tired') || text.includes('rest') || text.includes('sleep') || 
+        text.includes('peaceful') || text.includes('calm') || text.includes('relax')) {
+      console.log('🎬 Calm content detected, enabling lay-down video')
+      return {
+        useVideo: true,
+        emotion: 'lay-down',
+        videoEmotion: 'lay-down',
+        priority: 'low',
+        reason: 'calm_content',
+        confidence: 0.7
+      }
+    }
+
+
+    console.log('🎬 No video category matched, using image:', message?.text?.substring(0, 20))
+    return { useVideo: false, emotion: 'happy', reason: 'no_match' }
+  }, [enableVideo, fallbackMode])
+
+  /**
+   * Check if message should use video
+   */
+  const shouldMessageUseVideo = useCallback((message) => {
+    const analysis = analyzeMessageForVideo(message)
+    return analysis.useVideo || false
   }, [analyzeMessageForVideo])
 
   /**
-   * Check if message should use video (stable)
+   * Get video props for message
    */
-  const shouldMessageUseVideo = useMemo(() => {
-    return (message) => {
-      if (!enableVideo || fallbackMode || !isVideoSystemReady) {
-        return false
-      }
-      
-      const analysis = analyzeMessageForVideo(message)
-      return analysis.useVideo
+  const getVideoPropsForMessage = useCallback((message) => {
+    const analysis = analyzeMessageForVideo(message)
+    return {
+      emotion: analysis.emotion || 'happy',
+      priority: analysis.priority || 'medium',
+      confidence: analysis.confidence || 0.5
     }
-  }, [enableVideo, fallbackMode, isVideoSystemReady, analyzeMessageForVideo])
+  }, [analyzeMessageForVideo])
 
   /**
    * Get system status
    */
-  const getSystemStatus = () => {
+  const getSystemStatus = useCallback(() => {
     return {
-      enableVideo,
+      enabled: enableVideo,
+      ready: isVideoSystemReady,
       fallbackMode,
-      isVideoSystemReady,
-      cacheSize: analysisCache.current.size,
-      videoManagerStatus: videoAssetManager.getStatus()
+      debugMode
     }
-  }
+  }, [enableVideo, isVideoSystemReady, fallbackMode, debugMode])
 
   /**
-   * Quick restore to image mode
+   * Enable fallback mode
    */
-  const enableFallbackMode = () => {
-    console.log('🎬 Enabling fallback mode - switching to images')
+  const enableFallbackMode = useCallback(() => {
     setIsVideoSystemReady(false)
-    analysisCache.current.clear()
-  }
+  }, [])
 
-  // Make available globally for debugging and quick restore
+  // Make available globally for testing
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.StableVideoIntegration = {
-        getStatus: getSystemStatus,
-        enableFallback: enableFallbackMode,
-        clearCache: () => analysisCache.current.clear(),
-        analyze: analyzeMessageForVideo
+        analyze: analyzeMessageForVideo,
+        shouldUse: shouldMessageUseVideo,
+        getProps: getVideoPropsForMessage,
+        getStatus: getSystemStatus
       }
     }
-  }, [analyzeMessageForVideo])
+  }, [analyzeMessageForVideo, shouldMessageUseVideo, getVideoPropsForMessage, getSystemStatus])
 
   return {
-    // Main functions
     shouldMessageUseVideo,
     getVideoPropsForMessage,
     analyzeMessageForVideo,
-    
-    // System status
     isVideoSystemReady,
     enableVideo,
     fallbackMode,
-    
-    // Utilities
-    getSystemStatus,
+    getSystemStatus: getSystemStatus,
     enableFallbackMode
   }
 }

@@ -90,41 +90,12 @@ const InlineVideoMessage = ({
       video.loop = true // Loop for better visibility
       video.playsInline = true
       video.controls = false
-      
       // Event handlers
       const handleLoadedData = () => {
         console.log(`🎬 Inline video loaded and starting playback for ${emotion}`)
         setVideoState('playing')
         
-        // Play appropriate sound for video type (with global cooldown)
-        if (!isMuted && !soundPlayedRef.current) {
-          const currentTime = Date.now()
-          
-          // Check if enough time has passed since last sound
-          if (currentTime - lastSoundTime > SOUND_COOLDOWN) {
-            soundPlayedRef.current = true // Mark sound as played
-            lastSoundTime = currentTime // Update global sound time
-            
-            setTimeout(() => {
-              if (emotion === 'barking') {
-                // Play alert/protective sound for safety videos
-                playEmotionSound('nervous')
-                console.log('🔊 Playing barking sound for safety video')
-              } else if (emotion === 'ears-up') {
-                // Play curious/attentive sound for learning videos
-                playEmotionSound('curious')
-                console.log('🔊 Playing curious sound for learning video')
-              } else if (emotion === 'happy') {
-                // Play happy/excited sound for positive videos
-                playEmotionSound('happy')
-                console.log('🔊 Playing happy sound for fun video')
-              }
-            }, 200) // Small delay to sync with video
-          } else {
-            console.log('🔇 Sound skipped - too soon after last sound')
-            soundPlayedRef.current = true // Still mark as played to prevent retries
-          }
-        }
+        // Don't play sound here - will be handled by play event
         
         // Auto-play with error handling
         const playVideo = async () => {
@@ -151,19 +122,58 @@ const InlineVideoMessage = ({
       }
 
       const handleError = (e) => {
-        console.warn('Inline video error:', e)
         setShowVideo(false)
         setVideoState('error')
       }
 
       video.addEventListener('loadeddata', handleLoadedData)
-      video.addEventListener('ended', handleEnded)
       video.addEventListener('error', handleError)
+      video.addEventListener('ended', handleEnded)
+      
+      // Play sound only on first play, not on loops
+      const handlePlay = () => {
+        if (soundPlayedRef.current) {
+          console.log('🔇 Video looping - sound already played, skipping')
+          return
+        }
+        
+        // Play appropriate sound for video type (with global cooldown)
+        if (!isMuted) {
+          const currentTime = Date.now()
+          
+          // Check if enough time has passed since last sound
+          if (currentTime - lastSoundTime > SOUND_COOLDOWN) {
+            soundPlayedRef.current = true // Mark sound as played
+            lastSoundTime = currentTime // Update global sound time
+            
+            setTimeout(() => {
+              if (emotion === 'barking') {
+                playEmotionSound('nervous')
+                console.log('🔊 Playing barking sound for safety video')
+              } else if (emotion === 'ears-up') {
+                playEmotionSound('curious')
+                console.log('🔊 Playing curious sound for learning video')
+              } else if (emotion === 'happy') {
+                playEmotionSound('happy')
+                console.log('🔊 Playing happy sound for fun video')
+              }
+            }, 200) // Small delay to sync with video
+          } else {
+            console.log('🔇 Sound skipped - too soon after last sound')
+            soundPlayedRef.current = true // Still mark as played to prevent retries
+          }
+        } else {
+          soundPlayedRef.current = true // Mark as played even if muted
+        }
+      }
+      
+      video.addEventListener('play', handlePlay)
 
       return () => {
         video.removeEventListener('loadeddata', handleLoadedData)
         video.removeEventListener('ended', handleEnded)
         video.removeEventListener('error', handleError)
+        video.removeEventListener('play', handlePlay)
       }
     }
   }, [videoElement, videoState, emotion, onVideoComplete])
