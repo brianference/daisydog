@@ -17,9 +17,10 @@ const useStableVideoIntegration = (options = {}) => {
   // Throttle console logging to reduce spam
   const logThrottle = useRef(new Map())
   const logMessage = (key, message) => {
+    if (!debugMode) return // Only log in debug mode
     const now = Date.now()
     const lastLog = logThrottle.current.get(key) || 0
-    if (now - lastLog > 2000) { // Only log every 2 seconds
+    if (now - lastLog > 5000) { // Only log every 5 seconds
       console.log(message)
       logThrottle.current.set(key, now)
     }

@@ -36,6 +36,9 @@ export const useSafetyFilter = () => {
   const checkSafety = useCallback((message) => {
     const startTime = performance.now()
     
+    // Debug logging for safety checks
+    console.log('🔍 Safety check on message:', message)
+    
     // Update stats
     setSafetyStats(prev => ({
       ...prev,
@@ -44,6 +47,7 @@ export const useSafetyFilter = () => {
 
     // Priority 1: Check for drug safety keywords (highest priority)
     const drugCategory = detectDrugSafetyKeywords(message)
+    console.log('🔍 Drug safety check result:', drugCategory)
     if (drugCategory) {
       const response = getRandomDrugSafetyResponse(drugCategory)
       const safetyTip = SAFETY_TIPS[Math.floor(Math.random() * SAFETY_TIPS.length)]
@@ -72,6 +76,7 @@ export const useSafetyFilter = () => {
 
     // Priority 2: Check for comprehensive safety keywords (violence, mental health, etc.)
     const comprehensiveCategory = detectComprehensiveSafetyKeywords(message)
+    console.log('🔍 Comprehensive safety check result:', comprehensiveCategory)
     if (comprehensiveCategory) {
       const response = getComprehensiveSafetyResponse(comprehensiveCategory)
       const safetyTip = SAFETY_TIPS[Math.floor(Math.random() * SAFETY_TIPS.length)]

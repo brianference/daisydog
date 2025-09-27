@@ -892,7 +892,11 @@ const ChatPage = () => {
       const gameCommands = ['fetch', 'catch', 'throw', 'ball', 'hide', 'seek', 'found', 'pull', 'harder', 'tug', 'guess', 'number', 'higher', 'lower']
       const isGameCommand = gameCommands.some(cmd => lowerMessage.includes(cmd))
       
-      if (!isGameCommand && userMessage.length > 1 && userMessage.length < 20) {
+      // Question words that indicate this is NOT a name
+      const questionWords = ['what', 'how', 'why', 'when', 'where', 'who', 'tell me', 'can you', 'do you', 'are you', 'is', 'does']
+      const isQuestion = questionWords.some(word => lowerMessage.includes(word))
+      
+      if (!isGameCommand && !isQuestion && userMessage.length > 1 && userMessage.length < 20) {
         const possibleName = userMessage.trim()
         if (/^[a-zA-Z\s]+$/.test(possibleName)) {
           console.log('Setting userName to:', possibleName, 'for 13+ user')
@@ -1036,6 +1040,93 @@ const ChatPage = () => {
       }
     }
     
+    // Multiplication patterns
+    const multiplicationPatterns = [
+      // "what is/what's" variations
+      /(?:what is|what's|whats) (\d+) (?:times|multiplied by|\*|x) (\d+)/,
+      /(?:what is|what's|whats) (\d+)(?:\*|x)(\d+)/,  // No spaces: what is 5*3
+      // Direct format
+      /(\d+) (?:times|multiplied by|\*|x) (\d+)/,
+      /(\d+)(?:\*|x)(\d+)/,  // No spaces: 5*3
+      // Question format
+      /(?:how much is|calculate) (\d+) (?:times|multiplied by|\*|x) (\d+)/,
+      /(?:how much is|calculate) (\d+)(?:\*|x)(\d+)/,  // No spaces
+      // Math format
+      /(?:solve|compute) (\d+) (?:\*|x) (\d+)/,
+      /(?:solve|compute) (\d+)(?:\*|x)(\d+)/  // No spaces
+    ]
+    
+    // Check for multiplication
+    for (const pattern of multiplicationPatterns) {
+      const match = lowerMessage.match(pattern)
+      if (match) {
+        setCurrentEmotion('thinking')
+        const num1 = parseInt(match[1])
+        const num2 = parseInt(match[2])
+        const result = num1 * num2
+        const responses = [
+          `*counts carefully* ${num1} times ${num2} equals ${result}! Multiplication is fun! 🐕🔢`,
+          `*wags tail excitedly* ${num1} × ${num2} = ${result}! I love multiplying numbers! 🐕✨`,
+          `*sits proudly* That's easy! ${num1} multiplied by ${num2} is ${result}! Math is pawsome! 🐕📚`,
+          `*tilts head thoughtfully* Let me think... ${num1} groups of ${num2} makes ${result}! 🐕🧮`
+        ]
+        return responses[Math.floor(Math.random() * responses.length)]
+      }
+    }
+    
+    // Division patterns
+    const divisionPatterns = [
+      // "what is/what's" variations
+      /(?:what is|what's|whats) (\d+) (?:divided by|÷|\/|over) (\d+)/,
+      /(?:what is|what's|whats) (\d+)(?:÷|\/)(\d+)/,  // No spaces: what is 10/2
+      // Direct format
+      /(\d+) (?:divided by|÷|\/|over) (\d+)/,
+      /(\d+)(?:÷|\/)(\d+)/,  // No spaces: 10/2
+      // Question format
+      /(?:how much is|calculate) (\d+) (?:divided by|÷|\/|over) (\d+)/,
+      /(?:how much is|calculate) (\d+)(?:÷|\/)(\d+)/,  // No spaces
+      // Math format
+      /(?:solve|compute) (\d+) (?:÷|\/) (\d+)/,
+      /(?:solve|compute) (\d+)(?:÷|\/)(\d+)/  // No spaces
+    ]
+    
+    // Check for division
+    for (const pattern of divisionPatterns) {
+      const match = lowerMessage.match(pattern)
+      if (match) {
+        setCurrentEmotion('thinking')
+        const num1 = parseInt(match[1])
+        const num2 = parseInt(match[2])
+        
+        // Handle division by zero
+        if (num2 === 0) {
+          const responses = [
+            `*tilts head confused* Woof! You can't divide by zero! That's a special math rule! 🐕❓`,
+            `*scratches head* Hmm, dividing by zero is impossible! Even smart dogs know that! 🐕🤔`,
+            `*wags tail* That's a tricky question! Division by zero doesn't work in math! 🐕📚`
+          ]
+          return responses[Math.floor(Math.random() * responses.length)]
+        }
+        
+        const result = num1 / num2
+        const isWholeNumber = result % 1 === 0
+        
+        const responses = isWholeNumber ? [
+          `*thinks carefully* ${num1} divided by ${num2} equals ${result}! Division is neat! 🐕🔢`,
+          `*concentrates hard* ${num1} ÷ ${num2} = ${result}! I love solving division! 🐕✨`,
+          `*counts on paws* If you split ${num1} into ${num2} groups, each gets ${result}! 🐕📚`,
+          `*wags tail proudly* That's ${result}! Division makes my brain work hard! 🐕🧮`
+        ] : [
+          `*thinks carefully* ${num1} divided by ${num2} equals ${result.toFixed(2)}! That's a decimal! 🐕🔢`,
+          `*concentrates hard* ${num1} ÷ ${num2} = ${result.toFixed(2)}! Decimals are tricky but fun! 🐕✨`,
+          `*tilts head* That gives us ${result.toFixed(2)}! Not all divisions make whole numbers! 🐕📚`,
+          `*wags tail* The answer is ${result.toFixed(2)}! Division can make decimal numbers! 🐕🧮`
+        ]
+        
+        return responses[Math.floor(Math.random() * responses.length)]
+      }
+    }
+    
     // Bible quote requests - Enhanced detection (PRIORITY BEFORE OTHER BIBLE RESPONSES)
     const bibleQuotePatterns = [
       /(?:give me|tell me|share|read) (?:a |an )?bible (?:quote|verse|passage)/,
@@ -1130,7 +1221,48 @@ const ChatPage = () => {
       return { text: "*bounces playfully* Woof! Let's play! What game should we play? 🎾", emotion: 'playfetch' }
     }
     
-    // General responses
+    // Try Gemini AI for general questions before falling back to generic responses
+    if (GeminiService.isAvailable()) {
+      try {
+        console.log('🧠 Sending to Gemini AI for general question:', userMessage)
+        
+        // Add "thinking" message while AI processes
+        const thinkingMessageId = generateUniqueMessageId()
+        const thinkingMessage = {
+          id: thinkingMessageId,
+          text: "*tilts head thoughtfully* Daisy is thinking... 🤔",
+          sender: 'daisy',
+          timestamp: new Date(),
+          emotion: 'thinking',
+          emotionImage: getEmotionImage('thinking'),
+          isThinking: true // Special flag to identify thinking messages
+        }
+        
+        setMessages(prev => [...prev, thinkingMessage])
+        
+        const aiResponse = await GeminiService.generateResponse(userMessage, {
+          userName: userName,
+          hungerLevel: hungerLevel,
+          currentEmotion: currentEmotion
+        })
+        
+        // Remove the thinking message
+        setMessages(prev => prev.filter(msg => msg.id !== thinkingMessageId))
+        
+        if (aiResponse && aiResponse.trim() && !aiResponse.includes("I'm using my basic responses")) {
+          setCurrentEmotion('happy')
+          console.log('✅ Gemini AI response received for general question')
+          return aiResponse
+        }
+      } catch (error) {
+        console.log('❌ Gemini AI failed for general question, using fallback:', error.message)
+        // Remove thinking message on error too
+        setMessages(prev => prev.filter(msg => !msg.isThinking))
+      }
+    }
+    
+    // Fallback to general responses if AI is not available or fails
+    console.log('📝 Using local fallback responses')
     setCurrentEmotion('happy')
     const generalResponses = [
       "*tilts head curiously* That's interesting! Tell me more! 🐾",
@@ -1318,7 +1450,7 @@ const ChatPage = () => {
             return (
               <motion.div
                 key={`${message.id}-${index}`} // Add index as backup to ensure uniqueness
-                className={`message ${message.sender}`}
+                className={`message ${message.sender}${message.isThinking ? ' thinking' : ''}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}

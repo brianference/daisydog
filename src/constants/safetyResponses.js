@@ -342,13 +342,16 @@ const getRandomSafetyResponse = (category) => {
   return responses[Math.floor(Math.random() * responses.length)];
 };
 
-// Keyword detection helper
+// Keyword detection helper with word boundary protection
 const detectDrugSafetyKeywords = (text) => {
   const lowerText = text.toLowerCase();
   
   for (const [category, keywords] of Object.entries(DRUG_SAFETY_KEYWORDS)) {
     for (const keyword of keywords) {
-      if (lowerText.includes(keyword)) {
+      // Use word boundaries to prevent false positives like "meth" matching "something"
+      const wordBoundaryRegex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+      if (wordBoundaryRegex.test(lowerText)) {
+        console.log(`🔍 Drug safety match found: "${keyword}" in "${text}" (category: ${category})`);
         return category;
       }
     }
@@ -357,7 +360,7 @@ const detectDrugSafetyKeywords = (text) => {
   return null;
 };
 
-// Comprehensive safety keyword detection helper
+// Comprehensive safety keyword detection helper with word boundary protection
 const detectComprehensiveSafetyKeywords = (text) => {
   const lowerText = text.toLowerCase();
   
@@ -368,7 +371,9 @@ const detectComprehensiveSafetyKeywords = (text) => {
   
   for (const [category, keywords] of Object.entries(COMPREHENSIVE_SAFETY_KEYWORDS)) {
     for (const keyword of keywords) {
-      if (lowerText.includes(keyword)) {
+      // Use word boundaries to prevent false positives
+      const wordBoundaryRegex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+      if (wordBoundaryRegex.test(lowerText)) {
         return category;
       }
     }

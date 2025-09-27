@@ -109,6 +109,31 @@
   line-height: 1.5;
 }
 
+/* Thinking message animation */
+.message.thinking .message-content {
+  background: white;
+  border: 2px dashed #667eea;
+  animation: thinking-pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.message.thinking .message-content p {
+  color: #667eea;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+@keyframes thinking-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
 .timestamp {
   font-size: 12px;
   opacity: 0.7;

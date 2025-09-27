@@ -1,9 +1,9 @@
 /**
  * GeminiService - Google Gemini AI integration service
- * Fixed version for production deployment with proper error handling
+ * Updated to use the new @google/genai SDK with correct API endpoints
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 
 class GeminiService {
   constructor() {
@@ -32,15 +32,10 @@ class GeminiService {
     
     console.log('🔍 Testing available models...')
     const modelsToTest = [
-      'gemini-1.5-flash-latest',
+      'gemini-2.5-flash',
       'gemini-1.5-flash',
-      'gemini-1.5-pro-latest',
       'gemini-1.5-pro',
-      'gemini-pro',
-      'gemini-1.0-pro',
-      'models/gemini-1.5-flash',
-      'models/gemini-pro',
-      'models/gemini-1.0-pro'
+      'gemini-pro'
     ]
     
     const workingModels = []
@@ -48,16 +43,17 @@ class GeminiService {
     for (const modelName of modelsToTest) {
       try {
         console.log(`🧪 Testing model: ${modelName}`)
-        const testModel = this.genAI.getGenerativeModel({ model: modelName })
         
-        // Quick test with timeout
+        // Quick test with timeout using new SDK
         const result = await Promise.race([
-          testModel.generateContent('Hi'),
+          this.genAI.models.generateContent({
+            model: modelName,
+            contents: 'Hi'
+          }),
           new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
         ])
         
-        const response = await result.response
-        const text = await response.text()
+        const text = result.text
         
         console.log(`✅ Model ${modelName} works! Response: ${text.substring(0, 30)}...`)
         workingModels.push(modelName)
@@ -83,11 +79,15 @@ class GeminiService {
     const isLocalhost = window.location.hostname === 'localhost' || 
                        window.location.hostname === '127.0.0.1'
     
+    console.log('🌐 Hostname check:', {
+      hostname: window.location.hostname,
+      isLocalhost: isLocalhost,
+      fullURL: window.location.href
+    })
+    
     if (isLocalhost) {
-      console.warn('🏠 Running on localhost - Gemini API disabled for development')
-      this.apiWorking = false
-      this.lastError = 'Localhost development mode'
-      return
+      console.log('🏠 Running on localhost - Gemini API enabled for development')
+      // Localhost testing enabled permanently
     }
     
     if (!this.apiKey || this.apiKey === 'your_actual_gemini_api_key_here') {
@@ -96,60 +96,53 @@ class GeminiService {
     }
 
     try {
-      this.genAI = new GoogleGenerativeAI(this.apiKey)
+      console.log('🔧 Attempting to create GoogleGenAI instance...')
       
-      // Try different API versions and model combinations
-      const apiVersions = [
-        { version: 'v1beta', models: ['gemini-pro', 'gemini-1.5-flash', 'gemini-1.5-pro'] },
-        { version: 'v1', models: ['gemini-pro', 'gemini-1.5-flash', 'gemini-1.5-pro'] },
-        { version: 'v1beta', models: ['models/gemini-pro', 'models/gemini-1.5-flash'] },
-        { version: 'v1', models: ['models/gemini-pro', 'models/gemini-1.5-flash'] }
+      // Use the new GoogleGenAI SDK
+      this.genAI = new GoogleGenAI({ apiKey: this.apiKey })
+      console.log('✅ GoogleGenAI instance created successfully')
+      
+      // Try different models in order of preference
+      const modelsToTest = [
+        'gemini-2.5-flash',
+        'gemini-1.5-flash', 
+        'gemini-1.5-pro',
+        'gemini-pro'
       ]
       
-      let modelWorking = null
-      let workingVersion = null
+      let workingModel = null
       
-      for (const apiConfig of apiVersions) {
-        if (modelWorking) break // Stop if we found a working model
-        
-        console.log(`🔄 Trying API version: ${apiConfig.version}`)
-        
-        for (const modelName of apiConfig.models) {
-          try {
-            console.log(`🧪 Testing ${apiConfig.version} model: ${modelName}`)
-            
-            // Create model with specific API version
-            const testModel = this.genAI.getGenerativeModel({ 
+      for (const modelName of modelsToTest) {
+        try {
+          console.log(`🧪 Testing model: ${modelName}`)
+          
+          // Quick test with timeout using new SDK
+          const result = await Promise.race([
+            this.genAI.models.generateContent({
               model: modelName,
-              apiVersion: apiConfig.version
-            })
-            
-            // Quick test with timeout
-            const result = await Promise.race([
-              testModel.generateContent('Hi'),
-              new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout after 8s')), 8000))
-            ])
-            const response = await result.response
-            const text = await response.text()
-            
-            if (text && text.length > 0) {
-              console.log(`✅ Model ${modelName} (${apiConfig.version}) response: ${text.substring(0, 50)}...`)
-              modelWorking = modelName
-              workingVersion = apiConfig.version
-              break
-            }
-          } catch (error) {
-            console.log(`❌ Model ${modelName} (${apiConfig.version}) failed: ${error.message}`)
-            
-            // If it's a 404, try next model. If it's 403/401, might be API access issue
-            if (error.message.includes('403') || error.message.includes('401')) {
-              console.warn(`🚫 API access issue detected with ${apiConfig.version}`)
-            }
+              contents: 'Hi'
+            }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout after 8s')), 8000))
+          ])
+          
+          const text = result.text
+          
+          if (text && text.length > 0) {
+            console.log(`✅ Model ${modelName} response: ${text.substring(0, 50)}...`)
+            workingModel = modelName
+            break
+          }
+        } catch (error) {
+          console.log(`❌ Model ${modelName} failed: ${error.message}`)
+          
+          // If it's a 404, try next model. If it's 403/401, might be API access issue
+          if (error.message.includes('403') || error.message.includes('401')) {
+            console.warn(`🚫 API access issue detected with ${modelName}`)
           }
         }
       }
       
-      if (!modelWorking) {
+      if (!workingModel) {
         console.warn('⚠️ No working Gemini models found')
         console.warn('📋 This is likely because:')
         console.warn('  • Your API key has access to different model names')
@@ -166,25 +159,10 @@ class GeminiService {
         return
       }
       
-      console.log(`🎯 Using production model: ${modelWorking} (API version: ${workingVersion})`)
+      console.log(`🎯 Using production model: ${workingModel}`)
       
-      // Use the working model with the correct API version
-      this.model = this.genAI.getGenerativeModel({
-        model: modelWorking,
-        apiVersion: workingVersion,
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 200,
-          topP: 0.8,
-          topK: 40
-        },
-        safetySettings: [
-          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
-        ]
-      })
+      // Store the working model name
+      this.workingModel = workingModel
       
       this.isInitialized = true
       console.log('✅ Gemini AI initialized successfully')
@@ -203,7 +181,7 @@ class GeminiService {
    * Test API connectivity with a simple request
    */
   async testApiConnectivity() {
-    if (!this.model) {
+    if (!this.genAI || !this.workingModel) {
       console.log('❌ No model available for testing')
       this.apiWorking = false
       return false
@@ -213,9 +191,12 @@ class GeminiService {
       console.log('🧪 Testing Gemini API connectivity...')
       
       const testPrompt = 'You are DaisyDog, a friendly AI dog. Say "Woof! Test successful!" in under 10 words.'
-      const result = await this.model.generateContent(testPrompt)
-      const response = await result.response
-      const text = response.text()
+      const result = await this.genAI.models.generateContent({
+        model: this.workingModel,
+        contents: testPrompt
+      })
+      
+      const text = result.text
       
       if (text && text.trim()) {
         this.apiWorking = true
@@ -256,7 +237,7 @@ class GeminiService {
    */
   isAvailable() {
     const hasKey = !!this.apiKey && this.apiKey !== 'your_actual_gemini_api_key_here'
-    const hasModel = !!this.model
+    const hasModel = !!this.workingModel
     const isWorking = this.apiWorking
     
     // Check if we're in production vs localhost
@@ -340,8 +321,10 @@ Important: Always maintain Daisy's dog personality while being helpful and infor
       const fullPrompt = `${systemPrompt}\n\nUser: ${userMessage}\n\nDaisyDog:`
       
       console.log('🧠 Generating Gemini response...')
-      const result = await this.model.generateContent(fullPrompt)
-      const response = await result.response
+      const result = await this.genAI.models.generateContent({
+        model: this.workingModel,
+        contents: fullPrompt
+      })
       
       // Update API status on successful call
       this.apiWorking = true
@@ -349,7 +332,7 @@ Important: Always maintain Daisy's dog personality while being helpful and infor
       this.lastError = null
       this.retryCount = 0
       
-      const aiResponse = response.text().trim()
+      const aiResponse = result.text.trim()
       console.log('✅ Gemini response generated successfully')
       
       return aiResponse
@@ -400,7 +383,8 @@ Important: Always maintain Daisy's dog personality while being helpful and infor
       apiKeyConfigured: !!this.apiKey,
       apiKeyValid: this.apiKey !== 'your_actual_gemini_api_key_here',
       isAvailable: this.isAvailable(),
-      modelReady: !!this.model,
+      modelReady: !!this.workingModel,
+      workingModel: this.workingModel,
       apiWorking: this.apiWorking,
       lastTested: this.lastApiTest,
       testAge: this.lastApiTest ? Date.now() - this.lastApiTest : null,
@@ -471,32 +455,30 @@ if (typeof window !== 'undefined') {
       return
     }
     
-    // Try different API versions like the main service does
-    const testConfigs = [
-      { version: 'v1beta', model: 'gemini-pro' },
-      { version: 'v1', model: 'gemini-pro' },
-      { version: 'v1beta', model: 'gemini-1.5-flash' },
-      { version: 'v1', model: 'gemini-1.5-flash' }
+    // Try different models like the main service does
+    const modelsToTest = [
+      'gemini-2.5-flash',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro',
+      'gemini-pro'
     ]
     
-    const genAI = new GoogleGenerativeAI(geminiService.apiKey)
+    const genAI = new GoogleGenAI({ apiKey: geminiService.apiKey })
     let foundWorking = false
     
-    for (const config of testConfigs) {
+    for (const modelName of modelsToTest) {
       try {
-        console.log(`🧪 Testing ${config.version} API with ${config.model}...`)
-        const model = genAI.getGenerativeModel({ 
-          model: config.model,
-          apiVersion: config.version 
+        console.log(`🧪 Testing model: ${modelName}...`)
+        const result = await genAI.models.generateContent({
+          model: modelName,
+          contents: 'Hello'
         })
-        const result = await model.generateContent('Hello')
-        const response = await result.response
-        const text = await response.text()
-        console.log(`✅ ${config.version} API working! Model: ${config.model}, Response: ${text.substring(0, 50)}...`)
+        const text = result.text
+        console.log(`✅ Model ${modelName} working! Response: ${text.substring(0, 50)}...`)
         foundWorking = true
         break
       } catch (error) {
-        console.log(`❌ ${config.version}/${config.model} failed: ${error.message}`)
+        console.log(`❌ ${modelName} failed: ${error.message}`)
       }
     }
     

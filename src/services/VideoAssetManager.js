@@ -229,55 +229,84 @@ class VideoAssetManager {
     // Find video by checking emotion arrays in each video asset
     for (const [videoKey, config] of Object.entries(this.videoAssets)) {
       if (config.emotions && config.emotions.includes(emotion)) {
-        console.log(`🎬 Mapping emotion "${emotion}" to video "${videoKey}"`)
+        // Reduced logging - only log in debug mode
+        if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+          console.log(`🎬 Mapping emotion "${emotion}" to video "${videoKey}"`)
+        }
         return videoKey
       }
     }
     
     // Direct mapping for available emotions
     if (this.videoAssets[emotion]) {
-      console.log(`🎬 Direct mapping emotion "${emotion}" to video "${emotion}"`)
+      // Reduced logging - only log in debug mode
+      if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+        console.log(`🎬 Direct mapping emotion "${emotion}" to video "${emotion}"`)
+      }
       return emotion
     }
     
     // Fallback mapping based on emotion categories
     if (['nervous', 'concerned', 'protective', 'worried', 'cautious', 'alert', 'warning'].includes(emotion)) {
-      console.log(`🎬 Mapping safety emotion "${emotion}" to video "barking"`)
+      // Reduced logging - only log in debug mode
+      if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+        console.log(`🎬 Mapping safety emotion "${emotion}" to video "barking"`)
+      }
       return 'barking'
     }
     
     if (['curious', 'attentive', 'listening', 'interested', 'focused', 'thinking'].includes(emotion)) {
-      console.log(`🎬 Mapping curious emotion "${emotion}" to video "ears-up"`)
+      // Reduced logging - only log in debug mode
+      if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+        console.log(`🎬 Mapping curious emotion "${emotion}" to video "ears-up"`)
+      }
       return 'ears-up'
     }
     
     if (['happy', 'excited', 'joyful', 'loving', 'cheerful'].includes(emotion)) {
-      console.log(`🎬 Mapping happy emotion "${emotion}" to video "happy"`)
+      // Reduced logging - only log in debug mode
+      if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+        console.log(`🎬 Mapping happy emotion "${emotion}" to video "happy"`)
+      }
       return 'happy'
     }
     
     if (['calm', 'relaxed', 'resting', 'peaceful', 'content', 'sleepy', 'tired'].includes(emotion)) {
-      console.log(`🎬 Mapping calm emotion "${emotion}" to video "lay-down"`)
+      // Reduced logging - only log in debug mode
+      if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+        console.log(`🎬 Mapping calm emotion "${emotion}" to video "lay-down"`)
+      }
       return 'lay-down'
     }
     
     if (['silly', 'entertaining', 'tricks', 'fun', 'acrobatic'].includes(emotion)) {
-      console.log(`🎬 Mapping tricks emotion "${emotion}" to video "roll-over"`)
+      // Reduced logging - only log in debug mode
+      if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+        console.log(`🎬 Mapping tricks emotion "${emotion}" to video "roll-over"`)
+      }
       return 'roll-over'
     }
     
     if (['playful'].includes(emotion)) {
-      console.log(`🎬 Mapping playful emotion "${emotion}" to video "happy"`)
+      // Reduced logging - only log in debug mode
+      if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+        console.log(`🎬 Mapping playful emotion "${emotion}" to video "happy"`)
+      }
       return 'happy'
     }
     
     if (['dance', 'dancing', 'music', 'rhythm', 'celebration', 'party', 'festive', 'groove'].includes(emotion)) {
-      console.log(`🎬 Mapping dance emotion "${emotion}" to video "dance"`)
+      // Reduced logging - only log in debug mode
+      if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+        console.log(`🎬 Mapping dance emotion "${emotion}" to video "dance"`)
+      }
       return 'dance'
     }
     
-    // Default fallback
-    console.log(`🎬 Using default mapping for "${emotion}" to video "happy"`)
+    // Default fallback - only log in debug mode
+    if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+      console.log(`🎬 Using default mapping for "${emotion}" to video "happy"`)
+    }
     return 'happy'
   }
 
@@ -294,7 +323,10 @@ class VideoAssetManager {
     // Map the emotion to an available video emotion
     const mappedEmotion = this.mapEmotionToVideo(emotion)
     
-    console.log(`🎬 Mapping emotion "${emotion}" to video "${mappedEmotion}"`)
+    // Reduced logging - only log in debug mode
+    if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+      console.log(`🎬 Mapping emotion "${emotion}" to video "${mappedEmotion}"`)
+    }
 
     try {
       // Check if video is already loaded

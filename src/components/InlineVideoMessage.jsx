@@ -45,7 +45,10 @@ const InlineVideoMessage = ({
       try {
         setVideoState('loading')
         soundPlayedRef.current = false // Reset sound flag for new video
-        console.log(`🎬 Loading inline video for emotion: ${emotion}`)
+        // Reduced logging - only log in debug mode
+        if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+          console.log(`🎬 Loading inline video for emotion: ${emotion}`)
+        }
         
         const mediaData = await videoAssetManager.getVideoForEmotion(emotion, {
           priority,
@@ -57,9 +60,15 @@ const InlineVideoMessage = ({
           setVideoElement(mediaData.element)
           setVideoState('ready')
           setShowVideo(true)
-          console.log(`✅ Inline video ready for ${emotion}`)
+          // Reduced logging - only log in debug mode
+          if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+            console.log(`✅ Inline video ready for ${emotion}`)
+          }
         } else {
-          console.log(`🖼️ No video available for ${emotion}, showing text only`)
+          // Reduced logging - only log in debug mode
+          if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+            console.log(`🖼️ No video available for ${emotion}, showing text only`)
+          }
           setShowVideo(false)
           setVideoState('error')
         }
@@ -92,7 +101,10 @@ const InlineVideoMessage = ({
       video.controls = false
       // Event handlers
       const handleLoadedData = () => {
-        console.log(`🎬 Inline video loaded and starting playback for ${emotion}`)
+        // Reduced logging - only log in debug mode
+        if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+          console.log(`🎬 Inline video loaded and starting playback for ${emotion}`)
+        }
         setVideoState('playing')
         
         // Don't play sound here - will be handled by play event
@@ -101,7 +113,10 @@ const InlineVideoMessage = ({
         const playVideo = async () => {
           try {
             await video.play()
-            console.log(`▶️ Inline video playing for ${emotion}`)
+            // Reduced logging - only log in debug mode
+            if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+              console.log(`▶️ Inline video playing for ${emotion}`)
+            }
           } catch (playError) {
             if (playError.name !== 'AbortError') {
               console.warn('Inline video play failed:', playError)
