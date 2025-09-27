@@ -593,6 +593,48 @@
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
+  /* Info section mobile optimization */
+  .chat-info-section {
+    padding: 6px 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .daisy-info {
+    gap: 10px;
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .daisy-avatar {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .daisy-details h1 {
+    font-size: 1.2rem;
+  }
+  
+  .daisy-details p {
+    font-size: 0.8rem;
+  }
+  
+  /* Status indicators mobile */
+  .status-indicators {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
+  }
+  
+  .hunger-display {
+    scale: 0.8;
+  }
+  
+  .api-status {
+    scale: 0.8;
+  }
+  
   .input-container {
     padding: 15px;
   }
@@ -630,6 +672,48 @@
 }
 
 @media (max-width: 480px) {
+  /* Ultra-compact mobile layout */
+  .chat-info-section {
+    padding: 4px 8px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  
+  .daisy-info {
+    gap: 8px;
+    justify-content: center;
+  }
+  
+  .daisy-avatar {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .daisy-details h1 {
+    font-size: 1.1rem;
+  }
+  
+  .daisy-details p {
+    font-size: 0.75rem;
+  }
+  
+  /* Status indicators stack horizontally on small mobile */
+  .status-indicators {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .hunger-display {
+    scale: 0.7;
+  }
+  
+  .api-status {
+    scale: 0.7;
+  }
+  
   .input-container {
     padding: 10px;
   }

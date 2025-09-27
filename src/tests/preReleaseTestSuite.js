@@ -1,5 +1,5 @@
 /**
- * DaisyDog Pre-Release Comprehensive Test Suite v5.3
+ * DaisyDog Pre-Release Comprehensive Test Suite v5.5
  * MANDATORY testing before any GitHub push/release
  * Tests ALL project features: Safety, Bible, Curriculum, Games, Sounds, etc.
  */
@@ -9,7 +9,7 @@ const PreReleaseTestSuite = {
   
   // Main test runner - MUST be run before any GitHub push
   runFullTestSuite: async () => {
-    console.log("🚀 DaisyDog Pre-Release Test Suite v5.3");
+    console.log("🚀 DaisyDog Pre-Release Test Suite v5.5");
     console.log("=" .repeat(60));
     console.log("⚠️  MANDATORY: Run before ANY GitHub push/release");
     console.log("=" .repeat(60));
@@ -48,14 +48,20 @@ const PreReleaseTestSuite = {
       const soundResults = await PreReleaseTestSuite.testSoundSystem();
       PreReleaseTestSuite.updateResults(results, 'sounds', soundResults);
       
-      // 5. Core Features Tests
-      console.log("\n⚙️ CATEGORY 5: CORE FEATURES TESTS");
+      // 5. Video System Tests (NEW v5.5)
+      console.log("\n🎬 CATEGORY 5: VIDEO SYSTEM TESTS");
+      console.log("-".repeat(40));
+      const videoResults = await PreReleaseTestSuite.testVideoSystem();
+      PreReleaseTestSuite.updateResults(results, 'videos', videoResults);
+      
+      // 6. Core Features Tests
+      console.log("\n⚙️ CATEGORY 6: CORE FEATURES TESTS");
       console.log("-".repeat(40));
       const coreResults = await PreReleaseTestSuite.testCoreFeatures();
       PreReleaseTestSuite.updateResults(results, 'core', coreResults);
       
-      // 6. Integration Tests
-      console.log("\n🔗 CATEGORY 6: INTEGRATION TESTS");
+      // 7. Integration Tests
+      console.log("\n🔗 CATEGORY 7: INTEGRATION TESTS");
       console.log("-".repeat(40));
       const integrationResults = await PreReleaseTestSuite.testIntegration();
       PreReleaseTestSuite.updateResults(results, 'integration', integrationResults);
@@ -370,7 +376,168 @@ const PreReleaseTestSuite = {
     return results;
   },
   
-  // 5. Core Features Tests
+  // 5. Video System Tests (NEW v5.5)
+  testVideoSystem: async () => {
+    const results = { passed: 0, failed: 0, total: 0, details: [], failedTests: [] };
+    
+    try {
+      console.log("🧪 Testing Video System...");
+      
+      // Test 1: Video File Availability
+      console.log("🧪 Testing video file availability...");
+      if (window.checkVideoFiles) {
+        const videoFiles = window.checkVideoFiles();
+        const expectedVideos = ['barking.mp4', 'ears-up.mp4', 'happy.mp4', 'lay-down.mp4', 'roll-over.mp4', 'dance.mp4'];
+        let videosPassed = 0;
+        
+        expectedVideos.forEach(video => {
+          if (videoFiles[video.replace('.mp4', '')] && videoFiles[video.replace('.mp4', '')].available) {
+            videosPassed++;
+            console.log(`✅ Video available: ${video}`);
+          } else {
+            console.log(`❌ Video missing: ${video}`);
+            results.failedTests.push(`Missing video: ${video}`);
+          }
+          results.total++;
+        });
+        
+        results.passed += videosPassed;
+        results.failed += (expectedVideos.length - videosPassed);
+        results.details.push(`Video Files: ${videosPassed}/${expectedVideos.length}`);
+      } else {
+        results.failed += 3;
+        results.total += 3;
+        results.details.push("❌ Video file checker not available");
+      }
+      
+      // Test 2: Video Emotion Analysis
+      console.log("🧪 Testing video emotion analysis...");
+      if (window.StableVideoIntegration) {
+        const testCases = [
+          { text: "I want drugs", safetyContext: "drug_safety", expected: "barking" },
+          { text: "Tell me a super funny amazing joke!", expected: "happy" },
+          { text: "How does prayer work in the Bible?", expected: "ears-up" },
+          { text: "I'm tired and want to rest peacefully", expected: "lay-down" },
+          { text: "Show me a silly trick performance", expected: "roll-over" },
+          { text: "Let's dance to music and celebrate", expected: "dance" }
+        ];
+        
+        let analysisPassed = 0;
+        testCases.forEach(testCase => {
+          try {
+            const result = window.StableVideoIntegration.analyze(testCase);
+            if (result.videoEmotion === testCase.expected) {
+              analysisPassed++;
+              console.log(`✅ Video analysis correct: "${testCase.text}" → ${result.videoEmotion}`);
+            } else {
+              console.log(`❌ Video analysis wrong: "${testCase.text}" → ${result.videoEmotion} (expected ${testCase.expected})`);
+              results.failedTests.push(`Wrong analysis: ${testCase.text}`);
+            }
+          } catch (error) {
+            console.log(`❌ Video analysis error: ${testCase.text}`);
+            results.failedTests.push(`Analysis error: ${testCase.text}`);
+          }
+          results.total++;
+        });
+        
+        results.passed += analysisPassed;
+        results.failed += (testCases.length - analysisPassed);
+        results.details.push(`Video Analysis: ${analysisPassed}/${testCases.length}`);
+      } else {
+        results.failed += 6;
+        results.total += 6;
+        results.details.push("❌ Stable video integration not available");
+      }
+      
+      // Test 3: Video Selectivity (Should reject button responses)
+      console.log("🧪 Testing video selectivity...");
+      if (window.StableVideoIntegration) {
+        const rejectCases = [
+          { text: "Hello", shouldReject: true },
+          { text: "Here is a Bible verse", type: "bible_search", shouldReject: true },
+          { text: "Once upon a time", type: "story", shouldReject: true }
+        ];
+        
+        let selectivityPassed = 0;
+        rejectCases.forEach(testCase => {
+          try {
+            const result = window.StableVideoIntegration.analyze(testCase);
+            const shouldUseVideo = result.confidence >= 0.8 && result.priority !== 'low';
+            
+            if (testCase.shouldReject && !shouldUseVideo) {
+              selectivityPassed++;
+              console.log(`✅ Video correctly rejected: "${testCase.text}"`);
+            } else if (!testCase.shouldReject && shouldUseVideo) {
+              selectivityPassed++;
+              console.log(`✅ Video correctly accepted: "${testCase.text}"`);
+            } else {
+              console.log(`❌ Video selectivity wrong: "${testCase.text}"`);
+              results.failedTests.push(`Wrong selectivity: ${testCase.text}`);
+            }
+          } catch (error) {
+            console.log(`❌ Video selectivity error: ${testCase.text}`);
+            results.failedTests.push(`Selectivity error: ${testCase.text}`);
+          }
+          results.total++;
+        });
+        
+        results.passed += selectivityPassed;
+        results.failed += (rejectCases.length - selectivityPassed);
+        results.details.push(`Video Selectivity: ${selectivityPassed}/${rejectCases.length}`);
+      } else {
+        results.failed += 3;
+        results.total += 3;
+        results.details.push("❌ Video selectivity test not available");
+      }
+      
+      // Test 4: Video Asset Manager
+      console.log("🧪 Testing video asset manager...");
+      if (window.VideoAssetManager) {
+        const mappingTests = [
+          { emotion: 'nervous', expected: 'barking' },
+          { emotion: 'curious', expected: 'ears-up' },
+          { emotion: 'happy', expected: 'happy' },
+          { emotion: 'calm', expected: 'lay-down' },
+          { emotion: 'playful', expected: 'roll-over' },
+          { emotion: 'dance', expected: 'dance' }
+        ];
+        
+        let mappingPassed = 0;
+        mappingTests.forEach(test => {
+          try {
+            const result = window.VideoAssetManager.mapEmotionToVideo(test.emotion);
+            if (result === test.expected) {
+              mappingPassed++;
+              console.log(`✅ Emotion mapping correct: ${test.emotion} → ${result}`);
+            } else {
+              console.log(`❌ Emotion mapping wrong: ${test.emotion} → ${result} (expected ${test.expected})`);
+              results.failedTests.push(`Wrong mapping: ${test.emotion}`);
+            }
+          } catch (error) {
+            console.log(`❌ Emotion mapping error: ${test.emotion}`);
+            results.failedTests.push(`Mapping error: ${test.emotion}`);
+          }
+          results.total++;
+        });
+        
+        results.passed += mappingPassed;
+        results.failed += (mappingTests.length - mappingPassed);
+        results.details.push(`Emotion Mapping: ${mappingPassed}/${mappingTests.length}`);
+      } else {
+        results.failed += 3;
+        results.total += 3;
+        results.details.push("❌ Video asset manager not available");
+      }
+      
+    } catch (error) {
+      console.error("❌ Video system test error:", error);
+      results.details.push(`❌ Video system error: ${error.message}`);
+    }
+    
+    return results;
+  },
+  
+  // 6. Core Features Tests
   testCoreFeatures: async () => {
     const results = { passed: 0, failed: 0, total: 0, details: [], failedTests: [] };
     
@@ -448,6 +615,11 @@ const PreReleaseTestSuite = {
             return chatContainer !== null;
           },
           description: 'Bible Content Service'
+        },
+        { 
+          name: 'VideoAssetManager', 
+          check: () => window.VideoAssetManager && window.VideoAssetManager.isReady(),
+          description: 'Video Response System'
         }
       ];
 
@@ -657,12 +829,14 @@ const PreReleaseTestSuite = {
         return PreReleaseTestSuite.testGameSystem();
       case 'sounds':
         return PreReleaseTestSuite.testSoundSystem();
+      case 'videos':
+        return PreReleaseTestSuite.testVideoSystem();
       case 'core':
         return PreReleaseTestSuite.testCoreFeatures();
       case 'integration':
         return PreReleaseTestSuite.testIntegration();
       default:
-        console.log("❌ Unknown feature. Available: safety, bible, games, sounds, core, integration");
+        console.log("❌ Unknown feature. Available: safety, bible, games, sounds, videos, core, integration");
         return null;
     }
   }
@@ -682,6 +856,8 @@ if (typeof window !== 'undefined') {
   console.log("   window.runPreReleaseTests() - Run full test suite");
   console.log("   window.quickTest('safety') - Test specific feature");
   console.log("   window.testSafetyFix() - Test safety system fixes");
+  console.log("   window.checkVideoFiles() - Check video file availability");
+  console.log("   window.videoStatus() - Get video system status");
 }
 
 export default PreReleaseTestSuite;

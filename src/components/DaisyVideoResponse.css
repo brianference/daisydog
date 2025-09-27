@@ -1,0 +1,159 @@
+/* DaisyVideoResponse Component Styles */
+.daisy-video-response {
+  position: relative;
+  display: inline-block;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* When used as message avatar, inherit sizing */
+.daisy-video-response.message-avatar {
+  width: 80px;
+  height: 80px;
+  border: 3px solid #ff6b35;
+  flex-shrink: 0;
+}
+
+.daisy-video-response:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Video element styles */
+.daisy-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  background: transparent;
+}
+
+/* Image element styles */
+.daisy-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  background: transparent;
+  transition: opacity 0.3s ease;
+}
+
+/* Loading state styles */
+.daisy-loading {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  color: white;
+  font-size: 2rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+/* Size variations */
+.daisy-video-response.small {
+  width: 60px;
+  height: 60px;
+}
+
+.daisy-video-response.medium {
+  width: 80px;
+  height: 80px;
+}
+
+.daisy-video-response.large {
+  width: 120px;
+  height: 120px;
+}
+
+/* Priority-based styling */
+.daisy-video-response.high-priority {
+  border: 3px solid #ff6b35;
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+  animation: priority-glow 2s ease-in-out infinite;
+}
+
+@keyframes priority-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 107, 53, 0.6);
+  }
+}
+
+/* State-based styling */
+.daisy-video-response.playing {
+  border: 2px solid #4ecdc4;
+}
+
+.daisy-video-response.error {
+  border: 2px solid #ff6b6b;
+  opacity: 0.8;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .daisy-video-response {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .daisy-video-response.large {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .daisy-video-response {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .daisy-video-response.large {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .daisy-video-response,
+  .daisy-loading,
+  .daisy-image {
+    animation: none;
+    transition: none;
+  }
+  
+  .daisy-video-response:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .daisy-video-response {
+    border: 2px solid #000;
+  }
+  
+  .daisy-video-response.high-priority {
+    border: 3px solid #000;
+  }
+}

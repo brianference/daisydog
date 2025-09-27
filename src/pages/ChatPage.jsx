@@ -12,6 +12,9 @@ import useSoundManagerModular from '../hooks/useSoundManagerModular.js'
 import useSafetyFilter from '../hooks/useSafetyFilter.js'
 import '../tests/preReleaseTestSuite.js'
 import SoundControls from '../components/SoundControls.jsx'
+import SmartDaisyAvatar from '../components/SmartDaisyAvatar.jsx'
+import InlineVideoMessage from '../components/InlineVideoMessage.jsx'
+import useStableVideoIntegration from '../hooks/useStableVideoIntegration.js'
 import SoundTestPanel from '../components/SoundTestPanel.jsx'
 import BibleTestPanel from '../components/BibleTestPanel.jsx'
 import LessonTestPanel from '../components/LessonTestPanel.jsx'
@@ -71,6 +74,19 @@ const ChatPage = () => {
     playEatingSound,
     playContextualSound
   } = useSoundManagerModular()
+
+  // Stable video system with quick restore capability
+  const {
+    shouldMessageUseVideo,
+    getVideoPropsForMessage,
+    isVideoSystemReady,
+    enableFallbackMode,
+    getSystemStatus: getVideoSystemStatus
+  } = useStableVideoIntegration({
+    enableVideo: true, // Re-enabled with stable implementation
+    fallbackMode: false, // Set to true for quick restore to images
+    debugMode: true // Enable debug mode to see what's happening
+  })
 
   // Bible service initialization
   const initializeBibleService = async () => {
@@ -516,8 +532,11 @@ const ChatPage = () => {
     setTimeout(async () => {
       setIsTyping(false)
       const response = await generateDaisyResponse(messageToSend)
+      console.log('🎬 Generated response for video analysis:', response)
+      
       if (typeof response === 'object' && response.text) {
-        addDaisyMessage(response.text, 'chat', response.emotion)
+        // Pass the full response object for video analysis
+        addDaisyMessage(response.text, 'chat', response.emotion, response)
       } else {
         addDaisyMessage(response)
       }
@@ -582,7 +601,7 @@ const ChatPage = () => {
       setIsTyping(false)
       const response = await generateDaisyResponse(message)
       if (typeof response === 'object' && response.text) {
-        addDaisyMessage(response.text, 'chat', response.emotion)
+        addDaisyMessage(response.text, 'chat', response.emotion, response)
       } else {
         addDaisyMessage(response)
       }
@@ -590,7 +609,7 @@ const ChatPage = () => {
   }
 
   // Add Daisy message function
-  const addDaisyMessage = (text, type = 'chat', emotion = null) => {
+  const addDaisyMessage = (text, type = 'chat', emotion = null, fullResponseData = null) => {
     const finalEmotion = emotion || currentEmotion
     const messageId = generateUniqueMessageId()
     
@@ -614,7 +633,11 @@ const ChatPage = () => {
       timestamp: new Date(),
       type,
       emotion: finalEmotion,
-      emotionImage: getEmotionImage(finalEmotion)
+      emotionImage: getEmotionImage(finalEmotion),
+      // Store full response data for video analysis
+      safetyContext: fullResponseData?.safetyContext,
+      responseType: fullResponseData?.type,
+      fullResponseData: fullResponseData
     }
     
     setMessages(prev => [...prev, newMessage])
@@ -685,7 +708,12 @@ const ChatPage = () => {
           response += '\n\n' + safetyCheck.safetyTip
         }
         
-        return { text: response, emotion: safetyCheck.emotion || 'nervous' }
+        return { 
+          text: response, 
+          emotion: safetyCheck.emotion || 'nervous',
+          safetyContext: safetyCheck.type,
+          type: 'safety_response'
+        }
       }
     }
     
@@ -1162,6 +1190,7 @@ const ChatPage = () => {
                 console.log('Game State:', gameState)
                 console.log('Bible Menu State:', bibleMenuState)
                 console.log('User Age:', userAge)
+                console.log('Video System Status:', getVideoSystemStatus())
                 console.log('User Name:', userName)
                 console.log('Is Verified:', isVerified)
                 console.log('Messages Count:', messages.length)
@@ -1216,19 +1245,32 @@ const ChatPage = () => {
                 transition={{ duration: 0.3 }}
               >
                 {message.sender === 'daisy' && (
-                  <img 
-                    src={message.emotionImage || getEmotionImage()} 
-                    alt="Daisy"
+                  <SmartDaisyAvatar
+                    message={message}
+                    emotion={message.emotion || currentEmotion}
+                    useVideo={shouldMessageUseVideo(message)}
+                    videoProps={getVideoPropsForMessage(message)}
                     className="message-avatar"
-                    onError={(e) => {
-                      e.target.src = '/assets/images/emotions/happy.png'
-                    }}
+                    fallbackSrc={message.emotionImage || getEmotionImage()}
+                    onVideoError={(error) => console.warn('Message video error:', error)}
+                    onVideoComplete={() => console.log('Message video completed')}
                   />
                 )}
                 <div className="message-content">
-                  <div className="message-text">
-                    {message.text}
-                  </div>
+                  {message.sender === 'daisy' ? (
+                    <InlineVideoMessage
+                      emotion={message.emotion || currentEmotion}
+                      message={message.text}
+                      shouldShowVideo={shouldMessageUseVideo(message)}
+                      priority={message.safetyContext ? 'high' : 'medium'}
+                      onVideoComplete={() => console.log('Inline video completed')}
+                      onVideoError={(error) => console.warn('Inline video error:', error)}
+                    />
+                  ) : (
+                    <div className="message-text">
+                      {message.text}
+                    </div>
+                  )}
                   <div className="message-timestamp">
                     {message.timestamp.toLocaleTimeString()}
                   </div>
@@ -1244,13 +1286,11 @@ const ChatPage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="message daisy typing"
           >
-            <img 
-              src={getEmotionImage()} 
-              alt="Daisy"
+            <SmartDaisyAvatar
+              emotion={currentEmotion}
+              useVideo={false} // Keep typing simple with images
               className="message-avatar"
-              onError={(e) => {
-                e.target.src = '/assets/images/emotions/happy.png'
-              }}
+              fallbackSrc={getEmotionImage()}
             />
             <div className="message-content">
               <div className="typing-indicator">

@@ -128,6 +128,11 @@ class GeminiService {
     const hasModel = !!this.model
     const isWorking = this.apiWorking
     
+    // Check if we're in production (daisydog.org)
+    const isProduction = window.location.hostname === 'daisydog.org' || 
+                        window.location.hostname.includes('netlify.app') ||
+                        window.location.protocol === 'https:'
+    
     // If we haven't tested the API yet, or if it's working and been more than 61 seconds
     const testAge = this.lastApiTest ? Date.now() - this.lastApiTest : Infinity
     const shouldRetest = testAge === Infinity || (isWorking && testAge > 61 * 1000) // 61 seconds if working
@@ -135,7 +140,8 @@ class GeminiService {
     // If not working, check every 5 minutes
     const testStale = !isWorking && testAge > 5 * 60 * 1000 // 5 minutes if not working
     
-    const available = hasKey && hasModel && this.isInitialized && isWorking && !testStale
+    // In production, assume API is available if we have key and model (bypass connectivity test)
+    const available = hasKey && hasModel && this.isInitialized && (isProduction || (isWorking && !testStale))
     
     if (import.meta.env.VITE_DEBUG_MODE === 'true') {
       console.log('🔧 Gemini Availability Check:', {
@@ -143,6 +149,9 @@ class GeminiService {
         hasModel,
         isInitialized: this.isInitialized,
         isWorking,
+        isProduction,
+        hostname: window.location.hostname,
+        protocol: window.location.protocol,
         testAge: testAge < Infinity ? `${Math.round(testAge / 1000)}s ago` : 'never',
         shouldRetest,
         testStale,

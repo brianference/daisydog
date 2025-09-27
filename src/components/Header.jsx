@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FaHome, FaQuestionCircle, FaBook, FaPlay, FaEnvelope } from 'react-icons/fa'
+import { FaHome, FaQuestionCircle, FaBook, FaPlay, FaEnvelope, FaBars, FaTimes } from 'react-icons/fa'
 import './Header.css'
 
 const Header = ({ 
@@ -8,6 +8,15 @@ const Header = ({
   subtitle, 
   customContent = null 
 }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false)
+  }
   return (
     <header className="app-header">
       <div className="header-content">
@@ -17,7 +26,17 @@ const Header = ({
             <span>DaisyDog</span>
           </Link>
           
-          <div className="header-navigation">
+          {/* Mobile hamburger menu button */}
+          <button 
+            className="mobile-menu-toggle"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle navigation menu"
+          >
+            {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+
+          {/* Desktop navigation */}
+          <div className="header-navigation desktop-nav">
             <Link to="/" className="nav-btn orange-btn">
               <FaHome /> Home
             </Link>
@@ -36,6 +55,31 @@ const Header = ({
               <FaBook /> Read the Book
             </a>
             <Link to="/contact" className="nav-btn orange-btn">
+              <FaEnvelope /> Contact
+            </Link>
+          </div>
+
+          {/* Mobile dropdown navigation */}
+          <div className={`mobile-navigation ${isMobileMenuOpen ? 'open' : ''}`}>
+            <Link to="/" className="mobile-nav-btn" onClick={closeMobileMenu}>
+              <FaHome /> Home
+            </Link>
+            <Link to="/about" className="mobile-nav-btn" onClick={closeMobileMenu}>
+              <FaQuestionCircle /> About
+            </Link>
+            <Link to="/chat" className="mobile-nav-btn" onClick={closeMobileMenu}>
+              <FaPlay /> Start Chatting
+            </Link>
+            <a 
+              href="https://www.readkidz.com/share/ebook/1969460528838705153" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="mobile-nav-btn"
+              onClick={closeMobileMenu}
+            >
+              <FaBook /> Read the Book
+            </a>
+            <Link to="/contact" className="mobile-nav-btn" onClick={closeMobileMenu}>
               <FaEnvelope /> Contact
             </Link>
           </div>
