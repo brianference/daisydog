@@ -42,12 +42,18 @@ class BibleService {
     console.log('API Key present:', !!this.apiKey);
     
     if (!this.apiKey) {
-      console.warn('⚠️ Bible API key not configured');
-      console.log('📋 To fix this:');
-      console.log('1. Create a .env file in your project root');
-      console.log('2. Add: VITE_BIBLE_API_KEY=your_api_key_here');
-      console.log('3. Get your free API key from: https://scripture.api.bible/');
-      console.log('4. Restart your dev server');
+      // Only show detailed instructions in development
+      const isLocalhost = window.location.hostname === 'localhost' || 
+                         window.location.href.includes('localhost')
+      
+      if (isLocalhost) {
+        console.warn('⚠️ Bible API key not configured (optional for development)');
+        console.log('📋 To enable Bible features:');
+        console.log('1. Get free API key: https://scripture.api.bible/');
+        console.log('2. Add to .env: VITE_BIBLE_API_KEY=your_key');
+      } else {
+        console.warn('⚠️ Bible API key not configured');
+      }
       return;
     }
 

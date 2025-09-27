@@ -3,7 +3,7 @@
  * Focuses only on safety responses to prevent infinite loops
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 const useStableVideoIntegration = (options = {}) => {
   const {
@@ -13,6 +13,17 @@ const useStableVideoIntegration = (options = {}) => {
   } = options
 
   const [isVideoSystemReady, setIsVideoSystemReady] = useState(true)
+
+  // Throttle console logging to reduce spam
+  const logThrottle = useRef(new Map())
+  const logMessage = (key, message) => {
+    const now = Date.now()
+    const lastLog = logThrottle.current.get(key) || 0
+    if (now - lastLog > 2000) { // Only log every 2 seconds
+      console.log(message)
+      logThrottle.current.set(key, now)
+    }
+  }
 
   /**
    * Simple video analysis - only for safety responses
@@ -26,7 +37,7 @@ const useStableVideoIntegration = (options = {}) => {
     
     // 1. Safety responses (highest priority)
     if (message?.safetyContext) {
-      console.log('🎬 Safety message detected, enabling barking video:', message.safetyContext)
+      logMessage('safety', `🎬 Safety message detected, enabling barking video: ${message.safetyContext}`)
       return {
         useVideo: true,
         emotion: 'barking',
@@ -43,7 +54,7 @@ const useStableVideoIntegration = (options = {}) => {
     // Dance videos - music, celebration, party
     if (text.includes('dance') || text.includes('music') || text.includes('celebrate') || 
         text.includes('party') || text.includes('song') || text.includes('rhythm')) {
-      console.log('🎬 Dance content detected, enabling dance video')
+      logMessage('dance', '🎬 Dance content detected, enabling dance video')
       return {
         useVideo: true,
         emotion: 'dance',
@@ -57,7 +68,7 @@ const useStableVideoIntegration = (options = {}) => {
     // Tricks videos - check first for specific tricks keywords
     if (text.includes('trick') || text.includes('silly') || text.includes('performance') || 
         text.includes('entertaining') || text.includes('flip') || text.includes('acrobat')) {
-      console.log('🎬 Tricks content detected, enabling roll-over video')
+      logMessage('tricks', '🎬 Tricks content detected, enabling roll-over video')
       return {
         useVideo: true,
         emotion: 'roll-over',
@@ -72,7 +83,7 @@ const useStableVideoIntegration = (options = {}) => {
     if (text.includes('how does') || text.includes('what is') || text.includes('why does') || 
         text.includes('bible') || text.includes('jesus') || text.includes('prayer') ||
         text.includes('explain') || text.includes('teach me')) {
-      console.log('🎬 Learning content detected, enabling ears-up video')
+      logMessage('learning', '🎬 Learning content detected, enabling ears-up video')
       return {
         useVideo: true,
         emotion: 'ears-up',
@@ -86,7 +97,7 @@ const useStableVideoIntegration = (options = {}) => {
     // Joy videos - jokes, fun, games, excitement
     if (text.includes('joke') || text.includes('funny') || text.includes('amazing') || 
         text.includes('excited') || text.includes('happy') || text.includes('game')) {
-      console.log('🎬 Joy content detected, enabling happy video')
+      logMessage('joy', '🎬 Joy content detected, enabling happy video')
       return {
         useVideo: true,
         emotion: 'happy',
@@ -100,7 +111,7 @@ const useStableVideoIntegration = (options = {}) => {
     // Calm videos - tired, rest, sleep, peaceful
     if (text.includes('tired') || text.includes('rest') || text.includes('sleep') || 
         text.includes('peaceful') || text.includes('calm') || text.includes('relax')) {
-      console.log('🎬 Calm content detected, enabling lay-down video')
+      logMessage('calm', '🎬 Calm content detected, enabling lay-down video')
       return {
         useVideo: true,
         emotion: 'lay-down',
@@ -111,8 +122,6 @@ const useStableVideoIntegration = (options = {}) => {
       }
     }
 
-
-    console.log('🎬 No video category matched, using image:', message?.text?.substring(0, 20))
     return { useVideo: false, emotion: 'happy', reason: 'no_match' }
   }, [enableVideo, fallbackMode])
 

@@ -942,29 +942,129 @@ const ChatPage = () => {
       return `*looks around* It's ${timeString} right now! Time flies when we're having fun together! 🐕⏰`
     }
     
-    // Math questions
-    if (lowerMessage.includes('what is') && (lowerMessage.includes('+') || lowerMessage.includes('plus'))) {
-      setCurrentEmotion('thinking')
-      
-      // Simple addition detection
-      const mathMatch = lowerMessage.match(/what is (\d+) ?\+ ?(\d+)|what is (\d+) plus (\d+)/)
-      if (mathMatch) {
-        const num1 = parseInt(mathMatch[1] || mathMatch[3])
-        const num2 = parseInt(mathMatch[2] || mathMatch[4])
+    // Enhanced Math Questions - handles dozens of variations
+    // Addition patterns
+    const additionPatterns = [
+      // "what is/what's" variations
+      /(?:what is|what's|whats) (\d+) ?\+ ?(\d+)/,
+      /(?:what is|what's|whats) (\d+) plus (\d+)/,
+      /(?:what is|what's|whats) (\d+) added to (\d+)/,
+      /(?:what is|what's|whats) (\d+) and (\d+)/,
+      // Direct questions
+      /(\d+) ?\+ ?(\d+) ?(?:equals?|is|\?)/,
+      /(\d+) plus (\d+) ?(?:equals?|is|\?)/,
+      /add (\d+) (?:and|to|\+) (\d+)/,
+      // "How much is" variations
+      /how much is (\d+) ?\+ ?(\d+)/,
+      /how much is (\d+) plus (\d+)/,
+      /how much is (\d+) and (\d+)/,
+      // "Can you" variations
+      /can you (?:add|solve) (\d+) ?\+ ?(\d+)/,
+      /can you (?:add|solve) (\d+) plus (\d+)/,
+      // "Tell me" variations
+      /tell me (\d+) ?\+ ?(\d+)/,
+      /tell me (\d+) plus (\d+)/,
+      // "Calculate" variations
+      /calculate (\d+) ?\+ ?(\d+)/,
+      /calculate (\d+) plus (\d+)/,
+      // Simple patterns
+      /(\d+) ?\+ ?(\d+)/,
+      /(\d+) plus (\d+)/
+    ]
+    
+    // Subtraction patterns
+    const subtractionPatterns = [
+      // "what is/what's" variations
+      /(?:what is|what's|whats) (\d+) ?- ?(\d+)/,
+      /(?:what is|what's|whats) (\d+) minus (\d+)/,
+      /(?:what is|what's|whats) (\d+) take away (\d+)/,
+      /(?:what is|what's|whats) (\d+) subtract (\d+)/,
+      // Direct questions
+      /(\d+) ?- ?(\d+) ?(?:equals?|is|\?)/,
+      /(\d+) minus (\d+) ?(?:equals?|is|\?)/,
+      /subtract (\d+) from (\d+)/,
+      // "How much is" variations
+      /how much is (\d+) ?- ?(\d+)/,
+      /how much is (\d+) minus (\d+)/,
+      // "Can you" variations
+      /can you (?:subtract|solve) (\d+) ?- ?(\d+)/,
+      /can you (?:subtract|solve) (\d+) minus (\d+)/,
+      // "Tell me" variations
+      /tell me (\d+) ?- ?(\d+)/,
+      /tell me (\d+) minus (\d+)/,
+      // "Calculate" variations
+      /calculate (\d+) ?- ?(\d+)/,
+      /calculate (\d+) minus (\d+)/,
+      // Simple patterns
+      /(\d+) ?- ?(\d+)/,
+      /(\d+) minus (\d+)/
+    ]
+    
+    // Check for addition
+    for (const pattern of additionPatterns) {
+      const match = lowerMessage.match(pattern)
+      if (match) {
+        setCurrentEmotion('thinking')
+        const num1 = parseInt(match[1])
+        const num2 = parseInt(match[2])
         const result = num1 + num2
-        return `*counts on paws* ${num1} plus ${num2} equals ${result}! Math is fun! 🐕🔢`
+        const responses = [
+          `*counts on paws* ${num1} plus ${num2} equals ${result}! Math is fun! 🐕🔢`,
+          `*wags tail excitedly* ${num1} + ${num2} = ${result}! I love doing math with you! 🐕✨`,
+          `*sits proudly* That's easy! ${num1} plus ${num2} is ${result}! Want another math problem? 🐕📚`,
+          `*tilts head thoughtfully* Let me think... ${num1} and ${num2} makes ${result}! Math is pawsome! 🐕🧮`
+        ]
+        return responses[Math.floor(Math.random() * responses.length)]
       }
     }
     
-    if (lowerMessage.includes('what is') && (lowerMessage.includes('-') || lowerMessage.includes('minus'))) {
-      setCurrentEmotion('thinking')
-      
-      const mathMatch = lowerMessage.match(/what is (\d+) ?- ?(\d+)|what is (\d+) minus (\d+)/)
-      if (mathMatch) {
-        const num1 = parseInt(mathMatch[1] || mathMatch[3])
-        const num2 = parseInt(mathMatch[2] || mathMatch[4])
+    // Check for subtraction
+    for (const pattern of subtractionPatterns) {
+      const match = lowerMessage.match(pattern)
+      if (match) {
+        setCurrentEmotion('thinking')
+        const num1 = parseInt(match[1])
+        const num2 = parseInt(match[2])
         const result = num1 - num2
-        return `*thinks carefully* ${num1} minus ${num2} equals ${result}! Good math question! 🐕🔢`
+        const responses = [
+          `*thinks carefully* ${num1} minus ${num2} equals ${result}! Good math question! 🐕🔢`,
+          `*concentrates hard* ${num1} - ${num2} = ${result}! Subtraction is tricky but fun! 🐕✨`,
+          `*counts on paws* If you have ${num1} and take away ${num2}, you get ${result}! 🐕📚`,
+          `*wags tail proudly* That's ${result}! Math makes my brain happy! 🐕🧮`
+        ]
+        return responses[Math.floor(Math.random() * responses.length)]
+      }
+    }
+    
+    // Bible quote requests - Enhanced detection (PRIORITY BEFORE OTHER BIBLE RESPONSES)
+    const bibleQuotePatterns = [
+      /(?:give me|tell me|share|read) (?:a |an )?bible (?:quote|verse|passage)/,
+      /(?:what's|what is) (?:a |an )?(?:good |nice |favorite )?bible (?:quote|verse|passage)/,
+      /(?:can you|could you) (?:give me|tell me|share|read) (?:a |an )?bible (?:quote|verse|passage)/,
+      /(?:i want|i need|i'd like) (?:a |an )?bible (?:quote|verse|passage)/,
+      /bible (?:quote|verse|passage)/,
+      /(?:scripture|verse) (?:quote|passage)/,
+      /(?:give me|tell me|share) (?:some )?scripture/,
+      /(?:read me|recite) (?:a |an )?(?:bible )?(?:verse|passage)/,
+      /(?:inspirational|encouraging) (?:bible )?(?:quote|verse)/,
+      /(?:daily|morning|evening) (?:bible )?(?:verse|quote)/
+    ]
+    
+    for (const pattern of bibleQuotePatterns) {
+      if (lowerMessage.match(pattern)) {
+        setCurrentEmotion('excited')
+        console.log('📖 Bible quote request detected:', lowerMessage)
+        
+        // Immediate fallback responses for Bible quotes
+        const bibleQuoteResponses = [
+          "*sits reverently* Here's one of my favorite verses: 'The Lord is my shepherd, I shall not want.' - Psalm 23:1 📖✨ Ask your parents to read the whole psalm with you! 🐕💕",
+          "*wags tail gently* 'For God so loved the world that he gave his one and only Son...' - John 3:16 📖✨ This verse shows God's amazing love for us! 🐕💕",
+          "*tilts head thoughtfully* 'Be strong and courageous! Do not be afraid or discouraged, for the Lord your God is with you wherever you go.' - Joshua 1:9 📖🐕 God is always with us! ✨",
+          "*sits peacefully* 'Your word is a lamp for my feet, a light on my path.' - Psalm 119:105 📖💡 The Bible guides us like a bright light! 🐕✨",
+          "*wags tail proudly* 'I can do all things through Christ who strengthens me.' - Philippians 4:13 📖💪 God gives us strength for everything! 🐕✨",
+          "*bounces gently* 'Give thanks to the Lord, for he is good; his love endures forever.' - Psalm 107:1 📖❤️ God's love never ends! 🐕✨"
+        ]
+        return bibleQuoteResponses[Math.floor(Math.random() * bibleQuoteResponses.length)]
       }
     }
     
