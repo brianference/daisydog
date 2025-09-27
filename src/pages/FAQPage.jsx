@@ -84,9 +84,9 @@ const FAQPage = () => {
             </motion.div>
           ))}
         </div>
-
-        <Footer />
       </div>
+      
+      <Footer />
     </div>
   )
 }

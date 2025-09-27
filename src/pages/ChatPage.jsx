@@ -10,7 +10,6 @@ import GeminiService from '../services/GeminiService.js'
 import SupabaseService from '../services/SupabaseService.js'
 import useSoundManagerModular from '../hooks/useSoundManagerModular.js'
 import useSafetyFilter from '../hooks/useSafetyFilter.js'
-import '../tests/comprehensiveSafetyTest.js'
 import '../tests/preReleaseTestSuite.js'
 import SoundControls from '../components/SoundControls.jsx'
 import SoundTestPanel from '../components/SoundTestPanel.jsx'
@@ -1908,37 +1907,11 @@ const ChatPage = () => {
             </button>
             <button 
               onClick={async () => {
-                console.log('🧪 === COMPREHENSIVE SYSTEM TEST STARTING ===');
-                
-                // Test all detection systems
-                const testMessages = [
-                  'tell me the full 10 commandments',
-                  'Grade 1 lesson 1', 
-                  'what is my name',
-                  'what is the our father',
-                  'Tell me about Moses',
-                  'Teach me Kindergarten faith',
-                  'Tell me about love in the Bible'
-                ];
-                
-                for (const message of testMessages) {
-                  console.log(`\n🧪 Testing: "${message}"`);
-                  
-                  // Import all detection functions
-                  const { containsBibleTopicKeywords, containsLessonKeywords, containsCurriculumKeywords, findCurriculumGrade } = await import('../data/catholicCurriculum');
-                  const { containsBibleCharacterKeywords } = await import('../data/bibleCharacters');
-                  const { containsDogFactKeywords } = await import('../data/dogFacts');
-                  
-                  // Test all systems
-                  console.log('  → Bible Topics:', containsBibleTopicKeywords(message) || 'NO');
-                  console.log('  → Bible Characters:', containsBibleCharacterKeywords(message) ? 'YES' : 'NO');
-                  console.log('  → Curriculum:', containsCurriculumKeywords(message) ? 'YES' : 'NO');
-                  console.log('  → Lessons:', containsLessonKeywords(message) ? 'YES' : 'NO');
-                  console.log('  → Dog Facts:', containsDogFactKeywords(message) ? 'YES' : 'NO');
-                  console.log('  → Grade Detected:', findCurriculumGrade(message)?.grade || 'NO');
+                if (window.PreReleaseTestSuite) {
+                  await window.PreReleaseTestSuite.runFullTestSuite();
+                } else {
+                  console.log('❌ PreReleaseTestSuite not available');
                 }
-                
-                console.log('\n🧪 === COMPREHENSIVE SYSTEM TEST COMPLETE ===');
               }}
               style={{ 
                 display: 'block', 
@@ -1952,7 +1925,7 @@ const ChatPage = () => {
                 cursor: 'pointer'
               }}
             >
-              🧪 Run Comprehensive Test
+              🧪 Run Release Test Suite
             </button>
           </div>
 

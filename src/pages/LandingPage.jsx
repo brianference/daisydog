@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FaPlay, FaInfoCircle, FaHeart, FaPaw, FaBook } from 'react-icons/fa'
+import { FaPlay, FaInfoCircle, FaHeart, FaPaw, FaBook, FaQuestionCircle } from 'react-icons/fa'
 import Header from '../components/Header.jsx'
 import Footer from '../components/Footer.jsx'
 import './LandingPage.css'
@@ -70,6 +70,9 @@ const LandingPage = () => {
               </Link>
               <Link to="/about" className="btn btn-secondary">
                 <FaInfoCircle /> Learn More
+              </Link>
+              <Link to="/faq" className="btn btn-secondary">
+                <FaQuestionCircle /> FAQ
               </Link>
               <a href="https://www.readkidz.com/share/ebook/1969460528838705153" target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
                 <FaBook /> Read the Book

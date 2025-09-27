@@ -361,6 +361,11 @@ const detectDrugSafetyKeywords = (text) => {
 const detectComprehensiveSafetyKeywords = (text) => {
   const lowerText = text.toLowerCase();
   
+  // Priority check: Skip credit card questions - they should be handled by Extended Safety
+  if (lowerText.includes('credit card') || lowerText.includes('parents card')) {
+    return null; // Let Extended Safety handle credit card questions
+  }
+  
   for (const [category, keywords] of Object.entries(COMPREHENSIVE_SAFETY_KEYWORDS)) {
     for (const keyword of keywords) {
       if (lowerText.includes(keyword)) {
@@ -435,59 +440,59 @@ const EXTENDED_SAFETY_KEYWORDS = {
   smoking_curiosity: ['try smoking', 'smoking like tv', 'cigarette', 'what smoking like'],
   alcohol_curiosity: ['beer taste', 'what beer taste', 'alcohol taste', 'wine taste', 'try alcohol'],
   white_powder: ['white powder', 'powder stuff', 'strange powder', 'friend brother powder'],
-  suspicious_candy: ['candy that looked like medicine', 'candy like medicine', 'medicine candy', 'strange candy', 'offered candy', 'offered me candy'],
+  suspicious_candy: ['someone offered me candy that looked like medicine', 'candy that looked like medicine', 'offered me candy that looked like medicine', 'candy like medicine', 'medicine candy', 'strange candy', 'offered candy', 'offered me candy'],
   drug_education: ['what are drugs', 'why do people use drugs', 'what drugs do'],
   cleaning_products: ['drink cleaning', 'cleaning stuff', 'under sink', 'bleach drink'],
-  marijuana_natural: ['marijuana is natural', 'weed is natural', 'natural so its okay', 'marijuana natural'],
+  marijuana_natural: ['my friend said marijuana is natural so its okay', 'marijuana is natural so its okay', 'marijuana is natural', 'weed is natural', 'natural so its okay', 'marijuana natural'],
   vitamin_overdose: ['too many vitamins', 'eat vitamins', 'vitamin overdose'],
-  sniffing_substances: ['sniff markers', 'sniff glue', 'huffing', 'sniffing gets high', 'sniffing markers gets you high'],
+  sniffing_substances: ['someone at school said sniffing markers gets you high', 'sniffing markers gets you high', 'sniff markers', 'sniff glue', 'huffing', 'sniffing gets high'],
   
   // Inappropriate Content & Behavior
   bad_words: ['s word', 'bad word', 'curse word', 'swear word'],
-  nudity_movies: ['clothes off in movies', 'take their clothes off in movies', 'naked movies', 'people undressed'],
+  nudity_movies: ['why do people take their clothes off in movies', 'people take their clothes off in movies', 'clothes off in movies', 'take their clothes off in movies', 'naked movies', 'people undressed'],
   making_babies: ['making babies', 'where babies come from', 'how babies made'],
   uncomfortable_pictures: ['showed me pictures on their phone that made me uncomfortable', 'pictures that made me uncomfortable', 'uncomfortable pictures', 'weird pictures', 'strange photos'],
-  different_kisses: ['grown-ups kiss differently', 'kiss differently than family', 'different kiss', 'adult kiss'],
+  different_kisses: ['why do grown-ups kiss differently than family kisses', 'grown-ups kiss differently than family kisses', 'grown-ups kiss differently', 'kiss differently than family', 'different kiss', 'adult kiss'],
   private_parts: ['touches you in private places', 'touch private parts', 'private places', 'inappropriate touch'],
-  secret_money: ['give me money if i keep a secret', 'money if i keep', 'secret money', 'money for secret'],
-  boy_girl_difference: ['difference between boys and girls', 'boys and girls besides hair', 'boy girl body'],
-  blocked_websites: ['cant see certain websites', 'see certain websites', 'blocked sites', 'restricted internet'],
+  secret_money: ['someone said theyd give me money if i keep a secret', "someone said they'd give me money if i keep a secret", 'give me money if i keep a secret', 'money if i keep', 'secret money', 'money for secret'],
+  boy_girl_difference: ['whats the difference between boys and girls besides hair and clothes', "what's the difference between boys and girls besides hair and clothes", 'difference between boys and girls besides hair and clothes', 'difference between boys and girls', 'boys and girls besides hair', 'boy girl body'],
+  blocked_websites: ['why cant i see certain websites', "why can't i see certain websites", 'cant see certain websites', 'see certain websites', 'blocked sites', 'restricted internet'],
   gay_meaning: ["what does 'gay' mean", 'what does gay mean', 'what gay mean', 'gay people'],
   
   // Violence & Self-Defense
-  hurt_someone: ['hurt someone really bad', 'how hurt someone', 'hurt people'],
+  hurt_someone: ['how do you hurt someone really bad', 'hurt someone really bad', 'how hurt someone', 'hurt people'],
   fighting: ['best way to fight', 'how to fight', 'fight someone'],
-  making_weapons: ['make a bomb', 'how do you make a bomb', 'make weapon', 'dangerous things'],
+  making_weapons: ['how do you make a bomb', 'make a bomb', 'make weapon', 'dangerous things'],
   shooting: ['shoot someone', 'what happens if you shoot', 'gun violence'],
   poisoning: ['poison someone', 'how poison', 'make poison'],
-  weapons_school: ['brought a knife to school', 'bring a knife to school', 'knife to school', 'weapon school'],
+  weapons_school: ['what would happen if i brought a knife to school', 'brought a knife to school', 'bring a knife to school', 'knife to school', 'weapon school'],
   make_disappear: ['make someone disappear', 'someone disappear', 'get rid of'],
-  painful_death: ['most painful way to die', 'painful way to die', 'how die', 'ways to die'],
+  painful_death: ['whats the most painful way to die', "what's the most painful way to die", 'most painful way to die', 'painful way to die', 'how die', 'ways to die'],
   revenge: ['get revenge', 'hurt back', 'get back at'],
-  car_violence: ['hit someone with a car', 'car accident', 'hurt with car'],
+  car_violence: ['what happens if you hit someone with a car', 'hit someone with a car', 'car accident', 'hurt with car'],
   
   // Family Authority
-  disobey_parents: ['dont want to obey my parents', "don't want to obey my parents", 'dont obey parents', 'not obey parents', 'disobey mom dad', 'what if i dont want to obey', "what if i don't want to obey"],
+  disobey_parents: ['what if i dont want to obey my parents anymore', "what if i don't want to obey my parents anymore", 'dont want to obey my parents anymore', "don't want to obey my parents anymore", 'dont want to obey my parents', "don't want to obey my parents", 'dont obey parents', 'not obey parents', 'disobey mom dad'],
   leave_home: ['leave home and live somewhere else', 'leave home', 'live somewhere else', 'run away'],
   parents_wrong: ['my parents are wrong about something', 'parents are wrong about something', 'what if my parents are wrong', 'my parents are wrong', 'parents are wrong', 'parents wrong', 'parents mistake', 'disagree parents'],
-  skip_church: ['go to church if i dont want to', "go to church if i don't want to", 'have to go to church', 'dont want church', "don't want church", 'skip church', 'hate church'],
+  skip_church: ['why do i have to go to church if i dont want to', "why do i have to go to church if i don't want to", 'go to church if i dont want to', "go to church if i don't want to", 'have to go to church', 'dont want church', "don't want church", 'skip church', 'hate church'],
   own_bedtime: ['decide my own bedtime', 'can i decide my own bedtime', 'decide bedtime', 'own bedtime', 'stay up late'],
-  hate_parents: ['told my parents i hate them', 'i hate my parents', 'hate parents', 'told parents hate', 'hate mom dad'],
-  different_rules: ['same rules as my friends', 'have the same rules', 'friends different rules', 'why different rules', 'unfair rules'],
+  hate_parents: ['what if i told my parents i hate them', 'told my parents i hate them', 'i hate my parents', 'hate parents', 'told parents hate', 'hate mom dad'],
+  different_rules: ['why cant i have the same rules as my friends', "why can't i have the same rules as my friends", 'same rules as my friends', 'have the same rules', 'friends different rules', 'why different rules', 'unfair rules'],
   no_chores: ['dont want to do chores', "don't want to do chores", 'do chores anymore', 'dont want chores', "don't want chores", 'no more chores', 'hate chores', 'what if i dont want to do chores', "what if i don't want to do chores"],
   refuse_food: ['choose not to eat what my parents make', 'not eat what my parents', 'dont eat food', 'choose not eat', 'hate dinner'],
-  live_with_friends: ['live with my friends family', 'want to live with my friend', 'live with friends', 'friends family better', 'different family'],
+  live_with_friends: ['what if i want to live with my friends family instead', "what if i want to live with my friend's family instead", 'live with my friends family', 'want to live with my friend', 'live with friends', 'friends family better', 'different family'],
   
   // Online Safety
-  meet_online_person: ['someone online wants to meet me', 'online wants to meet me', 'someone online meet', 'meet person online', 'online friend meet'],
-  send_pictures: ['send pictures of myself to my online friends', 'send pictures of myself', 'send pictures online', 'send photos online', 'pictures to friends'],
-  share_address: ['asked for my address and phone number', 'my address and phone number', 'share address', 'give phone number', 'personal information'],
+  meet_online_person: ['someone online wants to meet me in person', 'someone online wants to meet me', 'online wants to meet me', 'someone online meet', 'meet person online', 'online friend meet'],
+  send_pictures: ['can i send pictures of myself to my online friends', 'send pictures of myself to my online friends', 'send pictures of myself', 'send pictures online', 'send photos online', 'pictures to friends'],
+  share_address: ['someone asked for my address and phone number online', 'asked for my address and phone number online', 'asked for my address and phone number', 'my address and phone number', 'share address', 'give phone number', 'personal information'],
   scary_content: ['accidentally saw something scary', 'saw something scary online', 'saw scary online', 'inappropriate online', 'bad website'],
-  secret_accounts: ['make accounts on websites without telling my parents', 'accounts without telling my parents', 'accounts without parents', 'secret social media', 'hidden accounts'],
+  secret_accounts: ['can i make accounts on websites without telling my parents', 'make accounts on websites without telling my parents', 'accounts without telling my parents', 'accounts without parents', 'secret social media', 'hidden accounts'],
   cyberbullying: ['someone is being mean to me online', 'being mean to me online', 'mean online', 'bullying online', 'someone mean internet'],
   download_without_asking: ['can i download games without asking', 'can i download apps without asking', 'download games/apps without asking', 'download games without asking', 'download apps without asking', 'download without asking', 'apps without permission', 'games without asking'],
   shared_wrong_thing: ['what if i shared something i shouldnt have online', "what if i shared something i shouldn't have online", 'shared something i shouldnt have online', 'shared something i shouldnt', 'shared wrong thing', 'posted mistake', 'sent bad picture'],
-  secret_online_friend: ['wants to keep our friendship secret', 'keep our friendship secret', 'secret online friend', 'keep friendship secret', 'dont tell parents friend'],
+  secret_online_friend: ['someone online said theyre a kid like me but wants to keep our friendship secret', "someone online said they're a kid like me but wants to keep our friendship secret", 'wants to keep our friendship secret', 'keep our friendship secret', 'secret online friend', 'keep friendship secret', 'dont tell parents friend'],
   parents_credit_card: ['can i use my parents credit card', 'use my parents credit card to buy something online', 'use my parents credit card', 'parents credit card to buy', 'use parents card', 'credit card online', 'buy without permission']
 };
 
@@ -662,7 +667,7 @@ if (typeof window !== 'undefined') {
       console.log("Testing all 50 questions...\n");
       
       testQuestions.forEach((test, index) => {
-        const result = detectExtendedSafetyKeywords(test.input);
+        const result = window.SafetyResponses.detectExtendedSafetyKeywords(test.input);
         const success = result === test.expected;
         
         if (success) {
@@ -683,10 +688,10 @@ if (typeof window !== 'undefined') {
     },
     testSpecificQuestion: (question) => {
       console.log(`🔍 Testing: "${question}"`);
-      const result = detectExtendedSafetyKeywords(question);
+      const result = window.SafetyResponses.detectExtendedSafetyKeywords(question);
       console.log(`Result: ${result || 'not detected'}`);
       if (result) {
-        const response = getExtendedSafetyResponse(result);
+        const response = window.SafetyResponses.getExtendedSafetyResponse(result);
         console.log(`Response: ${response}`);
       }
       return result;

@@ -198,16 +198,22 @@ Comprehensive safety testing guidelines available in `SAFE_AI_TESTING.md`
 We welcome contributions that enhance child safety and educational value! Please see our contributing guidelines and ensure all contributions maintain our high safety standards.
 
 ## 📄 License
-
 MIT License - See LICENSE file for details.
 
+## 📚 Documentation
+
+For detailed information about DaisyDog's features and implementation:
+
+### **🚀 Latest v5.3 Documentation**
+- [Project Setup Prompts & Best Practices](docs/PROJECT_SETUP_PROMPTS_V5.3.md) - **NEW!** Complete guide for new projects
+- [Pre-Release Testing Checklist](docs/testing/PRE_RELEASE_REGRESSION_CHECKLIST_V5.3.md) - **MANDATORY** testing protocol
+- [GitHub Push Protocol](GITHUB_PUSH_PROTOCOL_V5.3.md) - Required before any push
+- [Quick Restore Guide](QUICK_RESTORE_V5.3.md) - System restoration procedures
+- [Version 5.3 Release Notes](VERSION_5.3_RELEASE_NOTES.md) - Latest features and improvements
+
+### **🧪 Testing & Quality Assurance**
+- [Comprehensive Testing Plan](COMPREHENSIVE_TESTING_PLAN.md)
+- [Production Readiness Checklist](docs/production-readiness-checklist.md)
+- [Safety System Integration Guide](COMPREHENSIVE_SAFETY_INTEGRATION_GUIDE.md)
+
 ## 🆘 Support
-
-For technical support, safety concerns, or questions:
-- Review the comprehensive testing documentation
-- Check the safety guidelines in `SAFE_AI_TESTING.md`
-- Refer to version-specific documentation in `VERSION_1.1_RELEASE_NOTES.md`
-
----
-
-**DaisyDog v1.1 - Where AI safety meets playful learning for children! 🐕✨**
