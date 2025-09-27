@@ -7,6 +7,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 class GeminiService {
   constructor() {
+    this.version = '5.6.1' // Force cache refresh
     this.apiKey = import.meta.env.VITE_GEMINI_API_KEY
     this.genAI = null
     this.model = null
@@ -37,9 +38,9 @@ class GeminiService {
     try {
       this.genAI = new GoogleGenerativeAI(this.apiKey)
       
-      // Use the correct model name for production
+      // Use the stable model name for production
       this.model = this.genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash-latest',
+        model: 'gemini-pro',
         generationConfig: {
           temperature: 0.7,
           maxOutputTokens: 200,
