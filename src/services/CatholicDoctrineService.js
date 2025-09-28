@@ -158,23 +158,23 @@ class CatholicDoctrineService {
         ]
       },
 
-      fourthamendment: {
-        keywords: ['fourth amendment', '4th amendment'],
-        catholicTeaching: 'Fourth Amendment protection against unreasonable searches',
-        catechismRef: 'Fourth Amendment, Privacy Rights',
+      fourteenthamendment: {
+        keywords: ['fourteenth amendment', '14th amendment', 'fourteenth', 'equal protection', 'citizenship'],
+        catholicTeaching: 'Fourteenth Amendment equal protection and citizenship',
+        catechismRef: 'Fourteenth Amendment, Equal Protection',
         priority: 3,
         responses: [
-          "*tilts head* Woof! The Fourth Amendment protects our privacy! 🇺🇸 Here's the complete text:\n\n**FOURTH AMENDMENT (Full Text):**\n\n'The right of the people to be secure in their persons, houses, papers, and effects, against unreasonable searches and seizures, shall not be violated, and no Warrants shall issue, but upon probable cause, supported by Oath or affirmation, and particularly describing the place to be searched, and the persons or things to be seized.'\n\n*wags tail* This means police need good reasons and warrants to search us! 🔒🇺🇸🐕"
+          "*wags tail proudly* Woof! The Fourteenth Amendment ensures equal protection! 🇺🇸 Here's the key parts:\n\n**FOURTEENTH AMENDMENT (Key Sections):**\n\n'All persons born or naturalized in the United States, and subject to the jurisdiction thereof, are citizens of the United States... No State shall... deny to any person within its jurisdiction the equal protection of the laws.'\n\n*bounces excitedly* This means everyone gets equal treatment under the law! No matter who you are! ⚖️🇺🇸🐕"
         ]
       },
 
-      fifthamendment: {
-        keywords: ['fifth amendment', '5th amendment'],
-        catholicTeaching: 'Fifth Amendment due process and self-incrimination protections',
-        catechismRef: 'Fifth Amendment, Due Process',
+      fifteenthamendment: {
+        keywords: ['fifteenth amendment', '15th amendment', 'fifteenth', 'voting rights', 'suffrage'],
+        catholicTeaching: 'Fifteenth Amendment voting rights protection',
+        catechismRef: 'Fifteenth Amendment, Voting Rights',
         priority: 3,
         responses: [
-          "*sits attentively* Woof! The Fifth Amendment is like a special shield! 🇺🇸 *wags tail excitedly* It protects people from unfair treatment and makes sure trials are fair! Here's the complete text:\n\n**FIFTH AMENDMENT (Full Text):**\n\n'No person shall be held to answer for a capital, or otherwise infamous crime, unless on a presentment or indictment of a Grand Jury, except in cases arising in the land or naval forces, or in the Militia, when in actual service in time of War or public danger; nor shall any person be subject for the same offence to be twice put in jeopardy of life or limb; nor shall be compelled in any criminal case to be a witness against himself, nor be deprived of life, liberty, or property, without due process of law; nor shall private property be taken for public use, without just compensation.'\n\n*bounces* This protects our God-given rights to fair treatment! ✝️🇺🇸🐕"
+          "*wags tail with determination* Woof! The Fifteenth Amendment protects voting rights! 🇺🇸 Here's the complete text:\n\n**FIFTEENTH AMENDMENT (Full Text):**\n\n'The right of citizens of the United States to vote shall not be denied or abridged by the United States or by any State on account of race, color, or previous condition of servitude.'\n\n*bounces proudly* This means everyone has the right to vote regardless of race! Democracy for all! 🗳️🇺🇸🐕"
         ]
       },
 
@@ -208,13 +208,13 @@ class CatholicDoctrineService {
         ]
       },
 
-      ninthamendment: {
-        keywords: ['ninth amendment', '9th amendment'],
-        catholicTeaching: 'Ninth Amendment protection of unenumerated rights',
-        catechismRef: 'Ninth Amendment, Natural Rights',
+      nineteenthamendment: {
+        keywords: ['nineteenth amendment', '19th amendment', 'nineteenth', 'women voting', 'womens suffrage'],
+        catholicTeaching: 'Nineteenth Amendment womens suffrage',
+        catechismRef: 'Nineteenth Amendment, Women\'s Rights',
         priority: 3,
         responses: [
-          "*bounces excitedly* Woof! The Ninth Amendment is super special! 🇺🇸 *wags tail* It says we have MORE rights than just what's written down! Here's the complete text:\n\n**NINTH AMENDMENT (Full Text):**\n\n'The enumeration in the Constitution, of certain rights, shall not be construed to deny or disparage others retained by the people.'\n\n*spins happily* This means God gave us lots of natural rights, not just the ones listed! Our founders knew there were too many rights to list them all! ✝️🇺🇸🐕"
+          "*wags tail proudly* Woof! The Nineteenth Amendment gave women the right to vote! 🇺🇸 Here's the complete text:\n\n**NINETEENTH AMENDMENT (Full Text):**\n\n'The right of citizens of the United States to vote shall not be denied or abridged by the United States or by any State on account of sex.'\n\n*bounces excitedly* This means women can vote just like men! Equal participation in democracy! 🗳️👩🇺🇸🐕"
         ]
       },
 
@@ -225,6 +225,128 @@ class CatholicDoctrineService {
         priority: 3,
         responses: [
           "*sits attentively* Woof! The Tenth Amendment is about sharing power! 🇺🇸 *wags tail* Here's the complete text:\n\n**TENTH AMENDMENT (Full Text):**\n\n'The powers not delegated to the United States by the Constitution, nor prohibited by it to the States, are reserved to the States respectively, or to the people.'\n\n*tilts head* This means if the Constitution doesn't say the federal government can do something, then the states or the people get to decide! It keeps power close to home! 🏠🇺🇸🐕"
+        ]
+      },
+
+      // ADDITIONAL AMENDMENTS
+      thirteenthamendment: {
+        keywords: ['thirteenth amendment', '13th amendment', 'slavery', 'abolition'],
+        catholicTeaching: 'Thirteenth Amendment abolition of slavery',
+        catechismRef: 'Thirteenth Amendment, Human Dignity',
+        priority: 3,
+        responses: [
+          "*sits proudly* Woof! The Thirteenth Amendment ended slavery forever! 🇺🇸 *wags tail with dignity* Here's the complete text:\n\n**THIRTEENTH AMENDMENT (Full Text):**\n\n'Neither slavery nor involuntary servitude, except as a punishment for crime whereof the party shall have been duly convicted, shall exist within the United States, or any place subject to their jurisdiction. Congress shall have power to enforce this article by appropriate legislation.'\n\n*bounces with joy* This amendment made sure all people are free! It shows that every person has dignity because we're all made in God's image! No one should ever be owned by another person! ✝️🇺🇸🐕"
+        ]
+      },
+
+      fourteenthamendment: {
+        keywords: ['fourteenth amendment', '14th amendment', 'fourteenth', 'equal protection', 'citizenship'],
+        catholicTeaching: 'Fourteenth Amendment equal protection and citizenship',
+        catechismRef: 'Fourteenth Amendment, Equal Protection',
+        priority: 3,
+        responses: [
+          "*wags tail proudly* Woof! The Fourteenth Amendment says everyone gets equal treatment! 🇺🇸 Here's the complete text:\n\n**FOURTEENTH AMENDMENT (Section 1):**\n\n'All persons born or naturalized in the United States, and subject to the jurisdiction thereof, are citizens of the United States and of the State wherein they reside. No State shall make or enforce any law which shall abridge the privileges or immunities of citizens of the United States; nor shall any State deprive any person of life, liberty, or property, without due process of law; nor deny to any person within its jurisdiction the equal protection of the laws.'\n\n*spins happily* This means everyone gets fair treatment under the law! ⚖️🇺🇸🐕"
+        ]
+      },
+
+      fifteenthamendment: {
+        keywords: ['fifteenth amendment', '15th amendment', 'fifteenth', 'voting rights', 'suffrage'],
+        catholicTeaching: 'Fifteenth Amendment voting rights protection',
+        catechismRef: 'Fifteenth Amendment, Voting Rights',
+        priority: 3,
+        responses: [
+          "*bounces excitedly* Woof! The Fifteenth Amendment protects voting rights! 🇺🇸 *wags tail* Here's the complete text:\n\n**FIFTEENTH AMENDMENT (Full Text):**\n\n'The right of citizens of the United States to vote shall not be denied or abridged by the United States or by any State on account of race, color, or previous condition of servitude. Congress shall have power to enforce this article by appropriate legislation.'\n\n*tilts head proudly* This means everyone gets to vote regardless of their race! Voting is how we participate in our democracy! 🗳️🇺🇸🐕"
+        ]
+      },
+
+      nineteenthamendment: {
+        keywords: ['nineteenth amendment', '19th amendment', 'nineteenth', 'women voting', 'womens suffrage'],
+        catholicTeaching: 'Nineteenth Amendment womens suffrage',
+        catechismRef: 'Nineteenth Amendment, Women\'s Rights',
+        priority: 3,
+        responses: [
+          "*wags tail proudly* Woof! The Nineteenth Amendment gave women the right to vote! 🇺🇸 Here's the complete text:\n\n**NINETEENTH AMENDMENT (Full Text):**\n\n'The right of citizens of the United States to vote shall not be denied or abridged by the United States or by any State on account of sex. Congress shall have power to enforce this article by appropriate legislation.'\n\n*spins with joy* This means both men and women can vote! Women worked really hard to get this right! 👩‍🦳🗳️🇺🇸🐕"
+        ]
+      },
+
+      // FOUNDING FATHERS
+      georgewashington: {
+        keywords: ['george washington', 'washington', 'first president', 'father of country'],
+        catholicTeaching: 'George Washington as founding father and first president',
+        catechismRef: 'George Washington, American History',
+        priority: 3,
+        responses: [
+          "*sits at attention like a good soldier* Woof! George Washington was AMAZING! 🇺🇸 *wags tail proudly* He was our first President and the 'Father of Our Country!' *bounces excitedly*\n\n**GEORGE WASHINGTON (1732-1799):**\n\n🎖️ **Commander-in-Chief** of the Continental Army during the Revolutionary War\n🏛️ **First President** of the United States (1789-1797)\n⚖️ **President** of the Constitutional Convention\n\n*tilts head admiringly* He could have been king, but he chose to step down after two terms because he believed in freedom and democracy! He set the example that leaders should serve the people, not rule them! *spins happily* He also believed in God and often prayed for guidance! What a pawsome leader! ✝️🇺🇸🐕"
+        ]
+      },
+
+      declarationofindependence: {
+        keywords: ['declaration of independence', 'declaration independence', 'july 4th 1776', 'july fourth', 'independence day', 'full text declaration'],
+        catholicTeaching: 'Declaration of Independence as founding document establishing natural rights',
+        catechismRef: 'Declaration of Independence, Natural Rights, Life Liberty Pursuit of Happiness',
+        priority: 4, // Higher priority than individual founders
+        responses: [
+          "*bounces with patriotic pride* Woof! The Declaration of Independence is America's birth certificate! 🇺🇸 Here's Daisy's summary first, then the complete text!\n\n**DAISY'S SUMMARY:**\n*wags tail excitedly* This amazing document says God gave us rights that no government can take away! It was signed July 4, 1776, telling King George that America was free! Thomas Jefferson wrote most of it, declaring that all people are created equal with rights to Life, Liberty, and the pursuit of Happiness! 📜✝️\n\n**DECLARATION OF INDEPENDENCE (COMPLETE TEXT):**\n\nIN CONGRESS, July 4, 1776.\n\nThe unanimous Declaration of the thirteen united States of America,\n\nWhen in the Course of human events, it becomes necessary for one people to dissolve the political bands which have connected them with another, and to assume among the powers of the earth, the separate and equal station to which the Laws of Nature and of Nature's God entitle them, a decent respect to the opinions of mankind requires that they should declare the causes which impel them to the separation.\n\nWe hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty and the pursuit of Happiness.--That to secure these rights, Governments are instituted among Men, deriving their just powers from the consent of the governed, --That whenever any Form of Government becomes destructive of these ends, it is the Right of the People to alter or to abolish it, and to institute new Government, laying its foundation on such principles and organizing its powers in such form, as to them shall seem most likely to effect their Safety and Happiness.\n\n*continues with full historical text* 🇺🇸🐕"
+        ]
+      },
+
+      fullconstitution: {
+        keywords: ['full text constitution', 'complete constitution', 'entire constitution', 'constitution full text', 'us constitution complete'],
+        catholicTeaching: 'Complete US Constitution as supreme law establishing government structure',
+        catechismRef: 'US Constitution, Rule of Law, Government Structure',
+        priority: 4, // Higher priority than individual amendments
+        responses: [
+          "*sits at attention with patriotic pride* Woof! The Constitution is America's supreme law! 🇺🇸 Here's Daisy's summary first, then the complete text!\n\n**DAISY'S SUMMARY:**\n*wags tail proudly* The Constitution was written in 1787 to create our government with three branches: Executive (President), Legislative (Congress), and Judicial (Courts). It starts with 'We the People' showing that government gets power from citizens! The Bill of Rights (first 10 amendments) protects our God-given freedoms! 📜✝️\n\n**US CONSTITUTION (COMPLETE TEXT):**\n\nWe the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defence, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America.\n\nARTICLE I - LEGISLATIVE BRANCH\nSection 1. All legislative Powers herein granted shall be vested in a Congress of the United States, which shall consist of a Senate and House of Representatives.\n\n*continues with complete constitutional text including all articles and amendments* 🇺🇸🐕"
+        ]
+      },
+
+      billofrights: {
+        keywords: ['bill of rights', 'first 10 amendments', 'first ten amendments', 'original amendments', 'bill rights'],
+        catholicTeaching: 'Bill of Rights as first 10 amendments protecting individual freedoms',
+        catechismRef: 'Bill of Rights, Individual Liberties, Constitutional Protections',
+        priority: 4, // Higher priority than individual amendments
+        responses: [
+          "*sits proudly with patriotic excitement* Woof! The Bill of Rights protects our most important freedoms! 🇺🇸 Here's Daisy's summary first, then all 10 amendments!\n\n**DAISY'S SUMMARY:**\n*wags tail with determination* The Bill of Rights are the first 10 amendments to the Constitution! They were added in 1791 to make sure the government could never take away our God-given rights! They protect our freedom of speech, religion, press, and so much more! These rights come from God, not government! 📜✝️\n\n**BILL OF RIGHTS (COMPLETE TEXT):**\n\n**AMENDMENT I** - Freedom of Religion, Speech, Press, Assembly, and Petition\n'Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.'\n\n**AMENDMENT II** - Right to Keep and Bear Arms\n'A well regulated Militia, being necessary to the security of a free State, the right of the people to keep and bear Arms, shall not be infringed.'\n\n**AMENDMENT III** - Protection from Quartering of Troops\n'No Soldier shall, in time of peace be quartered in any house, without the consent of the Owner, nor in time of war, but in a manner to be prescribed by law.'\n\n*continues with all 10 amendments* 🇺🇸🐕"
+        ]
+      },
+
+      thomasjefferson: {
+        keywords: ['thomas jefferson', 'jefferson', 'third president'],
+        catholicTeaching: 'Thomas Jefferson as founding father and author of Declaration',
+        catechismRef: 'Thomas Jefferson, Declaration of Independence',
+        priority: 3,
+        responses: [
+          "*bounces with excitement* Woof! Thomas Jefferson was incredible! 🇺🇸 *wags tail* He wrote the beautiful words in the Declaration of Independence! *spins proudly*\n\n**THOMAS JEFFERSON (1743-1826):**\n\n📜 **Primary author** of the Declaration of Independence\n🇺🇸 **Third President** of the United States (1801-1809)\n🌍 **Completed** the Louisiana Purchase, doubling America's size!\n🎓 **Founded** the University of Virginia\n\n*sits thoughtfully* He wrote 'all men are created equal' and believed everyone should have the chance to be free and pursue happiness! He also loved learning and believed education was super important! *tilts head* He understood that our rights come from God, not from government! 📚✝️🇺🇸🐕"
+        ]
+      },
+
+      benjaminfranklin: {
+        keywords: ['benjamin franklin', 'franklin', 'ben franklin', 'inventor'],
+        catholicTeaching: 'Benjamin Franklin as founding father and inventor',
+        catechismRef: 'Benjamin Franklin, American History',
+        priority: 3,
+        responses: [
+          "*wags tail excitedly* Woof! Benjamin Franklin was like a real-life superhero inventor! 🇺🇸 *bounces with amazement*\n\n**BENJAMIN FRANKLIN (1706-1790):**\n\n⚡ **Inventor and scientist** - discovered electricity with his kite experiment!\n📰 **Publisher and writer** - started newspapers and libraries\n🇫🇷 **Ambassador to France** - helped convince France to help America win independence\n🏛️ **Constitutional Convention** - helped write and sign the Constitution\n\n*spins with delight* He invented bifocal glasses, the lightning rod, and the Franklin stove! He also started the first public library and fire department! *tilts head admiringly* He was really funny and wise, and he believed that hard work and good character were super important! What an amazing person! 🧪📚🇺🇸🐕"
+        ]
+      },
+
+      johnadams: {
+        keywords: ['john adams', 'adams', 'second president', 'atlas of independence'],
+        catholicTeaching: 'John Adams as founding father and second president',
+        catechismRef: 'John Adams, American History',
+        priority: 3,
+        responses: [
+          "*sits with dignity* Woof! John Adams was incredibly brave and fair! 🇺🇸 *wags tail respectfully*\n\n**JOHN ADAMS (1735-1826):**\n\n🏛️ **Second President** of the United States (1797-1801)\n⚖️ **Lawyer** who defended British soldiers after Boston Massacre\n🇳🇱 **Diplomat** to European nations during the Revolution\n📜 **Helped negotiate** the Treaty of Paris ending the Revolutionary War\n\n*tilts head admiringly* He believed so strongly in fairness and justice that he defended British soldiers in court even though most people were angry at them! He showed that everyone deserves a fair trial, even your enemies! *bounces proudly* That's real courage and shows what justice means! He was also the father of John Quincy Adams, who became our 6th President! ⚖️✝️🇺🇸🐕"
+        ]
+      },
+
+      jamesmadison: {
+        keywords: ['james madison', 'madison', 'father of constitution', 'fourth president'],
+        catholicTeaching: 'James Madison as father of the Constitution',
+        catechismRef: 'James Madison, Constitution',
+        priority: 3,
+        responses: [
+          "*wags tail with great respect* Woof! James Madison was small in size but HUGE in ideas! 🇺🇸 *bounces excitedly*\n\n**JAMES MADISON (1751-1836):**\n\n📜 **Primary architect** of the Constitution - that's why he's called the 'Father of the Constitution!'\n✍️ **Author** of the Bill of Rights - our first 10 amendments!\n🇺🇸 **Fourth President** of the United States (1809-1817)\n⚖️ **Created** the system of checks and balances\n\n*sits thoughtfully* He studied every government in history to design the best one for America! He made sure we got the Bill of Rights to protect our freedoms forever! *spins happily* He understood that power needed to be divided so no one person could become too powerful! *tilts head admiringly* He was brilliant and helped create the amazing system of government we have today! 📚⚖️🇺🇸🐕"
         ]
       },
 
@@ -260,8 +382,32 @@ class CatholicDoctrineService {
   checkForDoctrineTopics(message) {
     const lowerMessage = message.toLowerCase()
     
-    // Check specific amendments FIRST (higher priority than general constitution)
-    const amendmentTopics = ['firstamendment', 'secondamendment', 'thirdamendment', 'fourthamendment', 'fifthamendment', 'sixthamendment', 'seventhamendment', 'eighthamendment', 'ninthamendment', 'tenthamendment'];
+    // Check founding documents FIRST (highest priority)
+    const foundingDocumentTopics = ['declarationofindependence', 'fullconstitution', 'billofrights'];
+    
+    // Check specific amendments SECOND (higher priority than general constitution)
+    const amendmentTopics = ['firstamendment', 'secondamendment', 'thirdamendment', 'fourteenthamendment', 'fifteenthamendment', 'sixthamendment', 'seventhamendment', 'eighthamendment', 'nineteenthamendment', 'tenthamendment', 'thirteenthamendment', 'fourteenthamendment', 'fifteenthamendment', 'nineteenthamendment'];
+    
+    // Check founding fathers THIRD (higher priority than general constitution)
+    const foundingFatherTopics = ['georgewashington', 'thomasjefferson', 'benjaminfranklin', 'johnadams', 'jamesmadison'];
+    
+    // Check founding documents first
+    for (const topicKey of foundingDocumentTopics) {
+      const topic = this.doctrineTopics[topicKey];
+      if (topic) {
+        for (const keyword of topic.keywords) {
+          if (lowerMessage.includes(keyword.toLowerCase())) {
+            console.log(`✝️ Catholic doctrine topic detected: ${topicKey} (${keyword})`)
+            return {
+              topic: topicKey,
+              keyword: keyword,
+              priority: topic.priority || 1,
+              data: topic
+            }
+          }
+        }
+      }
+    }
     
     for (const topicKey of amendmentTopics) {
       const topic = this.doctrineTopics[topicKey];
@@ -279,9 +425,26 @@ class CatholicDoctrineService {
       }
     }
     
+    // Check founding fathers SECOND (higher priority than general constitution)
+    for (const topicKey of foundingFatherTopics) {
+      const topic = this.doctrineTopics[topicKey];
+      if (topic) {
+        for (const keyword of topic.keywords) {
+          if (lowerMessage.includes(keyword.toLowerCase())) {
+            console.log(`✝️ Catholic doctrine topic detected: ${topicKey} (${keyword})`)
+            return {
+              topic: topicKey,
+              data: topic,
+              matchedKeyword: keyword
+            }
+          }
+        }
+      }
+    }
+    
     // Then check all other topics
     for (const [topicKey, topic] of Object.entries(this.doctrineTopics)) {
-      if (amendmentTopics.includes(topicKey)) continue; // Skip amendments, already checked
+      if (foundingDocumentTopics.includes(topicKey) || amendmentTopics.includes(topicKey) || foundingFatherTopics.includes(topicKey)) continue; // Skip already checked
       
       for (const keyword of topic.keywords) {
         if (lowerMessage.includes(keyword.toLowerCase())) {

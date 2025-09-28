@@ -58,14 +58,20 @@ const PreReleaseTestSuite = {
       const videoResults = await PreReleaseTestSuite.testVideoSystem();
       PreReleaseTestSuite.updateResults(results, 'videos', videoResults);
       
-      // 6. Core Features Tests
-      console.log("\n⚙️ CATEGORY 6: CORE FEATURES TESTS");
+      // 6. Constitutional Content Tests (NEW v6.1.0 - CRITICAL)
+      console.log("\n🇺🇸 CATEGORY 6: CONSTITUTIONAL CONTENT TESTS");
+      console.log("-".repeat(40));
+      const constitutionalResults = await PreReleaseTestSuite.testConstitutionalContent();
+      PreReleaseTestSuite.updateResults(results, 'constitutional', constitutionalResults);
+      
+      // 7. Core Features Tests
+      console.log("\n⚙️ CATEGORY 7: CORE FEATURES TESTS");
       console.log("-".repeat(40));
       const coreResults = await PreReleaseTestSuite.testCoreFeatures();
       PreReleaseTestSuite.updateResults(results, 'core', coreResults);
       
-      // 7. Integration Tests
-      console.log("\n🔗 CATEGORY 7: INTEGRATION TESTS");
+      // 8. Integration Tests
+      console.log("\n🔗 CATEGORY 8: INTEGRATION TESTS");
       console.log("-".repeat(40));
       const integrationResults = await PreReleaseTestSuite.testIntegration();
       PreReleaseTestSuite.updateResults(results, 'integration', integrationResults);
@@ -243,6 +249,80 @@ const PreReleaseTestSuite = {
       console.log('✅ IntegrationTests initialized')
     }
 
+    // 13. Constitutional Content Tests (CRITICAL - Must Actually Work)
+    if (!window.ConstitutionalTests) {
+      window.ConstitutionalTests = {
+        testGeorgeWashington: () => {
+          const result = window.CatholicDoctrineService?.checkForDoctrineTopics('tell me about George Washington')
+          return { 
+            passed: result && result.topic === 'georgewashington',
+            details: result ? `Detected: ${result.topic}` : 'No detection - CRITICAL FAILURE'
+          }
+        },
+        test13thAmendment: () => {
+          const result = window.CatholicDoctrineService?.checkForDoctrineTopics('tell me about the 13th amendment')
+          return { 
+            passed: result && result.topic === 'thirteenthamendment',
+            details: result ? `Detected: ${result.topic}` : 'No detection - CRITICAL FAILURE'
+          }
+        },
+        testFoundingFathers: () => {
+          const tests = [
+            { name: 'George Washington', expected: 'georgewashington' },
+            { name: 'Thomas Jefferson', expected: 'thomasjefferson' }, 
+            { name: 'Benjamin Franklin', expected: 'benjaminfranklin' },
+            { name: 'John Adams', expected: 'johnadams' },
+            { name: 'James Madison', expected: 'jamesmadison' }
+          ]
+          let passed = 0
+          let total = tests.length
+          let failures = []
+          
+          tests.forEach(({ name, expected }) => {
+            const result = window.CatholicDoctrineService?.checkForDoctrineTopics(`tell me about ${name}`)
+            if (result && result.topic === expected) {
+              passed++
+            } else {
+              failures.push(`${name}: ${result ? result.topic : 'NO DETECTION'}`)
+            }
+          })
+          
+          return {
+            passed: passed === total,
+            details: `${passed}/${total} founding fathers detected. Failures: ${failures.join(', ')}`
+          }
+        },
+        testAmendments: () => {
+          const amendments = [
+            { text: '1st amendment', expected: 'firstamendment' },
+            { text: '13th amendment', expected: 'thirteenthamendment' },
+            { text: '14th amendment', expected: 'fourteenthamendment' },
+            { text: '15th amendment', expected: 'fifteenthamendment' },
+            { text: '19th amendment', expected: 'nineteenthamendment' }
+          ]
+          
+          let passed = 0
+          let total = amendments.length
+          let failures = []
+          
+          amendments.forEach(({ text, expected }) => {
+            const result = window.CatholicDoctrineService?.checkForDoctrineTopics(`tell me about the ${text}`)
+            if (result && result.topic === expected) {
+              passed++
+            } else {
+              failures.push(`${text}: ${result ? result.topic : 'NO DETECTION'}`)
+            }
+          })
+          
+          return {
+            passed: passed === total,
+            details: `${passed}/${total} amendments detected. Failures: ${failures.join(', ')}`
+          }
+        }
+      }
+      console.log('✅ ConstitutionalTests initialized')
+    }
+
     console.log('✅ All test services initialized successfully')
     
     const serviceStatus = {
@@ -256,7 +336,8 @@ const PreReleaseTestSuite = {
       GameSystem: !!window.GameSystem,
       SoundSystem: !!window.SoundSystem,
       CoreFeatures: !!window.CoreFeatures,
-      IntegrationTests: !!window.IntegrationTests
+      IntegrationTests: !!window.IntegrationTests,
+      ConstitutionalTests: !!window.ConstitutionalTests
     }
     
     console.log('📊 Available services:', serviceStatus)
@@ -729,7 +810,139 @@ const PreReleaseTestSuite = {
     return results;
   },
   
-  // 6. Core Features Tests
+  // 6. Constitutional Content Tests (NEW v6.1.0 - CRITICAL)
+  testConstitutionalContent: async () => {
+    const results = { passed: 0, failed: 0, total: 0, details: [], failedTests: [] };
+    
+    try {
+      console.log("🧪 Testing Constitutional Content Detection...");
+      
+      // Test 1: George Washington Detection
+      console.log("🧪 Testing George Washington detection...");
+      if (window.ConstitutionalTests) {
+        const washingtonTest = window.ConstitutionalTests.testGeorgeWashington();
+        if (washingtonTest.passed) {
+          results.passed++;
+          console.log("✅ George Washington detection working");
+        } else {
+          results.failed++;
+          console.log(`❌ George Washington detection failed: ${washingtonTest.details}`);
+          results.failedTests.push("George Washington detection");
+        }
+        results.total++;
+        results.details.push(`George Washington: ${washingtonTest.passed ? 'PASS' : 'FAIL'}`);
+      } else {
+        results.failed++;
+        results.total++;
+        results.details.push("❌ Constitutional tests not available");
+      }
+      
+      // Test 2: 13th Amendment Detection
+      console.log("🧪 Testing 13th Amendment detection...");
+      if (window.ConstitutionalTests) {
+        const amendmentTest = window.ConstitutionalTests.test13thAmendment();
+        if (amendmentTest.passed) {
+          results.passed++;
+          console.log("✅ 13th Amendment detection working");
+        } else {
+          results.failed++;
+          console.log(`❌ 13th Amendment detection failed: ${amendmentTest.details}`);
+          results.failedTests.push("13th Amendment detection");
+        }
+        results.total++;
+        results.details.push(`13th Amendment: ${amendmentTest.passed ? 'PASS' : 'FAIL'}`);
+      } else {
+        results.failed++;
+        results.total++;
+        results.details.push("❌ Amendment tests not available");
+      }
+      
+      // Test 3: All Founding Fathers
+      console.log("🧪 Testing all Founding Fathers detection...");
+      if (window.ConstitutionalTests) {
+        const foundersTest = window.ConstitutionalTests.testFoundingFathers();
+        if (foundersTest.passed) {
+          results.passed++;
+          console.log("✅ All Founding Fathers detection working");
+        } else {
+          results.failed++;
+          console.log(`❌ Founding Fathers detection failed: ${foundersTest.details}`);
+          results.failedTests.push("Founding Fathers detection");
+        }
+        results.total++;
+        results.details.push(`Founding Fathers: ${foundersTest.passed ? 'PASS' : 'FAIL'} - ${foundersTest.details}`);
+      } else {
+        results.failed++;
+        results.total++;
+        results.details.push("❌ Founding Fathers tests not available");
+      }
+      
+      // Test 4: All Amendments
+      console.log("🧪 Testing all Amendments detection...");
+      if (window.ConstitutionalTests) {
+        const amendmentsTest = window.ConstitutionalTests.testAmendments();
+        if (amendmentsTest.passed) {
+          results.passed++;
+          console.log("✅ All Amendments detection working");
+        } else {
+          results.failed++;
+          console.log(`❌ Amendments detection failed: ${amendmentsTest.details}`);
+          results.failedTests.push("Amendments detection");
+        }
+        results.total++;
+        results.details.push(`Amendments: ${amendmentsTest.passed ? 'PASS' : 'FAIL'} - ${amendmentsTest.details}`);
+      } else {
+        results.failed++;
+        results.total++;
+        results.details.push("❌ Amendments tests not available");
+      }
+      
+      // Test 5: Content Response Quality
+      console.log("🧪 Testing constitutional content response quality...");
+      if (window.CatholicDoctrineService) {
+        const testQueries = [
+          'tell me about George Washington',
+          'tell me about the 13th amendment',
+          'tell me about Thomas Jefferson'
+        ];
+        
+        let responsesPassed = 0;
+        testQueries.forEach(query => {
+          const detection = window.CatholicDoctrineService.checkForDoctrineTopics(query);
+          if (detection && detection.data && detection.data.responses && detection.data.responses.length > 0) {
+            const response = detection.data.responses[0];
+            if (response.length > 100 && response.includes('*')) { // Check for Daisy personality and substantial content
+              responsesPassed++;
+              console.log(`✅ Quality response for: ${query}`);
+            } else {
+              console.log(`❌ Poor quality response for: ${query}`);
+              results.failedTests.push(`Poor response quality: ${query}`);
+            }
+          } else {
+            console.log(`❌ No response for: ${query}`);
+            results.failedTests.push(`No response: ${query}`);
+          }
+          results.total++;
+        });
+        
+        results.passed += responsesPassed;
+        results.failed += (testQueries.length - responsesPassed);
+        results.details.push(`Response Quality: ${responsesPassed}/${testQueries.length}`);
+      } else {
+        results.failed += 3;
+        results.total += 3;
+        results.details.push("❌ CatholicDoctrineService not available");
+      }
+      
+    } catch (error) {
+      console.error("❌ Constitutional content test error:", error);
+      results.details.push(`❌ Constitutional test error: ${error.message}`);
+    }
+    
+    return results;
+  },
+  
+  // 7. Core Features Tests
   testCoreFeatures: async () => {
     const results = { passed: 0, failed: 0, total: 0, details: [], failedTests: [] };
     
@@ -1009,27 +1222,110 @@ const PreReleaseTestSuite = {
   },
   
   // Quick test for specific features
-  quickTest: (feature) => {
+  quickTest: async (feature = 'all') => {
     console.log(`🔍 Quick Test: ${feature}`);
+    console.log("=".repeat(40));
     
-    switch (feature.toLowerCase()) {
-      case 'safety':
-        return PreReleaseTestSuite.testSafetySystem();
-      case 'bible':
-        return PreReleaseTestSuite.testBibleSystem();
-      case 'games':
-        return PreReleaseTestSuite.testGameSystem();
-      case 'sounds':
-        return PreReleaseTestSuite.testSoundSystem();
-      case 'videos':
-        return PreReleaseTestSuite.testVideoSystem();
-      case 'core':
-        return PreReleaseTestSuite.testCoreFeatures();
-      case 'integration':
-        return PreReleaseTestSuite.testIntegration();
-      default:
-        console.log("❌ Unknown feature. Available: safety, bible, games, sounds, videos, core, integration");
-        return null;
+    // Initialize test services first (same as full test suite)
+    console.log("🔧 Initializing test services for quick test...");
+    PreReleaseTestSuite.initializeTestServices();
+    
+    try {
+      let results = null;
+      
+      switch (feature.toLowerCase()) {
+        case 'safety':
+          results = await PreReleaseTestSuite.testSafetySystem();
+          break;
+        case 'bible':
+          results = await PreReleaseTestSuite.testBibleSystem();
+          break;
+        case 'games':
+          results = await PreReleaseTestSuite.testGameSystem();
+          break;
+        case 'sounds':
+          results = await PreReleaseTestSuite.testSoundSystem();
+          break;
+        case 'videos':
+          results = await PreReleaseTestSuite.testVideoSystem();
+          break;
+        case 'constitution':
+          results = await PreReleaseTestSuite.testConstitutionalContent();
+          break;
+        case 'core':
+          results = await PreReleaseTestSuite.testCoreFeatures();
+          break;
+        case 'integration':
+          results = await PreReleaseTestSuite.testIntegration();
+          break;
+        case 'all':
+          console.log("🧪 Running all quick tests...");
+          const allResults = {
+            safety: await PreReleaseTestSuite.testSafetySystem(),
+            bible: await PreReleaseTestSuite.testBibleSystem(),
+            constitution: await PreReleaseTestSuite.testConstitutionalContent(),
+            core: await PreReleaseTestSuite.testCoreFeatures()
+          };
+          
+          // Display summary for all tests
+          console.log("\n📊 QUICK TEST SUMMARY:");
+          console.log("=".repeat(40));
+          let totalPassed = 0, totalFailed = 0, totalTests = 0;
+          
+          Object.entries(allResults).forEach(([category, result]) => {
+            const passRate = result.total > 0 ? ((result.passed / result.total) * 100).toFixed(1) : '0.0';
+            const status = passRate == 100 ? '✅' : passRate >= 80 ? '⚠️' : '❌';
+            console.log(`${status} ${category.toUpperCase()}: ${result.passed}/${result.total} (${passRate}%)`);
+            
+            totalPassed += result.passed;
+            totalFailed += result.failed;
+            totalTests += result.total;
+          });
+          
+          const overallRate = totalTests > 0 ? ((totalPassed / totalTests) * 100).toFixed(1) : '0.0';
+          console.log("=".repeat(40));
+          console.log(`🎯 OVERALL: ${totalPassed}/${totalTests} (${overallRate}%)`);
+          
+          return allResults;
+        default:
+          console.log("❌ Unknown feature. Available: safety, bible, games, sounds, videos, constitution, core, integration, all");
+          return null;
+      }
+      
+      // Display results for single test
+      if (results) {
+        console.log(`\n📊 ${feature.toUpperCase()} TEST RESULTS:`);
+        console.log("=".repeat(40));
+        console.log(`✅ Passed: ${results.passed}`);
+        console.log(`❌ Failed: ${results.failed}`);
+        console.log(`📊 Total: ${results.total}`);
+        
+        const passRate = results.total > 0 ? ((results.passed / results.total) * 100).toFixed(1) : '0.0';
+        console.log(`🎯 Pass Rate: ${passRate}%`);
+        
+        if (results.details && results.details.length > 0) {
+          console.log("\n📋 Details:");
+          results.details.forEach(detail => {
+            console.log(`   ${detail}`);
+          });
+        }
+        
+        if (results.failedTests && results.failedTests.length > 0) {
+          console.log("\n🔍 Failed Tests:");
+          results.failedTests.forEach(failure => {
+            console.log(`   ❌ ${failure}`);
+          });
+        }
+        
+        console.log("=".repeat(40));
+        console.log(`✅ Quick test for '${feature}' completed!`);
+      }
+      
+      return results;
+      
+    } catch (error) {
+      console.error(`❌ Quick test error for '${feature}':`, error);
+      return { passed: 0, failed: 1, total: 1, details: [`Error: ${error.message}`], failedTests: [error.message] };
     }
   }
 };
@@ -1047,7 +1343,8 @@ if (typeof window !== 'undefined') {
   console.log("✅ Pre-Release Test Suite loaded!");
   console.log("📋 Available commands:");
   console.log("   window.runPreReleaseTests() - Run full test suite");
-  console.log("   window.quickTest('safety') - Test specific feature");
+  console.log("   window.quickTest('constitution') - Test constitutional content");
+  console.log("   window.quickTest('safety') - Test safety system");
   console.log("   window.testSafetyFix() - Test safety system fixes");
   console.log("   window.checkVideoFiles() - Check video file availability");
   console.log("   window.videoStatus() - Get video system status");

@@ -313,7 +313,7 @@ class SupabaseService {
       }
 
       const { data, error } = await this.supabase
-        .from('user_sessions')
+        .from('sessions')
         .insert([sessionData])
         .select()
         .single()
@@ -394,8 +394,8 @@ class SupabaseService {
       timestamp: new Date().toISOString()
     }
 
-    if (!this.isAvailable()) {
-      console.log('⚡ Performance metric (local):', metricData)
+    if (!this.isAvailable() || this.currentSession.local || this.currentSession.mock) {
+      console.log('📊 Performance metric (local):', metricData)
       return metricData
     }
 
@@ -404,17 +404,25 @@ class SupabaseService {
         .from('performance_logs')
         .insert(metricData)
 
-      if (error) throw error
-      console.log('⚡ Performance logged:', metricName, value)
+      if (error) {
+        // If it's a foreign key constraint error, don't log to console as error
+        if (error.code === '23503') {
+          console.log('📊 Performance metric (local - session not in remote DB):', metricData)
+          return metricData
+        }
+        throw error
+      }
+      console.log('📊 Performance metric logged:', metricName, value)
       return data
     } catch (error) {
-      console.error('Error logging performance:', error)
-      return null
+      console.warn('Performance logging fallback to local:', error.message)
+      return metricData
     }
   }
 
   /**
    * Log feature usage (anonymous)
+{{ ... }}
    */
   async logFeatureUsage(featureName, actionType, durationSeconds = null) {
     if (!this.currentSession) {
@@ -426,6 +434,12 @@ class SupabaseService {
         console.error('Failed to create session for logging:', error)
         return null
       }
+    }
+
+    // If session is local only, don't try to use session_id in database
+    if (this.currentSession && !this.currentSession.remote) {
+      console.log('🎯 Feature usage (local session):', { featureName, actionType, durationSeconds })
+      return { featureName, actionType, durationSeconds, timestamp: new Date().toISOString() }
     }
 
     const usageData = {
