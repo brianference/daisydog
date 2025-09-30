@@ -364,7 +364,7 @@ class VoiceService {
    * @param {string} text - Transcript text
    * @returns {Object} { isSafe, concerns }
    */
-  async applycontentSafetyFilter(text) {
+  async applyContentSafetyFilter(text) {
     try {
       const authToken = await this.getAuthToken();
 

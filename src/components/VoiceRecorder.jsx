@@ -88,15 +88,16 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false }) => {
         const result = await voiceService.transcribeAudio(audioBlob);
         
         // Safety check
-        const safety = await voiceService.applycontentSafetyFilter(result.text);
+        const safety = await voiceService.applyContentSafetyFilter(result.text);
         
         if (onTranscriptComplete) {
-          onTranscriptComplete({
-            text: result.text,
-            isSafe: safety.isSafe,
-            concerns: safety.concerns,
-            timestamp: result.timestamp
-          });
+          // If safe, pass the transcript text; otherwise show error
+          if (safety.isSafe) {
+            onTranscriptComplete(result.text);
+          } else {
+            onError?.(`That message wasn't appropriate. Let's talk about something else!`);
+            return;
+          }
         }
       }
 

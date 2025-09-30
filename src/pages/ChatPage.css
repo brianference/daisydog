@@ -285,7 +285,8 @@
 /* Tooltip Styles - Simplified for reliability */
 .quick-btn[data-tooltip]::after,
 .send-button[data-tooltip]::after,
-.feed-button[data-tooltip]::after {
+.feed-button[data-tooltip]::after,
+.voice-button[data-tooltip]::after {
   content: attr(data-tooltip);
   position: absolute;
   top: calc(100% + 10px); /* Position below button with 10px gap */
@@ -306,7 +307,8 @@
 
 .quick-btn[data-tooltip]::before,
 .send-button[data-tooltip]::before,
-.feed-button[data-tooltip]::before {
+.feed-button[data-tooltip]::before,
+.voice-button[data-tooltip]::before {
   content: '';
   position: absolute;
   top: calc(100% + 5px); /* Position arrow between button and text */
@@ -325,7 +327,9 @@
 .send-button[data-tooltip]:hover::after,
 .send-button[data-tooltip]:hover::before,
 .feed-button[data-tooltip]:hover::after,
-.feed-button[data-tooltip]:hover::before {
+.feed-button[data-tooltip]:hover::before,
+.voice-button[data-tooltip]:hover::after,
+.voice-button[data-tooltip]:hover::before {
   opacity: 1;
 }
 
@@ -356,7 +360,7 @@
   border-color: #ff6b35;
 }
 
-.send-button, .feed-button {
+.send-button, .feed-button, .voice-button {
   padding: 12px;
   border: none;
   border-radius: 50%;
@@ -381,6 +385,11 @@
   color: white;
 }
 
+.voice-button {
+  background: #667eea;
+  color: white;
+}
+
 .send-button:hover:not(:disabled) {
   background: #e55a2b;
   transform: scale(1.05);
@@ -391,9 +400,23 @@
   transform: scale(1.05);
 }
 
-.send-button:disabled, .feed-button:disabled {
+.voice-button:hover:not(:disabled) {
+  background: #5568d3;
+  transform: scale(1.05);
+}
+
+.send-button:disabled, .feed-button:disabled, .voice-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Voice recorder container */
+.voice-recorder-container {
+  margin-bottom: 10px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 
