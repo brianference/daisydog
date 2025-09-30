@@ -293,22 +293,54 @@ const PreReleaseTestSuite = {
           }
         },
         testAmendments: () => {
+          // Test ALL amendments with UI buttons (Bill of Rights 1-10 + Later amendments)
           const amendments = [
-            { text: '1st amendment', expected: 'firstamendment' },
-            { text: '13th amendment', expected: 'thirteenthamendment' },
-            { text: '14th amendment', expected: 'fourteenthamendment' },
-            { text: '15th amendment', expected: 'fifteenthamendment' },
-            { text: '19th amendment', expected: 'nineteenthamendment' }
+            // Bill of Rights (1-10)
+            { text: 'first amendment', expected: 'firstamendment' },
+            { text: 'second amendment', expected: 'secondamendment' },
+            { text: 'third amendment', expected: 'thirdamendment' },
+            { text: 'fourth amendment', expected: 'fourthamendment' },
+            { text: 'fifth amendment', expected: 'fifthamendment' },
+            { text: 'sixth amendment', expected: 'sixthamendment' },
+            { text: 'seventh amendment', expected: 'seventhamendment' },
+            { text: 'eighth amendment', expected: 'eighthamendment' },
+            { text: 'ninth amendment', expected: 'ninthamendment' },
+            { text: 'tenth amendment', expected: 'tenthamendment' },
+            // Later amendments with UI buttons
+            { text: 'thirteenth amendment', expected: 'thirteenthamendment' },
+            { text: 'fourteenth amendment', expected: 'fourteenthamendment' },
+            { text: 'fifteenth amendment', expected: 'fifteenthamendment' },
+            { text: 'sixteenth amendment', expected: 'sixteenthamendment' },
+            { text: 'seventeenth amendment', expected: 'seventeenthamendment' },
+            { text: 'eighteenth amendment', expected: 'eighteenthamendment' },
+            { text: 'nineteenth amendment', expected: 'nineteenthamendment' },
+            { text: 'twenty-first amendment', expected: 'twentyfirstamendment' },
+            { text: 'twenty-second amendment', expected: 'twentysecondamendment' },
+            { text: 'twenty-sixth amendment', expected: 'twentysixthamendment' }
           ]
           
           let passed = 0
           let total = amendments.length
           let failures = []
+          let genericResponses = []
           
           amendments.forEach(({ text, expected }) => {
             const result = window.CatholicDoctrineService?.checkForDoctrineTopics(`tell me about the ${text}`)
+            
+            // Check topic detection
             if (result && result.topic === expected) {
-              passed++
+              // Additional quality check: ensure response is specific, not generic
+              const response = result.data?.responses?.[0] || '';
+              const isGeneric = response.includes('Let me know which specific amendment') || 
+                               response.includes('let me know which amendment') ||
+                               response.length < 100;
+              
+              if (!isGeneric) {
+                passed++
+              } else {
+                failures.push(`${text}: GENERIC RESPONSE`)
+                genericResponses.push(text)
+              }
             } else {
               failures.push(`${text}: ${result ? result.topic : 'NO DETECTION'}`)
             }
@@ -316,7 +348,7 @@ const PreReleaseTestSuite = {
           
           return {
             passed: passed === total,
-            details: `${passed}/${total} amendments detected. Failures: ${failures.join(', ')}`
+            details: `${passed}/${total} amendments with specific content. Failures: ${failures.join(', ')}${genericResponses.length > 0 ? `. Generic responses: ${genericResponses.join(', ')}` : ''}`
           }
         }
       }
