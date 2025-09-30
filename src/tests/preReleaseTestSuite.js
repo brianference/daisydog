@@ -1354,25 +1354,59 @@ const PreReleaseTestSuite = {
         
         results.details.push(`Button Pattern Validation: Checked action vs query button implementations`);
         
-        // Test 4: Tooltip Visibility (NEW v6.2.2)
-        console.log("\n🧪 Testing Button Tooltip Visibility...");
+        // Test 4: Tooltip Visibility (ENHANCED v6.2.3 - Checks CSS overflow issues)
+        console.log("\n🧪 Testing Button Tooltip Visibility & CSS Configuration...");
         const tooltipButtons = document.querySelectorAll('.quick-btn[data-tooltip]');
         let tooltipsPassed = 0;
         let tooltipsTotal = 0;
+        let cssIssues = [];
         
         if (tooltipButtons.length > 0) {
+          // Check parent container for overflow issues
+          const parentContainer = document.querySelector('.quick-actions-compact');
+          if (parentContainer) {
+            const parentStyles = window.getComputedStyle(parentContainer);
+            const overflowX = parentStyles.overflowX;
+            const overflowY = parentStyles.overflowY;
+            
+            console.log(`📋 Parent Container (.quick-actions-compact) overflow settings:`);
+            console.log(`   overflow-x: ${overflowX}`);
+            console.log(`   overflow-y: ${overflowY}`);
+            
+            // CRITICAL: overflow-y must be visible when overflow-x is auto/scroll
+            if ((overflowX === 'auto' || overflowX === 'scroll') && overflowY !== 'visible') {
+              cssIssues.push('Parent container has overflow-x:auto but overflow-y is not visible - tooltips will be clipped!');
+              console.log(`❌ CRITICAL: overflow-y should be "visible" but is "${overflowY}"`);
+              results.failed++;
+              results.failedTests.push('Tooltip CSS: Parent container clips tooltips with overflow settings');
+            } else if (overflowY === 'visible') {
+              console.log(`✅ Parent container allows vertical overflow for tooltips`);
+              results.passed++;
+            } else {
+              console.log(`⚠️  Parent overflow-y: ${overflowY}`);
+              results.passed++;
+            }
+            results.total++;
+          }
+          
+          // Check individual buttons
           tooltipButtons.forEach((button, index) => {
             const tooltip = button.getAttribute('data-tooltip');
             const hasTooltip = tooltip && tooltip.length > 0;
             
-            // Check if tooltip CSS is present
-            const styles = window.getComputedStyle(button, '::after');
-            const hasTooltipCSS = styles && styles.content !== 'none';
+            // Check button positioning
+            const buttonStyles = window.getComputedStyle(button);
+            const position = buttonStyles.position;
+            
+            // Buttons must have position: relative for ::after absolute positioning to work
+            if (position !== 'relative' && position !== 'absolute') {
+              cssIssues.push(`Button ${index} has position:${position} - should be relative for tooltips`);
+            }
             
             if (hasTooltip) {
               tooltipsPassed++;
               if (index < 3) { // Only log first few to avoid spam
-                console.log(`✅ Button has tooltip: "${tooltip}"`);
+                console.log(`✅ Button ${index} has tooltip: "${tooltip}"`);
               }
             } else {
               results.failedTests.push(`Button ${index} missing tooltip attribute`);
@@ -1384,9 +1418,20 @@ const PreReleaseTestSuite = {
           
           results.passed += tooltipsPassed;
           results.failed += (tooltipsTotal - tooltipsPassed);
-          results.details.push(`Tooltips: ${tooltipsPassed}/${tooltipsTotal} buttons have data-tooltip attributes`);
           
-          console.log(`📊 Tooltip Summary: ${tooltipsPassed}/${tooltipsTotal} buttons have tooltip attributes`);
+          // Report CSS issues
+          if (cssIssues.length > 0) {
+            console.log('\n🚨 TOOLTIP CSS ISSUES DETECTED:');
+            cssIssues.forEach(issue => {
+              console.log(`   🔴 ${issue}`);
+            });
+            results.details.push(`Tooltips: ${cssIssues.length} CSS configuration issue(s) found`);
+          } else {
+            console.log('✅ Tooltip CSS configuration looks good');
+          }
+          
+          results.details.push(`Tooltips: ${tooltipsPassed}/${tooltipsTotal} buttons have data-tooltip attributes`);
+          console.log(`📊 Tooltip Summary: ${tooltipsPassed}/${tooltipsTotal} buttons configured correctly`);
         } else {
           console.log("⚠️ No buttons with data-tooltip found - may not be on chat page");
           results.details.push(`Tooltips: Skipped (not on chat page)`);

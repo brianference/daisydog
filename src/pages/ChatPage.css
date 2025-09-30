@@ -789,8 +789,9 @@
     font-size: 1.2rem;
   }
   
+  /* Hide "Your friendly AI companion" text on mobile to save space */
   .daisy-details p {
-    font-size: 0.8rem;
+    display: none;
   }
   
   /* Status indicators mobile */
