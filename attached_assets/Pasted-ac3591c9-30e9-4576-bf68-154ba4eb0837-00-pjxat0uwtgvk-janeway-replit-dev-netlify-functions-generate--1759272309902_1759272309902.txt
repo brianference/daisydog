@@ -1,0 +1,122 @@
+ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/.netlify/functions/generate-voice-token:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+Console.js:61 ❌ Failed to get auth token: Error: Failed to generate auth token
+    at VoiceService.getAuthToken (VoiceService.js:82:15)
+    at async VoiceService.transcribeAudio (VoiceService.js:212:25)
+    at async stopRecording (VoiceRecorder.jsx:81:24)
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 ❌ Transcription failed: Error: Failed to generate auth token
+    at VoiceService.getAuthToken (VoiceService.js:82:15)
+    at async VoiceService.transcribeAudio (VoiceService.js:212:25)
+    at async stopRecording (VoiceRecorder.jsx:81:24)
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 Failed to stop recording: Error: Failed to generate auth token
+    at VoiceService.getAuthToken (VoiceService.js:82:15)
+    at async VoiceService.transcribeAudio (VoiceService.js:212:25)
+    at async stopRecording (VoiceRecorder.jsx:81:24)
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 🎤 Voice error: Failed to process recording. Please try again.
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 🖼️ Avatar loaded: confused → /assets/images/emotions/thinking.png
+Console.js:61 🎤 Recording started
+Console.js:61 🎤 Recording stopped
+Console.js:61 🔄 Transcribing audio via Netlify...
+injected.js:278  POST https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/.netlify/functions/generate-voice-token 401 (Unauthorized)
+window.fetch @ Network.js:219
+apply @ injected.js:278
+getAuthToken @ VoiceService.js:71
+transcribeAudio @ VoiceService.js:212
+await in transcribeAudio
+stopRecording @ VoiceRecorder.jsx:81
+await in stopRecording
+Nb @ chunk-K5XMU2MF.js?v=956cde7a:975
+Tb @ chunk-K5XMU2MF.js?v=956cde7a:991
+Ub @ chunk-K5XMU2MF.js?v=956cde7a:994
+nf @ chunk-K5XMU2MF.js?v=956cde7a:2017
+se @ chunk-K5XMU2MF.js?v=956cde7a:2040
+(anonymous) @ chunk-K5XMU2MF.js?v=956cde7a:2312
+Qk @ chunk-K5XMU2MF.js?v=956cde7a:5701
+Jb @ chunk-K5XMU2MF.js?v=956cde7a:927
+hd @ chunk-K5XMU2MF.js?v=956cde7a:2113
+fd @ chunk-K5XMU2MF.js?v=956cde7a:1454
+ed @ chunk-K5XMU2MF.js?v=956cde7a:1437
+Console.js:61 ❌ Failed to get auth token: Error: Failed to generate auth token
+    at VoiceService.getAuthToken (VoiceService.js:82:15)
+    at async VoiceService.transcribeAudio (VoiceService.js:212:25)
+    at async stopRecording (VoiceRecorder.jsx:81:24)
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ ChatPage.jsx:1117
+getAuthToken @ VoiceService.js:91
+await in getAuthToken
+transcribeAudio @ VoiceService.js:212
+await in transcribeAudio
+stopRecording @ VoiceRecorder.jsx:81
+await in stopRecording
+Nb @ chunk-K5XMU2MF.js?v=956cde7a:975
+Tb @ chunk-K5XMU2MF.js?v=956cde7a:991
+Ub @ chunk-K5XMU2MF.js?v=956cde7a:994
+nf @ chunk-K5XMU2MF.js?v=956cde7a:2017
+se @ chunk-K5XMU2MF.js?v=956cde7a:2040
+(anonymous) @ chunk-K5XMU2MF.js?v=956cde7a:2312
+Qk @ chunk-K5XMU2MF.js?v=956cde7a:5701
+Jb @ chunk-K5XMU2MF.js?v=956cde7a:927
+hd @ chunk-K5XMU2MF.js?v=956cde7a:2113
+fd @ chunk-K5XMU2MF.js?v=956cde7a:1454
+ed @ chunk-K5XMU2MF.js?v=956cde7a:1437
+Console.js:61 ❌ Transcription failed: Error: Failed to generate auth token
+    at VoiceService.getAuthToken (VoiceService.js:82:15)
+    at async VoiceService.transcribeAudio (VoiceService.js:212:25)
+    at async stopRecording (VoiceRecorder.jsx:81:24)
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ ChatPage.jsx:1117
+transcribeAudio @ VoiceService.js:243
+await in transcribeAudio
+stopRecording @ VoiceRecorder.jsx:81
+await in stopRecording
+Nb @ chunk-K5XMU2MF.js?v=956cde7a:975
+Tb @ chunk-K5XMU2MF.js?v=956cde7a:991
+Ub @ chunk-K5XMU2MF.js?v=956cde7a:994
+nf @ chunk-K5XMU2MF.js?v=956cde7a:2017
+se @ chunk-K5XMU2MF.js?v=956cde7a:2040
+(anonymous) @ chunk-K5XMU2MF.js?v=956cde7a:2312
+Qk @ chunk-K5XMU2MF.js?v=956cde7a:5701
+Jb @ chunk-K5XMU2MF.js?v=956cde7a:927
+hd @ chunk-K5XMU2MF.js?v=956cde7a:2113
+fd @ chunk-K5XMU2MF.js?v=956cde7a:1454
+ed @ chunk-K5XMU2MF.js?v=956cde7a:1437
+Console.js:61 Failed to stop recording: Error: Failed to generate auth token
+    at VoiceService.getAuthToken (VoiceService.js:82:15)
+    at async VoiceService.transcribeAudio (VoiceService.js:212:25)
+    at async stopRecording (VoiceRecorder.jsx:81:24)
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ ChatPage.jsx:1117
+stopRecording @ VoiceRecorder.jsx:102
+await in stopRecording
+Nb @ chunk-K5XMU2MF.js?v=956cde7a:975
+Tb @ chunk-K5XMU2MF.js?v=956cde7a:991
+Ub @ chunk-K5XMU2MF.js?v=956cde7a:994
+nf @ chunk-K5XMU2MF.js?v=956cde7a:2017
+se @ chunk-K5XMU2MF.js?v=956cde7a:2040
+(anonymous) @ chunk-K5XMU2MF.js?v=956cde7a:2312
+Qk @ chunk-K5XMU2MF.js?v=956cde7a:5701
+Jb @ chunk-K5XMU2MF.js?v=956cde7a:927
+hd @ chunk-K5XMU2MF.js?v=956cde7a:2113
+fd @ chunk-K5XMU2MF.js?v=956cde7a:1454
+ed @ chunk-K5XMU2MF.js?v=956cde7a:1437
+Console.js:61 🎤 Voice error: Failed to process recording. Please try again.
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ ChatPage.jsx:1117
+handleVoiceError @ ChatPage.jsx:224
+stopRecording @ VoiceRecorder.jsx:104
+await in stopRecording
+Nb @ chunk-K5XMU2MF.js?v=956cde7a:975
+Tb @ chunk-K5XMU2MF.js?v=956cde7a:991
+Ub @ chunk-K5XMU2MF.js?v=956cde7a:994
+nf @ chunk-K5XMU2MF.js?v=956cde7a:2017
+se @ chunk-K5XMU2MF.js?v=956cde7a:2040
+(anonymous) @ chunk-K5XMU2MF.js?v=956cde7a:2312
+Qk @ chunk-K5XMU2MF.js?v=956cde7a:5701
+Jb @ chunk-K5XMU2MF.js?v=956cde7a:927
+hd @ chunk-K5XMU2MF.js?v=956cde7a:2113
+fd @ chunk-K5XMU2MF.js?v=956cde7a:1454
+ed @ chunk-K5XMU2MF.js?v=956cde7a:1437
+Console.js:61 🖼️ Avatar loaded: confused → /assets/images/emotions/thinking.png
