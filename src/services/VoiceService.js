@@ -2,18 +2,20 @@
  * VoiceService - OpenAI Audio API integration for DaisyDog
  * Handles voice input (Whisper) and voice output (TTS)
  * 
+ * Security: All OpenAI calls routed through Netlify serverless functions
  * Privacy: Audio processed by OpenAI with 30-day retention
  * Transcripts stored locally for 7 days with parent access
  */
 
-import OpenAI from 'openai';
 import supabaseService from './SupabaseService';
 
-// the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ 
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true // Required for client-side use
-});
+// Netlify function endpoints (deployed at /.netlify/functions/)
+const NETLIFY_FUNCTIONS = {
+  generateToken: '/.netlify/functions/generate-voice-token',
+  speechToText: '/.netlify/functions/speech-to-text',
+  textToSpeech: '/.netlify/functions/text-to-speech',
+  moderateContent: '/.netlify/functions/moderate-content'
+};
 
 class VoiceService {
   constructor() {
@@ -23,6 +25,8 @@ class VoiceService {
     this.audioChunks = [];
     this.currentEmotion = 'HAPPY';
     this.currentMode = 'play'; // prayer, story, teaching, play
+    this.authToken = null;
+    this.tokenExpiry = null;
     
     this.initialize();
   }
@@ -32,14 +36,6 @@ class VoiceService {
    */
   async initialize() {
     try {
-      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-      
-      if (!apiKey) {
-        console.warn('⚠️ OpenAI API key not configured. Voice features will be disabled.');
-        this.isInitialized = false;
-        return;
-      }
-
       // Check browser support
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         console.warn('⚠️ Browser does not support audio recording');
@@ -48,7 +44,7 @@ class VoiceService {
       }
 
       this.isInitialized = true;
-      console.log('✅ VoiceService initialized');
+      console.log('✅ VoiceService initialized (Netlify functions)');
     } catch (error) {
       console.error('❌ Failed to initialize VoiceService:', error);
       this.isInitialized = false;
@@ -56,10 +52,49 @@ class VoiceService {
   }
 
   /**
+   * Get or refresh authentication token
+   */
+  async getAuthToken() {
+    if (this.authToken && this.tokenExpiry && Date.now() < this.tokenExpiry) {
+      return this.authToken;
+    }
+
+    const session = supabaseService.getCurrentSession();
+    if (!session || !session.id) {
+      throw new Error('No active session for voice features');
+    }
+
+    try {
+      const response = await fetch(NETLIFY_FUNCTIONS.generateToken, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId: session.id
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate auth token');
+      }
+
+      const { token, expiresIn } = await response.json();
+      this.authToken = token;
+      this.tokenExpiry = Date.now() + expiresIn - 60000;
+
+      return token;
+    } catch (error) {
+      console.error('❌ Failed to get auth token:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Check if voice features are available
    */
   isAvailable() {
-    return this.isInitialized && !!import.meta.env.VITE_OPENAI_API_KEY;
+    return this.isInitialized;
   }
 
   /**
@@ -153,7 +188,7 @@ class VoiceService {
   }
 
   /**
-   * Transcribe audio using OpenAI Whisper API
+   * Transcribe audio using OpenAI Whisper API (via Netlify function)
    * @param {Blob} audioBlob - Audio blob to transcribe
    * @returns {Object} { text, duration, language }
    */
@@ -163,26 +198,42 @@ class VoiceService {
     }
 
     try {
-      console.log('🔄 Transcribing audio...');
+      console.log('🔄 Transcribing audio via Netlify...');
 
-      // Convert blob to file
-      const audioFile = new File([audioBlob], 'recording.webm', { type: 'audio/webm' });
+      // Convert blob to base64 for transmission
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      const base64Audio = btoa(
+        new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+      );
 
-      const transcription = await openai.audio.transcriptions.create({
-        file: audioFile,
-        model: 'whisper-1',
-        language: 'en', // Can support Spanish later
-        response_format: 'json'
+      const authToken = await this.getAuthToken();
+
+      const response = await fetch(NETLIFY_FUNCTIONS.speechToText, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          audioBase64: base64Audio,
+          language: 'en'
+        })
       });
 
-      console.log('✅ Transcription complete:', transcription.text);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Transcription failed');
+      }
+
+      const { text, language } = await response.json();
+      console.log('✅ Transcription complete:', text);
 
       // Save transcript to database (7-day retention)
-      await this.saveTranscript(transcription.text);
+      await this.saveTranscript(text);
 
       return {
-        text: transcription.text,
-        language: 'en',
+        text,
+        language,
         timestamp: new Date().toISOString()
       };
     } catch (error) {
@@ -192,7 +243,7 @@ class VoiceService {
   }
 
   /**
-   * Generate speech from text using OpenAI TTS
+   * Generate speech from text using OpenAI TTS (via Netlify function)
    * @param {string} text - Text to convert to speech
    * @param {string} emotion - Emotion for voice modulation
    * @param {string} mode - Context mode (prayer, story, teaching, play)
@@ -204,21 +255,42 @@ class VoiceService {
     }
 
     try {
-      console.log('🗣️ Generating speech:', { text: text.substring(0, 50), emotion, mode });
+      console.log('🗣️ Generating speech via Netlify:', { text: text.substring(0, 50), emotion, mode });
 
       this.currentEmotion = emotion;
       this.currentMode = mode;
 
-      const response = await openai.audio.speech.create({
-        model: 'tts-1',
-        voice: 'nova', // Young, friendly female voice
-        input: text,
-        speed: 0.9, // Slightly slower for comprehension
-        response_format: 'mp3'
+      const authToken = await this.getAuthToken();
+
+      const response = await fetch(NETLIFY_FUNCTIONS.textToSpeech, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          text,
+          emotion,
+          mode
+        })
       });
 
-      const audioBlob = await response.blob();
-      console.log('✅ Speech generated');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'TTS generation failed');
+      }
+
+      const { audioBase64 } = await response.json();
+      
+      // Convert base64 back to blob
+      const binaryString = atob(audioBase64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const audioBlob = new Blob([bytes], { type: 'audio/mp3' });
+      
+      console.log('✅ Speech generated with contextual tone');
 
       return audioBlob;
     } catch (error) {
@@ -285,43 +357,60 @@ class VoiceService {
   }
 
   /**
-   * Apply safety filtering to transcript
+   * Apply safety filtering to transcript (FAIL-CLOSED)
    * @param {string} text - Transcript text
    * @returns {Object} { isSafe, concerns }
    */
   async applycontentSafetyFilter(text) {
     try {
-      // Use existing DaisyDog safety system
-      const response = await openai.chat.completions.create({
-        model: 'gpt-5',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a child safety expert. Analyze this text from a child\'s voice input for any concerning content. Respond with JSON: { "isSafe": boolean, "concerns": ["array of concerns"], "category": "age_appropriate|mild_concern|serious_concern" }'
-          },
-          {
-            role: 'user',
-            content: text
-          }
-        ],
-        response_format: { type: 'json_object' }
+      const authToken = await this.getAuthToken();
+
+      const response = await fetch(NETLIFY_FUNCTIONS.moderateContent, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ text })
       });
 
-      const safetyResult = JSON.parse(response.choices[0].message.content);
+      if (!response.ok) {
+        const error = await response.json();
+        
+        if (error.error === 'MODERATION_FAILED') {
+          console.error('❌ Safety filter failed - BLOCKING content');
+          return { 
+            isSafe: false, 
+            concerns: ['Safety check failed'],
+            error: 'SAFETY_CHECK_FAILED'
+          };
+        }
+        
+        throw new Error(error.message || 'Moderation failed');
+      }
 
-      // Log safety event if concerns found
-      if (!safetyResult.isSafe) {
+      const result = await response.json();
+
+      if (!result.isSafe) {
         await supabaseService.logSafetyEvent(
-          'voice_input_concern',
-          safetyResult.category,
-          safetyResult.concerns.join(', ')
+          'voice_input_flagged',
+          'content_moderation',
+          result.categories.join(', ')
         );
       }
 
-      return safetyResult;
+      return {
+        isSafe: result.isSafe,
+        concerns: result.categories || [],
+        flagged: result.flagged
+      };
     } catch (error) {
-      console.error('❌ Safety filter failed:', error);
-      return { isSafe: true, concerns: [] }; // Fail open for now
+      console.error('❌ Safety filter failed - BLOCKING content:', error);
+      return { 
+        isSafe: false, 
+        concerns: ['Safety check unavailable'],
+        error: 'SAFETY_CHECK_ERROR'
+      };
     }
   }
 
