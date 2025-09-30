@@ -136,6 +136,17 @@ The app works with local responses if API keys are not configured.
     * Query buttons → Use handleQuickMessage()
   - Test commands:
     * `window.quickTest('ui')` - UI button pattern tests only
+- **Amendment Detection & Test System Fixes (Sept 30, 2025)**:
+  - **Fixed 26th Amendment Bug**: "twenty-sixth amendment" was incorrectly returning 6th Amendment content
+  - Root cause: Substring matching with wrong array order (sixthamendment checked before twentysixthamendment)
+  - Solution: Reordered amendmentTopics array to check compound amendments (20+) first, teens (13-19) second, single digits (1-10) last
+  - **New Substring Regression Tests**: Added testAmendmentSubstringBugs() testing 7 critical cases (26th→6th, 22nd→2nd, 21st→1st, etc.)
+  - **Enhanced Test Failure Reporting**: Tests now show "got X (expected Y)" format for better debugging
+  - **Tooltip Testing**: Added tooltip visibility tests to UI button pattern category
+  - **Security Fix**: Gated sensitive API key logging behind `import.meta.env.DEV` flag to prevent production exposure
+  - Test commands remain the same:
+    * `window.runPreReleaseTests()` - Full test suite including new substring tests
+    * `window.quickTest('constitution')` - Constitutional content + substring bug tests
 
 ## User Preferences
 (To be added as we learn user preferences)

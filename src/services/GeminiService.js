@@ -71,19 +71,28 @@ class GeminiService {
    */
   async initialize() {
     console.log('🔧 Initializing Gemini Service...')
-    console.log('API Key present:', !!this.apiKey)
-    console.log('API Key length:', this.apiKey?.length || 0)
-    console.log('API Key starts with:', this.apiKey?.substring(0, 10) || 'none')
+    
+    // SECURITY: Only log sensitive info in development mode
+    const isDev = import.meta.env.DEV
+    if (isDev) {
+      console.log('🔐 [DEV ONLY] API Key present:', !!this.apiKey)
+      console.log('🔐 [DEV ONLY] API Key length:', this.apiKey?.length || 0)
+      console.log('🔐 [DEV ONLY] API Key prefix:', this.apiKey?.substring(0, 10) || 'none')
+    } else {
+      console.log('API Key configured:', !!this.apiKey)
+    }
     
     // Check if we're in local development (only disable for localhost)
     const isLocalhost = window.location.hostname === 'localhost' || 
                        window.location.hostname === '127.0.0.1'
     
-    console.log('🌐 Hostname check:', {
-      hostname: window.location.hostname,
-      isLocalhost: isLocalhost,
-      fullURL: window.location.href
-    })
+    if (isDev) {
+      console.log('🌐 [DEV ONLY] Hostname check:', {
+        hostname: window.location.hostname,
+        isLocalhost: isLocalhost,
+        fullURL: window.location.href
+      })
+    }
     
     if (isLocalhost) {
       console.log('🏠 Running on localhost - Gemini API enabled for development')
@@ -406,7 +415,9 @@ Important: Always maintain Daisy's dog personality while being helpful and infor
     console.log('🔍 Environment Check:')
     console.log('- Current URL:', window.location.href)
     console.log('- Environment:', import.meta.env.MODE)
-    console.log('- API Key (first 10 chars):', this.apiKey?.substring(0, 10) || 'none')
+    if (import.meta.env.DEV) {
+      console.log('🔐 [DEV ONLY] - API Key (first 10 chars):', this.apiKey?.substring(0, 10) || 'none')
+    }
     
     if (this.lastError) {
       console.error('❌ Last error details:', this.lastError)
@@ -435,7 +446,11 @@ if (typeof window !== 'undefined') {
   window.geminiStatus = () => geminiService.getStatus()
   window.testGeminiModels = () => geminiService.testAvailableModels()
   window.debugGeminiKey = () => {
-    console.log('🔑 API Key Debug:')
+    if (!import.meta.env.DEV) {
+      console.log('⚠️ API Key debugging is only available in development mode')
+      return
+    }
+    console.log('🔑 [DEV ONLY] API Key Debug:')
     console.log('  Present:', !!geminiService.apiKey)
     console.log('  Length:', geminiService.apiKey?.length || 0)
     console.log('  Starts with:', geminiService.apiKey?.substring(0, 15) || 'none')
@@ -448,7 +463,11 @@ if (typeof window !== 'undefined') {
   }
   window.checkGeminiAPI = async () => {
     console.log('🔍 Checking Gemini API access with multi-version test...')
-    console.log('API Key:', geminiService.apiKey ? `${geminiService.apiKey.substring(0, 15)}...` : 'None')
+    if (import.meta.env.DEV) {
+      console.log('🔐 [DEV ONLY] API Key:', geminiService.apiKey ? `${geminiService.apiKey.substring(0, 15)}...` : 'None')
+    } else {
+      console.log('API Key configured:', !!geminiService.apiKey)
+    }
     
     if (!geminiService.apiKey) {
       console.error('❌ No API key configured')
