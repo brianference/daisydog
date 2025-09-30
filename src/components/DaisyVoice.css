@@ -1,0 +1,151 @@
+/**
+ * DaisyVoice styles
+ */
+
+.daisy-voice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.daisy-voice-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(240, 147, 251, 0.3);
+}
+
+.daisy-voice-button:hover:not(:disabled) {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(240, 147, 251, 0.5);
+}
+
+.daisy-voice-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.daisy-voice-button.playing {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  animation: pulse-voice 2s ease-in-out infinite;
+}
+
+.daisy-voice-button.loading {
+  pointer-events: none;
+}
+
+.daisy-voice-button .icon {
+  font-size: 1.25rem;
+  position: relative;
+  z-index: 2;
+}
+
+.mode-indicator {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  font-size: 0.875rem;
+  background: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-voice {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(102, 126, 234, 0.6);
+  }
+}
+
+.voice-visualizer {
+  display: flex;
+  align-items: center;
+}
+
+.voice-wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 30px;
+}
+
+.wave-bar {
+  width: 3px;
+  background: linear-gradient(to top, #667eea, #764ba2);
+  border-radius: 2px;
+  animation: voice-wave 0.6s ease-in-out infinite;
+}
+
+@keyframes voice-wave {
+  0%, 100% {
+    height: 8px;
+  }
+  50% {
+    height: 24px;
+  }
+}
+
+.daisy-voice-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .daisy-voice-button {
+    width: 42px;
+    height: 42px;
+  }
+
+  .daisy-voice-button .icon {
+    font-size: 1.125rem;
+  }
+
+  .mode-indicator {
+    width: 18px;
+    height: 18px;
+    font-size: 0.75rem;
+  }
+}
