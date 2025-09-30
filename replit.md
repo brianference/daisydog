@@ -187,11 +187,29 @@ The app works with local responses if API keys are not configured.
   - **Enhanced Button Video Variety**: Updated all main action buttons to use unique videos:
     * Tell a Story Button (📚) → Uses `digging.mp4` (curious, exploring) with story snippets
     * Do a Trick Button (🦴) → Uses `roll-over.mp4` (playful tricks) with trick demonstrations
+    * Tell a Joke Button (😄) → Uses `bouncing.mp4` (energetic, excited) with dog jokes
     * Dance Button (💃) → Uses `tail-chase.mp4` (silly, spinning, goofy)
     * Play Games Button (🎮) → Uses `jumping.mp4` (excited, playful jumping)
     * Verse of Day Button (✝️) → Uses `waving.mp4` (friendly, welcoming greeting)
   - **Avatar Image Restoration**: Circular avatars now properly display emotion-based images (happy.png, excited.png, etc.) instead of attempting video playback
   - Console logs confirm proper loading: `🖼️ Avatar loaded: happy → /assets/images/emotions/happy.png`
+- **Portrait Video & Games Submenu Fixes (Sept 30, 2025)**:
+  - **Portrait Video Display Fix**: Adjusted InlineVideoMessage.css to accommodate taller portrait videos
+    * Desktop: Increased height from 200px to 280px
+    * Tablet (≤768px): Increased height from 160px to 220px
+    * Mobile (≤480px): Increased height from 140px to 200px
+    * Added `object-position: center 30%` at all breakpoints to keep Daisy's head visible
+  - **Games Submenu Visibility Fix**: Fixed critical bug where games submenu wasn't appearing
+    * Root cause: Submenus rendered after quick-actions buttons, causing off-screen display with sticky positioning
+    * Solution: Reordered DOM in ChatPage.jsx so all submenus render ABOVE quick-actions buttons
+    * Submenus now appear above buttons in the input container, visible in viewport
+  - **Comprehensive Games Testing (v6.3.0)**: Added robust test suite for games submenu
+    * Button click simulation to trigger submenu
+    * Visibility validation (computed styles, height > 0)
+    * Viewport position check (not clipped off-screen)
+    * DOM order verification (submenu precedes quick-actions)
+    * Automatic cleanup after each test
+    * Run via: `window.runPreReleaseTests()` or `window.quickTest('games')`
 
 ## User Preferences
 (To be added as we learn user preferences)
