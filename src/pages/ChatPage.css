@@ -188,12 +188,12 @@
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 4px; /* Reduced from 8px to 4px for tighter spacing */
-  padding-top: 3px; /* Add padding to prevent button tops from being clipped on hover */
-  padding-bottom: 35px; /* Space for tooltips below buttons - increased from 30px to 35px */
+  margin-bottom: 0px; /* No margin - space comes from padding below for tooltips */
+  padding-top: 5px; /* Small padding to prevent button tops from being clipped */
+  padding-bottom: 40px; /* Generous space for tooltips to display fully */
   flex-wrap: nowrap;
   overflow-x: auto;
-  overflow-y: visible; /* CRITICAL: Allow tooltips to show below buttons */
+  overflow-y: visible !important; /* CRITICAL: Force visible to allow tooltips */
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
@@ -333,6 +333,7 @@
   display: flex;
   gap: 12px;
   align-items: center;
+  margin-top: -28px; /* Pull input closer to buttons - space reserved below for tooltips */
 }
 
 .button-group {
