@@ -157,6 +157,13 @@ The app works with local responses if API keys are not configured.
     * Validates proper positioning for tooltip pseudo-elements
     * Detects configuration issues before they reach production
   - Test command: `window.quickTest('ui')` - Now catches tooltip CSS configuration bugs
+  - **Tooltip Positioning Fix (Sept 30, 2025)**:
+    - Changed tooltip display from above buttons to below buttons for better visibility
+    - Updated CSS positioning: `bottom: 100%` → `top: 100%` (tooltip box appears below)
+    - Fixed arrow alignment: Changed `margin-top: -5px` → `margin-top: 5px` to eliminate gap between arrow and tooltip box
+    - Arrow now points upward with `border-bottom-color` instead of downward
+    - Tooltips slide down smoothly with `translateY` animation
+    - Better mobile experience: Tooltips display within input area space instead of being clipped at top of viewport
 
 ## User Preferences
 (To be added as we learn user preferences)
