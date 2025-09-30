@@ -191,6 +191,7 @@
   margin-bottom: 12px;
   flex-wrap: nowrap;
   overflow-x: auto;
+  overflow-y: visible; /* CRITICAL: Allow tooltips to show above buttons */
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
