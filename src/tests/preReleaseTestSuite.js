@@ -348,13 +348,52 @@ const PreReleaseTestSuite = {
                 genericResponses.push(text)
               }
             } else {
-              failures.push(`${text}: ${result ? result.topic : 'NO DETECTION'}`)
+              failures.push(`${text}: got ${result ? result.topic : 'NO DETECTION'} (expected ${expected})`)
             }
           })
           
           return {
             passed: passed === total,
             details: `${passed}/${total} amendments with specific content. Failures: ${failures.join(', ')}${genericResponses.length > 0 ? `. Generic responses: ${genericResponses.join(', ')}` : ''}`
+          }
+        },
+        
+        // NEW: Test for substring matching bugs (CRITICAL v6.2.2)
+        testAmendmentSubstringBugs: () => {
+          /**
+           * REGRESSION TEST: Catches substring matching issues
+           * Bug: "twenty-sixth amendment" was matching "sixth amendment" 
+           * because includes() does substring matching.
+           */
+          const substringTests = [
+            { text: 'tell me about the twenty-sixth amendment', expected: 'twentysixthamendment', wrongMatch: 'sixthamendment' },
+            { text: 'what is the twenty-second amendment', expected: 'twentysecondamendment', wrongMatch: 'secondamendment' },
+            { text: 'tell me about the twenty-first amendment', expected: 'twentyfirstamendment', wrongMatch: 'firstamendment' },
+            { text: 'explain the sixteenth amendment', expected: 'sixteenthamendment', wrongMatch: 'sixthamendment' },
+            { text: 'what is the seventeenth amendment', expected: 'seventeenthamendment', wrongMatch: 'seventhamendment' },
+            { text: 'tell me about the eighteenth amendment', expected: 'eighteenthamendment', wrongMatch: 'eighthamendment' },
+            { text: 'what is the nineteenth amendment', expected: 'nineteenthamendment', wrongMatch: 'ninthamendment' }
+          ]
+          
+          let passed = 0
+          let total = substringTests.length
+          let failures = []
+          
+          substringTests.forEach(({ text, expected, wrongMatch }) => {
+            const result = window.CatholicDoctrineService?.checkForDoctrineTopics(text)
+            
+            if (result && result.topic === expected) {
+              passed++
+            } else if (result && result.topic === wrongMatch) {
+              failures.push(`❌ SUBSTRING BUG: "${text}" matched ${wrongMatch} instead of ${expected}`)
+            } else {
+              failures.push(`${text}: got ${result ? result.topic : 'NO DETECTION'} (expected ${expected})`)
+            }
+          })
+          
+          return {
+            passed: passed === total,
+            details: `${passed}/${total} substring tests passed. ${failures.length > 0 ? 'Failures: ' + failures.join(', ') : ''}`
           }
         },
         
@@ -1010,6 +1049,26 @@ const PreReleaseTestSuite = {
         results.details.push("❌ Amendments tests not available");
       }
       
+      // Test 4.5: Amendment Substring Matching Bugs (CRITICAL v6.2.2)
+      console.log("🧪 Testing Amendment Substring Matching Bugs (CRITICAL)...");
+      if (window.ConstitutionalTests) {
+        const substringTest = window.ConstitutionalTests.testAmendmentSubstringBugs();
+        if (substringTest.passed) {
+          results.passed++;
+          console.log("✅ No substring matching bugs detected");
+        } else {
+          results.failed++;
+          console.log(`❌ ⚠️ CRITICAL SUBSTRING BUG DETECTED: ${substringTest.details}`);
+          results.failedTests.push("Substring matching bug");
+        }
+        results.total++;
+        results.details.push(`Substring Tests: ${substringTest.passed ? 'PASS' : 'FAIL'} - ${substringTest.details}`);
+      } else {
+        results.failed++;
+        results.total++;
+        results.details.push("❌ Substring tests not available");
+      }
+      
       // Test 5: Content Response Quality
       console.log("🧪 Testing constitutional content response quality...");
       if (window.CatholicDoctrineService) {
@@ -1294,6 +1353,44 @@ const PreReleaseTestSuite = {
         console.log("      This sends USER messages (orange) instead of Daisy responses (white)");
         
         results.details.push(`Button Pattern Validation: Checked action vs query button implementations`);
+        
+        // Test 4: Tooltip Visibility (NEW v6.2.2)
+        console.log("\n🧪 Testing Button Tooltip Visibility...");
+        const tooltipButtons = document.querySelectorAll('.quick-btn[data-tooltip]');
+        let tooltipsPassed = 0;
+        let tooltipsTotal = 0;
+        
+        if (tooltipButtons.length > 0) {
+          tooltipButtons.forEach((button, index) => {
+            const tooltip = button.getAttribute('data-tooltip');
+            const hasTooltip = tooltip && tooltip.length > 0;
+            
+            // Check if tooltip CSS is present
+            const styles = window.getComputedStyle(button, '::after');
+            const hasTooltipCSS = styles && styles.content !== 'none';
+            
+            if (hasTooltip) {
+              tooltipsPassed++;
+              if (index < 3) { // Only log first few to avoid spam
+                console.log(`✅ Button has tooltip: "${tooltip}"`);
+              }
+            } else {
+              results.failedTests.push(`Button ${index} missing tooltip attribute`);
+              console.log(`❌ Button ${index} missing tooltip`);
+            }
+            tooltipsTotal++;
+            results.total++;
+          });
+          
+          results.passed += tooltipsPassed;
+          results.failed += (tooltipsTotal - tooltipsPassed);
+          results.details.push(`Tooltips: ${tooltipsPassed}/${tooltipsTotal} buttons have data-tooltip attributes`);
+          
+          console.log(`📊 Tooltip Summary: ${tooltipsPassed}/${tooltipsTotal} buttons have tooltip attributes`);
+        } else {
+          console.log("⚠️ No buttons with data-tooltip found - may not be on chat page");
+          results.details.push(`Tooltips: Skipped (not on chat page)`);
+        }
         
       } else {
         console.log("⚠️ Cannot test UI patterns outside browser environment");

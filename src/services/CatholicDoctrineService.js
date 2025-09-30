@@ -446,7 +446,19 @@ class CatholicDoctrineService {
     const foundingDocumentTopics = ['declarationofindependence', 'fullconstitution', 'billofrights'];
     
     // Check specific amendments SECOND (higher priority than general constitution)
-    const amendmentTopics = ['firstamendment', 'secondamendment', 'thirdamendment', 'fourthamendment', 'fifthamendment', 'sixthamendment', 'seventhamendment', 'eighthamendment', 'ninthamendment', 'tenthamendment', 'thirteenthamendment', 'fourteenthamendment', 'fifteenthamendment', 'sixteenthamendment', 'seventeenthamendment', 'eighteenthamendment', 'nineteenthamendment', 'twentyfirstamendment', 'twentysecondamendment', 'twentysixthamendment'];
+    // CRITICAL: Order matters! Longer/compound amendments MUST come before shorter ones
+    // to prevent substring matching (e.g., "twenty-sixth" contains "sixth")
+    const amendmentTopics = [
+      // Compound amendments first (20+)
+      'twentysixthamendment', 'twentysecondamendment', 'twentyfirstamendment',
+      // Teen amendments (13-19)
+      'nineteenthamendment', 'eighteenthamendment', 'seventeenthamendment', 
+      'sixteenthamendment', 'fifteenthamendment', 'fourteenthamendment', 'thirteenthamendment',
+      // Single digit amendments (1-10)
+      'tenthamendment', 'ninthamendment', 'eighthamendment', 'seventhamendment', 
+      'sixthamendment', 'fifthamendment', 'fourthamendment', 'thirdamendment', 
+      'secondamendment', 'firstamendment'
+    ];
     
     // Check founding fathers THIRD (higher priority than general constitution)
     const foundingFatherTopics = ['georgewashington', 'thomasjefferson', 'benjaminfranklin', 'johnadams', 'jamesmadison'];
