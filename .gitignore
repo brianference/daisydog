@@ -152,3 +152,6 @@ windsurf_deployment.yaml
 # Testing
 playwright-report/
 test-results/
+
+# Local Netlify folder
+.netlify

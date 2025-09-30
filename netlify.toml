@@ -49,6 +49,15 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
+# Dev server configuration  
+[dev]
+  framework = "#custom"
+  command = "npm run dev"
+  port = 5000
+  functionsPort = 8888
+  targetPort = 5173
+  autoLaunch = false
+
 # CORS headers for API functions
 [[headers]]
   for = "/.netlify/functions/*"
