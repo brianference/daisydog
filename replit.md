@@ -97,6 +97,11 @@ The app works with local responses if API keys are not configured.
   - Optimized age verification modal for small screens (95% width with proper padding)
   - Enhanced chat info section with responsive scaling at 768px and 480px breakpoints
   - Message input properly fixed to bottom with safe-area support for iOS
+  - Footer navigation now uses horizontal scroll on mobile to display all links (About, Chat, FAQ, Privacy, Contact, Read the Book)
+  - Action buttons (quick actions) display in single row with horizontal scroll instead of wrapping to two rows
+  - Both send (paw) and feed (bone) buttons now have orange backgrounds for consistency
+  - Debug/gear icon repositioned to avoid overlap with hamburger menu on mobile
+  - Daisy's avatar hidden on mobile to allow message bubbles to use full screen width
 - **Database Setup (Sept 30, 2025)**:
   - Created Supabase database tables: sessions, safety_events, performance_logs, feature_analytics, content_cache
   - Added performance indexes for all tables
