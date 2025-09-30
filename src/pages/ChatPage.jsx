@@ -47,9 +47,11 @@ const ChatPage = () => {
   const [showBibleTestPanel, setShowBibleTestPanel] = useState(false)
   const [showLessonTestPanel, setShowLessonTestPanel] = useState(false)
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false)
+  const [voiceMutedSounds, setVoiceMutedSounds] = useState(false)
 
   // Refs
   const messagesEndRef = useRef(null)
+  const previousMuteStateRef = useRef(null)
 
   // Custom hooks - using fallback values if hooks fail
   let soundHook, safetyHook, videoHook
@@ -224,6 +226,13 @@ const ChatPage = () => {
   const handleVoiceError = (error) => {
     console.error('🎤 Voice error:', error)
     setShowVoiceRecorder(false)
+    
+    // Restore sound if muted by voice
+    if (voiceMutedSounds && isMuted) {
+      toggleMute()
+      setVoiceMutedSounds(false)
+    }
+    
     // Show error message
     const errorMessage = {
       id: Date.now(),
@@ -234,6 +243,50 @@ const ChatPage = () => {
       emotion: 'confused'
     }
     setMessages(prev => [...prev, errorMessage])
+  }
+
+  // Mute sound effects for voice recording
+  const handleMuteSoundForVoice = () => {
+    if (!isMuted) {
+      toggleMute()
+      setVoiceMutedSounds(true)
+      console.log('🔇 Muted sounds for voice recording')
+    }
+  }
+
+  // Unmute sound effects after voice recording
+  const handleUnmuteSoundForVoice = () => {
+    if (voiceMutedSounds && isMuted) {
+      toggleMute()
+      setVoiceMutedSounds(false)
+      console.log('🔊 Restored sounds after voice')
+    }
+  }
+
+  // Play TTS with sound muting
+  const playTTSWithMute = async (text, emotion = 'HAPPY', mode = 'play') => {
+    try {
+      // Mute sounds before TTS
+      if (!isMuted) {
+        toggleMute()
+        setVoiceMutedSounds(true)
+        console.log('🔇 Muted sounds for TTS playback')
+      }
+      
+      console.log('🗣️ Playing TTS response')
+      const audioBlob = await voiceService.generateSpeech(text, emotion, mode)
+      await voiceService.playSpeech(audioBlob)
+      console.log('✅ TTS playback complete')
+    } catch (ttsError) {
+      console.error('❌ TTS playback failed:', ttsError)
+    } finally {
+      // Restore sounds after TTS
+      if (voiceMutedSounds && isMuted) {
+        toggleMute()
+        setVoiceMutedSounds(false)
+        console.log('🔊 Restored sounds after TTS')
+      }
+    }
   }
 
   // Handle sending messages
@@ -284,12 +337,7 @@ const ChatPage = () => {
           
           // Play TTS if voice input was used
           if (isVoiceInput && gameResponse.message) {
-            try {
-              const audioBlob = await voiceService.generateSpeech(gameResponse.message, gameResponse.emotion || 'HAPPY', 'play')
-              await voiceService.playSpeech(audioBlob)
-            } catch (ttsError) {
-              console.error('TTS playback failed:', ttsError)
-            }
+            await playTTSWithMute(gameResponse.message, gameResponse.emotion || 'HAPPY', 'play')
           }
           return
         }
@@ -311,12 +359,7 @@ const ChatPage = () => {
         
         // Play TTS if voice input was used
         if (isVoiceInput && safetyMessage.text) {
-          try {
-            const audioBlob = await voiceService.generateSpeech(safetyMessage.text, 'SAFETY', 'play')
-            await voiceService.playSpeech(audioBlob)
-          } catch (ttsError) {
-            console.error('TTS playback failed:', ttsError)
-          }
+          await playTTSWithMute(safetyMessage.text, 'SAFETY', 'play')
         }
         return
       }
@@ -345,12 +388,7 @@ const ChatPage = () => {
         
         // Play TTS if voice input was used
         if (isVoiceInput && biblicalResult) {
-          try {
-            const audioBlob = await voiceService.generateSpeech(biblicalResult, 'TEACHING', 'story')
-            await voiceService.playSpeech(audioBlob)
-          } catch (ttsError) {
-            console.error('TTS playback failed:', ttsError)
-          }
+          await playTTSWithMute(biblicalResult, 'TEACHING', 'story')
         }
         return
       }
@@ -377,12 +415,7 @@ const ChatPage = () => {
         
         // Play TTS if voice input was used
         if (isVoiceInput && constitutionalResult.data.responses[0]) {
-          try {
-            const audioBlob = await voiceService.generateSpeech(constitutionalResult.data.responses[0], 'TEACHING', 'prayer')
-            await voiceService.playSpeech(audioBlob)
-          } catch (ttsError) {
-            console.error('TTS playback failed:', ttsError)
-          }
+          await playTTSWithMute(constitutionalResult.data.responses[0], 'TEACHING', 'prayer')
         }
         return
       }
@@ -404,14 +437,7 @@ const ChatPage = () => {
       console.log('🔍 TTS check:', { isVoiceInput, messageText: daisyMessage.text })
       if (isVoiceInput && daisyMessage.text) {
         // Skip sound effects when using voice to avoid interrupting TTS
-        try {
-          console.log('🗣️ Playing TTS response')
-          const audioBlob = await voiceService.generateSpeech(daisyMessage.text, 'HAPPY', 'play')
-          await voiceService.playSpeech(audioBlob)
-          console.log('✅ TTS playback complete')
-        } catch (ttsError) {
-          console.error('❌ TTS playback failed:', ttsError)
-        }
+        await playTTSWithMute(daisyMessage.text, 'HAPPY', 'play')
       } else {
         // Only play sound effects when NOT using voice
         playEmotionSound('happy').catch(() => {})
@@ -1861,6 +1887,8 @@ Generated by DaisyDog Debug Control Center v6.2.0`
             <VoiceRecorder
               onTranscriptComplete={handleVoiceTranscript}
               onError={handleVoiceError}
+              onMuteSound={handleMuteSoundForVoice}
+              onUnmuteSound={handleUnmuteSoundForVoice}
               disabled={isTyping}
             />
           </div>

@@ -8,13 +8,14 @@ import { FaMicrophone, FaStop, FaSpinner } from 'react-icons/fa';
 import voiceService from '../services/VoiceService';
 import './VoiceRecorder.css';
 
-const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false }) => {
+const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMuteSound, onUnmuteSound }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [waveformData, setWaveformData] = useState(Array(20).fill(0.1));
   const timerRef = useRef(null);
   const animationRef = useRef(null);
+  const previousMuteState = useRef(null);
 
   const startRecording = async () => {
     if (!voiceService.isAvailable()) {
@@ -25,6 +26,11 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false }) => {
     try {
       setIsRecording(true);
       setRecordingTime(0);
+
+      // Mute sound effects during voice recording
+      if (onMuteSound) {
+        onMuteSound();
+      }
 
       // Start recording with visual feedback
       await voiceService.startRecording((progress) => {
@@ -59,6 +65,12 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false }) => {
     } catch (error) {
       console.error('Failed to start recording:', error);
       setIsRecording(false);
+      
+      // Restore sound on error
+      if (onUnmuteSound) {
+        onUnmuteSound();
+      }
+      
       onError?.('Failed to access microphone. Please check permissions.');
     }
   };
@@ -98,9 +110,20 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false }) => {
       setRecordingTime(0);
       setWaveformData(Array(20).fill(0.1));
 
+      // Restore sound effects after processing
+      if (onUnmuteSound) {
+        onUnmuteSound();
+      }
+
     } catch (error) {
       console.error('Failed to stop recording:', error);
       setIsProcessing(false);
+      
+      // Restore sound on error too
+      if (onUnmuteSound) {
+        onUnmuteSound();
+      }
+      
       onError?.('Failed to process recording. Please try again.');
     }
   };
