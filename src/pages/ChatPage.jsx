@@ -47,7 +47,6 @@ const ChatPage = () => {
   const [showBibleTestPanel, setShowBibleTestPanel] = useState(false)
   const [showLessonTestPanel, setShowLessonTestPanel] = useState(false)
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false)
-  const [shouldPlayTTS, setShouldPlayTTS] = useState(false)
 
   // Refs
   const messagesEndRef = useRef(null)
@@ -216,10 +215,9 @@ const ChatPage = () => {
   const handleVoiceTranscript = (transcript) => {
     console.log('🎤 Voice transcript received:', transcript)
     setShowVoiceRecorder(false)
-    setShouldPlayTTS(true) // Enable TTS for response
     setInputMessage(transcript)
-    // Auto-send the voice message
-    handleSendMessage({ preventDefault: () => {} }, transcript)
+    // Auto-send the voice message with TTS enabled
+    handleSendMessage({ preventDefault: () => {} }, transcript, true)
   }
 
   // Handle voice error
@@ -239,7 +237,7 @@ const ChatPage = () => {
   }
 
   // Handle sending messages
-  const handleSendMessage = async (e, quickMessage = null) => {
+  const handleSendMessage = async (e, quickMessage = null, isVoiceInput = false) => {
     e.preventDefault()
     const messageToSend = quickMessage || inputMessage.trim()
     
@@ -285,8 +283,7 @@ const ChatPage = () => {
           }
           
           // Play TTS if voice input was used
-          if (shouldPlayTTS && gameResponse.message) {
-            setShouldPlayTTS(false)
+          if (isVoiceInput && gameResponse.message) {
             try {
               const audioBlob = await voiceService.generateSpeech(gameResponse.message, gameResponse.emotion || 'HAPPY', 'play')
               await voiceService.playSpeech(audioBlob)
@@ -313,8 +310,7 @@ const ChatPage = () => {
         playUISound('failure').catch(() => {})
         
         // Play TTS if voice input was used
-        if (shouldPlayTTS && safetyMessage.text) {
-          setShouldPlayTTS(false)
+        if (isVoiceInput && safetyMessage.text) {
           try {
             const audioBlob = await voiceService.generateSpeech(safetyMessage.text, 'SAFETY', 'play')
             await voiceService.playSpeech(audioBlob)
@@ -348,8 +344,7 @@ const ChatPage = () => {
         playUISound('story').catch(() => {})
         
         // Play TTS if voice input was used
-        if (shouldPlayTTS && biblicalResult) {
-          setShouldPlayTTS(false)
+        if (isVoiceInput && biblicalResult) {
           try {
             const audioBlob = await voiceService.generateSpeech(biblicalResult, 'TEACHING', 'story')
             await voiceService.playSpeech(audioBlob)
@@ -381,8 +376,7 @@ const ChatPage = () => {
         playUISound('story').catch(() => {})
         
         // Play TTS if voice input was used
-        if (shouldPlayTTS && constitutionalResult.data.responses[0]) {
-          setShouldPlayTTS(false)
+        if (isVoiceInput && constitutionalResult.data.responses[0]) {
           try {
             const audioBlob = await voiceService.generateSpeech(constitutionalResult.data.responses[0], 'TEACHING', 'prayer')
             await voiceService.playSpeech(audioBlob)
@@ -408,9 +402,8 @@ const ChatPage = () => {
       playEmotionSound('happy').catch(() => {})
       
       // Play TTS if voice input was used
-      console.log('🔍 TTS check:', { shouldPlayTTS, hasResponse: !!response })
-      if (shouldPlayTTS && response) {
-        setShouldPlayTTS(false)
+      console.log('🔍 TTS check:', { isVoiceInput, hasResponse: !!response })
+      if (isVoiceInput && response) {
         try {
           console.log('🗣️ Playing TTS response')
           const audioBlob = await voiceService.generateSpeech(response, 'HAPPY', 'play')
