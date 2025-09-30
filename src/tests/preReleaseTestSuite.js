@@ -864,6 +864,80 @@ const PreReleaseTestSuite = {
       results.failed += (submenuTests.length - submenuPassed);
       results.details.push(`Game Submenu Structure: ${submenuPassed}/${submenuTests.length}`);
       
+      // Test game action buttons (CRITICAL - v6.4.0)
+      console.log("🧪 Testing Game Action Buttons...");
+      const gameActionTests = [
+        {
+          name: 'Tug of War shows action buttons after starting',
+          check: () => {
+            // Open games menu
+            const gamesBtn = Array.from(document.querySelectorAll('.quick-btn'))
+              .find(btn => btn.getAttribute('data-tooltip')?.includes('Games'));
+            if (!gamesBtn) return false;
+            gamesBtn.click();
+            
+            // Click Tug of War
+            const tugBtn = Array.from(document.querySelectorAll('.submenu-btn'))
+              .find(btn => btn.textContent?.includes('Tug'));
+            if (!tugBtn) return false;
+            tugBtn.click();
+            
+            // Click Rope Tug to start game
+            setTimeout(() => {
+              const ropeTugBtn = Array.from(document.querySelectorAll('.submenu-btn'))
+                .find(btn => btn.textContent?.includes('Rope'));
+              if (ropeTugBtn) ropeTugBtn.click();
+            }, 100);
+            
+            // Wait and check for game action buttons
+            return new Promise((resolve) => {
+              setTimeout(() => {
+                const gameActions = document.querySelector('.game-actions-active');
+                const hasPullButton = Array.from(document.querySelectorAll('.game-action-btn'))
+                  .some(btn => btn.textContent?.includes('Pull'));
+                resolve(gameActions !== null && hasPullButton);
+              }, 500);
+            });
+          }
+        },
+        {
+          name: 'Game actions replace quick actions when game active',
+          check: () => {
+            return new Promise((resolve) => {
+              // Game should already be active from previous test
+              setTimeout(() => {
+                const quickActions = document.querySelector('.quick-actions-compact');
+                const gameActions = document.querySelector('.game-actions-active');
+                // Quick actions should be hidden, game actions should be visible
+                resolve(quickActions === null && gameActions !== null);
+              }, 100);
+            });
+          }
+        }
+      ];
+      
+      let gameActionPassed = 0;
+      for (const test of gameActionTests) {
+        try {
+          const passed = await test.check();
+          if (passed) {
+            gameActionPassed++;
+            console.log(`✅ ${test.name}`);
+          } else {
+            console.log(`❌ ${test.name}`);
+            results.failedTests.push(test.name);
+          }
+        } catch (error) {
+          console.log(`❌ ${test.name} - Error: ${error.message}`);
+          results.failedTests.push(`${test.name} (error)`);
+        }
+        results.total++;
+      }
+      
+      results.passed += gameActionPassed;
+      results.failed += (gameActionTests.length - gameActionPassed);
+      results.details.push(`Game Action Buttons: ${gameActionPassed}/${gameActionTests.length}`);
+      
       // Test game state management
       console.log("🧪 Testing Game State Management...");
       const gameStates = ['fetch', 'tug', 'hide', 'catch', 'guess'];
