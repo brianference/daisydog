@@ -168,3 +168,20 @@
     font-size: 16px; /* Prevents zoom on iOS */
   }
 }
+
+@media (max-width: 480px) {
+  .age-verification-modal {
+    padding: 15px;
+    margin: 5px;
+    width: 95%;
+    max-width: calc(100vw - 10px);
+  }
+  
+  .age-verification-modal h2 {
+    font-size: 1.3rem;
+  }
+  
+  .age-verification-modal p {
+    font-size: 14px;
+  }
+}
