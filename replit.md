@@ -147,6 +147,16 @@ The app works with local responses if API keys are not configured.
   - Test commands remain the same:
     * `window.runPreReleaseTests()` - Full test suite including new substring tests
     * `window.quickTest('constitution')` - Constitutional content + substring bug tests
+- **Tooltip & Mobile Optimization Fixes (Sept 30, 2025)**:
+  - **CRITICAL BUG FIX: Tooltips Not Showing**: Fixed tooltips being invisible on desktop and mobile
+  - Root cause: `.quick-actions-compact` container had `overflow-x: auto` for horizontal scrolling, which also clipped vertical overflow where tooltips appear
+  - Solution: Added `overflow-y: visible` to allow tooltips to display above buttons while maintaining horizontal scroll
+  - **Mobile Hunger Bar Optimization**: Hid "Your friendly AI companion" text on mobile screens (max-width: 768px) to save space
+  - **Enhanced Test System (v6.2.3)**: UI Button Pattern tests now detect CSS overflow issues that prevent tooltip visibility
+    * Checks parent container overflow-x and overflow-y settings
+    * Validates proper positioning for tooltip pseudo-elements
+    * Detects configuration issues before they reach production
+  - Test command: `window.quickTest('ui')` - Now catches tooltip CSS configuration bugs
 
 ## User Preferences
 (To be added as we learn user preferences)
