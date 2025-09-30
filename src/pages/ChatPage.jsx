@@ -89,6 +89,7 @@ const ChatPage = () => {
     // Create a simple getVideoForEmotion function that returns video URLs
     getVideoForEmotion = (emotion) => {
       const videoMap = {
+        // Original landscape videos
         'happy': '/assets/happy.mp4',
         'excited': '/assets/dance.mp4',
         'playful': '/assets/roll-over.mp4',
@@ -96,13 +97,72 @@ const ChatPage = () => {
         'safety': '/assets/barking.mp4',
         'educational': '/assets/ears-up.mp4',
         'confused': '/assets/lay-down.mp4',
-        'calm': '/assets/lay-down.mp4'
+        'calm': '/assets/lay-down.mp4',
+        'dance': '/assets/dance.mp4',
+        'barking': '/assets/barking.mp4',
+        
+        // New portrait videos
+        'bouncing': '/assets/bouncing.mp4',
+        'digging': '/assets/digging.mp4',
+        'jumping': '/assets/jumping.mp4',
+        'layback': '/assets/layback.mp4',
+        'paws': '/assets/paws.mp4',
+        'tail-chase': '/assets/tail-chase.mp4',
+        'tired': '/assets/tired.mp4',
+        'waving': '/assets/waving.mp4',
+        
+        // Emotion aliases
+        'greeting': '/assets/waving.mp4',
+        'hello': '/assets/waving.mp4',
+        'silly': '/assets/tail-chase.mp4',
+        'goofy': '/assets/tail-chase.mp4',
+        'searching': '/assets/digging.mp4',
+        'exploring': '/assets/digging.mp4',
+        'begging': '/assets/paws.mp4',
+        'sleepy': '/assets/tired.mp4',
+        'exhausted': '/assets/tired.mp4',
+        'hyper': '/assets/bouncing.mp4',
+        'energetic': '/assets/bouncing.mp4',
+        'lounging': '/assets/layback.mp4',
+        'comfortable': '/assets/layback.mp4',
+        'caring': '/assets/paws.mp4'
       }
       return videoMap[emotion] || videoMap['happy']
     }
   } catch (error) {
     console.warn('Video hook failed:', error)
     getVideoForEmotion = () => null
+  }
+
+  // Map app-level emotions to VideoAssetManager canonical keys
+  // This ensures InlineVideoMessage can load videos from VideoAssetManager
+  const mapEmotionToCanonical = (emotion) => {
+    const emotionMap = {
+      // App emotions -> VideoAssetManager canonical keys
+      'safety': 'barking',
+      'educational': 'ears-up',
+      'confused': 'lay-down',
+      'calm': 'lay-down',
+      'playful': 'roll-over',
+      'curious': 'ears-up',
+      'excited': 'dance',
+      'greeting': 'waving',
+      'hello': 'waving',
+      'silly': 'tail-chase',
+      'goofy': 'tail-chase',
+      'searching': 'digging',
+      'exploring': 'digging',
+      'begging': 'paws',
+      'caring': 'paws',
+      'sleepy': 'tired',
+      'exhausted': 'tired',
+      'hyper': 'bouncing',
+      'energetic': 'bouncing',
+      'lounging': 'layback',
+      'comfortable': 'layback'
+    }
+    // Return canonical key if mapped, otherwise return original (assumes it's already canonical)
+    return emotionMap[emotion] || emotion
   }
 
   // Services are imported as singleton instances
@@ -156,7 +216,7 @@ const ChatPage = () => {
           sender: 'daisy',
           timestamp: new Date(),
           videoUrl: getVideoForEmotion('safety'),
-          emotion: 'safety'
+          emotion: 'barking'
         }
         setMessages(prev => [...prev, safetyMessage])
         playUISound('failure').catch(() => {})
@@ -180,7 +240,7 @@ const ChatPage = () => {
           sender: 'daisy',
           timestamp: new Date(),
           videoUrl: getVideoForEmotion('educational'),
-          emotion: 'educational'
+          emotion: 'ears-up'
         }
         setMessages(prev => [...prev, biblicalMessage])
         playUISound('story').catch(() => {})
@@ -202,7 +262,7 @@ const ChatPage = () => {
           sender: 'daisy',
           timestamp: new Date(),
           videoUrl: getVideoForEmotion('educational'),
-          emotion: 'educational'
+          emotion: 'ears-up'
         }
         setMessages(prev => [...prev, constitutionalMessage])
         playUISound('story').catch(() => {})
@@ -238,7 +298,7 @@ const ChatPage = () => {
         sender: 'daisy',
         timestamp: new Date(),
         videoUrl: getVideoForEmotion('confused'),
-        emotion: 'confused'
+        emotion: 'lay-down'
       }
       setMessages(prev => [...prev, errorMessage])
       playUISound('failure').catch(() => {})
@@ -259,7 +319,7 @@ const ChatPage = () => {
         sender: 'daisy',
         timestamp: new Date(),
         videoUrl: getVideoForEmotion('excited'),
-        emotion: 'excited'
+        emotion: 'dance'
       }
       setMessages(prev => [...prev, feedMessage])
     }
@@ -312,7 +372,7 @@ const ChatPage = () => {
       sender: 'daisy',
       timestamp: new Date(),
       videoUrl: getVideoForEmotion('playful'),
-      emotion: 'playful'
+      emotion: 'roll-over'
     }
     setMessages(prev => [...prev, gameMessage])
     // Play game-specific sound
@@ -348,7 +408,7 @@ const ChatPage = () => {
       sender: 'daisy',
       timestamp: new Date(),
       videoUrl: getVideoForEmotion('caring'),
-      emotion: 'caring'
+      emotion: 'paws'
     }
     setMessages(prev => [...prev, verseMessage])
     playUISound('scripture').catch(() => {})
@@ -1043,7 +1103,7 @@ Generated by DaisyDog Debug Control Center v6.2.0`
               <SmartDaisyAvatar 
                 message={message}
                 emotion={message.emotion || 'happy'}
-                useVideo={false}
+                useVideo={true}
                 className="message-avatar"
                 key={`avatar-${message.id}-${message.emotion || 'happy'}`}
               />
