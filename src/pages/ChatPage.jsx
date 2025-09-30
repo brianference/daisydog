@@ -401,12 +401,12 @@ const ChatPage = () => {
       setMessages(prev => [...prev, daisyMessage])
       playEmotionSound('happy').catch(() => {})
       
-      // Play TTS if voice input was used
-      console.log('🔍 TTS check:', { isVoiceInput, hasResponse: !!response })
-      if (isVoiceInput && response) {
+      // Play TTS if voice input was used (use actual message text, not response)
+      console.log('🔍 TTS check:', { isVoiceInput, messageText: daisyMessage.text })
+      if (isVoiceInput && daisyMessage.text) {
         try {
           console.log('🗣️ Playing TTS response')
-          const audioBlob = await voiceService.generateSpeech(response, 'HAPPY', 'play')
+          const audioBlob = await voiceService.generateSpeech(daisyMessage.text, 'HAPPY', 'play')
           await voiceService.playSpeech(audioBlob)
           console.log('✅ TTS playback complete')
         } catch (ttsError) {
