@@ -63,6 +63,88 @@ class VideoAssetManager {
         preload: false,
         priority: 'medium',
         emotions: ['dance', 'dancing', 'music', 'rhythm', 'celebration', 'party', 'festive', 'groove']
+      },
+      
+      // NEW VIDEOS - Added for more variation and taller aspect ratio
+      
+      // Bouncing video - for energetic, playful, excited situations
+      bouncing: {
+        src: '/assets/bouncing.mp4',
+        fallback: '/assets/images/emotions/excited.png',
+        preload: false,
+        priority: 'medium',
+        aspectRatio: 'tall', // Portrait orientation video
+        emotions: ['bouncing', 'energetic', 'hyper', 'bouncy', 'lively', 'vigorous']
+      },
+      
+      // Digging video - for curious exploration, searching, investigating
+      digging: {
+        src: '/assets/digging.mp4',
+        fallback: '/assets/images/emotions/curious.png',
+        preload: false,
+        priority: 'low',
+        aspectRatio: 'tall',
+        emotions: ['digging', 'exploring', 'searching', 'investigating', 'finding', 'discovering']
+      },
+      
+      // Jumping video - for excitement, energy, enthusiasm
+      jumping: {
+        src: '/assets/jumping.mp4',
+        fallback: '/assets/images/emotions/excited.png',
+        preload: false,
+        priority: 'medium',
+        aspectRatio: 'tall',
+        emotions: ['jumping', 'leap', 'hop', 'spring', 'enthusiastic', 'energized']
+      },
+      
+      // Layback video - for relaxed, content, comfortable situations (different from lay-down)
+      layback: {
+        src: '/assets/layback.mp4',
+        fallback: '/assets/images/emotions/content.png',
+        preload: false,
+        priority: 'low',
+        aspectRatio: 'tall',
+        emotions: ['layback', 'lounging', 'comfortable', 'content', 'satisfied', 'easygoing']
+      },
+      
+      // Paws video - for requesting attention, begging, asking nicely
+      paws: {
+        src: '/assets/paws.mp4',
+        fallback: '/assets/images/emotions/playful.png',
+        preload: false,
+        priority: 'medium',
+        aspectRatio: 'tall',
+        emotions: ['paws', 'begging', 'requesting', 'asking', 'pleading', 'wanting', 'attention']
+      },
+      
+      // Tail-chase video - for silly, playful, entertaining moments
+      'tail-chase': {
+        src: '/assets/tail-chase.mp4',
+        fallback: '/assets/images/emotions/playful.png',
+        preload: false,
+        priority: 'low',
+        aspectRatio: 'tall',
+        emotions: ['tail-chase', 'chasing', 'silly', 'goofy', 'ridiculous', 'comical', 'amusing']
+      },
+      
+      // Tired video - for exhausted, sleepy, low energy situations
+      tired: {
+        src: '/assets/tired.mp4',
+        fallback: '/assets/images/emotions/sleepy.png',
+        preload: false,
+        priority: 'low',
+        aspectRatio: 'tall',
+        emotions: ['tired', 'exhausted', 'fatigued', 'worn-out', 'drained', 'weary', 'drowsy']
+      },
+      
+      // Waving video - for greetings, hellos, friendly welcomes
+      waving: {
+        src: '/assets/waving.mp4',
+        fallback: '/assets/images/emotions/happy.png',
+        preload: false,
+        priority: 'medium',
+        aspectRatio: 'tall',
+        emotions: ['waving', 'greeting', 'hello', 'hi', 'welcome', 'saluting', 'friendly']
       }
     }
     
@@ -335,6 +417,7 @@ class VideoAssetManager {
           type: 'video',
           element: this.videos.get(mappedEmotion).cloneNode(),
           src: this.videoAssets[mappedEmotion]?.src,
+          aspectRatio: this.videoAssets[mappedEmotion]?.aspectRatio || 'landscape',
           originalEmotion: emotion,
           mappedEmotion: mappedEmotion
         }
@@ -355,6 +438,7 @@ class VideoAssetManager {
         type: 'video',
         element: video.cloneNode(),
         src: this.videoAssets[mappedEmotion]?.src,
+        aspectRatio: this.videoAssets[mappedEmotion]?.aspectRatio || 'landscape',
         originalEmotion: emotion,
         mappedEmotion: mappedEmotion
       }

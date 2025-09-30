@@ -22,6 +22,7 @@ const DaisyVideoResponse = ({
   const [videoState, setVideoState] = useState('loading') // loading, ready, playing, ended, error
   const [mediaElement, setMediaElement] = useState(null)
   const [mediaType, setMediaType] = useState('image') // video, image
+  const [aspectRatio, setAspectRatio] = useState('landscape') // landscape, tall
   const [isVisible, setIsVisible] = useState(true)
   
   const videoRef = useRef(null)
@@ -53,6 +54,7 @@ const DaisyVideoResponse = ({
           
           setMediaElement(video)
           setMediaType('video')
+          setAspectRatio(mediaData.aspectRatio || 'landscape')
           setVideoState('ready')
           
           console.log(`✅ Video loaded for ${emotion}`)
@@ -208,6 +210,7 @@ const DaisyVideoResponse = ({
       <video
         ref={videoRef}
         className="daisy-video"
+        data-aspect={aspectRatio}
         muted
         playsInline
         style={{

@@ -26,9 +26,16 @@
 .daisy-video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* Handles both landscape and portrait (tall) aspect ratios */
+  object-position: center center; /* Center the video for optimal framing in circle */
   border-radius: 50%;
   background: transparent;
+}
+
+/* Portrait/tall aspect ratio videos (new videos from Object Storage) */
+.daisy-video[data-aspect="tall"] {
+  object-fit: cover;
+  object-position: center 40%; /* Slightly favor upper portion for portrait videos */
 }
 
 /* Image element styles */

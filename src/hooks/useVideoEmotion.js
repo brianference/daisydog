@@ -170,6 +170,100 @@ const useVideoEmotion = () => {
       ],
       videoEmotion: 'ears-up', // Attentive for routine activities
       priority: 'low'
+    },
+
+    // NEW VIDEO MAPPINGS - More variation for richer interactions
+    
+    // BOUNCING VIDEO - High energy, hyperactive, very excited situations
+    bouncing: {
+      keywords: [
+        'bounce', 'bouncing', 'bouncy', 'hyper', 'hyperactive', 'energetic', 'super excited',
+        'jumping up and down', 'can\'t sit still', 'so much energy', 'zoom', 'zoomies',
+        'running around', 'crazy energy', 'wild', 'lively', 'vigorous', 'active'
+      ],
+      videoEmotion: 'bouncing',
+      priority: 'medium'
+    },
+
+    // DIGGING VIDEO - Exploring, searching, investigating situations  
+    digging: {
+      keywords: [
+        'dig', 'digging', 'excavate', 'burrow', 'tunnel', 'uncover', 'unearth',
+        'explore', 'search for', 'look for', 'hunt', 'seek', 'investigate', 'examine',
+        'find something', 'discover', 'buried', 'hidden', 'treasure hunt'
+      ],
+      videoEmotion: 'digging',
+      priority: 'low'
+    },
+
+    // JUMPING VIDEO - Excited jumping, leaping, hopping situations
+    jumping: {
+      keywords: [
+        'jump', 'jumping', 'leap', 'leaping', 'hop', 'hopping', 'spring', 'bound',
+        'jump for joy', 'jump up', 'jump around', 'high jump', 'jump high',
+        'enthusiastic', 'can\'t contain', 'burst with', 'overcome with joy'
+      ],
+      videoEmotion: 'jumping',
+      priority: 'medium'
+    },
+
+    // LAYBACK VIDEO - Lounging, comfortable, content situations (different mood from lay-down)
+    layback: {
+      keywords: [
+        'layback', 'lay back', 'lounge', 'lounging', 'kick back', 'chill out',
+        'comfortable', 'content', 'satisfied', 'pleased', 'fulfilled',
+        'easy going', 'mellow', 'casual', 'informal', 'unhurried', 'leisurely'
+      ],
+      videoEmotion: 'layback',
+      priority: 'low'
+    },
+
+    // PAWS VIDEO - Requesting, begging, asking for attention/treats
+    paws: {
+      keywords: [
+        'paws', 'paw', 'beg', 'begging', 'please', 'pretty please', 'can i have',
+        'give me', 'want', 'need', 'request', 'asking', 'asking nicely',
+        'treat', 'snack', 'cookie', 'food', 'attention', 'pet me', 'play with me',
+        'shake hands', 'high five', 'fist bump'
+      ],
+      videoEmotion: 'paws',
+      priority: 'medium'
+    },
+
+    // TAIL-CHASE VIDEO - Super silly, goofy, ridiculous, comical situations
+    'tail-chase': {
+      keywords: [
+        'tail', 'chase tail', 'chasing', 'catch', 'silly', 'goofy', 'ridiculous',
+        'funny', 'hilarious', 'comical', 'absurd', 'nonsense', 'foolish',
+        'dizzy', 'spin', 'circle', 'round and round', 'whirlwind',
+        'crazy', 'wacky', 'zany', 'nutty', 'loopy', 'bonkers'
+      ],
+      videoEmotion: 'tail-chase',
+      priority: 'low'
+    },
+
+    // TIRED VIDEO - Exhausted, very sleepy, low energy, worn out
+    tired: {
+      keywords: [
+        'tired', 'exhausted', 'worn out', 'drained', 'fatigued', 'weary', 'beat',
+        'sleepy', 'drowsy', 'yawn', 'yawning', 'need rest', 'need sleep',
+        'no energy', 'low energy', 'can\'t keep eyes open', 'so tired',
+        'ready for bed', 'time to rest', 'tuckered out', 'pooped', 'wiped out'
+      ],
+      videoEmotion: 'tired',
+      priority: 'low'
+    },
+
+    // WAVING VIDEO - Greetings, hellos, friendly welcomes
+    waving: {
+      keywords: [
+        'wave', 'waving', 'hello', 'hi', 'hey', 'greet', 'greeting', 'welcome',
+        'good morning', 'good afternoon', 'good evening', 'howdy', 'yo',
+        'nice to meet', 'pleased to meet', 'salute', 'say hi', 'say hello',
+        'welcome back', 'glad to see', 'happy to see'
+      ],
+      videoEmotion: 'waving',
+      priority: 'medium'
     }
   }), [])
 

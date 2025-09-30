@@ -164,6 +164,23 @@ The app works with local responses if API keys are not configured.
     - Arrow now points upward with `border-bottom-color` instead of downward
     - Tooltips slide down smoothly with `translateY` animation
     - Better mobile experience: Tooltips display within input area space instead of being clipped at top of viewport
+- **Video System Expansion (Sept 30, 2025)**:
+  - **Added 8 New Videos** with portrait/tall aspect ratio for more emotional variety:
+    * **bouncing.mp4** - Energetic, hyperactive, super excited situations
+    * **digging.mp4** - Curious exploration, searching, investigating
+    * **jumping.mp4** - Excited jumping, leaping, hopping
+    * **layback.mp4** - Lounging, comfortable, content (different mood from lay-down)
+    * **paws.mp4** - Requesting attention, begging, asking nicely
+    * **tail-chase.mp4** - Super silly, goofy, ridiculous, comical
+    * **tired.mp4** - Exhausted, sleepy, low energy, worn out
+    * **waving.mp4** - Greetings, hellos, friendly welcomes
+  - **Total Videos**: Now 14 videos (6 original landscape + 8 new portrait)
+  - **Aspect Ratio Handling**: Added CSS support for portrait videos with `object-position: center 40%` for optimal framing in circular avatars
+  - **Enhanced Emotion Mappings**: Added comprehensive keyword mappings in `useVideoEmotion.js` for all new videos
+  - **VideoAssetManager Updates**: Extended video asset configuration with aspectRatio metadata
+  - **Smart Video Selection**: System automatically uses appropriate video based on conversation context and keywords
+  - Videos stored in: `public/assets/*.mp4`
+  - All new videos have fallback images for graceful degradation
 
 ## User Preferences
 (To be added as we learn user preferences)
