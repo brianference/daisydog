@@ -62,9 +62,8 @@ class HideSeekGame {
         gameMode: null,
         hideSpotId: null,
         searchAttempts: 0,
-        timeRemaining: 60,
-        daisyPosition: 'unknown',
-        playerQuietness: 100
+        daisyPosition: null,
+        cluesGiven: 0
       },
       gameStarted: true
     }
@@ -114,21 +113,8 @@ class HideSeekGame {
   handleModeSelection(userInput, gameState) {
     const lowerInput = userInput.toLowerCase()
 
-    // Player wants to hide
-    if (lowerInput.includes('hide') || lowerInput.includes('me hide') || lowerInput.includes('i hide')) {
-      return {
-        message: "*covers eyes with paws* Okay! I'll count to 10 while you hide! Pick your hiding spot wisely! 🙈",
-        emotion: EMOTIONS.EAGER,
-        stateChanges: {
-          gameMode: 'player_hides',
-          gamePhase: 'spot_selection',
-          searchAttempts: 0
-        }
-      }
-    }
-
-    // Player wants to seek
-    if (lowerInput.includes('seek') || lowerInput.includes('find') || lowerInput.includes('you hide')) {
+    // Player wants to seek (Daisy hides) - CHECK THIS FIRST
+    if (lowerInput.includes('you hide') || lowerInput.includes('seek') || lowerInput.includes('find you')) {
       return {
         message: "*runs off excitedly* Hehe! I'm going to find the BEST hiding spot! Count to 10 and come find me! Ready... set... GO! 🏃",
         emotion: EMOTIONS.PLAYFETCH,
@@ -138,6 +124,19 @@ class HideSeekGame {
           daisyPosition: this.getRandomHidingSpot().id,
           searchAttempts: 0,
           cluesGiven: 0
+        }
+      }
+    }
+
+    // Player wants to hide (Daisy seeks) - CHECK THIS SECOND
+    if (lowerInput.includes('i hide') || lowerInput.includes('me hide') || lowerInput.includes('i\'ll hide')) {
+      return {
+        message: "*covers eyes with paws* Okay! I'll count to 10 while you hide! Pick your hiding spot wisely! 🙈",
+        emotion: EMOTIONS.EAGER,
+        stateChanges: {
+          gameMode: 'player_hides',
+          gamePhase: 'spot_selection',
+          searchAttempts: 0
         }
       }
     }
@@ -188,6 +187,17 @@ class HideSeekGame {
     const lowerInput = userInput.toLowerCase()
     const attempts = gameState.searchAttempts || 0
     const spot = this.hidingSpots.find(s => s.id === gameState.hideSpotId)
+
+    // Safety check: if no spot selected, restart phase
+    if (!spot) {
+      return {
+        message: "*still searching* Hmm, where did you go? Let's start again! 🔍",
+        emotion: EMOTIONS.THINKING,
+        stateChanges: {
+          gamePhase: 'spot_selection'
+        }
+      }
+    }
 
     // Player stays quiet
     if (lowerInput.includes('stay') || lowerInput.includes('quiet') || lowerInput.includes('shh')) {
@@ -259,6 +269,20 @@ class HideSeekGame {
     const daisySpot = this.hidingSpots.find(s => s.id === gameState.daisyPosition)
     const cluesGiven = gameState.cluesGiven || 0
 
+    // Safety check: if Daisy's spot is invalid, restart
+    if (!daisySpot) {
+      return {
+        message: "*giggles* Oops! Let's start over! I'll hide again! 🙈",
+        emotion: EMOTIONS.THINKING,
+        stateChanges: {
+          gamePhase: 'daisy_counting',
+          daisyPosition: this.getRandomHidingSpot().id,
+          searchAttempts: 0,
+          cluesGiven: 0
+        }
+      }
+    }
+
     // Player asks for hint
     if (lowerInput.includes('hint') || lowerInput.includes('clue') || lowerInput.includes('help')) {
       if (cluesGiven >= 2) {
@@ -308,12 +332,14 @@ class HideSeekGame {
         const clueMessages = [
           "*giggles* You're getting VERY warm! Almost there! 🔥",
           "*whispers* You're warm! Keep looking! 🌡️",
-          "*calls out* You're cold! Try somewhere else! ❄️",
-          "*laughs* You're freezing! Way off! 🧊"
+          "*calls out* You're cold! Try somewhere else! ❄️"
         ]
 
+        // Map distance to message index (distance 1 = very warm, 2 = warm, 3 = cold)
+        const messageIndex = Math.min(distance - 1, 2)
+
         return {
-          message: clueMessages[Math.min(distance, clueMessages.length - 1)],
+          message: clueMessages[messageIndex],
           emotion: EMOTIONS.HAPPY,
           stateChanges: {
             searchAttempts: newAttempts
@@ -386,7 +412,10 @@ class HideSeekGame {
         gamePhase: null,
         gameMode: null,
         hideSpotId: null,
-        searchAttempts: 0
+        searchAttempts: 0,
+        daisyPosition: null,
+        cluesGiven: 0,
+        foundPlayer: false
       },
       gameEnded: true
     }
@@ -403,8 +432,8 @@ class HideSeekGame {
     switch (phase) {
       case 'mode_selection':
         return [
-          { id: 'player_hide', label: '🙈 I\'ll Hide', message: 'I want to hide!' },
-          { id: 'daisy_hide', label: '🔍 You Hide', message: 'You hide, I\'ll find you!' },
+          { id: 'player_hide', label: '🙈 I\'ll Hide', message: 'I\'ll hide' },
+          { id: 'daisy_hide', label: '🔍 You Hide', message: 'You hide' },
           { id: 'stop', label: '🛑 Stop', message: 'Stop playing' }
         ]
 
