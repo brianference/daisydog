@@ -181,6 +181,15 @@ The app works with local responses if API keys are not configured.
   - **Smart Video Selection**: System automatically uses appropriate video based on conversation context and keywords
   - Videos stored in: `public/assets/*.mp4`
   - All new videos have fallback images for graceful degradation
+- **Video Integration & Avatar Fix (Sept 30, 2025)**:
+  - **Fixed Avatar Display Bug**: Changed SmartDaisyAvatar from `useVideo={true}` to `useVideo={false}` to prevent rainbow gradient/loading state showing in circular avatars
+  - **Video Display Location**: Videos now only display inside white chat message bubbles via InlineVideoMessage component, not in circular avatars
+  - **Enhanced Button Video Variety**: Updated main action buttons to use different videos for more variety:
+    * Dance Button (💃) → Uses `tail-chase.mp4` (silly, spinning, goofy)
+    * Play Games Button (🎮) → Uses `jumping.mp4` (excited, playful jumping)
+    * Verse of Day Button → Uses `waving.mp4` (friendly, welcoming greeting)
+  - **Avatar Image Restoration**: Circular avatars now properly display emotion-based images (happy.png, excited.png, etc.) instead of attempting video playback
+  - Console logs confirm proper loading: `🖼️ Avatar loaded: happy → /assets/images/emotions/happy.png`
 
 ## User Preferences
 (To be added as we learn user preferences)
