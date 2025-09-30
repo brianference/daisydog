@@ -19,7 +19,9 @@ DaisyDog is built as a React 18 + Vite 6 frontend with **Netlify serverless func
     - Phase-based state machine with safe transitions
 - **Voice Features** with OpenAI Audio API:
   - Speech-to-text using Whisper for voice input
-  - Text-to-speech with Nova voice for responses
+  - Text-to-speech with Shimmer voice (child-friendly female voice) for responses
+  - Clean text processing (removes emojis, formatting, and prompts before TTS)
+  - Sound effects disabled during voice conversations to prevent interruption
   - HMAC token-based authentication for security
   - Rate limiting (10 requests/min per session)
   - Auto-start recording on microphone button click
