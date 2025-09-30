@@ -69,7 +69,7 @@
 /* Messages Container */
 .messages-container {
   flex: 1;
-  padding: 20px;
+  padding: 20px 20px 10px 20px; /* Reduced bottom padding from 20px to 10px */
   overflow-y: auto;
   max-height: calc(100vh - 200px);
 }
@@ -169,12 +169,12 @@
 /* Input Form with Integrated Quick Actions */
 .input-container {
   background: rgba(255, 255, 255, 0.95);
-  padding: 15px 20px 20px 20px;
+  padding: 8px 20px 12px 20px; /* Reduced top padding from 15px to 8px, bottom from 20px to 12px */
   position: sticky;
   bottom: 0;
   z-index: 1000;
   /* Safe area for mobile devices */
-  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
   /* Ensure it's always visible above mobile browser UI */
   margin-bottom: 0;
   /* Enhanced cross-browser support */
@@ -188,8 +188,8 @@
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 12px;
-  padding-bottom: 45px; /* Space for tooltips below buttons */
+  margin-bottom: 8px; /* Reduced from 12px to 8px */
+  padding-bottom: 30px; /* Reduced from 45px to 30px - still enough space for tooltips */
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: visible; /* CRITICAL: Allow tooltips to show below buttons */
