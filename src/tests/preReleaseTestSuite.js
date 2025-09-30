@@ -350,6 +350,81 @@ const PreReleaseTestSuite = {
             passed: passed === total,
             details: `${passed}/${total} amendments with specific content. Failures: ${failures.join(', ')}${genericResponses.length > 0 ? `. Generic responses: ${genericResponses.join(', ')}` : ''}`
           }
+        },
+        
+        // Regression test with golden dataset - validates amendment-specific content
+        testAmendmentRegressionQuality: () => {
+          // Golden dataset: Only amendments with UI buttons (20 total, excludes 11th, 12th, 20th, 23rd-25th, 27th)
+          const goldenDataset = [
+            { amendment: 'first amendment', keywords: ['freedom of speech', 'religion', 'freedom of the press', 'right to assemble'], mustInclude: 'first amendment' },
+            { amendment: 'second amendment', keywords: ['right to bear arms', 'keep and bear arms', 'militia', 'well regulated'], mustInclude: 'second amendment' },
+            { amendment: 'third amendment', keywords: ['quartering of soldiers', 'quartering soldiers', 'owner consent'], mustInclude: 'third amendment' },
+            { amendment: 'fourth amendment', keywords: ['unreasonable search', 'search and seizure', 'warrant', 'probable cause'], mustInclude: 'fourth amendment' },
+            { amendment: 'fifth amendment', keywords: ['due process', 'self-incrimination', 'double jeopardy', 'grand jury'], mustInclude: 'fifth amendment' },
+            { amendment: 'sixth amendment', keywords: ['speedy trial', 'right to counsel', 'impartial jury', 'confront witnesses'], mustInclude: 'sixth amendment' },
+            { amendment: 'seventh amendment', keywords: ['civil trial', 'jury trial', 'common law', 'twenty dollars'], mustInclude: 'seventh amendment' },
+            { amendment: 'eighth amendment', keywords: ['cruel and unusual', 'excessive bail', 'excessive fine'], mustInclude: 'eighth amendment' },
+            { amendment: 'ninth amendment', keywords: ['enumeration', 'rights retained', 'retained by the people'], mustInclude: 'ninth amendment' },
+            { amendment: 'tenth amendment', keywords: ['powers reserved', 'reserved to the states', 'states or to the people'], mustInclude: 'tenth amendment' },
+            { amendment: 'thirteenth amendment', keywords: ['abolish slavery', 'involuntary servitude', 'neither slavery'], mustInclude: 'thirteenth amendment' },
+            { amendment: 'fourteenth amendment', keywords: ['equal protection', 'due process', 'citizenship', 'born or naturalized'], mustInclude: 'fourteenth amendment' },
+            { amendment: 'fifteenth amendment', keywords: ['right to vote', 'race or color', 'previous condition of servitude'], mustInclude: 'fifteenth amendment' },
+            { amendment: 'sixteenth amendment', keywords: ['income tax', 'tax on income', 'apportionment'], mustInclude: 'sixteenth amendment' },
+            { amendment: 'seventeenth amendment', keywords: ['senators elected', 'direct election', 'election by the people'], mustInclude: 'seventeenth amendment' },
+            { amendment: 'eighteenth amendment', keywords: ['prohibition', 'intoxicating liquor', 'manufacture or sale'], mustInclude: 'eighteenth amendment' },
+            { amendment: 'nineteenth amendment', keywords: ['women', 'right to vote', 'account of sex'], mustInclude: 'nineteenth amendment' },
+            { amendment: 'twenty-first amendment', keywords: ['repeal', 'repeals the eighteenth', 'prohibition'], mustInclude: 'twenty-first amendment' },
+            { amendment: 'twenty-second amendment', keywords: ['presidential term', 'term limit', 'elected more than twice'], mustInclude: 'twenty-second amendment' },
+            { amendment: 'twenty-sixth amendment', keywords: ['vote at eighteen', 'eighteen years', 'lowered voting age'], mustInclude: 'twenty-sixth amendment' }
+          ]
+          
+          let passed = 0
+          let total = goldenDataset.length
+          let failures = []
+          
+          // Generic fallback patterns to detect
+          const genericPatterns = [
+            'let me know which',
+            "i'm not sure which amendment",
+            'which specific amendment',
+            'which amendment you',
+            'tell me which amendment'
+          ]
+          
+          goldenDataset.forEach(({ amendment, keywords, mustInclude }) => {
+            const result = window.CatholicDoctrineService?.checkForDoctrineTopics(`tell me about the ${amendment}`)
+            const response = result?.data?.responses?.[0] || ''
+            const responseLower = response.toLowerCase()
+            
+            // Validate response contains constitutional text marker (case-insensitive, flexible hyphenation)
+            // Accept both "twenty-first" and "twenty first" for ordinal numbers
+            const flexibleMarker = mustInclude.toLowerCase().replace(/-/g, '[- ]?')
+            const markerRegex = new RegExp(flexibleMarker, 'i')
+            const hasTextMarker = markerRegex.test(response)
+            
+            // Validate response contains at least 2 amendment-specific keywords (stronger validation)
+            const matchedKeywords = keywords.filter(kw => responseLower.includes(kw.toLowerCase()))
+            const hasKeywords = matchedKeywords.length >= 2
+            
+            // Validate not generic (check multiple patterns, case-insensitive)
+            const isGeneric = genericPatterns.some(pattern => responseLower.includes(pattern)) || response.length < 150
+            const isNotGeneric = !isGeneric
+            
+            if (hasTextMarker && hasKeywords && isNotGeneric) {
+              passed++
+            } else {
+              const issues = []
+              if (!hasTextMarker) issues.push('missing text marker')
+              if (!hasKeywords) issues.push(`missing keywords (found ${matchedKeywords.length}/2: ${matchedKeywords.join(', ') || 'none'})`)
+              if (!isNotGeneric) issues.push('generic/short response')
+              failures.push(`${amendment}: ${issues.join(', ')}`)
+            }
+          })
+          
+          return {
+            passed: passed === total,
+            details: `${passed}/${total} amendments with validated constitutional content. Failures: ${failures.join(' | ')}`
+          }
         }
       }
       console.log('✅ ConstitutionalTests initialized')
@@ -964,6 +1039,26 @@ const PreReleaseTestSuite = {
         results.failed += 3;
         results.total += 3;
         results.details.push("❌ CatholicDoctrineService not available");
+      }
+      
+      // Test 6: Amendment Regression Quality (Golden Dataset)
+      console.log("🧪 Testing Amendment Regression Quality (Golden Dataset)...");
+      if (window.ConstitutionalTests) {
+        const regressionTest = window.ConstitutionalTests.testAmendmentRegressionQuality();
+        if (regressionTest.passed) {
+          results.passed++;
+          console.log("✅ All amendments passed regression quality checks");
+        } else {
+          results.failed++;
+          console.log(`❌ Amendment regression quality failed: ${regressionTest.details}`);
+          results.failedTests.push("Amendment regression quality");
+        }
+        results.total++;
+        results.details.push(`Amendment Regression: ${regressionTest.passed ? 'PASS' : 'FAIL'} - ${regressionTest.details}`);
+      } else {
+        results.failed++;
+        results.total++;
+        results.details.push("❌ Regression tests not available");
       }
       
     } catch (error) {
