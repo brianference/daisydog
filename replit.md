@@ -184,10 +184,12 @@ The app works with local responses if API keys are not configured.
 - **Video Integration & Avatar Fix (Sept 30, 2025)**:
   - **Fixed Avatar Display Bug**: Changed SmartDaisyAvatar from `useVideo={true}` to `useVideo={false}` to prevent rainbow gradient/loading state showing in circular avatars
   - **Video Display Location**: Videos now only display inside white chat message bubbles via InlineVideoMessage component, not in circular avatars
-  - **Enhanced Button Video Variety**: Updated main action buttons to use different videos for more variety:
+  - **Enhanced Button Video Variety**: Updated all main action buttons to use unique videos:
+    * Tell a Story Button (📚) → Uses `digging.mp4` (curious, exploring) with story snippets
+    * Do a Trick Button (🦴) → Uses `roll-over.mp4` (playful tricks) with trick demonstrations
     * Dance Button (💃) → Uses `tail-chase.mp4` (silly, spinning, goofy)
     * Play Games Button (🎮) → Uses `jumping.mp4` (excited, playful jumping)
-    * Verse of Day Button → Uses `waving.mp4` (friendly, welcoming greeting)
+    * Verse of Day Button (✝️) → Uses `waving.mp4` (friendly, welcoming greeting)
   - **Avatar Image Restoration**: Circular avatars now properly display emotion-based images (happy.png, excited.png, etc.) instead of attempting video playback
   - Console logs confirm proper loading: `🖼️ Avatar loaded: happy → /assets/images/emotions/happy.png`
 
