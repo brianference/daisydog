@@ -408,14 +408,16 @@ const ChatPage = () => {
       playEmotionSound('happy').catch(() => {})
       
       // Play TTS if voice input was used
+      console.log('🔍 TTS check:', { shouldPlayTTS, hasResponse: !!response })
       if (shouldPlayTTS && response) {
         setShouldPlayTTS(false)
         try {
           console.log('🗣️ Playing TTS response')
           const audioBlob = await voiceService.generateSpeech(response, 'HAPPY', 'play')
           await voiceService.playSpeech(audioBlob)
+          console.log('✅ TTS playback complete')
         } catch (ttsError) {
-          console.error('TTS playback failed:', ttsError)
+          console.error('❌ TTS playback failed:', ttsError)
         }
       }
 

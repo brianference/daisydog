@@ -231,8 +231,8 @@ class VoiceService {
       const { text, language } = await response.json();
       console.log('✅ Transcription complete:', text);
 
-      // Save transcript to database (7-day retention)
-      await this.saveTranscript(text);
+      // Note: Transcript saving disabled due to Supabase authentication issues
+      // await this.saveTranscript(text);
 
       return {
         text,
