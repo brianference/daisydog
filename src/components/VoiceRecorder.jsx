@@ -162,8 +162,15 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false }) => {
 
       {isProcessing && (
         <div className="voice-recorder-processing">
-          <FaSpinner className="spinner" />
-          <span>Processing...</span>
+          <div className="thinking-paw">🐾</div>
+          <div className="thinking-dots">
+            <span className="thinking-text">Daisy is thinking</span>
+            <span className="dots">
+              <span>.</span>
+              <span>.</span>
+              <span>.</span>
+            </span>
+          </div>
         </div>
       )}
     </div>

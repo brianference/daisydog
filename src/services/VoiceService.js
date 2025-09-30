@@ -30,6 +30,10 @@ class VoiceService {
     this.currentMode = 'play'; // prayer, story, teaching, play
     this.authToken = null;
     this.tokenExpiry = null;
+    this.audioContext = null;
+    this.analyser = null;
+    this.silenceTimeout = null;
+    this.silenceDuration = 0;
     
     this.initialize();
   }
@@ -138,6 +142,17 @@ class VoiceService {
       this.mediaRecorder.start();
       this.isRecording = true;
 
+      // Set up audio analysis for silence detection
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const source = this.audioContext.createMediaStreamSource(stream);
+      this.analyser = this.audioContext.createAnalyser();
+      this.analyser.fftSize = 2048;
+      source.connect(this.analyser);
+
+      // Start silence detection
+      this.silenceDuration = 0;
+      this.monitorSilence();
+
       // 30-second limit for child safety
       setTimeout(() => {
         if (this.isRecording) {
@@ -156,12 +171,55 @@ class VoiceService {
         }, 100);
       }
 
-      console.log('🎤 Recording started');
+      console.log('🎤 Recording started with silence detection');
     } catch (error) {
       console.error('❌ Failed to start recording:', error);
       this.isRecording = false;
       throw error;
     }
+  }
+
+  /**
+   * Monitor audio levels for silence detection
+   */
+  monitorSilence() {
+    if (!this.analyser || !this.isRecording) return;
+
+    const bufferLength = this.analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const checkSilence = () => {
+      if (!this.isRecording) return;
+
+      this.analyser.getByteFrequencyData(dataArray);
+      
+      // Calculate average audio level
+      const average = dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
+      
+      // Consider silence if average is below threshold (adjust as needed)
+      const SILENCE_THRESHOLD = 5;
+      
+      if (average < SILENCE_THRESHOLD) {
+        this.silenceDuration += 100; // Check every 100ms
+        
+        // Auto-stop after 5 seconds of silence
+        if (this.silenceDuration >= 5000) {
+          console.log('🔇 5 seconds of silence detected, stopping recording');
+          this.stopRecording();
+          return;
+        }
+      } else {
+        // Reset silence duration if sound detected
+        this.silenceDuration = 0;
+      }
+
+      // Continue monitoring
+      if (this.isRecording) {
+        setTimeout(checkSilence, 100);
+      }
+    };
+
+    checkSilence();
   }
 
   /**
@@ -181,6 +239,14 @@ class VoiceService {
         if (this.mediaRecorder.stream) {
           this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
         }
+
+        // Cleanup audio context
+        if (this.audioContext) {
+          this.audioContext.close();
+          this.audioContext = null;
+        }
+        this.analyser = null;
+        this.silenceDuration = 0;
 
         console.log('🎤 Recording stopped');
         resolve(audioBlob);
