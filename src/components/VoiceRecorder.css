@@ -1,0 +1,188 @@
+/**
+ * VoiceRecorder styles
+ */
+
+.voice-recorder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.voice-recorder-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.voice-recorder-button.start {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.voice-recorder-button.start:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+}
+
+.voice-recorder-button.start:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.voice-recorder-button.stop {
+  background: #ef4444;
+  color: white;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  padding: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.voice-recorder-button.stop:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+.voice-recorder-button .icon {
+  font-size: 1.5rem;
+}
+
+.voice-recorder-active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.waveform-container {
+  width: 100%;
+  padding: 1rem;
+  background: #f3f4f6;
+  border-radius: 12px;
+}
+
+.waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 60px;
+}
+
+.waveform-bar {
+  width: 4px;
+  background: linear-gradient(to top, #667eea, #764ba2);
+  border-radius: 2px;
+  animation: wave 0.8s ease-in-out infinite;
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.recording-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 1rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.recording-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.pulse {
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+.recording-time {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+.voice-recorder-processing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.spinner {
+  font-size: 2rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .voice-recorder-button.start {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.875rem;
+  }
+
+  .voice-recorder-button.stop {
+    width: 70px;
+    height: 70px;
+  }
+
+  .waveform {
+    height: 50px;
+  }
+
+  .waveform-bar {
+    width: 3px;
+    gap: 3px;
+  }
+}
