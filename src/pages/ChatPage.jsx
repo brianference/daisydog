@@ -182,9 +182,21 @@ const ChatPage = () => {
     scrollToBottom()
   }, [messages])
 
-  // Handle verification
-  const handleVerificationComplete = () => {
+  // Handle verification and create session
+  const handleVerificationComplete = (verificationData) => {
     setIsVerified(true)
+    
+    // Create anonymous session for voice features
+    const userAge = verificationData?.age || verificationData
+    if (!supabaseService.getCurrentSession()) {
+      supabaseService.createAnonymousSession(userAge)
+        .then(() => {
+          console.log('✅ Session created for voice features')
+        })
+        .catch(error => {
+          console.error('Failed to create session:', error)
+        })
+    }
   }
 
   // Handle quick messages

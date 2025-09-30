@@ -16,13 +16,6 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false }) => {
   const timerRef = useRef(null);
   const animationRef = useRef(null);
 
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    };
-  }, []);
-
   const startRecording = async () => {
     if (!voiceService.isAvailable()) {
       onError?.('Voice features are not available. Please check your API key.');
@@ -112,6 +105,16 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false }) => {
     }
   };
 
+  // Auto-start recording when component mounts
+  useEffect(() => {
+    startRecording();
+    
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, []);
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -120,18 +123,6 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false }) => {
 
   return (
     <div className="voice-recorder">
-      {!isRecording && !isProcessing && (
-        <button
-          className="voice-recorder-button start"
-          onClick={startRecording}
-          disabled={disabled}
-          aria-label="Start recording"
-        >
-          <FaMicrophone className="icon" />
-          <span>Tap to Speak</span>
-        </button>
-      )}
-
       {isRecording && (
         <div className="voice-recorder-active">
           <button
