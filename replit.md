@@ -124,6 +124,18 @@ The app works with local responses if API keys are not configured.
   - Test commands available in browser console:
     * `window.runPreReleaseTests()` - Full test suite
     * `window.quickTest('constitution')` - Constitutional content tests only
+- **UI Button Pattern Fix & Testing (Sept 30, 2025)**:
+  - Fixed Bible "Verse of the Day" button bug: Changed from sending user messages (orange) to Daisy messages (white)
+  - Root cause: Button used handleQuickMessage() instead of creating Daisy message directly
+  - **New Category 9: UI Button Pattern Tests**:
+    - Validates action buttons (Verse of Day, Dance) create Daisy messages, not user messages
+    - Prevents regression of button implementation bugs
+    - Detects misuse of handleQuickMessage in action button handlers
+  - Documented proper button patterns:
+    * Action buttons → Create Daisy messages directly
+    * Query buttons → Use handleQuickMessage()
+  - Test commands:
+    * `window.quickTest('ui')` - UI button pattern tests only
 
 ## User Preferences
 (To be added as we learn user preferences)
