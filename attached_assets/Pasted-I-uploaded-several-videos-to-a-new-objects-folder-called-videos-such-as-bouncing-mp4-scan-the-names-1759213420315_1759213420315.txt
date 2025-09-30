@@ -1,0 +1,21 @@
+I uploaded several videos to a new objects folder called videos such as bouncing.mp4. scan the names, integrate these videos into the exising video/emotion system so that more variotion of videos is shown appropriately through the various buttons and sub buttons. Be careful because these are a different aspect ratio (taller) so take that into account and make needed changes
+
+💥 Bible verification failed: 
+TypeError {}
+
+at t.value (https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+❌ Bible API initialization failed: Failed to fetch
+at t.value (https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Failed to fetch
+at window.fetch (https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:218642)
+at Object.apply (https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/__replco/static/devtools/injected.js:278:39)
+at BibleService.verifyNABAvailability (https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/src/services/BibleService.js:91:30)
+at BibleService.initialize (https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/src/services/BibleService.js:69:18)
+at new BibleService (https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/src/services/BibleService.js:34:10)
+at https://ac3591c9-30e9-4576-bf68-154ba4eb0837-00-pjxat0uwtgvk.janeway.replit.dev/src/services/BibleService.js:432:22
