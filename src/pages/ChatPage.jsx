@@ -420,6 +420,21 @@ const ChatPage = () => {
         return
       }
 
+      // If voice input, show thinking message first
+      let thinkingMessageId = null
+      if (isVoiceInput) {
+        thinkingMessageId = Date.now() + 3
+        const thinkingMessage = {
+          id: thinkingMessageId,
+          text: "🐾 Daisy is thinking...",
+          sender: 'daisy',
+          timestamp: new Date(),
+          videoUrl: getVideoForEmotion('thinking'),
+          emotion: 'thinking'
+        }
+        setMessages(prev => [...prev, thinkingMessage])
+      }
+
       // Send to Gemini AI
       const response = await geminiService.generateResponse(messageToSend)
       
@@ -431,7 +446,15 @@ const ChatPage = () => {
         videoUrl: getVideoForEmotion('happy'),
         emotion: 'happy'
       }
-      setMessages(prev => [...prev, daisyMessage])
+      
+      // Replace thinking message with actual response if voice input
+      if (isVoiceInput && thinkingMessageId) {
+        setMessages(prev => prev.map(msg => 
+          msg.id === thinkingMessageId ? daisyMessage : msg
+        ))
+      } else {
+        setMessages(prev => [...prev, daisyMessage])
+      }
       
       // Play TTS if voice input was used (use actual message text, not response)
       console.log('🔍 TTS check:', { isVoiceInput, messageText: daisyMessage.text })

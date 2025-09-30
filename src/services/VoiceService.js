@@ -196,8 +196,8 @@ class VoiceService {
       // Calculate average audio level
       const average = dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
       
-      // Consider silence if average is below threshold (adjust as needed)
-      const SILENCE_THRESHOLD = 5;
+      // Consider silence if average is below threshold (increased for real-world noise)
+      const SILENCE_THRESHOLD = 25; // Higher threshold to account for background noise
       
       if (average < SILENCE_THRESHOLD) {
         this.silenceDuration += 100; // Check every 100ms

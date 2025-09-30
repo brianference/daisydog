@@ -1,0 +1,41 @@
+/.netlify/functions/generate-voice-token:1  Failed to load resource: the server responded with a status of 404 ()
+index-Ch2RT5mE.js:678 ❌ Failed to get auth token: Error: Failed to generate auth token
+    at LS.getAuthToken (index-Ch2RT5mE.js:498:1528)
+    at async LS.transcribeAudio (index-Ch2RT5mE.js:498:4068)
+    at async w (index-Ch2RT5mE.js:535:61644)
+console.error @ index-Ch2RT5mE.js:678
+index-Ch2RT5mE.js:678 ❌ Transcription failed: Error: Failed to generate auth token
+    at LS.getAuthToken (index-Ch2RT5mE.js:498:1528)
+    at async LS.transcribeAudio (index-Ch2RT5mE.js:498:4068)
+    at async w (index-Ch2RT5mE.js:535:61644)
+console.error @ index-Ch2RT5mE.js:678
+index-Ch2RT5mE.js:678 Failed to stop recording: Error: Failed to generate auth token
+    at LS.getAuthToken (index-Ch2RT5mE.js:498:1528)
+    at async LS.transcribeAudio (index-Ch2RT5mE.js:498:4068)
+    at async w (index-Ch2RT5mE.js:535:61644)
+console.error @ index-Ch2RT5mE.js:678
+index-Ch2RT5mE.js:678 🎤 Voice error: Failed to process recording. Please try again.
+console.error @ index-Ch2RT5mE.js:678
+index-Ch2RT5mE.js:535 🖼️ Avatar loaded: confused → /assets/images/emotions/thinking.png
+index-Ch2RT5mE.js:498 🎤 Recording started with silence detection
+index-Ch2RT5mE.js:498 🎤 Recording stopped
+index-Ch2RT5mE.js:498 🔄 Transcribing audio via Netlify...
+/.netlify/functions/generate-voice-token:1  Failed to load resource: the server responded with a status of 404 ()
+index-Ch2RT5mE.js:678 ❌ Failed to get auth token: Error: Failed to generate auth token
+    at LS.getAuthToken (index-Ch2RT5mE.js:498:1528)
+    at async LS.transcribeAudio (index-Ch2RT5mE.js:498:4068)
+    at async w (index-Ch2RT5mE.js:535:61644)
+console.error @ index-Ch2RT5mE.js:678
+index-Ch2RT5mE.js:678 ❌ Transcription failed: Error: Failed to generate auth token
+    at LS.getAuthToken (index-Ch2RT5mE.js:498:1528)
+    at async LS.transcribeAudio (index-Ch2RT5mE.js:498:4068)
+    at async w (index-Ch2RT5mE.js:535:61644)
+console.error @ index-Ch2RT5mE.js:678
+index-Ch2RT5mE.js:678 Failed to stop recording: Error: Failed to generate auth token
+    at LS.getAuthToken (index-Ch2RT5mE.js:498:1528)
+    at async LS.transcribeAudio (index-Ch2RT5mE.js:498:4068)
+    at async w (index-Ch2RT5mE.js:535:61644)
+console.error @ index-Ch2RT5mE.js:678
+index-Ch2RT5mE.js:678 🎤 Voice error: Failed to process recording. Please try again.
+console.error @ index-Ch2RT5mE.js:678
+index-Ch2RT5mE.js:535 🖼️ Avatar loaded: confused → /assets/images/emotions/thinking.png

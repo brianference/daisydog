@@ -22,11 +22,12 @@
   VITE_SUPABASE_URL = "https://lqxstmjczpfywfgyhahj.supabase.co"
   VITE_SUPABASE_ANON_KEY = "your_supabase_anon_key_here"
 
-# Redirect rules for SPA
+# Redirect rules for SPA (excluding API functions)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
 
 # Security headers
 [[headers]]
