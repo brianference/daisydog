@@ -17,6 +17,8 @@ import SoundControls from '../components/SoundControls.jsx'
 import SmartDaisyAvatar from '../components/SmartDaisyAvatar.jsx'
 import InlineVideoMessage from '../components/InlineVideoMessage.jsx'
 import useStableVideoIntegration from '../hooks/useStableVideoIntegration.js'
+import GameManager from '../services/GameManager.js'
+import { GAME_STATES } from '../types/index.js'
 import SoundTestPanel from '../components/SoundTestPanel.jsx'
 import BibleTestPanel from '../components/BibleTestPanel.jsx'
 import LessonTestPanel from '../components/LessonTestPanel.jsx'
@@ -207,6 +209,31 @@ const ChatPage = () => {
     setMessages(prev => [...prev, userMessage])
 
     try {
+      // Check if a game is active - process game input first
+      if (GameManager.isGameActive()) {
+        const gameResponse = GameManager.processGameInput(messageToSend)
+        
+        if (gameResponse) {
+          const gameMessage = {
+            id: Date.now() + 1,
+            text: gameResponse.message,
+            sender: 'daisy',
+            timestamp: new Date(),
+            videoUrl: getVideoForEmotion(gameResponse.emotion || 'happy'),
+            emotion: gameResponse.emotion || 'happy'
+          }
+          setMessages(prev => [...prev, gameMessage])
+          
+          // Play appropriate sound based on game outcome
+          if (gameResponse.gameEnded) {
+            playUISound('success').catch(() => {})
+          } else {
+            playGameSound(GameManager.getCurrentGame()).catch(() => {})
+          }
+          return
+        }
+      }
+      
       // Check safety first
       const safetyResult = checkSafety(messageToSend)
       if (safetyResult && safetyResult.isBlocked) {
@@ -325,59 +352,74 @@ const ChatPage = () => {
     }
   }
 
-  // Handle game actions
+  // Handle game actions - using GameManager for full gameplay
   const handleGameAction = (gameType) => {
-    const gameMessages = {
-      // Fetch games
-      'fetch-easy': "*bounces excitedly* Woof! Easy fetch! 🎾 *trots slowly to get the ball*",
-      'fetch-medium': "*runs energetically* Medium fetch! 🎾 *dashes to retrieve the ball*",
-      'fetch-hard': "*sprints at full speed* Hard fetch challenge! 🎾 *leaps and catches mid-air*",
-      'fetch-super': "*does backflips* SUPER FETCH! 🎾⭐ *performs amazing acrobatic catch*",
+    // Map submenu game types to GAME_STATES
+    let actualGameType = null
+    let gameResponse = null
+    
+    // Map game types
+    if (gameType.startsWith('fetch-')) {
+      actualGameType = GAME_STATES.FETCH
+    } else if (gameType.startsWith('hide-')) {
+      actualGameType = GAME_STATES.HIDE_AND_SEEK
+    } else if (gameType.startsWith('tug-')) {
+      actualGameType = GAME_STATES.TUG_OF_WAR
+    } else if (gameType.startsWith('guess-')) {
+      actualGameType = GAME_STATES.GUESSING_GAME
+    } else if (gameType.startsWith('catch-')) {
+      // Ball catch - simple one-off game (no game manager)
+      const catchMessages = {
+        'catch-tennis': "*focuses intently* Tennis ball catch! 🎾 *jumps and catches perfectly* Got it!",
+        'catch-baseball': "*gets ready* Baseball catch! ⚾ *makes spectacular diving catch* Nice throw!",
+        'catch-football': "*positions carefully* Football catch! 🏈 *leaps high for the catch* Touchdown!",
+        'catch-frisbee': "*watches the sky* Frisbee catch! 🥏 *spins and catches gracefully* Perfect catch!"
+      }
       
-      // Ball catch games
-      'catch-tennis': "*focuses intently* Tennis ball catch! 🎾 *jumps and catches perfectly*",
-      'catch-baseball': "*gets ready* Baseball catch! ⚾ *makes spectacular diving catch*",
-      'catch-football': "*positions carefully* Football catch! 🏈 *leaps high for the catch*",
-      'catch-frisbee': "*watches the sky* Frisbee catch! 🥏 *spins and catches gracefully*",
-      
-      // Tug games
-      'tug-rope': "*grabs rope firmly* Rope tug! 🪢 *pulls with determination*",
-      'tug-toy': "*grabs favorite toy* Toy tug! 🧸 *tugs playfully*",
-      'tug-stick': "*finds perfect stick* Stick tug! 🪵 *tugs with natural instinct*",
-      'tug-challenge': "*gets serious* Challenge mode! 💪 *uses all strength*",
-      
-      // Hide and seek games
-      'hide-easy': "*hides behind obvious spot* Easy hiding! 🙈 *giggles from behind tree*",
-      'hide-medium': "*finds clever spot* Medium hiding! 🙈 *disappears into bushes*",
-      'hide-hard': "*becomes invisible* Hard hiding! 🙈 *completely vanishes*",
-      'hide-master': "*uses ninja skills* Master hiding! 🎭 *becomes one with shadows*",
-      
-      // Guessing games
-      'guess-numbers': "*thinks hard* Number guessing! 🔢 *concentrates on numbers*",
-      'guess-colors': "*looks around* Color guessing! 🌈 *examines all the colors*",
-      'guess-animals': "*sniffs the air* Animal guessing! 🐾 *uses keen senses*",
-      'guess-riddle': "*puts on thinking cap* Riddle time! 🧩 *puzzles over the answer*",
-      
-      // Legacy games (fallback)
-      fetch: "*bounces excitedly* Woof! Let's play fetch! 🎾 *runs around in circles*",
-      tug: "*grabs rope* Grrr! This is fun! 🪢 *tugs playfully*",
-      hide: "*covers eyes with paws* I'm hiding! Can you find me? 🙈",
-      catch: "*jumps up* I'll catch it! 🏀 *leaps in the air*",
-      guess: "*tilts head* I'm thinking of a number between 1 and 10! Can you guess? 🤔"
+      const gameMessage = {
+        id: Date.now(),
+        text: catchMessages[gameType] || "*jumps up* I'll catch it! 🏀 *leaps in the air*",
+        sender: 'daisy',
+        timestamp: new Date(),
+        videoUrl: getVideoForEmotion('playful'),
+        emotion: 'jumping'
+      }
+      setMessages(prev => [...prev, gameMessage])
+      playGameSound('catch').catch(() => {})
+      setGameState(null)
+      return
     }
     
-    const gameMessage = {
-      id: Date.now(),
-      text: gameMessages[gameType] || "*wags tail* Let's play! 🐕",
-      sender: 'daisy',
-      timestamp: new Date(),
-      videoUrl: getVideoForEmotion('playful'),
-      emotion: 'jumping'
+    // Start the actual game using GameManager
+    if (actualGameType) {
+      try {
+        gameResponse = GameManager.startGame(actualGameType)
+        
+        const gameMessage = {
+          id: Date.now(),
+          text: gameResponse.message,
+          sender: 'daisy',
+          timestamp: new Date(),
+          videoUrl: getVideoForEmotion(gameResponse.emotion || 'playful'),
+          emotion: gameResponse.emotion || 'jumping'
+        }
+        setMessages(prev => [...prev, gameMessage])
+        playGameSound(actualGameType).catch(() => {})
+        setGameState(null) // Close the game menu
+      } catch (error) {
+        console.error('Error starting game:', error)
+        const errorMessage = {
+          id: Date.now(),
+          text: "*wags tail apologetically* Woof! Let's try a different game! 🐕",
+          sender: 'daisy',
+          timestamp: new Date(),
+          videoUrl: getVideoForEmotion('confused'),
+          emotion: 'lay-down'
+        }
+        setMessages(prev => [...prev, errorMessage])
+        setGameState(null)
+      }
     }
-    setMessages(prev => [...prev, gameMessage])
-    // Play game-specific sound
-    playGameSound(gameType).catch(() => {})
-    setGameState(null) // Close the game menu
   }
 
   // Handle dance action
