@@ -1,0 +1,1121 @@
+# DaisyDog Audio Integration Plan - Updated with Privacy Controls
+
+I'll update the comprehensive implementation plan to include OpenAI Standard tier with full privacy disclosure, parental consent, and Parent Dashboard transparency features.
+
+## 📋 Updated Project Overview with Privacy-First Approach
+
+### Privacy & Compliance Strategy
+
+**Core Principles:**
+1. ✅ **Transparent Data Handling** - Parents know exactly what happens to audio
+2. ✅ **Explicit Consent Required** - Separate opt-in for voice features
+3. ✅ **Parent Dashboard Visibility** - Review all voice interactions
+4. ✅ **No Third-Party Sharing** - Audio only processed by OpenAI (disclosed)
+5. ✅ **Time-Limited Retention** - Clear retention periods for all data
+
+## 🔐 Privacy Policy Updates Required
+
+### New Section: Voice Features Privacy Policy
+
+```markdown
+# DaisyDog Voice Features Privacy Policy
+
+## What Audio Data We Collect
+When your child uses voice features with Daisy, we collect:
+- Voice recordings (temporary, for processing only)
+- Text transcriptions (stored locally for parent review)
+- Interaction metadata (timestamp, duration, safety status)
+
+## How We Process Audio Data
+
+### OpenAI Processing (Industry-Standard Partner)
+- **Who Processes**: OpenAI (Whisper AI transcription service)
+- **How Long Stored**: 30 days on OpenAI servers (industry standard for abuse prevention)
+- **Purpose**: Convert voice to text for Daisy's responses
+- **Training**: Your child's audio is NOT used to train AI models
+- **Security**: Encrypted transmission and storage
+- **Third-Party Sharing**: OpenAI does not share audio with other third parties
+
+### DaisyDog Local Storage
+- **What We Store**: Text transcriptions only (not audio recordings)
+- **How Long**: 7 days for parent review, then automatically deleted
+- **Where**: Encrypted on your device and our secure servers
+- **Access**: Only you (the parent) and authorized DaisyDog support (with your permission)
+
+## Your Parental Rights
+
+### You Can Always:
+✅ **Review Transcripts** - See all voice interactions in Parent Dashboard  
+✅ **Delete Data** - Request immediate deletion of all voice data  
+✅ **Disable Voice** - Turn off voice features at any time  
+✅ **Export Data** - Download all transcripts for your records  
+✅ **Revoke Consent** - Withdraw permission and delete all data  
+
+### We Will Never:
+❌ Share audio recordings with third parties (except OpenAI for processing)  
+❌ Use your child's voice for advertising or marketing  
+❌ Sell or rent voice data to anyone  
+❌ Keep audio recordings longer than necessary for processing  
+
+## COPPA Compliance for Children Under 13
+
+For children under 13, we require:
+1. **Verifiable Parental Consent** - Email verification with identity confirmation
+2. **Enhanced Privacy Controls** - Additional restrictions on data collection
+3. **Parent Notification** - Alerts for any concerning content detected
+4. **Data Minimization** - We collect only what's necessary for the service
+
+## How to Provide or Revoke Consent
+
+### Enabling Voice Features
+1. Parent must create account and verify identity
+2. Review this privacy policy in full
+3. Check "I understand and consent" boxes
+4. Confirm via email verification link
+5. Voice features activated with ongoing Parent Dashboard access
+
+### Disabling Voice Features
+1. Go to Parent Dashboard > Privacy Settings
+2. Toggle "Voice Features" to OFF
+3. Choose data deletion option:
+   - Delete immediately (audio and transcripts)
+   - Keep transcripts for 30 days (for your review)
+4. Confirm your choice
+
+## Questions or Concerns?
+Contact our Privacy Team: privacy@daisydog.com  
+We respond within 48 hours.
+
+**Last Updated**: [Current Date]  
+**Effective Date**: [Launch Date]
+```
+
+### Updated Terms of Service Section
+
+```markdown
+# DaisyDog Terms of Service - Voice Features Addendum
+
+## 15. Voice Features and Audio Processing
+
+### 15.1 Consent Requirement
+Use of voice features requires explicit parental consent through our separate Voice Features Privacy Policy. By enabling voice features, you acknowledge:
+
+- You have read and understand how audio data is processed
+- You consent to OpenAI processing audio with 30-day retention
+- You understand audio is not shared with other third parties
+- You can revoke consent and disable voice features at any time
+
+### 15.2 OpenAI Processing Disclosure
+DaisyDog uses OpenAI's Whisper API for voice transcription. This means:
+
+- Audio is transmitted to OpenAI's secure servers
+- OpenAI retains audio for 30 days for abuse monitoring
+- OpenAI does NOT use audio to train AI models
+- OpenAI's privacy policy applies: https://openai.com/privacy
+
+### 15.3 Parent Dashboard Transparency
+As a parent, you have complete visibility:
+
+- All voice interactions are transcribed and viewable
+- Transcripts include timestamps and safety status
+- You can review, export, or delete transcripts at any time
+- Safety alerts are immediately visible in your dashboard
+
+### 15.4 Data Retention Timeline
+- **Audio Files**: Processed and discarded immediately (OpenAI: 30 days)
+- **Transcripts**: Stored 7 days on DaisyDog servers (parent-viewable)
+- **Safety Logs**: Stored 90 days for compliance and protection
+- **Metadata**: Anonymized analytics stored 1 year
+
+### 15.5 Your Control Over Data
+You may at any time:
+
+- Review all voice transcripts in Parent Dashboard
+- Request immediate deletion of all voice data
+- Export voice transcripts for your personal records
+- Disable voice features without affecting other DaisyDog features
+- Contact support@daisydog.com for assistance
+
+### 15.6 Safety and Monitoring
+For child protection:
+
+- All voice interactions are monitored by safety AI
+- Concerning content triggers immediate parent notification
+- Safety logs maintained for child protection (90 days)
+- Parents can set custom content filters and restrictions
+
+### 15.7 Limitation of Liability
+DaisyDog and OpenAI provide voice features on an "as-is" basis:
+
+- Voice recognition may not be 100% accurate
+- Transcription errors may occur
+- Safety filters cannot guarantee 100% protection
+- Parents remain responsible for supervising children's use
+```
+
+## 🏗️ Updated Technical Implementation
+
+### Enhanced Parental Consent System
+
+```typescript
+// src/features/consent/VoiceFeatureConsent.tsx
+import React, { useState } from 'react';
+import { useParentAuth } from '../../hooks/useParentAuth';
+import { sendConsentVerificationEmail } from '../../services/email';
+
+interface ConsentFormData {
+  parentEmail: string;
+  childName: string;
+  childAge: number;
+  understandsOpenAI: boolean;
+  understandsRetention: boolean;
+  understandsRights: boolean;
+  agreedToTerms: boolean;
+}
+
+const VoiceFeatureConsentFlow: React.FC = () => {
+  const [step, setStep] = useState<'intro' | 'education' | 'consent' | 'verify'>('intro');
+  const [formData, setFormData] = useState<ConsentFormData>({
+    parentEmail: '',
+    childName: '',
+    childAge: 0,
+    understandsOpenAI: false,
+    understandsRetention: false,
+    understandsRights: false,
+    agreedToTerms: false
+  });
+  const { verifyParentIdentity } = useParentAuth();
+
+  return (
+    <div className="voice-consent-flow">
+      {step === 'intro' && (
+        <ConsentIntroduction onNext={() => setStep('education')} />
+      )}
+
+      {step === 'education' && (
+        <PrivacyEducation
+          onNext={() => setStep('consent')}
+          onBack={() => setStep('intro')}
+        />
+      )}
+
+      {step === 'consent' && (
+        <ConsentForm
+          formData={formData}
+          onChange={setFormData}
+          onSubmit={async () => {
+            // Send verification email
+            await sendConsentVerificationEmail(formData.parentEmail);
+            setStep('verify');
+          }}
+        />
+      )}
+
+      {step === 'verify' && (
+        <EmailVerification
+          email={formData.parentEmail}
+          onVerified={async (token) => {
+            // Activate voice features
+            await activateVoiceFeatures(formData, token);
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+const ConsentIntroduction: React.FC<{ onNext: () => void }> = ({ onNext }) => {
+  return (
+    <div className="consent-intro">
+      <img src="/images/daisy-friendly.png" alt="Daisy Dog" className="daisy-intro" />
+      
+      <h2>🎤 Give Daisy a Voice!</h2>
+      
+      <p className="intro-text">
+        Voice features let your child talk with Daisy naturally! Before we enable 
+        this feature, we need your consent and want you to understand exactly how 
+        we handle your child's voice data.
+      </p>
+
+      <div className="benefits-preview">
+        <h3>What Voice Features Enable:</h3>
+        <ul>
+          <li>🙏 Practice prayers by speaking them aloud</li>
+          <li>📖 Listen to Daisy narrate saint stories</li>
+          <li>💬 Have natural conversations with Daisy</li>
+          <li>🎓 Get pronunciation help with prayers</li>
+        </ul>
+      </div>
+
+      <div className="privacy-preview">
+        <h3>Privacy First - You're Always in Control:</h3>
+        <ul>
+          <li>✅ Review all voice interactions in Parent Dashboard</li>
+          <li>✅ Delete voice data anytime</li>
+          <li>✅ Disable voice features anytime</li>
+          <li>✅ No audio shared with third parties (except OpenAI for processing)</li>
+        </ul>
+      </div>
+
+      <button className="btn-primary-large" onClick={onNext}>
+        Learn How It Works
+      </button>
+
+      <button className="btn-secondary" onClick={() => window.history.back()}>
+        Maybe Later
+      </button>
+    </div>
+  );
+};
+
+const PrivacyEducation: React.FC<{
+  onNext: () => void;
+  onBack: () => void;
+}> = ({ onNext, onBack }) => {
+  return (
+    <div className="privacy-education">
+      <h2>🔒 How We Protect Your Child's Privacy</h2>
+
+      <section className="privacy-section">
+        <h3>1. Audio Processing with OpenAI</h3>
+        <div className="info-box openai-info">
+          <p>
+            <strong>Who is OpenAI?</strong> A trusted AI company that provides 
+            industry-leading voice transcription (Whisper AI).
+          </p>
+          <p>
+            <strong>What they do:</strong> Convert your child's voice to text so 
+            Daisy can understand and respond.
+          </p>
+          <p>
+            <strong>How long they keep it:</strong> 30 days (industry standard 
+            for safety and abuse prevention).
+          </p>
+          <p>
+            <strong>Is it used for AI training?</strong> <strong>NO</strong> - 
+            Your child's voice is never used to train AI models.
+          </p>
+          <p>
+            <strong>Is it shared elsewhere?</strong> <strong>NO</strong> - 
+            OpenAI does not share audio with other third parties.
+          </p>
+        </div>
+      </section>
+
+      <section className="privacy-section">
+        <h3>2. What DaisyDog Stores</h3>
+        <div className="info-box daisydog-info">
+          <p>
+            <strong>Audio recordings:</strong> NOT stored (discarded immediately 
+            after processing).
+          </p>
+          <p>
+            <strong>Text transcripts:</strong> Stored for 7 days so you can 
+            review conversations.
+          </p>
+          <p>
+            <strong>Where:</strong> Encrypted on our secure servers and your device.
+          </p>
+          <p>
+            <strong>Who can access:</strong> Only you (the parent) via Parent Dashboard.
+          </p>
+        </div>
+      </section>
+
+      <section className="privacy-section">
+        <h3>3. Your Parental Rights</h3>
+        <div className="rights-grid">
+          <div className="right-card">
+            <span className="icon">👀</span>
+            <h4>Review Transcripts</h4>
+            <p>See every voice interaction in Parent Dashboard</p>
+          </div>
+          <div className="right-card">
+            <span className="icon">🗑️</span>
+            <h4>Delete Data</h4>
+            <p>Request immediate deletion anytime</p>
+          </div>
+          <div className="right-card">
+            <span className="icon">⏸️</span>
+            <h4>Disable Voice</h4>
+            <p>Turn off voice features with one click</p>
+          </div>
+          <div className="right-card">
+            <span className="icon">📥</span>
+            <h4>Export Data</h4>
+            <p>Download all transcripts for your records</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="privacy-section">
+        <h3>4. Safety Monitoring</h3>
+        <div className="info-box safety-info">
+          <p>
+            All voice interactions are monitored by AI safety systems to protect 
+            your child:
+          </p>
+          <ul>
+            <li>Inappropriate content detection</li>
+            <li>Emotional distress indicators</li>
+            <li>Safety keyword monitoring</li>
+            <li>Immediate parent notification if concerns detected</li>
+          </ul>
+        </div>
+      </section>
+
+      <div className="action-buttons">
+        <button className="btn-primary-large" onClick={onNext}>
+          I Understand - Continue to Consent
+        </button>
+        <button className="btn-secondary" onClick={onBack}>
+          Go Back
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const ConsentForm: React.FC<{
+  formData: ConsentFormData;
+  onChange: (data: ConsentFormData) => void;
+  onSubmit: () => void;
+}> = ({ formData, onChange, onSubmit }) => {
+  const [allChecked, setAllChecked] = useState(false);
+
+  useEffect(() => {
+    setAllChecked(
+      formData.understandsOpenAI &&
+      formData.understandsRetention &&
+      formData.understandsRights &&
+      formData.agreedToTerms
+    );
+  }, [formData]);
+
+  return (
+    <div className="consent-form">
+      <h2>📝 Parental Consent for Voice Features</h2>
+
+      <div className="form-section">
+        <label htmlFor="parentEmail">Your Email Address</label>
+        <input
+          type="email"
+          id="parentEmail"
+          value={formData.parentEmail}
+          onChange={(e) => onChange({ ...formData, parentEmail: e.target.value })}
+          placeholder="parent@example.com"
+          required
+        />
+        <small>We'll send a verification link to confirm your consent</small>
+      </div>
+
+      <div className="form-section">
+        <label htmlFor="childName">Child's First Name</label>
+        <input
+          type="text"
+          id="childName"
+          value={formData.childName}
+          onChange={(e) => onChange({ ...formData, childName: e.target.value })}
+          placeholder="Enter child's name"
+          required
+        />
+      </div>
+
+      <div className="form-section">
+        <label htmlFor="childAge">Child's Age</label>
+        <select
+          id="childAge"
+          value={formData.childAge}
+          onChange={(e) => onChange({ ...formData, childAge: parseInt(e.target.value) })}
+          required
+        >
+          <option value={0}>Select age...</option>
+          {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map(age => (
+            <option key={age} value={age}>{age} years old</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="consent-checkboxes">
+        <h3>Please confirm you understand:</h3>
+
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={formData.understandsOpenAI}
+            onChange={(e) => onChange({ ...formData, understandsOpenAI: e.target.checked })}
+          />
+          <span>
+            I understand that OpenAI will process my child's audio and retain it 
+            for 30 days, but will NOT use it for AI training or share it with other 
+            third parties.
+          </span>
+        </label>
+
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={formData.understandsRetention}
+            onChange={(e) => onChange({ ...formData, understandsRetention: e.target.checked })}
+          />
+          <span>
+            I understand that text transcripts will be stored for 7 days on DaisyDog's 
+            secure servers so I can review my child's conversations.
+          </span>
+        </label>
+
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={formData.understandsRights}
+            onChange={(e) => onChange({ ...formData, understandsRights: e.target.checked })}
+          />
+          <span>
+            I understand I can review all voice interactions in the Parent Dashboard, 
+            delete data at any time, and disable voice features whenever I want.
+          </span>
+        </label>
+
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={formData.agreedToTerms}
+            onChange={(e) => onChange({ ...formData, agreedToTerms: e.target.checked })}
+          />
+          <span>
+            I have read and agree to the{' '}
+            <a href="/privacy-policy#voice-features" target="_blank">
+              Voice Features Privacy Policy
+            </a>{' '}
+            and{' '}
+            <a href="/terms-of-service#voice-features" target="_blank">
+              Terms of Service
+            </a>.
+          </span>
+        </label>
+      </div>
+
+      <div className="action-buttons">
+        <button
+          className="btn-primary-large"
+          onClick={onSubmit}
+          disabled={!allChecked || !formData.parentEmail || !formData.childName || !formData.childAge}
+        >
+          Send Verification Email
+        </button>
+      </div>
+
+      <div className="privacy-reminder">
+        <p>
+          🔒 <strong>Your privacy matters.</strong> We will never sell your child's 
+          data or use it for advertising. You remain in complete control.
+        </p>
+      </div>
+    </div>
+  );
+};
+```
+
+### Parent Dashboard - Voice Transcript Viewer
+
+```typescript
+// src/features/parent/VoiceTranscriptDashboard.tsx
+import React, { useState, useEffect } from 'react';
+import { useParentAuth } from '../../hooks/useParentAuth';
+import { getVoiceTranscripts, deleteTranscript, exportTranscripts } from '../../services/transcripts';
+
+interface VoiceTranscript {
+  id: string;
+  timestamp: Date;
+  childInput: string;
+  daisyResponse: string;
+  safetyStatus: SafetyStatus;
+  duration: number;
+  context: 'prayer' | 'story' | 'conversation' | 'game';
+}
+
+const VoiceTranscriptDashboard: React.FC = () => {
+  const { parentId, childId } = useParentAuth();
+  const [transcripts, setTranscripts] = useState<VoiceTranscript[]>([]);
+  const [filter, setFilter] = useState<'all' | 'flagged' | 'today'>('all');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadTranscripts();
+  }, [filter]);
+
+  const loadTranscripts = async () => {
+    setLoading(true);
+    const data = await getVoiceTranscripts(parentId, childId, {
+      filter,
+      limit: 50,
+      sortBy: 'timestamp',
+      order: 'desc'
+    });
+    setTranscripts(data);
+    setLoading(false);
+  };
+
+  const handleDelete = async (transcriptId: string) => {
+    if (confirm('Are you sure you want to delete this transcript?')) {
+      await deleteTranscript(transcriptId);
+      setTranscripts(prev => prev.filter(t => t.id !== transcriptId));
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (confirm('Are you sure you want to delete ALL voice transcripts? This cannot be undone.')) {
+      await deleteTranscript('all', childId);
+      setTranscripts([]);
+    }
+  };
+
+  const handleExport = async () => {
+    const csv = await exportTranscripts(childId, 'csv');
+    // Trigger download
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `daisydog-voice-transcripts-${new Date().toISOString()}.csv`;
+    a.click();
+  };
+
+  return (
+    <div className="voice-transcript-dashboard">
+      <header className="dashboard-header">
+        <h2>🎤 Voice Interaction History</h2>
+        <p className="subtitle">
+          Review your child's conversations with Daisy. Transcripts are automatically 
+          deleted after 7 days.
+        </p>
+      </header>
+
+      <div className="privacy-info-box">
+        <h3>🔒 Privacy & Data Controls</h3>
+        <div className="privacy-stats">
+          <div className="stat">
+            <span className="label">Audio Storage:</span>
+            <span className="value">Not stored by DaisyDog</span>
+          </div>
+          <div className="stat">
+            <span className="label">OpenAI Retention:</span>
+            <span className="value">30 days (industry standard)</span>
+          </div>
+          <div className="stat">
+            <span className="label">Transcript Retention:</span>
+            <span className="value">7 days (then auto-deleted)</span>
+          </div>
+          <div className="stat">
+            <span className="label">Third-Party Sharing:</span>
+            <span className="value">None (except OpenAI processing)</span>
+          </div>
+        </div>
+        
+        <div className="action-buttons">
+          <button className="btn-secondary" onClick={handleExport}>
+            📥 Export All Transcripts
+          </button>
+          <button className="btn-danger" onClick={handleDeleteAll}>
+            🗑️ Delete All Transcripts
+          </button>
+        </div>
+      </div>
+
+      <div className="transcript-filters">
+        <button
+          className={filter === 'all' ? 'active' : ''}
+          onClick={() => setFilter('all')}
+        >
+          All ({transcripts.length})
+        </button>
+        <button
+          className={filter === 'today' ? 'active' : ''}
+          onClick={() => setFilter('today')}
+        >
+          Today
+        </button>
+        <button
+          className={filter === 'flagged' ? 'active' : ''}
+          onClick={() => setFilter('flagged')}
+        >
+          Flagged for Review
+        </button>
+      </div>
+
+      <div className="transcript-list">
+        {loading ? (
+          <LoadingSpinner />
+        ) : transcripts.length === 0 ? (
+          <EmptyState message="No voice interactions yet" />
+        ) : (
+          transcripts.map(transcript => (
+            <TranscriptCard
+              key={transcript.id}
+              transcript={transcript}
+              onDelete={() => handleDelete(transcript.id)}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+const TranscriptCard: React.FC<{
+  transcript: VoiceTranscript;
+  onDelete: () => void;
+}> = ({ transcript, onDelete }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className={`transcript-card ${transcript.safetyStatus.flagged ? 'flagged' : ''}`}>
+      <div className="transcript-header">
+        <div className="timestamp">
+          {new Date(transcript.timestamp).toLocaleString()}
+        </div>
+        <div className="context-badge">{transcript.context}</div>
+        {transcript.safetyStatus.flagged && (
+          <div className="safety-badge">⚠️ Flagged</div>
+        )}
+      </div>
+
+      <div className="transcript-preview">
+        <div className="child-input">
+          <strong>Child:</strong> {transcript.childInput.substring(0, 100)}
+          {transcript.childInput.length > 100 && '...'}
+        </div>
+        <div className="daisy-response">
+          <strong>Daisy:</strong> {transcript.daisyResponse.substring(0, 100)}
+          {transcript.daisyResponse.length > 100 && '...'}
+        </div>
+      </div>
+
+      {expanded && (
+        <div className="transcript-full">
+          <div className="child-input-full">
+            <h4>Child's Message:</h4>
+            <p>{transcript.childInput}</p>
+          </div>
+          <div className="daisy-response-full">
+            <h4>Daisy's Response:</h4>
+            <p>{transcript.daisyResponse}</p>
+          </div>
+
+          {transcript.safetyStatus.flagged && (
+            <div className="safety-details">
+              <h4>Safety Information:</h4>
+              <ul>
+                {transcript.safetyStatus.concerns.map((concern, idx) => (
+                  <li key={idx}>{concern}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="transcript-metadata">
+            <span>Duration: {transcript.duration}s</span>
+            <span>Safety Confidence: {(transcript.safetyStatus.confidence * 100).toFixed(0)}%</span>
+          </div>
+        </div>
+      )}
+
+      <div className="transcript-actions">
+        <button onClick={() => setExpanded(!expanded)}>
+          {expanded ? 'Show Less' : 'Show Full Transcript'}
+        </button>
+        <button onClick={onDelete} className="btn-danger-small">
+          Delete
+        </button>
+      </div>
+    </div>
+  );
+};
+```
+
+### Privacy Settings Page
+
+```typescript
+// src/features/parent/VoicePrivacySettings.tsx
+import React, { useState } from 'react';
+import { updateVoiceSettings, revokeVoiceConsent } from '../../services/parentSettings';
+
+const VoicePrivacySettings: React.FC = () => {
+  const [settings, setSettings] = useState({
+    voiceEnabled: true,
+    autoDeleteTranscripts: true,
+    transcriptRetentionDays: 7,
+    safetyNotifications: 'immediate',
+    exportReminders: true
+  });
+
+  const handleDisableVoice = async () => {
+    const confirmed = confirm(
+      'Are you sure you want to disable voice features?\n\n' +
+      'This will:\n' +
+      '- Immediately disable all voice interactions\n' +
+      '- You can choose to delete existing transcripts\n' +
+      '- You can re-enable anytime'
+    );
+
+    if (!confirmed) return;
+
+    const deleteData = confirm(
+      'Would you also like to delete all existing voice transcripts?\n\n' +
+      'Click OK to delete immediately\n' +
+      'Click Cancel to keep transcripts for 7 days'
+    );
+
+    await revokeVoiceConsent(deleteData ? 'immediate' : 'standard');
+    
+    setSettings({ ...settings, voiceEnabled: false });
+    
+    alert('Voice features have been disabled. You can re-enable them anytime from this page.');
+  };
+
+  const handleReEnable = async () => {
+    // Require going through full consent flow again
+    window.location.href = '/parent/voice-consent';
+  };
+
+  return (
+    <div className="voice-privacy-settings">
+      <h2>🔒 Voice Features Privacy Settings</h2>
+
+      <section className="settings-section">
+        <h3>Voice Feature Status</h3>
+        <div className="status-box">
+          <div className="status-indicator">
+            <span className={`status-light ${settings.voiceEnabled ? 'active' : 'inactive'}`} />
+            <strong>
+              {settings.voiceEnabled ? 'Voice Features Enabled' : 'Voice Features Disabled'}
+            </strong>
+          </div>
+
+          {settings.voiceEnabled ? (
+            <button className="btn-danger" onClick={handleDisableVoice}>
+              Disable Voice Features
+            </button>
+          ) : (
+            <button className="btn-primary" onClick={handleReEnable}>
+              Re-Enable Voice Features
+            </button>
+          )}
+        </div>
+      </section>
+
+      {settings.voiceEnabled && (
+        <>
+          <section className="settings-section">
+            <h3>Data Retention</h3>
+            <div className="retention-info">
+              <div className="info-row">
+                <span className="label">Audio Files:</span>
+                <span className="value">Not stored by DaisyDog</span>
+              </div>
+              <div className="info-row">
+                <span className="label">OpenAI Processing:</span>
+                <span className="value">30 days (cannot be changed)</span>
+              </div>
+              <div className="info-row">
+                <span className="label">Text Transcripts:</span>
+                <select
+                  value={settings.transcriptRetentionDays}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    transcriptRetentionDays: parseInt(e.target.value)
+                  })}
+                >
+                  <option value={1}>1 day</option>
+                  <option value={3}>3 days</option>
+                  <option value={7}>7 days (recommended)</option>
+                </select>
+              </div>
+            </div>
+
+            <label className="checkbox-setting">
+              <input
+                type="checkbox"
+                checked={settings.autoDeleteTranscripts}
+                onChange={(e) => setSettings({
+                  ...settings,
+                  autoDeleteTranscripts: e.target.checked
+                })}
+              />
+              <span>Automatically delete transcripts after retention period</span>
+            </label>
+          </section>
+
+          <section className="settings-section">
+            <h3>Safety Notifications</h3>
+            <div className="notification-settings">
+              <label>
+                <span>Notify me when safety concerns are detected:</span>
+                <select
+                  value={settings.safetyNotifications}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    safetyNotifications: e.target.value
+                  })}
+                >
+                  <option value="immediate">Immediately (recommended)</option>
+                  <option value="daily">Daily digest</option>
+                  <option value="weekly">Weekly summary</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <section className="settings-section">
+            <h3>Data Export</h3>
+            <label className="checkbox-setting">
+              <input
+                type="checkbox"
+                checked={settings.exportReminders}
+                onChange={(e) => setSettings({
+                  ...settings,
+                  exportReminders: e.target.checked
+                })}
+              />
+              <span>Remind me monthly to export voice transcripts</span>
+            </label>
+
+            <button className="btn-secondary" onClick={() => window.location.href = '/parent/transcripts'}>
+              View & Export Transcripts Now
+            </button>
+          </section>
+        </>
+      )}
+
+      <section className="settings-section privacy-policy-section">
+        <h3>Privacy Policy & Terms</h3>
+        <p>
+          Review our complete privacy policy and terms of service:
+        </p>
+        <div className="policy-links">
+          <a href="/privacy-policy#voice-features" target="_blank">
+            Voice Features Privacy Policy
+          </a>
+          <a href="/terms-of-service#voice-features" target="_blank">
+            Voice Features Terms of Service
+          </a>
+          <a href="https://openai.com/privacy" target="_blank" rel="noopener noreferrer">
+            OpenAI Privacy Policy
+          </a>
+        </div>
+      </section>
+
+      <section className="settings-section data-rights-section">
+        <h3>Your Data Rights</h3>
+        <div className="data-rights">
+          <button className="btn-outline">
+            📥 Request Data Export
+          </button>
+          <button className="btn-outline">
+            📄 View Data Processing Record
+          </button>
+          <button className="btn-danger-outline" onClick={handleDisableVoice}>
+            🗑️ Delete All Voice Data
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+};
+```
+
+## 📋 Implementation Checklist
+
+### Legal & Compliance (Week 1)
+
+- [ ] Draft Voice Features Privacy Policy
+- [ ] Update Terms of Service with voice addendum
+- [ ] Create parental consent flow documentation
+- [ ] Legal review of all privacy disclosures
+- [ ] Prepare COPPA compliance documentation
+
+### Technical Implementation (Weeks 2-4)
+
+**Week 2: Consent System**
+- [ ] Build ConsentIntroduction component
+- [ ] Build PrivacyEducation component
+- [ ] Build ConsentForm with all checkboxes
+- [ ] Implement email verification system
+- [ ] Create consent database schema
+
+**Week 3: Audio Processing**
+- [ ] Integrate OpenAI Whisper API
+- [ ] Integrate OpenAI TTS API
+- [ ] Build safety filtering for transcripts
+- [ ] Implement local transcript storage
+- [ ] Add 7-day auto-deletion system
+
+**Week 4: Parent Dashboard**
+- [ ] Build VoiceTranscriptDashboard
+- [ ] Build TranscriptCard component
+- [ ] Implement transcript export (CSV/PDF)
+- [ ] Create VoicePrivacySettings page
+- [ ] Add bulk delete functionality
+
+### Testing & QA (Week 5)
+
+- [ ] Test consent flow with real parents
+- [ ] Verify all privacy disclosures are clear
+- [ ] Test transcript viewing and deletion
+- [ ] Verify auto-deletion after 7 days
+- [ ] Test safety flagging and parent notifications
+- [ ] Cross-browser compatibility testing
+- [ ] Mobile responsiveness testing
+
+### Launch Preparation (Week 6)
+
+- [ ] Final legal review and sign-off
+- [ ] Privacy policy published and linked
+- [ ] Parent communication email templates
+- [ ] Support documentation for voice features
+- [ ] Monitor dashboard for privacy metrics
+- [ ] Prepare incident response plan
+
+## 🎯 Success Metrics
+
+### Privacy Compliance KPIs
+
+```typescript
+// src/analytics/PrivacyMetrics.ts
+class PrivacyComplianceMetrics {
+  trackConsentFlow(): void {
+    this.logMetric('consent_flow', {
+      // Conversion metrics
+      consentFlowStarted: number,
+      consentFlowCompleted: number,
+      consentRate: percentage,
+      
+      // Understanding metrics
+      educationPageViewed: boolean,
+      averageTimeOnEducation: seconds,
+      checkboxesChecked: number,
+      
+      // Privacy awareness
+      privacyPolicyClicked: boolean,
+      openAIPolicyClicked: boolean,
+      
+      // Demographics
+      childAgeGroup: '3-5' | '6-8' | '9-13',
+    });
+  }
+
+  trackParentDashboardUsage(): void {
+    this.logMetric('parent_dashboard', {
+      // Engagement
+      transcriptViewsPerWeek: number,
+      averageTimeInDashboard: minutes,
+      
+      // Privacy actions
+      transcriptsDeleted: number,
+      transcriptsExported: number,
+      privacySettingsChanged: number,
+      voiceFeaturesDisabled: number,
+      
+      // Satisfaction
+      safetyAlertsReviewed: percentage,
+      parentFeedbackSubmitted: boolean
+    });
+  }
+
+  generatePrivacyHealthScore(): PrivacyHealthScore {
+    return {
+      consentClarityScore: 0-100, // Based on completion rates
+      parentEngagementScore: 0-100, // Dashboard usage
+      dataMinimizationScore: 0-100, // Retention compliance
+      transparencyScore: 0-100, // Policy views, exports
+      overallPrivacyHealth: 'excellent' | 'good' | 'needs-improvement'
+    };
+  }
+}
+```
+
+### Target Metrics
+
+- **Consent Completion Rate**: >80% (clear, understandable process)
+- **Parent Dashboard Engagement**: >60% view transcripts weekly
+- **Privacy Policy Reading**: >90% click to review before consent
+- **Data Deletion Requests**: <5% (shows trust in system)
+- **Parent Satisfaction**: >90% comfortable with voice privacy
+
+## 🚨 Incident Response Plan
+
+### Privacy Breach Protocols
+
+```typescript
+// src/services/privacy/IncidentResponse.ts
+class PrivacyIncidentResponse {
+  async handlePotentialBreach(incident: IncidentReport): Promise<void> {
+    // 1. Immediate containment
+    await this.disableAffectedFeatures(incident.scope);
+    
+    // 2. Assess impact
+    const impact = await this.assessImpact({
+      affectedUsers: incident.userIds,
+      dataTypes: incident.dataTypes,
+      severity: incident.severity
+    });
+
+    // 3. Notify affected parents (COPPA requirement)
+    if (impact.severity === 'high' || impact.childrenAffected > 0) {
+      await this.notifyAffectedParents(impact.affectedUsers, {
+        incidentType: incident.type,
+        dataAffected: incident.dataTypes,
+        mitigationSteps: incident.mitigation,
+        timeframe: incident.timeline
+      });
+    }
+
+    // 4. Regulatory notification (if required)
+    if (impact.requiresFTCNotification) {
+      await this.notifyFTC(impact);
+    }
+
+    // 5. Public disclosure (if required)
+    if (impact.requiresPublicDisclosure) {
+      await this.publishIncidentReport(impact);
+    }
+
+    // 6. Remediation and follow-up
+    await this.implementRemediation(incident.remediation);
+  }
+}
+```
+
+## ✅ Launch Readiness Checklist
+
+### Pre-Launch Legal Sign-Off
+
+- [ ] Privacy policy reviewed by attorney
+- [ ] COPPA compliance verified
+- [ ] OpenAI DPA (Data Processing Agreement) signed
+- [ ] Parental consent flow meets FTC guidelines
+- [ ] Data retention policies documented
+- [ ] Incident response plan approved
+
+### Pre-Launch Technical Verification
+
+- [ ] Consent flow functional and user-tested
+- [ ] OpenAI API integration tested with real audio
+- [ ] Safety filtering catching test cases (100% accuracy)
+- [ ] Parent Dashboard showing transcripts correctly
+- [ ] Auto-deletion working (verified with test data)
+- [ ] Email notifications sending properly
+- [ ] Export functionality generating correct files
+- [ ] Mobile responsiveness verified
+
+### Pre-Launch Communication
+
+- [ ] Parent FAQ document prepared
+- [ ] Email announcement to beta families
+- [ ] Blog post explaining voice features and privacy
+- [ ] Social media posts with privacy emphasis
+- [ ] Support team trained on privacy questions
+
+---
+
+**This updated plan ensures DaisyDog launches voice features with industry-leading transparency and parental control, building trust with Catholic families while remaining cost-effective with OpenAI's Standard tier pricing.** 🐕🔒🎤
