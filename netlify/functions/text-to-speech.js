@@ -73,10 +73,10 @@ export const handler = async (event) => {
       .trim();
 
     const response = await openai.audio.speech.create({
-      model: 'tts-1',
+      model: 'tts-1-hd', // Higher quality audio
       voice: 'shimmer', // Lighter, more youthful female voice
       input: cleanText,
-      speed: 1.0, // Normal speed for child-like voice
+      speed: 1.1, // Slightly faster for energetic puppy personality
       response_format: 'mp3',
     });
 
