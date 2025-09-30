@@ -9,6 +9,7 @@ import { catholicCurriculum, getBiblePassageResponse, containsBiblePassageKeywor
 import geminiService from '../services/GeminiService.js'
 import supabaseService from '../services/SupabaseService.js'
 import catholicDoctrineService from '../services/CatholicDoctrineService.js'
+import voiceService from '../services/VoiceService.js'
 import TestServicesInitializer from '../services/TestServicesInitializer.js'
 import useSoundManagerModular from '../hooks/useSoundManagerModular.js'
 import useSafetyFilter from '../hooks/useSafetyFilter.js'
@@ -46,6 +47,7 @@ const ChatPage = () => {
   const [showBibleTestPanel, setShowBibleTestPanel] = useState(false)
   const [showLessonTestPanel, setShowLessonTestPanel] = useState(false)
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false)
+  const [shouldPlayTTS, setShouldPlayTTS] = useState(false)
 
   // Refs
   const messagesEndRef = useRef(null)
@@ -214,6 +216,7 @@ const ChatPage = () => {
   const handleVoiceTranscript = (transcript) => {
     console.log('🎤 Voice transcript received:', transcript)
     setShowVoiceRecorder(false)
+    setShouldPlayTTS(true) // Enable TTS for response
     setInputMessage(transcript)
     // Auto-send the voice message
     handleSendMessage({ preventDefault: () => {} }, transcript)
