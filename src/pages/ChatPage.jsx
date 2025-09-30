@@ -283,6 +283,17 @@ const ChatPage = () => {
             const gameActions = GameManager.getAvailableActions()
             setActiveGameActions(gameActions)
           }
+          
+          // Play TTS if voice input was used
+          if (shouldPlayTTS && gameResponse.message) {
+            setShouldPlayTTS(false)
+            try {
+              const audioBlob = await voiceService.generateSpeech(gameResponse.message, gameResponse.emotion || 'HAPPY', 'play')
+              await voiceService.playSpeech(audioBlob)
+            } catch (ttsError) {
+              console.error('TTS playback failed:', ttsError)
+            }
+          }
           return
         }
       }
@@ -300,6 +311,17 @@ const ChatPage = () => {
         }
         setMessages(prev => [...prev, safetyMessage])
         playUISound('failure').catch(() => {})
+        
+        // Play TTS if voice input was used
+        if (shouldPlayTTS && safetyMessage.text) {
+          setShouldPlayTTS(false)
+          try {
+            const audioBlob = await voiceService.generateSpeech(safetyMessage.text, 'SAFETY', 'play')
+            await voiceService.playSpeech(audioBlob)
+          } catch (ttsError) {
+            console.error('TTS playback failed:', ttsError)
+          }
+        }
         return
       }
       // Check for biblical character content first
@@ -324,6 +346,17 @@ const ChatPage = () => {
         }
         setMessages(prev => [...prev, biblicalMessage])
         playUISound('story').catch(() => {})
+        
+        // Play TTS if voice input was used
+        if (shouldPlayTTS && biblicalResult) {
+          setShouldPlayTTS(false)
+          try {
+            const audioBlob = await voiceService.generateSpeech(biblicalResult, 'TEACHING', 'story')
+            await voiceService.playSpeech(audioBlob)
+          } catch (ttsError) {
+            console.error('TTS playback failed:', ttsError)
+          }
+        }
         return
       }
 
@@ -346,6 +379,17 @@ const ChatPage = () => {
         }
         setMessages(prev => [...prev, constitutionalMessage])
         playUISound('story').catch(() => {})
+        
+        // Play TTS if voice input was used
+        if (shouldPlayTTS && constitutionalResult.data.responses[0]) {
+          setShouldPlayTTS(false)
+          try {
+            const audioBlob = await voiceService.generateSpeech(constitutionalResult.data.responses[0], 'TEACHING', 'prayer')
+            await voiceService.playSpeech(audioBlob)
+          } catch (ttsError) {
+            console.error('TTS playback failed:', ttsError)
+          }
+        }
         return
       }
 
@@ -362,6 +406,18 @@ const ChatPage = () => {
       }
       setMessages(prev => [...prev, daisyMessage])
       playEmotionSound('happy').catch(() => {})
+      
+      // Play TTS if voice input was used
+      if (shouldPlayTTS && response) {
+        setShouldPlayTTS(false)
+        try {
+          console.log('🗣️ Playing TTS response')
+          const audioBlob = await voiceService.generateSpeech(response, 'HAPPY', 'play')
+          await voiceService.playSpeech(audioBlob)
+        } catch (ttsError) {
+          console.error('TTS playback failed:', ttsError)
+        }
+      }
 
       // Log feature usage (COPPA compliant - no personal data)
       try {
