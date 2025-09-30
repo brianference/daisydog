@@ -1,5 +1,39 @@
 # DaisyDog Changelog
 
+## v6.2.1 - Voice Experience Overhaul (Sept 30, 2025)
+
+### 🎤 Voice Quality Improvements
+
+**What Changed:** Enhanced TTS voice to sound more child-appropriate with clean audio output.
+
+### ✨ New Features
+
+#### Child-Friendly Voice
+- **Changed voice from "nova" to "shimmer"** - Lighter, more youthful female voice
+- **Added text cleaning before TTS** - Removes emojis, formatting, and prompts
+- **Sound effects disabled during voice** - Prevents interruption of TTS playback
+- **Updated CSP configuration** - Allows blob audio playback
+
+### 🔧 Bug Fixes
+
+**Audio Quality**
+- Fixed unwanted barking sound before TTS playback
+- Fixed tone prompts being spoken as text ("Speak in an excited playful tone...")
+- Fixed Content Security Policy blocking blob URLs for audio
+
+**Text Processing**
+- Removes markdown formatting (asterisks, underscores, etc.)
+- Strips all emojis (🐾, ✨, 😄) before speech generation
+- Normalizes whitespace and trims prompt text
+- Only actual response content is spoken
+
+### 📚 Documentation
+- Updated replit.md with Shimmer voice specification
+- Documented text cleaning process
+- Added voice feature improvements to system architecture
+
+---
+
 ## v6.5.0 - Enhanced Hide & Seek: Dual-Mode Forest Adventure (Sept 30, 2025)
 
 ### 🎮 Major Game Enhancement: Sophisticated Hide & Seek
