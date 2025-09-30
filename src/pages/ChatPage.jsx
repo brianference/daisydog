@@ -399,11 +399,11 @@ const ChatPage = () => {
         emotion: 'happy'
       }
       setMessages(prev => [...prev, daisyMessage])
-      playEmotionSound('happy').catch(() => {})
       
       // Play TTS if voice input was used (use actual message text, not response)
       console.log('🔍 TTS check:', { isVoiceInput, messageText: daisyMessage.text })
       if (isVoiceInput && daisyMessage.text) {
+        // Skip sound effects when using voice to avoid interrupting TTS
         try {
           console.log('🗣️ Playing TTS response')
           const audioBlob = await voiceService.generateSpeech(daisyMessage.text, 'HAPPY', 'play')
@@ -412,6 +412,9 @@ const ChatPage = () => {
         } catch (ttsError) {
           console.error('❌ TTS playback failed:', ttsError)
         }
+      } else {
+        // Only play sound effects when NOT using voice
+        playEmotionSound('happy').catch(() => {})
       }
 
       // Log feature usage (COPPA compliant - no personal data)

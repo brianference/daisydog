@@ -65,15 +65,18 @@ export const handler = async (event) => {
       };
     }
 
-    const tonePrompt = TONE_PROMPTS[mode] || TONE_PROMPTS.default;
-    const emotionModifier = EMOTION_MODIFIERS[emotion] || '';
-    const enhancedText = `${tonePrompt} ${emotionModifier}: ${text}`;
+    // Clean text: remove emojis, asterisks, and extra formatting
+    const cleanText = text
+      .replace(/[*_~`]/g, '') // Remove markdown formatting
+      .replace(/[\u{1F300}-\u{1F9FF}]/gu, '') // Remove emojis
+      .replace(/\s+/g, ' ') // Normalize spaces
+      .trim();
 
     const response = await openai.audio.speech.create({
       model: 'tts-1',
-      voice: 'nova',
-      input: enhancedText,
-      speed: 0.9,
+      voice: 'shimmer', // Lighter, more youthful female voice
+      input: cleanText,
+      speed: 1.0, // Normal speed for child-like voice
       response_format: 'mp3',
     });
 
