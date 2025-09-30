@@ -158,23 +158,23 @@ class CatholicDoctrineService {
         ]
       },
 
-      fourteenthamendment: {
-        keywords: ['fourteenth amendment', '14th amendment', 'fourteenth', 'equal protection', 'citizenship'],
-        catholicTeaching: 'Fourteenth Amendment equal protection and citizenship',
-        catechismRef: 'Fourteenth Amendment, Equal Protection',
+      fourthamendment: {
+        keywords: ['fourth amendment', '4th amendment'],
+        catholicTeaching: 'Fourth Amendment protection against unreasonable searches',
+        catechismRef: 'Fourth Amendment, Privacy Rights',
         priority: 3,
         responses: [
-          "*wags tail proudly* Woof! The Fourteenth Amendment ensures equal protection! 🇺🇸 Here's the key parts:\n\n**FOURTEENTH AMENDMENT (Key Sections):**\n\n'All persons born or naturalized in the United States, and subject to the jurisdiction thereof, are citizens of the United States... No State shall... deny to any person within its jurisdiction the equal protection of the laws.'\n\n*bounces excitedly* This means everyone gets equal treatment under the law! No matter who you are! ⚖️🇺🇸🐕"
+          "*sits protectively* Woof! The Fourth Amendment protects your privacy! 🇺🇸 *wags tail* Here's the complete text:\n\n**FOURTH AMENDMENT (Full Text):**\n\n'The right of the people to be secure in their persons, houses, papers, and effects, against unreasonable searches and seizures, shall not be violated, and no Warrants shall issue, but upon probable cause, supported by Oath or affirmation, and particularly describing the place to be searched, and the persons or things to be seized.'\n\n*bounces proudly* This means police need a good reason and a warrant to search your home or belongings! Your privacy matters! 🔒🇺🇸🐕"
         ]
       },
 
-      fifteenthamendment: {
-        keywords: ['fifteenth amendment', '15th amendment', 'fifteenth', 'voting rights', 'suffrage'],
-        catholicTeaching: 'Fifteenth Amendment voting rights protection',
-        catechismRef: 'Fifteenth Amendment, Voting Rights',
+      fifthamendment: {
+        keywords: ['fifth amendment', '5th amendment'],
+        catholicTeaching: 'Fifth Amendment due process and protection rights',
+        catechismRef: 'Fifth Amendment, Due Process',
         priority: 3,
         responses: [
-          "*wags tail with determination* Woof! The Fifteenth Amendment protects voting rights! 🇺🇸 Here's the complete text:\n\n**FIFTEENTH AMENDMENT (Full Text):**\n\n'The right of citizens of the United States to vote shall not be denied or abridged by the United States or by any State on account of race, color, or previous condition of servitude.'\n\n*bounces proudly* This means everyone has the right to vote regardless of race! Democracy for all! 🗳️🇺🇸🐕"
+          "*sits seriously* Woof! The Fifth Amendment has super important protections! 🇺🇸 *wags tail thoughtfully* Here's the complete text:\n\n**FIFTH AMENDMENT (Full Text):**\n\n'No person shall be held to answer for a capital, or otherwise infamous crime, unless on a presentment or indictment of a Grand Jury, except in cases arising in the land or naval forces, or in the Militia, when in actual service in time of War or public danger; nor shall any person be subject for the same offence to be twice put in jeopardy of life or limb; nor shall be compelled in any criminal case to be a witness against himself, nor be deprived of life, liberty, or property, without due process of law; nor shall private property be taken for public use, without just compensation.'\n\n*tilts head* This means you can't be tried twice for the same crime, you don't have to testify against yourself, and the government must treat you fairly! These are BIG protections! ⚖️🇺🇸🐕"
         ]
       },
 
@@ -208,13 +208,13 @@ class CatholicDoctrineService {
         ]
       },
 
-      nineteenthamendment: {
-        keywords: ['nineteenth amendment', '19th amendment', 'nineteenth', 'women voting', 'womens suffrage'],
-        catholicTeaching: 'Nineteenth Amendment womens suffrage',
-        catechismRef: 'Nineteenth Amendment, Women\'s Rights',
+      ninthamendment: {
+        keywords: ['ninth amendment', '9th amendment'],
+        catholicTeaching: 'Ninth Amendment protection of unenumerated rights',
+        catechismRef: 'Ninth Amendment, Individual Rights',
         priority: 3,
         responses: [
-          "*wags tail proudly* Woof! The Nineteenth Amendment gave women the right to vote! 🇺🇸 Here's the complete text:\n\n**NINETEENTH AMENDMENT (Full Text):**\n\n'The right of citizens of the United States to vote shall not be denied or abridged by the United States or by any State on account of sex.'\n\n*bounces excitedly* This means women can vote just like men! Equal participation in democracy! 🗳️👩🇺🇸🐕"
+          "*wags tail thoughtfully* Woof! The Ninth Amendment is really important! 🇺🇸 *tilts head* Here's the complete text:\n\n**NINTH AMENDMENT (Full Text):**\n\n'The enumeration in the Constitution, of certain rights, shall not be construed to deny or disparage others retained by the people.'\n\n*bounces wisely* This means just because a right isn't listed in the Constitution doesn't mean you don't have it! The people have MORE rights than what's written down! God gave us many rights, and the Constitution can't list them all! ✝️🇺🇸🐕"
         ]
       },
 
@@ -259,6 +259,36 @@ class CatholicDoctrineService {
         ]
       },
 
+      sixteenthamendment: {
+        keywords: ['sixteenth amendment', '16th amendment'],
+        catholicTeaching: 'Sixteenth Amendment income tax authorization',
+        catechismRef: 'Sixteenth Amendment, Taxation',
+        priority: 3,
+        responses: [
+          "*tilts head thoughtfully* Woof! The Sixteenth Amendment is about taxes! 🇺🇸 *wags tail* Here's the complete text:\n\n**SIXTEENTH AMENDMENT (Full Text):**\n\n'The Congress shall have power to lay and collect taxes on incomes, from whatever source derived, without apportionment among the several States, and without regard to any census or enumeration.'\n\n*sits seriously* This means Congress can collect income taxes from everyone to pay for government services like roads, schools, and defense! Taxes help our country run! 💰🇺🇸🐕"
+        ]
+      },
+
+      seventeenthamendment: {
+        keywords: ['seventeenth amendment', '17th amendment'],
+        catholicTeaching: 'Seventeenth Amendment direct election of senators',
+        catechismRef: 'Seventeenth Amendment, Democratic Representation',
+        priority: 3,
+        responses: [
+          "*bounces excitedly* Woof! The Seventeenth Amendment changed how we pick Senators! 🇺🇸 *wags tail* Here's the key part:\n\n**SEVENTEENTH AMENDMENT (Section 1):**\n\n'The Senate of the United States shall be composed of two Senators from each State, elected by the people thereof, for six years; and each Senator shall have one vote. The electors in each State shall have the qualifications requisite for electors of the most numerous branch of the State legislatures.'\n\n*spins happily* This means WE the people get to vote directly for our Senators! Before this, state legislatures picked them! Now everyone gets a voice! 🗳️🇺🇸🐕"
+        ]
+      },
+
+      eighteenthamendment: {
+        keywords: ['eighteenth amendment', '18th amendment'],
+        catholicTeaching: 'Eighteenth Amendment prohibition of alcohol',
+        catechismRef: 'Eighteenth Amendment, Prohibition Era',
+        priority: 3,
+        responses: [
+          "*tilts head curiously* Woof! The Eighteenth Amendment banned alcohol! 🇺🇸 *wags tail* Here's the main part:\n\n**EIGHTEENTH AMENDMENT (Section 1):**\n\n'After one year from the ratification of this article the manufacture, sale, or transportation of intoxicating liquors within, the importation thereof into, or the exportation thereof from the United States and all territory subject to the jurisdiction thereof for beverage purposes is hereby prohibited.'\n\n*sits thoughtfully* This started Prohibition in 1920! People thought banning alcohol would solve problems, but it was later repealed by the 21st Amendment! It's the only amendment that was completely undone! 🚫🇺🇸🐕"
+        ]
+      },
+
       nineteenthamendment: {
         keywords: ['nineteenth amendment', '19th amendment', 'nineteenth', 'women voting', 'womens suffrage'],
         catholicTeaching: 'Nineteenth Amendment womens suffrage',
@@ -266,6 +296,36 @@ class CatholicDoctrineService {
         priority: 3,
         responses: [
           "*wags tail proudly* Woof! The Nineteenth Amendment gave women the right to vote! 🇺🇸 Here's the complete text:\n\n**NINETEENTH AMENDMENT (Full Text):**\n\n'The right of citizens of the United States to vote shall not be denied or abridged by the United States or by any State on account of sex. Congress shall have power to enforce this article by appropriate legislation.'\n\n*spins with joy* This means both men and women can vote! Women worked really hard to get this right! 👩‍🦳🗳️🇺🇸🐕"
+        ]
+      },
+
+      twentyfirstamendment: {
+        keywords: ['twenty-first amendment', '21st amendment', 'twenty first amendment'],
+        catholicTeaching: 'Twenty-first Amendment repeal of prohibition',
+        catechismRef: 'Twenty-first Amendment, Prohibition Repeal',
+        priority: 3,
+        responses: [
+          "*wags tail with historical interest* Woof! The Twenty-first Amendment ended Prohibition! 🇺🇸 *tilts head* Here's the key part:\n\n**TWENTY-FIRST AMENDMENT (Section 1):**\n\n'The eighteenth article of amendment to the Constitution of the United States is hereby repealed.'\n\n*bounces thoughtfully* This repealed the 18th Amendment in 1933! It's the only time we've ever completely undone an amendment! People realized that banning alcohol didn't work and caused more problems! This shows our Constitution can be corrected when needed! 🍷🇺🇸🐕"
+        ]
+      },
+
+      twentysecondamendment: {
+        keywords: ['twenty-second amendment', '22nd amendment', 'twenty second amendment'],
+        catholicTeaching: 'Twenty-second Amendment presidential term limits',
+        catechismRef: 'Twenty-second Amendment, Executive Power Limits',
+        priority: 3,
+        responses: [
+          "*sits at attention* Woof! The Twenty-second Amendment limits presidential terms! 🇺🇸 *wags tail* Here's the main part:\n\n**TWENTY-SECOND AMENDMENT (Section 1):**\n\n'No person shall be elected to the office of the President more than twice, and no person who has held the office of President, or acted as President, for more than two years of a term to which some other person was elected President shall be elected to the office of the President more than once.'\n\n*bounces proudly* This means a President can only serve two terms (8 years)! George Washington set this tradition, and now it's the law! This prevents anyone from becoming too powerful! 🎩🇺🇸🐕"
+        ]
+      },
+
+      twentysixthamendment: {
+        keywords: ['twenty-sixth amendment', '26th amendment', 'twenty sixth amendment'],
+        catholicTeaching: 'Twenty-sixth Amendment voting age at 18',
+        catechismRef: 'Twenty-sixth Amendment, Youth Voting Rights',
+        priority: 3,
+        responses: [
+          "*bounces excitedly* Woof! The Twenty-sixth Amendment lowered the voting age! 🇺🇸 *wags tail* Here's the complete text:\n\n**TWENTY-SIXTH AMENDMENT (Section 1):**\n\n'The right of citizens of the United States, who are eighteen years of age or older, to vote shall not be denied or abridged by the United States or by any State on account of age.'\n\n*spins happily* This means if you're 18 or older, you can vote! Before 1971, you had to be 21! Young people said if they were old enough to be drafted for war, they should be old enough to vote! 🗳️🇺🇸🐕"
         ]
       },
 
@@ -386,7 +446,7 @@ class CatholicDoctrineService {
     const foundingDocumentTopics = ['declarationofindependence', 'fullconstitution', 'billofrights'];
     
     // Check specific amendments SECOND (higher priority than general constitution)
-    const amendmentTopics = ['firstamendment', 'secondamendment', 'thirdamendment', 'fourteenthamendment', 'fifteenthamendment', 'sixthamendment', 'seventhamendment', 'eighthamendment', 'nineteenthamendment', 'tenthamendment', 'thirteenthamendment', 'fourteenthamendment', 'fifteenthamendment', 'nineteenthamendment'];
+    const amendmentTopics = ['firstamendment', 'secondamendment', 'thirdamendment', 'fourthamendment', 'fifthamendment', 'sixthamendment', 'seventhamendment', 'eighthamendment', 'ninthamendment', 'tenthamendment', 'thirteenthamendment', 'fourteenthamendment', 'fifteenthamendment', 'sixteenthamendment', 'seventeenthamendment', 'eighteenthamendment', 'nineteenthamendment', 'twentyfirstamendment', 'twentysecondamendment', 'twentysixthamendment'];
     
     // Check founding fathers THIRD (higher priority than general constitution)
     const foundingFatherTopics = ['georgewashington', 'thomasjefferson', 'benjaminfranklin', 'johnadams', 'jamesmadison'];
