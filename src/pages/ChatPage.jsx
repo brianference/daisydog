@@ -342,7 +342,16 @@ const ChatPage = () => {
       "And we know that in all things God works for the good of those who love him. - Romans 8:28"
     ]
     const randomVerse = verses[Math.floor(Math.random() * verses.length)]
-    handleQuickMessage(`Today's verse: ${randomVerse}`)
+    const verseMessage = {
+      id: Date.now(),
+      text: `*sits peacefully* 📖 Here's today's verse:\n\n"${randomVerse}"\n\n*wags tail gently* This verse reminds us of God's love and guidance! 🙏✨`,
+      sender: 'daisy',
+      timestamp: new Date(),
+      videoUrl: getVideoForEmotion('caring'),
+      emotion: 'caring'
+    }
+    setMessages(prev => [...prev, verseMessage])
+    playUISound('scripture').catch(() => {})
   }
 
   // Handle export chat functionality
