@@ -1578,6 +1578,7 @@ if (typeof window !== 'undefined') {
   console.log("   window.runPreReleaseTests() - Run full test suite");
   console.log("   window.quickTest('constitution') - Test constitutional content");
   console.log("   window.quickTest('safety') - Test safety system");
+  console.log("   window.quickTest('ui') - Test UI button patterns");
   console.log("   window.testSafetyFix() - Test safety system fixes");
   console.log("   window.checkVideoFiles() - Check video file availability");
   console.log("   window.videoStatus() - Get video system status");
