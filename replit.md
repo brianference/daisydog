@@ -107,6 +107,23 @@ The app works with local responses if API keys are not configured.
   - Added performance indexes for all tables
   - Resolved RLS (Row Level Security) error preventing session creation
   - Database schema follows COPPA compliance with anonymous tracking only
+- **Constitutional Content & Testing System Overhaul (Sept 30, 2025)**:
+  - Fixed critical content gaps: Added 9 missing amendment definitions (4th, 5th, 9th, 16th-18th, 21st-22nd, 26th amendments)
+  - Resolved user-reported 16th Amendment issue that was returning generic responses instead of specific constitutional text
+  - Removed duplicate amendment entries and organized content structure properly
+  - **Comprehensive Test Suite Enhancements**:
+    - Updated testAmendments() to test ALL 20 UI amendments (was only testing 5)
+    - Added response quality validation to detect generic fallback responses
+    - Built regression testing system with golden dataset validating:
+      * Specific amendment text markers (case-insensitive, flexible hyphenation)
+      * At least 2 amendment-specific keywords per response
+      * Multiple generic fallback pattern detection
+      * Adequate response length (>150 characters)
+    - Enhanced failure reporting with detailed keyword match counts and issue categorization
+    - All tests integrated into Pre-Release Test Suite (Category 6: Constitutional Content Tests)
+  - Test commands available in browser console:
+    * `window.runPreReleaseTests()` - Full test suite
+    * `window.quickTest('constitution')` - Constitutional content tests only
 
 ## User Preferences
 (To be added as we learn user preferences)
