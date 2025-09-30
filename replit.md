@@ -9,7 +9,14 @@ DaisyDog is an AI-powered virtual companion designed for children aged 5-18. Thi
 ## System Architecture
 DaisyDog is built as a pure frontend application using **React 18** with **Vite 6** for a fast development experience. **Framer Motion** is integrated for UI animations, enhancing the interactive experience. The application directly connects to **Google Gemini AI** for conversational capabilities and **Supabase** for database operations, bypassing the need for a custom backend server. Styling is handled with **CSS3** focusing on responsive design. **React Router v6** manages client-side navigation. The project incorporates a comprehensive **multi-layered safety system** and integrates **educational content**. Core features include:
 - Safe AI chat with child-appropriate responses.
-- Interactive games (Fetch, Hide & Seek, Tug of War) with dynamic action buttons for gameplay.
+- Interactive games with dynamic action buttons for gameplay:
+  - **Fetch** - Classic ball throwing game
+  - **Tug of War** - Strength competition with pull mechanics
+  - **Guessing Game** - Number guessing with hint system
+  - **Hide & Seek** - Dual-mode Forest Adventure with sophisticated mechanics:
+    - Mode 1: Player hides (4 hiding spots with visibility ratings, AI-driven seeking behavior)
+    - Mode 2: Player seeks (hot/cold distance feedback, hint system, progressive difficulty)
+    - Phase-based state machine with safe transitions
 - Video responses with emotional expressions and sound effects.
 - Hunger and energy management system for the virtual pet.
 - A robust testing system including constitutional content validation, UI button pattern checks, and game action verification.
