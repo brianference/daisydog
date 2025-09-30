@@ -166,3 +166,26 @@
     white-space: normal;
   }
 }
+
+/* Mobile horizontal scroll override for footer links */
+@media (max-width: 600px) {
+  .footer-links {
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  
+  .footer-links::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .footer-links a {
+    flex-shrink: 0;
+  }
+  
+  .footer-links .footer-logo {
+    flex-shrink: 0;
+  }
+}

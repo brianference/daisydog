@@ -189,7 +189,14 @@
   justify-content: center;
   gap: 8px;
   margin-bottom: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.quick-actions-compact::-webkit-scrollbar {
+  display: none;
 }
 
 .quick-btn {
@@ -382,7 +389,7 @@
 }
 
 .feed-button {
-  background: #8B4513;
+  background: #ff6b35;
   color: white;
 }
 
@@ -392,7 +399,7 @@
 }
 
 .feed-button:hover:not(:disabled) {
-  background: #A0522D;
+  background: #e55a2b;
   transform: scale(1.05);
 }
 
@@ -1021,5 +1028,39 @@
     padding: 6px 10px;
     font-size: 11px;
     min-height: 32px;
+  }
+}
+
+/* Debug button positioning fix */
+.comprehensive-debug-button {
+  position: fixed !important;
+  top: 80px !important;
+  right: 10px !important;
+  z-index: 999 !important;
+}
+
+@media (max-width: 768px) {
+  .comprehensive-debug-button {
+    top: 70px !important;
+    right: 5px !important;
+  }
+}
+
+/* Hide Daisy's avatar on mobile for full-width messages */
+@media (max-width: 768px) {
+  .message.daisy .message-avatar {
+    display: none;
+  }
+  
+  .message.daisy {
+    margin-right: 0;
+  }
+}
+
+/* Make Daisy's messages full width on mobile */
+@media (max-width: 768px) {
+  .message.daisy .message-content {
+    max-width: 100%;
+    width: 100%;
   }
 }
