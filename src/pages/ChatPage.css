@@ -188,8 +188,9 @@
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 8px; /* Reduced from 12px to 8px */
-  padding-bottom: 30px; /* Reduced from 45px to 30px - still enough space for tooltips */
+  margin-bottom: 4px; /* Reduced from 8px to 4px for tighter spacing */
+  padding-top: 3px; /* Add padding to prevent button tops from being clipped on hover */
+  padding-bottom: 35px; /* Space for tooltips below buttons - increased from 30px to 35px */
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: visible; /* CRITICAL: Allow tooltips to show below buttons */
@@ -221,7 +222,7 @@
 .quick-btn:hover {
   background: rgba(139, 69, 19, 0.2);
   border-color: rgba(139, 69, 19, 0.4);
-  transform: translateY(-1px);
+  /* Removed translateY(-1px) to prevent button top clipping */
 }
 
 .quick-btn:active {
