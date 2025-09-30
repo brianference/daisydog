@@ -1,0 +1,94 @@
+index-1JgwD9Tw.js:498  POST https://daisydogchat.replit.app/.netlify/functions/generate-voice-token 404 (Not Found)
+getAuthToken @ index-1JgwD9Tw.js:498
+transcribeAudio @ index-1JgwD9Tw.js:498
+await in transcribeAudio
+w @ index-1JgwD9Tw.js:535
+await in w
+Pa @ vendor-DRGAkOw0.js:29
+za @ vendor-DRGAkOw0.js:29
+Ta @ vendor-DRGAkOw0.js:29
+Mo @ vendor-DRGAkOw0.js:29
+Do @ vendor-DRGAkOw0.js:29
+(anonymous) @ vendor-DRGAkOw0.js:29
+ai @ vendor-DRGAkOw0.js:32
+Vi @ vendor-DRGAkOw0.js:29
+au @ vendor-DRGAkOw0.js:29
+Ql @ vendor-DRGAkOw0.js:29
+Qa @ vendor-DRGAkOw0.js:29
+index-1JgwD9Tw.js:678 ❌ Failed to get auth token: Error: Failed to generate auth token
+    at LS.getAuthToken (index-1JgwD9Tw.js:498:1528)
+    at async LS.transcribeAudio (index-1JgwD9Tw.js:498:4069)
+    at async w (index-1JgwD9Tw.js:535:61648)
+console.error @ index-1JgwD9Tw.js:678
+getAuthToken @ index-1JgwD9Tw.js:498
+await in getAuthToken
+transcribeAudio @ index-1JgwD9Tw.js:498
+await in transcribeAudio
+w @ index-1JgwD9Tw.js:535
+await in w
+Pa @ vendor-DRGAkOw0.js:29
+za @ vendor-DRGAkOw0.js:29
+Ta @ vendor-DRGAkOw0.js:29
+Mo @ vendor-DRGAkOw0.js:29
+Do @ vendor-DRGAkOw0.js:29
+(anonymous) @ vendor-DRGAkOw0.js:29
+ai @ vendor-DRGAkOw0.js:32
+Vi @ vendor-DRGAkOw0.js:29
+au @ vendor-DRGAkOw0.js:29
+Ql @ vendor-DRGAkOw0.js:29
+Qa @ vendor-DRGAkOw0.js:29
+index-1JgwD9Tw.js:678 ❌ Transcription failed: Error: Failed to generate auth token
+    at LS.getAuthToken (index-1JgwD9Tw.js:498:1528)
+    at async LS.transcribeAudio (index-1JgwD9Tw.js:498:4069)
+    at async w (index-1JgwD9Tw.js:535:61648)
+console.error @ index-1JgwD9Tw.js:678
+transcribeAudio @ index-1JgwD9Tw.js:498
+await in transcribeAudio
+w @ index-1JgwD9Tw.js:535
+await in w
+Pa @ vendor-DRGAkOw0.js:29
+za @ vendor-DRGAkOw0.js:29
+Ta @ vendor-DRGAkOw0.js:29
+Mo @ vendor-DRGAkOw0.js:29
+Do @ vendor-DRGAkOw0.js:29
+(anonymous) @ vendor-DRGAkOw0.js:29
+ai @ vendor-DRGAkOw0.js:32
+Vi @ vendor-DRGAkOw0.js:29
+au @ vendor-DRGAkOw0.js:29
+Ql @ vendor-DRGAkOw0.js:29
+Qa @ vendor-DRGAkOw0.js:29
+index-1JgwD9Tw.js:678 Failed to stop recording: Error: Failed to generate auth token
+    at LS.getAuthToken (index-1JgwD9Tw.js:498:1528)
+    at async LS.transcribeAudio (index-1JgwD9Tw.js:498:4069)
+    at async w (index-1JgwD9Tw.js:535:61648)
+console.error @ index-1JgwD9Tw.js:678
+w @ index-1JgwD9Tw.js:535
+await in w
+Pa @ vendor-DRGAkOw0.js:29
+za @ vendor-DRGAkOw0.js:29
+Ta @ vendor-DRGAkOw0.js:29
+Mo @ vendor-DRGAkOw0.js:29
+Do @ vendor-DRGAkOw0.js:29
+(anonymous) @ vendor-DRGAkOw0.js:29
+ai @ vendor-DRGAkOw0.js:32
+Vi @ vendor-DRGAkOw0.js:29
+au @ vendor-DRGAkOw0.js:29
+Ql @ vendor-DRGAkOw0.js:29
+Qa @ vendor-DRGAkOw0.js:29
+index-1JgwD9Tw.js:678 🎤 Voice error: Failed to process recording. Please try again.
+console.error @ index-1JgwD9Tw.js:678
+oc @ index-1JgwD9Tw.js:535
+w @ index-1JgwD9Tw.js:535
+await in w
+Pa @ vendor-DRGAkOw0.js:29
+za @ vendor-DRGAkOw0.js:29
+Ta @ vendor-DRGAkOw0.js:29
+Mo @ vendor-DRGAkOw0.js:29
+Do @ vendor-DRGAkOw0.js:29
+(anonymous) @ vendor-DRGAkOw0.js:29
+ai @ vendor-DRGAkOw0.js:32
+Vi @ vendor-DRGAkOw0.js:29
+au @ vendor-DRGAkOw0.js:29
+Ql @ vendor-DRGAkOw0.js:29
+Qa @ vendor-DRGAkOw0.js:29
+index-1JgwD9Tw.js:535 🖼️ Avatar loaded: confused → /assets/images/emotions/thinking.png

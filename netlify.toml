@@ -23,11 +23,19 @@
   VITE_SUPABASE_ANON_KEY = "your_supabase_anon_key_here"
 
 # Redirect rules for SPA (excluding API functions)
+# Functions are automatically excluded from this redirect
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false
+  conditions = {Role = []}
+  
+# Ensure functions are not redirected
+[[redirects]]
+  from = "/.netlify/functions/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  force = true
 
 # Security headers
 [[headers]]
