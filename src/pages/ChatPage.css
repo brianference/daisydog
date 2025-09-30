@@ -214,6 +214,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  z-index: 10; /* Ensure buttons are above other elements for hover to work */
 }
 
 .quick-btn:hover {
@@ -327,8 +328,8 @@
 .send-button[data-tooltip]:hover::before,
 .feed-button[data-tooltip]:hover::after,
 .feed-button[data-tooltip]:hover::before {
-  opacity: 1;
-  visibility: visible;
+  opacity: 1 !important;
+  visibility: visible !important;
   transform: translateX(-50%) translateY(0);
   transition-delay: 0.1s;
 }
