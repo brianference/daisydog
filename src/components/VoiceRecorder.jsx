@@ -92,6 +92,11 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
   };
 
   const stopRecording = async () => {
+    // CRITICAL: Clear UI state FIRST before checking guard
+    // This ensures UI updates even if called multiple times
+    const wasRecording = isRecording;
+    setIsRecording(false);
+    
     // Always clear intervals and animation frames
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -102,10 +107,10 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
       animationRef.current = null;
     }
 
-    if (!isRecording) return;
+    // Guard against duplicate calls - but UI already updated above
+    if (!wasRecording) return;
 
     try {
-      setIsRecording(false);
       setIsProcessing(true);
 
       const audioBlob = await voiceService.stopRecording();

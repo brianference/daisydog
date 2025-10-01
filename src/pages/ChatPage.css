@@ -373,7 +373,12 @@
   width: 50px;
   height: 50px;
   position: relative;
-  z-index: 1001; /* Higher than input-form container so tooltips appear on top */
+  z-index: 1001;
+}
+
+/* Elevate button on hover so tooltip appears above siblings */
+.send-button:hover, .feed-button:hover, .voice-button:hover {
+  z-index: 10001;
 }
 
 .send-button {
