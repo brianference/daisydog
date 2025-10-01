@@ -43,8 +43,14 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
         });
       });
 
-      // Start timer
+      // Start timer and check if service is still recording
       timerRef.current = setInterval(() => {
+        // Check if service stopped recording (e.g., via silence detection)
+        if (!voiceService.isRecording) {
+          stopRecording();
+          return;
+        }
+        
         setRecordingTime(prev => {
           if (prev >= 29) {
             stopRecording();

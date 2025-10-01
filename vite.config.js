@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => ({
     port: 5173,
     host: '0.0.0.0',
     strictPort: true,
-    allowedHosts: ['.replit.dev', '.repl.co', '.replit.app'],
+    allowedHosts: ['.replit.dev', '.repl.co', '.replit.app', 'daisydog.org', '.daisydog.org'],
     hmr: {
       clientPort: 443,
       protocol: 'wss'
@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
   preview: {
     port: 5000,
     host: '0.0.0.0',
-    allowedHosts: ['.replit.dev', '.repl.co', '.replit.app']
+    allowedHosts: ['.replit.dev', '.repl.co', '.replit.app', 'daisydog.org', '.daisydog.org']
   },
   build: {
     outDir: 'dist',
