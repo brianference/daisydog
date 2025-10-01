@@ -44,3 +44,16 @@ DaisyDog is built as a React 18 + Vite 6 frontend with **Netlify serverless func
 - **OpenAI Audio API**: Whisper (speech-to-text) and TTS (text-to-speech) for voice features.
 - **Supabase**: Utilized for database storage (sessions, safety events, performance logs, feature analytics, content cache).
 - **Netlify Functions**: Serverless backend for secure API key management, voice authentication, and content moderation.
+
+## Deployment Status
+**Production URLs (Active):**
+- **Primary:** https://daisydog.org (Custom domain)
+- **Netlify:** https://daisydog.netlify.app
+
+**Voice Features Status:** ✅ Fully operational on production
+- Whisper transcription working
+- TTS with Shimmer voice active
+- HMAC authentication configured
+- Rate limiting enforced
+
+**Development URL:** https://daisydogchat.replit.app (Note: May have CDN caching issues - use production URLs for testing)
