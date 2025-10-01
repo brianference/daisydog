@@ -76,7 +76,7 @@ export const handler = async (event) => {
       model: 'tts-1-hd', // Higher quality audio
       voice: 'shimmer', // Lighter, more youthful female voice (naturally higher pitch)
       input: cleanText,
-      speed: 1.2, // Faster for more energetic puppy personality
+      speed: 1.35, // Increased speed = higher pitch for younger puppy sound
       response_format: 'mp3',
     });
 

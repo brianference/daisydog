@@ -45,8 +45,9 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
 
       // Start timer and check if service is still recording
       timerRef.current = setInterval(() => {
-        // Check if service stopped recording (e.g., via silence detection)
-        if (!voiceService.isRecording) {
+        // Check if service wants to stop due to silence detection
+        if (voiceService.shouldStopRecording()) {
+          console.log('🔇 Silence detected (timer), triggering stop with audio submission');
           stopRecording();
           return;
         }
@@ -62,15 +63,16 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
 
       // Animate waveform
       const animate = () => {
-        // Check if service stopped recording (e.g., via silence detection)
-        if (!voiceService.isRecording) {
-          // Service stopped, immediately update UI
+        // Check if service wants to stop due to silence detection
+        if (voiceService.shouldStopRecording()) {
+          console.log('🔇 Silence detected (animation), triggering stop with audio submission');
+          // Service detected silence, stop and process audio
           if (animationRef.current) {
             cancelAnimationFrame(animationRef.current);
             animationRef.current = null;
           }
-          // Trigger cleanup through stopRecording
-          setTimeout(() => stopRecording(), 0);
+          // Call stopRecording to process and submit the audio
+          stopRecording();
           return;
         }
         

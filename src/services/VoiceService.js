@@ -34,6 +34,7 @@ class VoiceService {
     this.analyser = null;
     this.silenceTimeout = null;
     this.silenceDuration = 0;
+    this.shouldStopDueToSilence = false;
     
     this.initialize();
   }
@@ -141,6 +142,7 @@ class VoiceService {
 
       this.mediaRecorder.start();
       this.isRecording = true;
+      this.shouldStopDueToSilence = false; // Reset flag
 
       // Set up audio analysis for silence detection
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -156,7 +158,8 @@ class VoiceService {
       // 30-second limit for child safety
       setTimeout(() => {
         if (this.isRecording) {
-          this.stopRecording();
+          console.log('⏱️ 30 second limit reached, setting flag to stop');
+          this.shouldStopDueToSilence = true; // Use same flag mechanism
         }
       }, 30000);
 
@@ -204,8 +207,10 @@ class VoiceService {
         
         // Auto-stop after 4 seconds of silence
         if (this.silenceDuration >= 4000) {
-          console.log('🔇 4 seconds of silence detected, stopping recording');
-          this.stopRecording();
+          console.log('🔇 4 seconds of silence detected, setting flag to stop');
+          // Set flag instead of calling stopRecording directly
+          // This allows the component to handle the stop and process the audio
+          this.shouldStopDueToSilence = true;
           return;
         }
       } else {
@@ -221,6 +226,13 @@ class VoiceService {
 
     checkSilence();
   }
+  
+  /**
+   * Check if recording should stop due to silence detection
+   */
+  shouldStopRecording() {
+    return this.shouldStopDueToSilence;
+  }
 
   /**
    * Stop recording audio
@@ -234,6 +246,7 @@ class VoiceService {
       this.mediaRecorder.addEventListener('stop', () => {
         const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
         this.isRecording = false;
+        this.shouldStopDueToSilence = false; // Clear flag for next recording
         
         // Stop all tracks
         if (this.mediaRecorder.stream) {
