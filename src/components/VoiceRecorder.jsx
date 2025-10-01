@@ -106,6 +106,8 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
   };
 
   const stopRecording = async () => {
+    console.log('📍 VoiceRecorder.stopRecording called, isRecording:', isRecording, 'isStoppingRef:', isStoppingRef.current);
+    
     // CRITICAL: Clear UI state FIRST before checking guard
     // This ensures UI updates even if called multiple times
     const wasRecording = isRecording;
@@ -123,14 +125,26 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
 
     // Guard against duplicate calls - but UI already updated above
     if (!wasRecording) {
+      console.log('⚠️ VoiceRecorder: Not recording, returning early');
       isStoppingRef.current = false; // Reset flag even if not recording
       return;
     }
 
     try {
       setIsProcessing(true);
+      console.log('📍 VoiceRecorder: Calling voiceService.stopRecording()...');
 
       const audioBlob = await voiceService.stopRecording();
+      console.log('📍 VoiceRecorder: Got audioBlob from service:', !!audioBlob, audioBlob?.size);
+      
+      if (!audioBlob) {
+        console.error('❌ VoiceRecorder: stopRecording returned null - no audio to process!');
+        setIsProcessing(false);
+        isStoppingRef.current = false;
+        if (onUnmuteSound) onUnmuteSound();
+        onError?.('Recording failed - no audio captured. Please try again.');
+        return;
+      }
       
       if (audioBlob) {
         // Transcribe audio

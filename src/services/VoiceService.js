@@ -238,13 +238,20 @@ class VoiceService {
    * Stop recording audio
    */
   async stopRecording() {
+    console.log('📍 stopRecording called, isRecording:', this.isRecording, 'mediaRecorder:', !!this.mediaRecorder);
+    
     if (!this.isRecording || !this.mediaRecorder) {
+      console.log('⚠️ Cannot stop - not recording or no mediaRecorder');
       return null;
     }
 
+    console.log('✅ Stopping MediaRecorder...');
+    
     return new Promise((resolve) => {
       this.mediaRecorder.addEventListener('stop', () => {
+        console.log('📍 MediaRecorder stop event fired');
         const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+        console.log('📦 Audio blob created:', audioBlob.size, 'bytes');
         this.isRecording = false;
         this.shouldStopDueToSilence = false; // Clear flag for next recording
         
@@ -266,6 +273,7 @@ class VoiceService {
       });
 
       this.mediaRecorder.stop();
+      console.log('📍 MediaRecorder.stop() called');
     });
   }
 
