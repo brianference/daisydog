@@ -16,16 +16,24 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
   const timerRef = useRef(null);
   const animationRef = useRef(null);
   const previousMuteState = useRef(null);
+  const isStoppingRef = useRef(false); // Prevent duplicate stop calls
 
   const startRecording = async () => {
     if (!voiceService.isAvailable()) {
       onError?.('Voice features are not available. Please check your API key.');
       return;
     }
+    
+    // Prevent starting while already recording
+    if (isRecording || voiceService.isRecording) {
+      console.warn('Already recording');
+      return;
+    }
 
     try {
       setIsRecording(true);
       setRecordingTime(0);
+      isStoppingRef.current = false; // Reset stopping flag
 
       // Mute sound effects during voice recording
       if (onMuteSound) {
@@ -46,8 +54,10 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
       // Start timer and check if service is still recording
       timerRef.current = setInterval(() => {
         // Check if service wants to stop due to silence detection
-        if (voiceService.shouldStopRecording()) {
+        // Use isStoppingRef to ensure we only trigger once
+        if (voiceService.shouldStopRecording() && !isStoppingRef.current) {
           console.log('🔇 Silence detected (timer), triggering stop with audio submission');
+          isStoppingRef.current = true; // Prevent duplicate calls
           stopRecording();
           return;
         }
@@ -64,8 +74,10 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
       // Animate waveform
       const animate = () => {
         // Check if service wants to stop due to silence detection
-        if (voiceService.shouldStopRecording()) {
+        // Use isStoppingRef to ensure we only trigger once
+        if (voiceService.shouldStopRecording() && !isStoppingRef.current) {
           console.log('🔇 Silence detected (animation), triggering stop with audio submission');
+          isStoppingRef.current = true; // Prevent duplicate calls
           // Service detected silence, stop and process audio
           if (animationRef.current) {
             cancelAnimationFrame(animationRef.current);
@@ -110,7 +122,10 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
     }
 
     // Guard against duplicate calls - but UI already updated above
-    if (!wasRecording) return;
+    if (!wasRecording) {
+      isStoppingRef.current = false; // Reset flag even if not recording
+      return;
+    }
 
     try {
       setIsProcessing(true);
@@ -138,6 +153,7 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
       setIsProcessing(false);
       setRecordingTime(0);
       setWaveformData(Array(20).fill(0.1));
+      isStoppingRef.current = false; // Reset flag after processing
 
       // Restore sound effects after processing
       if (onUnmuteSound) {
@@ -147,6 +163,7 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
     } catch (error) {
       console.error('Failed to stop recording:', error);
       setIsProcessing(false);
+      isStoppingRef.current = false; // Reset flag on error too
       
       // Restore sound on error too
       if (onUnmuteSound) {
