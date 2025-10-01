@@ -4,7 +4,13 @@
 DaisyDog is an AI-powered virtual companion designed for children aged 5-18. This React + Vite frontend application leverages the Google Gemini AI API and Supabase to deliver a safe, interactive chatbot experience embodied by a friendly golden retriever personality. The project aims to provide engaging and educational content, including interactive games, video responses, and a multi-layered safety system, all within a pure frontend architecture without a dedicated backend server.
 
 ## User Preferences
-(To be added as we learn user preferences)
+### Development Workflow
+**MANDATORY TESTING BEFORE PUSH:**
+- **ALWAYS test changes before pushing to GitHub**
+- **Run screenshot tool to verify UI works**
+- **Check console logs for errors**
+- **Test critical features affected by changes**
+- **Never push without verification**
 
 ## System Architecture
 DaisyDog is built as a React 18 + Vite 6 frontend with **Netlify serverless functions** for secure backend operations. **Framer Motion** is integrated for UI animations, enhancing the interactive experience. The application uses **Google Gemini AI** for conversational capabilities, **OpenAI Whisper & TTS** for voice features, and **Supabase** for database operations. Styling is handled with **CSS3** focusing on responsive design. **React Router v6** manages client-side navigation. The project incorporates a comprehensive **multi-layered safety system** and integrates **educational content**. Core features include:
