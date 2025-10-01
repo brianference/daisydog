@@ -60,10 +60,15 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
         });
       }, 1000);
 
-      // Animate waveform
+      // Animate waveform and check service state frequently
       const animate = () => {
         if (voiceService.isRecording) {
           animationRef.current = requestAnimationFrame(animate);
+        } else {
+          // Service stopped (e.g., silence detection), trigger UI update
+          if (isRecording) {
+            stopRecording();
+          }
         }
       };
       animate();
@@ -82,15 +87,21 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
   };
 
   const stopRecording = async () => {
+    // Always clear intervals and animation frames
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+
     if (!isRecording) return;
 
     try {
       setIsRecording(false);
       setIsProcessing(true);
-
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
 
       const audioBlob = await voiceService.stopRecording();
       

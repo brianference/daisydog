@@ -202,9 +202,9 @@ class VoiceService {
       if (average < SILENCE_THRESHOLD) {
         this.silenceDuration += 100; // Check every 100ms
         
-        // Auto-stop after 5 seconds of silence
-        if (this.silenceDuration >= 5000) {
-          console.log('🔇 5 seconds of silence detected, stopping recording');
+        // Auto-stop after 4 seconds of silence
+        if (this.silenceDuration >= 4000) {
+          console.log('🔇 4 seconds of silence detected, stopping recording');
           this.stopRecording();
           return;
         }
