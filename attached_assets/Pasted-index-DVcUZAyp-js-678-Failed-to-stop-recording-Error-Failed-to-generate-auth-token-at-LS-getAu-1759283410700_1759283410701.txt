@@ -1,0 +1,31 @@
+index-DVcUZAyp.js:678 Failed to stop recording: Error: Failed to generate auth token
+    at LS.getAuthToken (index-DVcUZAyp.js:498:1528)
+    at async LS.transcribeAudio (index-DVcUZAyp.js:498:4069)
+    at async w (index-DVcUZAyp.js:535:61859)
+console.error @ index-DVcUZAyp.js:678Understand this error
+index-DVcUZAyp.js:535 🔊 Restored sounds after voice
+index-DVcUZAyp.js:678 🎤 Voice error: Failed to process recording. Please try again.
+console.error @ index-DVcUZAyp.js:678Understand this error
+index-DVcUZAyp.js:535 🖼️ Avatar loaded: confused → /assets/images/emotions/thinking.png
+index-DVcUZAyp.js:498 🎤 Recording started with silence detection
+index-DVcUZAyp.js:498 🎤 Recording stopped
+index-DVcUZAyp.js:498 🔄 Transcribing audio via Netlify...
+.netlify/functions/generate-voice-token:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-DVcUZAyp.js:678 ❌ Failed to get auth token: Error: Failed to generate auth token
+    at LS.getAuthToken (index-DVcUZAyp.js:498:1528)
+    at async LS.transcribeAudio (index-DVcUZAyp.js:498:4069)
+    at async w (index-DVcUZAyp.js:535:61859)
+console.error @ index-DVcUZAyp.js:678Understand this error
+index-DVcUZAyp.js:678 ❌ Transcription failed: Error: Failed to generate auth token
+    at LS.getAuthToken (index-DVcUZAyp.js:498:1528)
+    at async LS.transcribeAudio (index-DVcUZAyp.js:498:4069)
+    at async w (index-DVcUZAyp.js:535:61859)
+console.error @ index-DVcUZAyp.js:678Understand this error
+index-DVcUZAyp.js:678 Failed to stop recording: Error: Failed to generate auth token
+    at LS.getAuthToken (index-DVcUZAyp.js:498:1528)
+    at async LS.transcribeAudio (index-DVcUZAyp.js:498:4069)
+    at async w (index-DVcUZAyp.js:535:61859)
+console.error @ index-DVcUZAyp.js:678Understand this error
+index-DVcUZAyp.js:678 🎤 Voice error: Failed to process recording. Please try again.
+console.error @ index-DVcUZAyp.js:678Understand this error
+index-DVcUZAyp.js:535 🖼️ Avatar loaded: confused → /assets/images/emotions/thinking.png
