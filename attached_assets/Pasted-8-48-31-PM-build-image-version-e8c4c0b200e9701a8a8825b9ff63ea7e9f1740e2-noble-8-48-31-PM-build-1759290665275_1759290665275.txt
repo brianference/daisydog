@@ -1,0 +1,167 @@
+8:48:31 PM: build-image version: e8c4c0b200e9701a8a8825b9ff63ea7e9f1740e2 (noble)
+8:48:31 PM: buildbot version: a8227f684d13e2f14c4dff2ff89b1b5fbedbc9d9
+8:48:31 PM: Fetching cached dependencies
+8:48:31 PM: Starting to download cache of 354.3MB (Last modified: 2025-10-01 03:48:28 +0000 UTC)
+8:48:32 PM: Finished downloading cache in 973ms
+8:48:32 PM: Starting to extract cache
+8:48:37 PM: Finished extracting cache in 5s
+8:48:37 PM: Finished fetching cache in 6.043s
+8:48:37 PM: Starting to prepare the repo for build
+8:48:38 PM: Preparing Git Reference refs/heads/main
+8:48:39 PM: Custom functions path detected. Proceeding with the specified path: 'netlify/functions'
+8:48:40 PM: Starting to install dependencies
+8:48:40 PM: Started restoring cached python cache
+8:48:40 PM: Finished restoring cached python cache
+8:48:40 PM: Started restoring cached ruby cache
+8:48:41 PM: Finished restoring cached ruby cache
+8:48:41 PM: Started restoring cached go cache
+8:48:42 PM: Finished restoring cached go cache
+8:48:43 PM: Started restoring cached Node.js version
+8:48:43 PM: Finished restoring cached Node.js version
+8:48:43 PM: Downloading and installing node v20.19.5...
+8:48:44 PM: Downloading https://nodejs.org/dist/v20.19.5/node-v20.19.5-linux-x64.tar.xz...
+8:48:44 PM: Computing checksum with sha256sum
+8:48:44 PM: Checksums matched!
+8:48:46 PM: Now using node v20.19.5 (npm v10.8.2)
+8:48:46 PM: Enabling Node.js Corepack
+8:48:46 PM: Started restoring cached build plugins
+8:48:46 PM: Finished restoring cached build plugins
+8:48:46 PM: WARNING: The environment variable 'NODE_ENV' is set to 'production'. Any 'devDependencies' in package.json will not be installed
+8:48:46 PM: Started restoring cached corepack dependencies
+8:48:46 PM: Finished restoring cached corepack dependencies
+8:48:46 PM: No npm workspaces detected
+8:48:46 PM: Started restoring cached node modules
+8:48:46 PM: Finished restoring cached node modules
+8:48:47 PM: Installing npm packages using npm version 10.8.2
+8:48:48 PM: changed 1 package in 2s
+8:48:48 PM: npm packages installed
+8:48:48 PM: Successfully installed dependencies
+8:48:48 PM: Starting build script
+8:48:49 PM: Detected 1 framework(s)
+8:48:49 PM: "vite" at version "6.3.6"
+8:48:49 PM: Section completed: initializing
+8:48:50 PM: ​
+8:48:50 PM: Netlify Build                                                 
+8:48:50 PM: ────────────────────────────────────────────────────────────────
+8:48:50 PM: ​
+8:48:50 PM: ❯ Version
+8:48:50 PM:   @netlify/build 35.1.8
+8:48:50 PM: ​
+8:48:50 PM: ❯ Flags
+8:48:50 PM:   accountId: 68c8d9b850920ff4f06abe42
+8:48:50 PM:   baseRelDir: true
+8:48:50 PM:   buildId: 68dca48dbbf6550008b09886
+8:48:50 PM:   deployId: 68dca48dbbf6550008b09888
+8:48:50 PM: ​
+8:48:50 PM: ❯ Current directory
+8:48:50 PM:   /opt/build/repo
+8:48:50 PM: ​
+8:48:50 PM: ❯ Config file
+8:48:50 PM:   /opt/build/repo/netlify.toml
+8:48:50 PM: ​
+8:48:50 PM: ❯ Context
+8:48:50 PM:   production
+8:48:50 PM: ​
+8:48:50 PM: build.command from netlify.toml                               
+8:48:50 PM: ────────────────────────────────────────────────────────────────
+8:48:50 PM: ​
+8:48:50 PM: $ npm run build
+8:48:51 PM: > daisydog@6.2.0 build
+8:48:51 PM: > vite build
+8:48:51 PM: vite v6.3.6 building for production...
+8:48:51 PM: transforming...
+8:48:54 PM: ✓ 503 modules transformed.
+8:48:54 PM: rendering chunks...
+8:48:54 PM: [plugin vite:reporter]
+8:48:54 PM: (!) /opt/build/repo/src/services/BibleService.js is dynamically imported by /opt/build/repo/src/constants/safetyResponses.js, /opt/build/repo/src/constants/safetyResponses.js, /opt/build/repo/src/data/bibleCharacters.js, /opt/build/repo/src/data/catholicCurriculum.js, /opt/build/repo/src/data/catholicCurriculum.js, /opt/build/repo/src/data/catholicCurriculum.js but also statically imported by /opt/build/repo/src/hooks/useBibleVerse.js, dynamic import will not move module into another chunk.
+8:48:54 PM: 
+8:48:54 PM: computing gzip size...
+8:48:54 PM: dist/index.html                       2.69 kB │ gzip:   1.01 kB
+8:48:54 PM: dist/assets/index-CbL-Su_n.css       56.31 kB │ gzip:  10.24 kB
+8:48:54 PM: dist/assets/icons-CXX1b0j2.js         1.46 kB │ gzip:   0.73 kB
+8:48:54 PM: dist/assets/animations-CduheRIn.js  102.47 kB │ gzip:  34.65 kB
+8:48:54 PM: dist/assets/vendor-DRGAkOw0.js      142.24 kB │ gzip:  45.61 kB
+8:48:54 PM: dist/assets/index--MYOsQeE.js       813.86 kB │ gzip: 204.59 kB
+8:48:54 PM: ✓ built in 3.01s
+8:48:54 PM: ​
+8:48:54 PM: (build.command completed in 3.5s)
+8:48:54 PM: ​
+8:48:54 PM: Functions bundling                                            
+8:48:54 PM: ────────────────────────────────────────────────────────────────
+8:48:54 PM: ​
+8:48:54 PM: Packaging Functions from netlify/functions directory:
+8:48:54 PM:  - generate-voice-token.js
+8:48:54 PM:  - moderate-content.js
+8:48:54 PM:  - speech-to-text.js
+8:48:54 PM:  - text-to-speech.js
+8:48:54 PM: ​
+8:48:54 PM: ​
+8:48:54 PM: (Functions bundling completed in 295ms)
+8:48:55 PM: ​
+8:48:55 PM: Scanning for secrets in code and build output.                
+8:48:55 PM: ────────────────────────────────────────────────────────────────
+8:48:55 PM: ​
+8:48:55 PM: Secrets scanning complete. 437 file(s) scanned. No secrets detected in build output or repo code!
+8:48:55 PM: ​
+8:48:55 PM: (Secrets scanning completed in 951ms)
+8:48:55 PM: ​
+8:48:55 PM: Deploy site                                                   
+8:48:55 PM: ────────────────────────────────────────────────────────────────
+8:48:55 PM: ​
+8:48:55 PM: Starting to deploy site from 'dist'
+8:48:55 PM: Calculating files to upload
+8:48:56 PM: Post processing - header rules
+8:48:56 PM: Post processing - redirect rules
+8:48:56 PM: Post processing done
+8:48:56 PM: Section completed: postprocessing
+8:48:56 PM: Starting post processing
+8:48:56 PM: Post processing - Forms
+8:48:56 PM: Processing form - contact
+8:48:56 PM: Detected form fields:
+ - name
+ - email
+ - category
+ - subject
+ - message
+ - isParent
+ - bot-field
+8:48:56 PM: 1 new file(s) to upload
+8:48:56 PM: 0 new function(s) to upload
+8:48:56 PM: Section completed: deploying
+8:48:56 PM: Site deploy was successfully initiated
+8:48:56 PM: ​
+8:48:56 PM: (Deploy site completed in 427ms)
+8:48:56 PM: ​
+8:48:56 PM: Netlify Build Complete                                        
+8:48:56 PM: ────────────────────────────────────────────────────────────────
+8:48:56 PM: ​
+8:48:56 PM: (Netlify Build completed in 5.3s)
+8:48:56 PM: Caching artifacts
+8:48:56 PM: Started saving node modules
+8:48:56 PM: Finished saving node modules
+8:48:56 PM: Started saving build plugins
+8:48:56 PM: Finished saving build plugins
+8:48:56 PM: Started saving bun cache
+8:48:56 PM: Finished saving bun cache
+8:48:56 PM: Started saving go cache
+8:48:56 PM: Finished saving go cache
+8:48:56 PM: Started saving python cache
+8:48:56 PM: Finished saving python cache
+8:48:56 PM: Started saving ruby cache
+8:48:56 PM: Finished saving ruby cache
+8:48:56 PM: Started saving corepack cache
+8:48:56 PM: Finished saving corepack cache
+8:48:56 PM: Started saving emacs cask dependencies
+8:48:56 PM: Finished saving emacs cask dependencies
+8:48:56 PM: Started saving maven dependencies
+8:48:56 PM: Finished saving maven dependencies
+8:48:56 PM: Started saving boot dependencies
+8:48:56 PM: Finished saving boot dependencies
+8:48:56 PM: Started saving rust rustup cache
+8:48:56 PM: Finished saving rust rustup cache
+8:48:57 PM: Site is live ✨
+8:48:57 PM: Build script success
+8:48:57 PM: Section completed: building
+8:49:23 PM: Uploading Cache of size 356.7MB
+8:49:24 PM: Section completed: cleanup
+8:49:24 PM: Finished processing build request in 52.762s

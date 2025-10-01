@@ -14,9 +14,9 @@ const isDev = import.meta.env.DEV;
 const FUNCTION_BASE = isDev ? 'http://localhost:8888/.netlify/functions' : '/.netlify/functions';
 
 const NETLIFY_FUNCTIONS = {
-  generateToken: `${FUNCTION_BASE}/generate-voice-token`,
-  speechToText: `${FUNCTION_BASE}/speech-to-text`,
-  textToSpeech: `${FUNCTION_BASE}/text-to-speech`,
+  generateToken: `${FUNCTION_BASE}/voice-token`,
+  speechToText: `${FUNCTION_BASE}/voice-transcribe`,
+  textToSpeech: `${FUNCTION_BASE}/voice-speak`,
   moderateContent: `${FUNCTION_BASE}/moderate-content`
 };
 

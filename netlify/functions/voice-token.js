@@ -10,14 +10,18 @@ const FUNCTION_SECRET = process.env.VOICE_FUNCTION_SECRET || 'dev-secret-change-
 
 // Netlify serverless function handler
 export const handler = async (event) => {
+  // CORS headers
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json',
+  };
+
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      },
+      headers,
       body: '',
     };
   }
@@ -25,20 +29,18 @@ export const handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers,
       body: JSON.stringify({ error: 'Method not allowed' }),
     };
   }
 
   try {
-    const { sessionId } = JSON.parse(event.body);
+    const { sessionId } = JSON.parse(event.body || '{}');
 
     if (!sessionId) {
       return {
         statusCode: 400,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ error: 'Missing sessionId' }),
       };
     }
