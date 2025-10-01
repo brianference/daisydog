@@ -109,8 +109,6 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
   };
 
   const stopRecording = async () => {
-    console.log('📍 VoiceRecorder.stopRecording called, isRecordingRef:', isRecordingRef.current, 'isStoppingRef:', isStoppingRef.current);
-    
     // Use ref for synchronous check (React state is async)
     const wasRecording = isRecordingRef.current;
     
@@ -126,8 +124,7 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
 
     // Guard against duplicate calls using synchronous ref
     if (!wasRecording) {
-      console.log('⚠️ VoiceRecorder: Not recording (ref check), returning early');
-      isStoppingRef.current = false; // Reset flag even if not recording
+      isStoppingRef.current = false;
       return;
     }
     
@@ -137,13 +134,10 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
 
     try {
       setIsProcessing(true);
-      console.log('📍 VoiceRecorder: Calling voiceService.stopRecording()...');
 
       const audioBlob = await voiceService.stopRecording();
-      console.log('📍 VoiceRecorder: Got audioBlob from service:', !!audioBlob, audioBlob?.size);
       
       if (!audioBlob) {
-        console.error('❌ VoiceRecorder: stopRecording returned null - no audio to process!');
         setIsProcessing(false);
         isStoppingRef.current = false;
         if (onUnmuteSound) onUnmuteSound();
