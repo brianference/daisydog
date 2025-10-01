@@ -1,0 +1,41 @@
+Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-lPwN1UFI.js:678 ❌ Failed to get auth token: Error: Failed to generate auth token
+    at LS.getAuthToken (index-lPwN1UFI.js:498:1559)
+    at async LS.transcribeAudio (index-lPwN1UFI.js:498:4307)
+    at async b (index-lPwN1UFI.js:535:62360)
+console.error @ index-lPwN1UFI.js:678Understand this error
+index-lPwN1UFI.js:678 ❌ Transcription failed: Error: Failed to generate auth token
+    at LS.getAuthToken (index-lPwN1UFI.js:498:1559)
+    at async LS.transcribeAudio (index-lPwN1UFI.js:498:4307)
+    at async b (index-lPwN1UFI.js:535:62360)
+console.error @ index-lPwN1UFI.js:678Understand this error
+index-lPwN1UFI.js:678 Failed to stop recording: Error: Failed to generate auth token
+    at LS.getAuthToken (index-lPwN1UFI.js:498:1559)
+    at async LS.transcribeAudio (index-lPwN1UFI.js:498:4307)
+    at async b (index-lPwN1UFI.js:535:62360)
+console.error @ index-lPwN1UFI.js:678Understand this error
+index-lPwN1UFI.js:678 🎤 Voice error: Failed to process recording. Please try again.
+console.error @ index-lPwN1UFI.js:678Understand this error
+index-lPwN1UFI.js:535 🖼️ Avatar loaded: confused → /assets/images/emotions/thinking.png
+index-lPwN1UFI.js:498 🎤 Recording started with silence detection
+index-lPwN1UFI.js:498 🎤 Recording stopped
+index-lPwN1UFI.js:498 🔄 Transcribing audio via Netlify...
+/.netlify/functions/generate-voice-token:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+index-lPwN1UFI.js:678 ❌ Failed to get auth token: Error: Failed to generate auth token
+    at LS.getAuthToken (index-lPwN1UFI.js:498:1559)
+    at async LS.transcribeAudio (index-lPwN1UFI.js:498:4307)
+    at async b (index-lPwN1UFI.js:535:62360)
+console.error @ index-lPwN1UFI.js:678Understand this error
+index-lPwN1UFI.js:678 ❌ Transcription failed: Error: Failed to generate auth token
+    at LS.getAuthToken (index-lPwN1UFI.js:498:1559)
+    at async LS.transcribeAudio (index-lPwN1UFI.js:498:4307)
+    at async b (index-lPwN1UFI.js:535:62360)
+console.error @ index-lPwN1UFI.js:678Understand this error
+index-lPwN1UFI.js:678 Failed to stop recording: Error: Failed to generate auth token
+    at LS.getAuthToken (index-lPwN1UFI.js:498:1559)
+    at async LS.transcribeAudio (index-lPwN1UFI.js:498:4307)
+    at async b (index-lPwN1UFI.js:535:62360)
+console.error @ index-lPwN1UFI.js:678Understand this error
+index-lPwN1UFI.js:678 🎤 Voice error: Failed to process recording. Please try again.
+console.error @ index-lPwN1UFI.js:678Understand this error
+index-lPwN1UFI.js:535 🖼️ Avatar loaded: confused → /assets/images/emotions/thinking.png
