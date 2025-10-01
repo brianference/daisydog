@@ -8,6 +8,7 @@ const supabase = createClient(
 
 const FUNCTION_SECRET = process.env.VOICE_FUNCTION_SECRET || 'dev-secret-change-in-production';
 
+// Netlify serverless function handler
 export const handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return {

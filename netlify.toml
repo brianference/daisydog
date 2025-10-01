@@ -10,7 +10,7 @@
 
 [build.environment]
   # Node.js version
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
   
   # Environment variables for build (v3.7.0 - Enhanced Dance Sound + Supabase Integration)
   VITE_DEBUG_MODE = "false"
