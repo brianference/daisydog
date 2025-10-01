@@ -17,6 +17,7 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
   const animationRef = useRef(null);
   const previousMuteState = useRef(null);
   const isStoppingRef = useRef(false); // Prevent duplicate stop calls
+  const isRecordingRef = useRef(false); // Sync recording state (React state is async)
 
   const startRecording = async () => {
     if (!voiceService.isAvailable()) {
@@ -32,6 +33,7 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
 
     try {
       setIsRecording(true);
+      isRecordingRef.current = true; // Sync ref immediately
       setRecordingTime(0);
       isStoppingRef.current = false; // Reset stopping flag
 
@@ -95,6 +97,7 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
     } catch (error) {
       console.error('Failed to start recording:', error);
       setIsRecording(false);
+      isRecordingRef.current = false;
       
       // Restore sound on error
       if (onUnmuteSound) {
@@ -106,14 +109,12 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
   };
 
   const stopRecording = async () => {
-    console.log('📍 VoiceRecorder.stopRecording called, isRecording:', isRecording, 'isStoppingRef:', isStoppingRef.current);
+    console.log('📍 VoiceRecorder.stopRecording called, isRecordingRef:', isRecordingRef.current, 'isStoppingRef:', isStoppingRef.current);
     
-    // CRITICAL: Clear UI state FIRST before checking guard
-    // This ensures UI updates even if called multiple times
-    const wasRecording = isRecording;
-    setIsRecording(false);
+    // Use ref for synchronous check (React state is async)
+    const wasRecording = isRecordingRef.current;
     
-    // Always clear intervals and animation frames
+    // Always clear intervals and animation frames FIRST
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -123,12 +124,16 @@ const VoiceRecorder = ({ onTranscriptComplete, onError, disabled = false, onMute
       animationRef.current = null;
     }
 
-    // Guard against duplicate calls - but UI already updated above
+    // Guard against duplicate calls using synchronous ref
     if (!wasRecording) {
-      console.log('⚠️ VoiceRecorder: Not recording, returning early');
+      console.log('⚠️ VoiceRecorder: Not recording (ref check), returning early');
       isStoppingRef.current = false; // Reset flag even if not recording
       return;
     }
+    
+    // Now update UI state and ref
+    isRecordingRef.current = false;
+    setIsRecording(false);
 
     try {
       setIsProcessing(true);
