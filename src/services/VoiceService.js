@@ -9,15 +9,12 @@
 
 import supabaseService from './SupabaseService';
 
-// Netlify function endpoints (auto-detect dev vs production)
-const isDev = import.meta.env.DEV;
-const FUNCTION_BASE = isDev ? 'http://localhost:8888/.netlify/functions' : '/.netlify/functions';
-
+// Netlify function endpoints (relative paths work in both dev and production)
 const NETLIFY_FUNCTIONS = {
-  generateToken: `${FUNCTION_BASE}/voice-token`,
-  speechToText: `${FUNCTION_BASE}/voice-transcribe`,
-  textToSpeech: `${FUNCTION_BASE}/voice-speak`,
-  moderateContent: `${FUNCTION_BASE}/moderate-content`
+  generateToken: '/.netlify/functions/voice-token',
+  speechToText: '/.netlify/functions/voice-transcribe',
+  textToSpeech: '/.netlify/functions/voice-speak',
+  moderateContent: '/.netlify/functions/moderate-content'
 };
 
 class VoiceService {

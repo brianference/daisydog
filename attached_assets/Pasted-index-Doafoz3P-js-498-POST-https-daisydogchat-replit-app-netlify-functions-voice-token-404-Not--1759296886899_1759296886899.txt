@@ -1,0 +1,78 @@
+index-Doafoz3P.js:498  POST https://daisydogchat.replit.app/.netlify/functions/voice-token 404 (Not Found)
+getAuthToken @ index-Doafoz3P.js:498
+transcribeAudio @ index-Doafoz3P.js:498
+await in transcribeAudio
+b @ index-Doafoz3P.js:535
+await in b
+Pa @ vendor-DRGAkOw0.js:29
+za @ vendor-DRGAkOw0.js:29
+Ta @ vendor-DRGAkOw0.js:29
+Mo @ vendor-DRGAkOw0.js:29
+Do @ vendor-DRGAkOw0.js:29
+(anonymous) @ vendor-DRGAkOw0.js:29
+ai @ vendor-DRGAkOw0.js:32
+Vi @ vendor-DRGAkOw0.js:29
+au @ vendor-DRGAkOw0.js:29
+Ql @ vendor-DRGAkOw0.js:29
+Qa @ vendor-DRGAkOw0.js:29
+index-Doafoz3P.js:678 ❌ Failed to get auth token: Error: Failed to generate auth token
+    at GS.getAuthToken (index-Doafoz3P.js:498:1549)
+    at async GS.transcribeAudio (index-Doafoz3P.js:498:4297)
+    at async b (index-Doafoz3P.js:535:62360)
+console.error @ index-Doafoz3P.js:678
+getAuthToken @ index-Doafoz3P.js:498
+await in getAuthToken
+transcribeAudio @ index-Doafoz3P.js:498
+await in transcribeAudio
+b @ index-Doafoz3P.js:535
+await in b
+Pa @ vendor-DRGAkOw0.js:29
+za @ vendor-DRGAkOw0.js:29
+Ta @ vendor-DRGAkOw0.js:29
+Mo @ vendor-DRGAkOw0.js:29
+Do @ vendor-DRGAkOw0.js:29
+(anonymous) @ vendor-DRGAkOw0.js:29
+ai @ vendor-DRGAkOw0.js:32
+Vi @ vendor-DRGAkOw0.js:29
+au @ vendor-DRGAkOw0.js:29
+Ql @ vendor-DRGAkOw0.js:29
+Qa @ vendor-DRGAkOw0.js:29
+index-Doafoz3P.js:678 ❌ Transcription failed: Error: Failed to generate auth token
+    at GS.getAuthToken (index-Doafoz3P.js:498:1549)
+    at async GS.transcribeAudio (index-Doafoz3P.js:498:4297)
+    at async b (index-Doafoz3P.js:535:62360)
+console.error @ index-Doafoz3P.js:678
+transcribeAudio @ index-Doafoz3P.js:498
+await in transcribeAudio
+b @ index-Doafoz3P.js:535
+await in b
+Pa @ vendor-DRGAkOw0.js:29
+za @ vendor-DRGAkOw0.js:29
+Ta @ vendor-DRGAkOw0.js:29
+Mo @ vendor-DRGAkOw0.js:29
+Do @ vendor-DRGAkOw0.js:29
+(anonymous) @ vendor-DRGAkOw0.js:29
+ai @ vendor-DRGAkOw0.js:32
+Vi @ vendor-DRGAkOw0.js:29
+au @ vendor-DRGAkOw0.js:29
+Ql @ vendor-DRGAkOw0.js:29
+Qa @ vendor-DRGAkOw0.js:29
+index-Doafoz3P.js:678 Failed to stop recording: Error: Failed to generate auth token
+    at GS.getAuthToken (index-Doafoz3P.js:498:1549)
+    at async GS.transcribeAudio (index-Doafoz3P.js:498:4297)
+    at async b (index-Doafoz3P.js:535:62360)
+console.error @ index-Doafoz3P.js:678
+b @ index-Doafoz3P.js:535
+await in b
+Pa @ vendor-DRGAkOw0.js:29
+za @ vendor-DRGAkOw0.js:29
+Ta @ vendor-DRGAkOw0.js:29
+Mo @ vendor-DRGAkOw0.js:29
+Do @ vendor-DRGAkOw0.js:29
+(anonymous) @ vendor-DRGAkOw0.js:29
+ai @ vendor-DRGAkOw0.js:32
+Vi @ vendor-DRGAkOw0.js:29
+au @ vendor-DRGAkOw0.js:29
+Ql @ vendor-DRGAkOw0.js:29
+Qa @ vendor-DRGAkOw0.js:29
+index-Doafoz3P.js:678 🎤 Voice error: Failed to process recording. Please try again.
