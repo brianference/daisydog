@@ -19,6 +19,7 @@
 }
 
 .checker-cell {
+  flex: 1;
   aspect-ratio: 1;
   position: relative;
   cursor: pointer;

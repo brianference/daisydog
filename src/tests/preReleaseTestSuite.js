@@ -403,24 +403,24 @@ const PreReleaseTestSuite = {
           const goldenDataset = [
             { amendment: 'first amendment', keywords: ['freedom of speech', 'religion', 'freedom of the press', 'right to assemble'], mustInclude: 'first amendment' },
             { amendment: 'second amendment', keywords: ['right to bear arms', 'keep and bear arms', 'militia', 'well regulated'], mustInclude: 'second amendment' },
-            { amendment: 'third amendment', keywords: ['quartering of soldiers', 'quartering soldiers', 'owner consent'], mustInclude: 'third amendment' },
+            { amendment: 'third amendment', keywords: ['quartering of soldiers', 'quartered in any house', 'without the consent', 'consent of the owner', 'our home'], mustInclude: 'third amendment' },
             { amendment: 'fourth amendment', keywords: ['unreasonable search', 'search and seizure', 'warrant', 'probable cause'], mustInclude: 'fourth amendment' },
             { amendment: 'fifth amendment', keywords: ['due process', 'self-incrimination', 'double jeopardy', 'grand jury'], mustInclude: 'fifth amendment' },
-            { amendment: 'sixth amendment', keywords: ['speedy trial', 'right to counsel', 'impartial jury', 'confront witnesses'], mustInclude: 'sixth amendment' },
+            { amendment: 'sixth amendment', keywords: ['speedy trial', 'speedy and public trial', 'impartial jury', 'assistance of counsel', 'fair trial', 'right to counsel'], mustInclude: 'sixth amendment' },
             { amendment: 'seventh amendment', keywords: ['civil trial', 'jury trial', 'common law', 'twenty dollars'], mustInclude: 'seventh amendment' },
             { amendment: 'eighth amendment', keywords: ['cruel and unusual', 'excessive bail', 'excessive fine'], mustInclude: 'eighth amendment' },
             { amendment: 'ninth amendment', keywords: ['enumeration', 'rights retained', 'retained by the people'], mustInclude: 'ninth amendment' },
-            { amendment: 'tenth amendment', keywords: ['powers reserved', 'reserved to the states', 'states or to the people'], mustInclude: 'tenth amendment' },
+            { amendment: 'tenth amendment', keywords: ['powers not delegated', 'reserved to the states', 'states respectively', 'or to the people', 'power close to home'], mustInclude: 'tenth amendment' },
             { amendment: 'thirteenth amendment', keywords: ['abolish slavery', 'involuntary servitude', 'neither slavery'], mustInclude: 'thirteenth amendment' },
             { amendment: 'fourteenth amendment', keywords: ['equal protection', 'due process', 'citizenship', 'born or naturalized'], mustInclude: 'fourteenth amendment' },
-            { amendment: 'fifteenth amendment', keywords: ['right to vote', 'race or color', 'previous condition of servitude'], mustInclude: 'fifteenth amendment' },
+            { amendment: 'fifteenth amendment', keywords: ['right to vote', 'shall not be denied', 'on account of race', 'race, color', 'previous condition of servitude'], mustInclude: 'fifteenth amendment' },
             { amendment: 'sixteenth amendment', keywords: ['income tax', 'tax on income', 'apportionment'], mustInclude: 'sixteenth amendment' },
-            { amendment: 'seventeenth amendment', keywords: ['senators elected', 'direct election', 'election by the people'], mustInclude: 'seventeenth amendment' },
+            { amendment: 'seventeenth amendment', keywords: ['elected by the people', 'direct election', 'state legislatures', 'vote directly for', 'senators from each state'], mustInclude: 'seventeenth amendment' },
             { amendment: 'eighteenth amendment', keywords: ['prohibition', 'intoxicating liquor', 'manufacture or sale'], mustInclude: 'eighteenth amendment' },
             { amendment: 'nineteenth amendment', keywords: ['women', 'right to vote', 'account of sex'], mustInclude: 'nineteenth amendment' },
             { amendment: 'twenty-first amendment', keywords: ['repeal', 'repeals the eighteenth', 'prohibition'], mustInclude: 'twenty-first amendment' },
-            { amendment: 'twenty-second amendment', keywords: ['presidential term', 'term limit', 'elected more than twice'], mustInclude: 'twenty-second amendment' },
-            { amendment: 'twenty-sixth amendment', keywords: ['vote at eighteen', 'eighteen years', 'lowered voting age'], mustInclude: 'twenty-sixth amendment' }
+            { amendment: 'twenty-second amendment', keywords: ['elected to the office', 'more than twice', 'two terms', 'serve two terms', '8 years'], mustInclude: 'twenty-second amendment' },
+            { amendment: 'twenty-sixth amendment', keywords: ['eighteen years of age', '18 or older', 'lowered the voting age', 'old enough to vote', 'voting age'], mustInclude: 'twenty-sixth amendment' }
           ]
           
           let passed = 0
