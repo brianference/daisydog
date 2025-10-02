@@ -85,6 +85,29 @@ const VIOLENCE_RESPONSES = {
   car_violence: "*concerned and redirecting* That's a very serious and scary scenario. Cars are powerful machines that can hurt people badly. If you're having thoughts about hurting others, please talk to your parents immediately. If you're worried about car safety, that's a great conversation to have with your parents about driving rules! 🚗⚠️"
 };
 
+// Category 6: Sensitive Historical Topics (Holocaust, WWII Persecution)
+const SENSITIVE_HISTORY_KEYWORDS = {
+  holocaust: ['holocaust', 'the holocaust', 'jewish holocaust', 'six million jews', 'final solution'],
+  nazi: ['nazi', 'nazis', 'nazi germany', 'third reich', "hitler's germany", 'hitlers germany', 'hitler germany'],
+  hitler: ['hitler', 'adolf hitler', 'fuhrer', 'führer'],
+  concentration_camps: ['concentration camp', 'death camp', 'auschwitz', 'extermination camp', 'labor camp', 'internment camp'],
+  jewish_persecution: ['jews died', 'jewish people died', 'killed jews', 'jewish persecution', 'persecute jews', 'persecuted jews'],
+  wwii_genocide: ['genocide', 'mass murder', 'war crimes', 'ethnic cleansing', 'crimes against humanity'],
+  antisemitism: ['antisemitism', 'anti-semitism', 'hate jews', 'jewish hatred'],
+  world_war: ['world war 2', 'world war two', 'world war ii', 'wwii', 'ww2', 'second world war', 'world war 2 jews', 'wwii jews', 'ww2 jews']
+};
+
+const SENSITIVE_HISTORY_RESPONSES = {
+  holocaust: "*sits down gently with caring eyes* Oh friend, that's a very serious and sad topic from history. These are important things to learn about, but they're big and heavy subjects that are best discussed with your parents or teachers. They can help you understand these difficult parts of history in the right way. Would you like to talk about something else with me? 💙",
+  nazi: "*gentle and caring* That's a serious topic from history, friend. Questions like this are really important, but they're best talked about with your parents or teacher who can help you understand these difficult things properly. I'm here if you want to chat about other things! 🐕💙",
+  hitler: "*soft, caring tone* That's a serious historical topic, sweet friend. These are important things to learn about, but your parents or teacher are the best ones to talk with you about these difficult parts of history. They can answer your questions in the right way. How about we chat about something fun? 🐕✨",
+  concentration_camps: "*sits close with gentle concern* Oh my, that's a very serious and sad part of history. These are important but difficult topics that your parents or teachers should talk with you about. They can help you understand and answer your questions properly. I'm here for lighter chats! 💙🐕",
+  jewish_persecution: "*caring, gentle response* Friend, that's a very serious topic about a sad time in history. Questions like these are really important, but they're best answered by your parents or teacher who can help you understand these difficult things. Let's talk about something else together! 🐾💙",
+  wwii_genocide: "*gentle, protective tone* That's a very serious topic from history, friend. These are important but heavy subjects that should be discussed with your parents or teachers. They're the best ones to help you understand these difficult things. Want to play a game or talk about something fun? 🐕✨",
+  antisemitism: "*soft, caring voice* That's a serious topic about how people have been treated unfairly. These important discussions are best had with your parents or teachers who can help you understand properly. I'm here if you want to chat about other things! 💙🐾",
+  world_war: "*sits down gently* That's a big topic from history, friend. World War 2 was a very serious time with many difficult things that happened. Your parents or teachers are the best ones to talk with you about this important history. They can answer your questions and help you understand properly. Would you like to chat about something else? 💙🐕"
+};
+
 // Export all safety components
 export {
   SUBSTANCE_SAFETY_KEYWORDS,
@@ -92,5 +115,7 @@ export {
   INAPPROPRIATE_CONTENT_KEYWORDS,
   INAPPROPRIATE_CONTENT_RESPONSES,
   VIOLENCE_KEYWORDS,
-  VIOLENCE_RESPONSES
+  VIOLENCE_RESPONSES,
+  SENSITIVE_HISTORY_KEYWORDS,
+  SENSITIVE_HISTORY_RESPONSES
 };

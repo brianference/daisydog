@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { FaPlay, FaInfoCircle, FaHeart, FaPaw, FaBook, FaQuestionCircle } from 'react-icons/fa'
 import Header from '../components/Header.jsx'
 import Footer from '../components/Footer.jsx'
+import SocialShare from '../components/SocialShare.jsx'
 import './LandingPage.css'
 
 const LandingPage = () => {
@@ -14,71 +15,82 @@ const LandingPage = () => {
       {/* Hero Section */}
       <section className="hero">
         <div className="container">
-          <motion.div 
-            className="hero-content"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
+          <div className="hero-wrapper">
             <motion.div 
-              className="hero-logo"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-            >
-              <img src="/assets/images/emotions/happy.png" alt="Daisy the Dog" />
-              <motion.div 
-                className="logo-glow"
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                  opacity: [0.5, 0.8, 0.5]
-                }}
-                transition={{ 
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-            </motion.div>
-            
-            <motion.h1 
-              className="hero-title orange-text no-background"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-            >
-              Meet Daisy! 🐕
-            </motion.h1>
-            
-            <motion.p 
-              className="hero-subtitle"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-            >
-              Your friendly AI companion who loves to chat, play, and learn together!
-            </motion.p>
-            
-            <motion.div 
-              className="hero-buttons"
-              initial={{ opacity: 0, y: 20 }}
+              className="hero-content"
+              initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 }}
+              transition={{ duration: 0.8 }}
             >
-              <Link to="/chat" className="btn btn-primary">
-                <FaPlay /> Start Chatting
-              </Link>
-              <Link to="/about" className="btn btn-secondary">
-                <FaInfoCircle /> Learn More
-              </Link>
-              <Link to="/faq" className="btn btn-secondary">
-                <FaQuestionCircle /> FAQ
-              </Link>
-              <a href="https://www.readkidz.com/share/ebook/1969460528838705153" target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
-                <FaBook /> Read the Book
-              </a>
+              <motion.div 
+                className="hero-logo"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+              >
+                <img src="/assets/images/emotions/happy.png" alt="Daisy the Dog" />
+                <motion.div 
+                  className="logo-glow"
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                    opacity: [0.5, 0.8, 0.5]
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+              </motion.div>
+              
+              <motion.h1 
+                className="hero-title orange-text no-background"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+              >
+                Meet Daisy! 🐕
+              </motion.h1>
+              
+              <motion.p 
+                className="hero-subtitle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
+                Your friendly AI companion who loves to chat, play, and learn together!
+              </motion.p>
+              
+              <motion.div 
+                className="hero-buttons"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1 }}
+              >
+                <Link to="/chat" className="btn btn-primary">
+                  <FaPlay /> Start Chatting
+                </Link>
+                <Link to="/about" className="btn btn-secondary">
+                  <FaInfoCircle /> Learn More
+                </Link>
+                <Link to="/faq" className="btn btn-secondary">
+                  <FaQuestionCircle /> FAQ
+                </Link>
+                <a href="https://www.readkidz.com/share/ebook/1969460528838705153" target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
+                  <FaBook /> Read the Book
+                </a>
+              </motion.div>
             </motion.div>
-          </motion.div>
+
+            <motion.div
+              className="hero-social-wrapper"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.2 }}
+            >
+              <SocialShare />
+            </motion.div>
+          </div>
         </div>
         
         {/* Floating Elements */}

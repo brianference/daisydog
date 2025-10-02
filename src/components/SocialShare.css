@@ -1,0 +1,151 @@
+.social-share {
+  padding: 15px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  max-width: 200px;
+}
+
+.social-share-title {
+  font-size: 1rem;
+  color: #2c3e50;
+  margin-bottom: 6px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.social-share-subtitle {
+  color: #7f8c8d;
+  margin-bottom: 12px;
+  font-size: 0.75rem;
+}
+
+.social-share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.social-share-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.social-share-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.social-share-btn:active {
+  transform: translateY(-1px);
+}
+
+.social-share-btn svg {
+  font-size: 1rem;
+}
+
+.social-share-btn span {
+  font-size: 0.75rem;
+}
+
+/* Platform-specific colors */
+.social-share-btn.facebook {
+  background: #1877f2;
+}
+
+.social-share-btn.facebook:hover {
+  background: #145dbf;
+}
+
+.social-share-btn.twitter {
+  background: #1da1f2;
+}
+
+.social-share-btn.twitter:hover {
+  background: #0c85d0;
+}
+
+.social-share-btn.instagram {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+.social-share-btn.instagram:hover {
+  background: linear-gradient(45deg, #d87e2d 0%, #c85a32 25%, #b91e39 50%, #a91c59 75%, #991276 100%);
+}
+
+.social-share-btn.whatsapp {
+  background: #25d366;
+}
+
+.social-share-btn.whatsapp:hover {
+  background: #1da851;
+}
+
+.social-share-btn.email {
+  background: #ea4335;
+}
+
+.social-share-btn.email:hover {
+  background: #c5221f;
+}
+
+.social-share-btn.copy {
+  background: #7f8c8d;
+}
+
+.social-share-btn.copy:hover {
+  background: #5d6d7e;
+}
+
+.social-share-btn.copy.copied {
+  background: #27ae60;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .social-share-title {
+    font-size: 1.5rem;
+  }
+
+  .social-share-subtitle {
+    font-size: 1rem;
+  }
+
+  .social-share-buttons {
+    gap: 10px;
+  }
+
+  .social-share-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .social-share-btn svg {
+    font-size: 1.1rem;
+  }
+
+  .social-share-btn span {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .social-share-btn {
+    flex: 1 1 calc(50% - 10px);
+    min-width: 140px;
+  }
+}

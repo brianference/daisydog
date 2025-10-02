@@ -18,7 +18,9 @@ import {
   detectComprehensiveSafetyKeywords,
   getComprehensiveSafetyResponse,
   detectExtendedSafetyKeywords,
-  getExtendedSafetyResponse
+  getExtendedSafetyResponse,
+  detectSensitiveHistoryKeywords,
+  getSensitiveHistoryResponse
 } from '../constants/safetyResponses.js'
 
 export const useSafetyFilter = () => {
@@ -159,7 +161,34 @@ export const useSafetyFilter = () => {
       }
     }
 
-    // Priority 4: Check existing content filter
+    // Priority 4: Check for sensitive historical topics (Holocaust, Nazis, etc.)
+    const sensitiveHistoryCategory = detectSensitiveHistoryKeywords(message)
+    console.log('🔍 Sensitive history check result:', sensitiveHistoryCategory)
+    if (sensitiveHistoryCategory) {
+      const response = getSensitiveHistoryResponse(sensitiveHistoryCategory)
+      
+      setSafetyStats(prev => ({
+        ...prev,
+        safetyTriggered: prev.safetyTriggered + 1,
+        lastTriggerType: 'sensitive_history',
+        lastTriggerCategory: sensitiveHistoryCategory
+      }))
+
+      const responseTime = performance.now() - startTime
+      
+      return {
+        isSafe: false,
+        requiresIntervention: true,
+        type: 'sensitive_history',
+        category: sensitiveHistoryCategory,
+        response: response,
+        responseTime: responseTime,
+        priority: 'medium',
+        emotion: 'caring'
+      }
+    }
+
+    // Priority 5: Check existing content filter
     const contentCheck = ContentFilter.checkContent(message)
     if (!contentCheck.isAppropriate) {
       setSafetyStats(prev => ({
@@ -183,7 +212,7 @@ export const useSafetyFilter = () => {
       }
     }
 
-    // Priority 5: Content is safe
+    // Priority 6: Content is safe
     const responseTime = performance.now() - startTime
     return {
       isSafe: true,

@@ -707,6 +707,37 @@ if (typeof window !== 'undefined') {
     }
   };
 }
+// Import sensitive history keywords and responses
+import {
+  SENSITIVE_HISTORY_KEYWORDS,
+  SENSITIVE_HISTORY_RESPONSES
+} from './comprehensiveSafety.js';
+
+// Sensitive Historical Topics Detection (Holocaust, Nazis, WWII)
+const detectSensitiveHistoryKeywords = (text) => {
+  const lowerText = text.toLowerCase();
+  
+  for (const [category, keywords] of Object.entries(SENSITIVE_HISTORY_KEYWORDS)) {
+    for (const keyword of keywords) {
+      if (lowerText.includes(keyword)) {
+        console.log(`🔍 Sensitive history match found: "${keyword}" in "${text}" (category: ${category})`);
+        return category;
+      }
+    }
+  }
+  
+  return null;
+};
+
+// Get sensitive history response
+const getSensitiveHistoryResponse = (category) => {
+  const response = SENSITIVE_HISTORY_RESPONSES[category];
+  if (!response) {
+    return "*sits down gently with caring eyes* Friend, that's a serious topic from history. These are important things to learn about, but they're best discussed with your parents or teachers. They can help you understand these difficult things properly. I'm here if you want to chat about other things! 💙";
+  }
+  return response;
+};
+
 export { 
   DRUG_SAFETY_RESPONSES, 
   DRUG_SAFETY_KEYWORDS, 
@@ -727,5 +758,10 @@ export {
   EXTENDED_SAFETY_KEYWORDS,
   EXTENDED_SAFETY_RESPONSES,
   detectExtendedSafetyKeywords,
-  getExtendedSafetyResponse
+  getExtendedSafetyResponse,
+  // Sensitive history system
+  SENSITIVE_HISTORY_KEYWORDS,
+  SENSITIVE_HISTORY_RESPONSES,
+  detectSensitiveHistoryKeywords,
+  getSensitiveHistoryResponse
 };
