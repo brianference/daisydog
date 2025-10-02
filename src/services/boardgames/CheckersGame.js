@@ -117,7 +117,7 @@ export const CheckersGame = {
   },
 
   moves: {
-    movePiece: ({ G, ctx }, from, to, captures) => {
+    movePiece: ({ G, ctx, events }, from, to, captures) => {
       const piece = G.board[from.row][from.col];
       if (!piece || piece.player !== ctx.currentPlayer) return;
       
@@ -138,6 +138,8 @@ export const CheckersGame = {
       }
       
       G.lastMove = { from, to };
+      
+      events.endTurn();
     }
   },
 

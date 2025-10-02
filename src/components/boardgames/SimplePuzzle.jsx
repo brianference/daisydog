@@ -158,9 +158,24 @@ const SimplePuzzleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
 };
 
 const SimplePuzzle = ({ onExit, onGameEnd }) => {
+  const { themeConfig } = useGameTheme();
+  const [gameEvents, setGameEvents] = useState([]);
+
+  const handleGameEvent = (eventType, data) => {
+    setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
+  };
+
+  const BoardWrapper = (props) => (
+    <SimplePuzzleBoard 
+      {...props} 
+      onGameEvent={handleGameEvent}
+      themeConfig={themeConfig}
+    />
+  );
+
   const SimplePuzzleClient = Client({
     game: SimplePuzzleGame,
-    board: SimplePuzzleBoard,
+    board: BoardWrapper,
     multiplayer: Local(),
     numPlayers: 1
   });

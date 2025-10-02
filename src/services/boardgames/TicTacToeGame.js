@@ -34,7 +34,7 @@ export const TicTacToeGame = {
   },
 
   moves: {
-    clickCell: ({ G, ctx }, cellIndex) => {
+    clickCell: ({ G, ctx, events }, cellIndex) => {
       if (G.cells[cellIndex] !== null) return;
       
       G.cells[cellIndex] = ctx.currentPlayer;
@@ -43,6 +43,8 @@ export const TicTacToeGame = {
       if (result && result.line) {
         G.winningLine = result.line;
       }
+      
+      events.endTurn();
     }
   },
 

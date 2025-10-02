@@ -133,9 +133,24 @@ const ColorMatchingBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig 
 };
 
 const ColorMatching = ({ onExit, onGameEnd }) => {
+  const { themeConfig } = useGameTheme();
+  const [gameEvents, setGameEvents] = useState([]);
+
+  const handleGameEvent = (eventType, data) => {
+    setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
+  };
+
+  const BoardWrapper = (props) => (
+    <ColorMatchingBoard 
+      {...props} 
+      onGameEvent={handleGameEvent}
+      themeConfig={themeConfig}
+    />
+  );
+
   const ColorMatchingClient = Client({
     game: ColorMatchingGame,
-    board: ColorMatchingBoard,
+    board: BoardWrapper,
     multiplayer: Local(),
     numPlayers: 1
   });

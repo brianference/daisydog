@@ -152,9 +152,24 @@ const PatternBuilderBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig
 };
 
 const PatternBuilder = ({ onExit, onGameEnd }) => {
+  const { themeConfig } = useGameTheme();
+  const [gameEvents, setGameEvents] = useState([]);
+
+  const handleGameEvent = (eventType, data) => {
+    setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
+  };
+
+  const BoardWrapper = (props) => (
+    <PatternBuilderBoard 
+      {...props} 
+      onGameEvent={handleGameEvent}
+      themeConfig={themeConfig}
+    />
+  );
+
   const PatternBuilderClient = Client({
     game: PatternBuilderGame,
-    board: PatternBuilderBoard,
+    board: BoardWrapper,
     multiplayer: Local(),
     numPlayers: 1
   });

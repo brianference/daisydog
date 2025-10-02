@@ -71,7 +71,7 @@ export const GoFishGame = {
   },
 
   moves: {
-    askForCard: ({ G, ctx }, requestedValue) => {
+    askForCard: ({ G, ctx, events }, requestedValue) => {
       const currentPlayer = ctx.currentPlayer;
       const opponent = currentPlayer === '0' ? '1' : '0';
       
@@ -97,9 +97,11 @@ export const GoFishGame = {
         G.books[currentPlayer] = [...G.books[currentPlayer], ...books];
         G.lastAction = { ...G.lastAction, madeBook: books[books.length - 1] };
       }
+      
+      events.endTurn();
     },
     
-    drawCard: ({ G, ctx }) => {
+    drawCard: ({ G, ctx, events }) => {
       if (G.deck.length > 0) {
         const drawnCard = G.deck.pop();
         G.hands[ctx.currentPlayer].push(drawnCard);
@@ -112,10 +114,12 @@ export const GoFishGame = {
           G.lastAction = { ...G.lastAction, madeBook: books[books.length - 1] };
         }
       }
+      events.endTurn();
     },
     
-    passTurn: ({ G, ctx }) => {
+    passTurn: ({ G, ctx, events }) => {
       G.lastAction = { type: 'PASS' };
+      events.endTurn();
     }
   },
 

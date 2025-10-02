@@ -80,7 +80,7 @@ export const ConnectFourGame = {
   },
 
   moves: {
-    dropToken: ({ G, ctx }, col) => {
+    dropToken: ({ G, ctx, events }, col) => {
       const row = getLowestEmptyRow(G.cells, col);
       if (row === -1) return;
 
@@ -91,6 +91,8 @@ export const ConnectFourGame = {
       if (result && result.line) {
         G.winningLine = result.line;
       }
+      
+      events.endTurn();
     }
   },
 
