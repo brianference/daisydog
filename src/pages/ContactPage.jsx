@@ -29,20 +29,26 @@ const ContactPage = () => {
     e.preventDefault()
     setIsSubmitting(true)
     
+    const submissionForm = new FormData()
+    submissionForm.append('form-name', 'contact')
+    submissionForm.append('name', formData.name)
+    submissionForm.append('email', formData.email)
+    submissionForm.append('subject', formData.subject)
+    submissionForm.append('category', formData.category)
+    submissionForm.append('message', formData.message)
+    submissionForm.append('isParent', formData.isParent ? 'Yes' : 'No')
+    
     try {
-      const response = await fetch('/.netlify/functions/contact-form', {
+      const response = await fetch('/', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(submissionForm).toString()
       })
       
       if (response.ok) {
         setIsSubmitted(true)
       } else {
-        const result = await response.json()
-        throw new Error(result.error || 'Form submission failed')
+        throw new Error('Form submission failed')
       }
     } catch (error) {
       console.error('Form submission error:', error)
@@ -151,6 +157,7 @@ const ContactPage = () => {
           <section className="contact-form-section">
             <h2>Send Us a Message</h2>
             <form onSubmit={handleSubmit} className="contact-form">
+              <input type="hidden" name="form-name" value="contact" />
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="name">Name *</label>
