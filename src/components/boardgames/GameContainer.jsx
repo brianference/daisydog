@@ -4,6 +4,7 @@ import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import DaisyCheerleader from '../../services/boardgames/DaisyCheerleader.js';
 import { GAME_EVENT_TYPE, GAME_STATUS } from '../../types/boardGameTypes.js';
 import { useSoundSystem } from '../../hooks/useSoundSystem.js';
+import GameInstructions from './GameInstructions.jsx';
 import confetti from 'canvas-confetti';
 import './GameContainer.css';
 
@@ -16,7 +17,9 @@ const GameContainer = ({
   onExit,
   onRestart,
   showDaisyMessages = true,
-  className = ''
+  className = '',
+  gameName = '',
+  instructions = null
 }) => {
   const { themeConfig } = useGameTheme();
   const { playSound } = useSoundSystem();
@@ -101,6 +104,7 @@ const GameContainer = ({
     <div className={`game-container ${className}`} style={containerStyle}>
       <div className="game-header">
         <div className="game-controls">
+          {instructions && <GameInstructions gameName={gameName} instructions={instructions} />}
           <motion.button
             className="game-btn game-btn-secondary"
             onClick={onRestart}
