@@ -16,13 +16,13 @@ const MemoryMatchAIBoard = ({ G, ctx, moves, playerID, onGameEvent }) => {
     if (!G || !G.flipped || !G.cards || !G.matched || !ctx || !moves) return;
     
     const isMyTurn = ctx.currentPlayer === playerID;
-    const needsFlip = G.flipped.length < 2;
+    const needsToStartTurn = isMyTurn && G.flipped.length === 0;
     
-    if (isMyTurn && !ctx.gameover && needsFlip && !processingRef.current) {
+    if (needsToStartTurn && !ctx.gameover && !processingRef.current) {
       processingRef.current = true;
       
-      const makeOneAIFlip = async () => {
-        await new Promise(resolve => setTimeout(resolve, 2000));
+      const makeAITurn = async () => {
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         const availableCards = G.cards
           .map((_, index) => index)
@@ -31,23 +31,48 @@ const MemoryMatchAIBoard = ({ G, ctx, moves, playerID, onGameEvent }) => {
             !G.flipped.includes(index)
           );
         
-        if (availableCards.length > 0 && moves.flipCard) {
-          const move = await DaisyAIOpponent.makeMove(
+        if (availableCards.length >= 2 && moves.flipCard) {
+          const firstMove = await DaisyAIOpponent.makeMove(
             G,
             availableCards.map(cardIndex => ({ cardIndex })),
             'MEMORY_MATCH'
           );
           
-          if (move && move.cardIndex !== undefined) {
-            moves.flipCard(move.cardIndex);
+          if (firstMove && firstMove.cardIndex !== undefined) {
+            moves.flipCard(firstMove.cardIndex);
             onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const remainingCards = availableCards.filter(
+              index => index !== firstMove.cardIndex
+            );
+            
+            if (remainingCards.length > 0) {
+              const secondMove = await DaisyAIOpponent.makeMove(
+                G,
+                remainingCards.map(cardIndex => ({ cardIndex })),
+                'MEMORY_MATCH'
+              );
+              
+              if (secondMove && secondMove.cardIndex !== undefined) {
+                moves.flipCard(secondMove.cardIndex);
+                onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
+                
+                await new Promise(resolve => setTimeout(resolve, 2500));
+                
+                if (moves.endPlayerTurn) {
+                  moves.endPlayerTurn();
+                }
+              }
+            }
           }
         }
         
         processingRef.current = false;
       };
       
-      makeOneAIFlip();
+      makeAITurn();
     }
   }, [ctx?.currentPlayer, ctx?.gameover, ctx?.turn, G?.flipped?.length, G?.matched?.length]);
 
@@ -203,14 +228,6 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
 const MemoryMatch = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
-
-  useEffect(() => {
-    GameVoiceInstructions.playInstructions('MEMORY_MATCH');
-    
-    return () => {
-      GameVoiceInstructions.stop();
-    };
-  }, []);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);

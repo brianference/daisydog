@@ -65,18 +65,18 @@ class GameVoiceInstructions {
   /**
    * Play instructions for a specific game
    * @param {string} gameType - Game type constant (e.g., 'MEMORY_MATCH')
-   * @returns {Promise<void>}
+   * @returns {Promise<void>} Resolves when audio finishes playing or immediately if muted/error
    */
   async playInstructions(gameType) {
     try {
       if (this.isMuted) {
         console.log('🔇 Voice instructions muted');
-        return;
+        return Promise.resolve();
       }
 
       if (!GAME_INSTRUCTIONS[gameType]) {
         console.warn(`No instructions found for game: ${gameType}`);
-        return;
+        return Promise.resolve();
       }
 
       // Stop any currently playing audio
@@ -108,19 +108,39 @@ class GameVoiceInstructions {
       const audioUrl = URL.createObjectURL(audioBlob);
       this.currentAudio = new Audio(audioUrl);
       
-      // Cleanup after playing
-      this.currentAudio.addEventListener('ended', () => {
-        URL.revokeObjectURL(audioUrl);
-        this.currentAudio = null;
-      });
+      // Return a promise that resolves when audio ends or errors
+      return new Promise((resolve) => {
+        // Cleanup and resolve after playing
+        this.currentAudio.addEventListener('ended', () => {
+          URL.revokeObjectURL(audioUrl);
+          this.currentAudio = null;
+          console.log(`✅ Voice instructions completed for ${gameType}`);
+          resolve();
+        });
 
-      // Play the audio
-      await this.currentAudio.play();
-      console.log(`🎤 Playing voice instructions for ${gameType}`);
+        // Also resolve on error so game isn't blocked
+        this.currentAudio.addEventListener('error', (error) => {
+          console.error('Voice instructions playback error:', error);
+          URL.revokeObjectURL(audioUrl);
+          this.currentAudio = null;
+          resolve();
+        });
+
+        // Play the audio
+        this.currentAudio.play().catch((error) => {
+          console.error('Failed to play voice instructions:', error);
+          URL.revokeObjectURL(audioUrl);
+          this.currentAudio = null;
+          resolve();
+        });
+        
+        console.log(`🎤 Playing voice instructions for ${gameType}`);
+      });
       
     } catch (error) {
       console.error('Failed to play voice instructions:', error);
       // Fail silently - don't block game from loading
+      return Promise.resolve();
     }
   }
 

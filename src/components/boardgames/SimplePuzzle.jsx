@@ -162,14 +162,6 @@ const SimplePuzzle = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
 
-  useEffect(() => {
-    GameVoiceInstructions.playInstructions('SIMPLE_PUZZLE');
-    
-    return () => {
-      GameVoiceInstructions.stop();
-    };
-  }, []);
-
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
   };

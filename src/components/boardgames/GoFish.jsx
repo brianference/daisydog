@@ -254,14 +254,6 @@ const GoFish = ({ onExit, onGameEnd }) => {
   const [gameEvents, setGameEvents] = useState([]);
   const aiMovesRef = useRef(null);
 
-  useEffect(() => {
-    GameVoiceInstructions.playInstructions('GO_FISH');
-    
-    return () => {
-      GameVoiceInstructions.stop();
-    };
-  }, []);
-
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
   };

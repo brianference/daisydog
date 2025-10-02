@@ -6,6 +6,7 @@ import { GAME_EVENT_TYPE, GAME_STATUS } from '../../types/boardGameTypes.js';
 import { useSoundSystem } from '../../hooks/useSoundSystem.js';
 import MusicService from '../../services/MusicService.js';
 import ElevenLabsService from '../../services/ElevenLabsService.js';
+import GameVoiceInstructions from '../../services/GameVoiceInstructions.js';
 import GameInstructions from './GameInstructions.jsx';
 import confetti from 'canvas-confetti';
 import './GameContainer.css';
@@ -92,12 +93,21 @@ const GameContainer = ({
   }, [gameStatus]);
 
   useEffect(() => {
-    MusicService.play();
+    const initAudio = async () => {
+      if (gameType) {
+        await GameVoiceInstructions.playInstructions(gameType);
+      }
+      
+      MusicService.play();
+    };
+    
+    initAudio();
     
     return () => {
+      GameVoiceInstructions.stop();
       MusicService.stop();
     };
-  }, []);
+  }, [gameType]);
 
   const handleMuteToggle = () => {
     const newMuteState = !isMuted;

@@ -137,14 +137,6 @@ const ColorMatching = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
 
-  useEffect(() => {
-    GameVoiceInstructions.playInstructions('COLOR_MATCHING');
-    
-    return () => {
-      GameVoiceInstructions.stop();
-    };
-  }, []);
-
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
   };
