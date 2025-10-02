@@ -126,15 +126,18 @@ class GameVoiceInstructions {
           resolve();
         });
 
-        // Play the audio
-        this.currentAudio.play().catch((error) => {
-          console.error('Failed to play voice instructions:', error);
-          URL.revokeObjectURL(audioUrl);
-          this.currentAudio = null;
-          resolve();
-        });
-        
-        console.log(`🎤 Playing voice instructions for ${gameType}`);
+        // Play the audio - DON'T await, just start playback
+        // The promise resolves via 'ended' event listener above
+        this.currentAudio.play()
+          .then(() => {
+            console.log(`🎤 Playing voice instructions for ${gameType}`);
+          })
+          .catch((error) => {
+            console.error('Failed to play voice instructions:', error);
+            URL.revokeObjectURL(audioUrl);
+            this.currentAudio = null;
+            resolve();
+          });
       });
       
     } catch (error) {
