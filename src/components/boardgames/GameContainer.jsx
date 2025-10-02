@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import DaisyCheerleader from '../../services/boardgames/DaisyCheerleader.js';
 import { GAME_EVENT_TYPE, GAME_STATUS } from '../../types/boardGameTypes.js';
+import { useSoundSystem } from '../../hooks/useSoundSystem.js';
 import confetti from 'canvas-confetti';
 import './GameContainer.css';
 
@@ -18,6 +19,7 @@ const GameContainer = ({
   className = ''
 }) => {
   const { themeConfig } = useGameTheme();
+  const { playSound } = useSoundSystem();
   const [daisyMessage, setDaisyMessage] = useState(null);
   const [showMessage, setShowMessage] = useState(false);
 
@@ -62,14 +64,24 @@ const GameContainer = ({
 
     if (eventType === GAME_EVENT_TYPE.WIN) {
       triggerConfetti('large');
+      playSound('games', 'victory');
+      playSound('dog', 'victoryBark');
+    } else if (eventType === GAME_EVENT_TYPE.LOSE) {
+      playSound('dog', 'sadWhimper');
     } else if (eventType === GAME_EVENT_TYPE.MATCH_FOUND || eventType === GAME_EVENT_TYPE.GOOD_MOVE) {
       triggerConfetti('small');
+      playSound('ui', 'success');
+    } else if (eventType === GAME_EVENT_TYPE.MOVE_MADE) {
+      playSound('ui', 'buttonClick');
+    } else if (eventType === GAME_EVENT_TYPE.GAME_START) {
+      playSound('ui', 'gameStart');
+      playSound('dog', 'excitedBark');
     }
   };
 
   useEffect(() => {
     if (gameStatus === GAME_STATUS.PLAYING) {
-      showDaisyCheer(GAME_EVENT_TYPE.GAME_START);
+      handleGameEvent(GAME_EVENT_TYPE.GAME_START);
     }
   }, [gameStatus]);
 
