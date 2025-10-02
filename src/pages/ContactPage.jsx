@@ -114,6 +114,17 @@ const ContactPage = () => {
           <section className="quick-contact">
             <h2>How Can We Help?</h2>
             <div className="contact-grid">
+              <div className="contact-card feedback">
+                <FaHeart className="card-icon" />
+                <h3>Feedback & Ideas</h3>
+                <p>Share your thoughts on how we can improve DaisyDog</p>
+                <button onClick={() => {
+                  setFormData(prev => ({ ...prev, category: 'feedback', subject: 'Feedback and Suggestions' }))
+                  document.getElementById('message').focus()
+                }} className="contact-btn">
+                  Share Feedback
+                </button>
+              </div>
               <div className="contact-card urgent">
                 <FaExclamationTriangle className="card-icon" />
                 <h3>Safety Concerns</h3>
@@ -134,17 +145,6 @@ const ContactPage = () => {
                   document.getElementById('message').focus()
                 }} className="contact-btn">
                   Get Support
-                </button>
-              </div>
-              <div className="contact-card feedback">
-                <FaHeart className="card-icon" />
-                <h3>Feedback & Ideas</h3>
-                <p>Share your thoughts on how we can improve DaisyDog</p>
-                <button onClick={() => {
-                  setFormData(prev => ({ ...prev, category: 'feedback', subject: 'Feedback and Suggestions' }))
-                  document.getElementById('message').focus()
-                }} className="contact-btn">
-                  Share Feedback
                 </button>
               </div>
               <div className="contact-card general">
