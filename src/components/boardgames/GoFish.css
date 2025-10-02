@@ -1,0 +1,202 @@
+.gofish-board {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.gofish-game-area {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.opponent-area, .player-area {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.opponent-info {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.opponent-books, .player-books {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 60px;
+}
+
+.gofish-book {
+  width: 80px;
+  height: 60px;
+  background-color: #4CAF50;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.book-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+}
+
+.book-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.deck-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+}
+
+.deck {
+  position: relative;
+}
+
+.deck-card {
+  width: 100px;
+  height: 140px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  border: 3px solid #fff;
+}
+
+.deck-count {
+  font-size: 28px;
+  font-weight: bold;
+  color: white;
+}
+
+.action-message {
+  padding: 12px 24px;
+  background-color: #FFD93D;
+  color: #2C3E50;
+  border-radius: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.player-hand {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 140px;
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+}
+
+.gofish-card {
+  width: 70px;
+  height: 100px;
+  background-color: #3498db;
+  border: 3px solid #2C3E50;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.gofish-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.card-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+}
+
+.card-suit {
+  font-size: 24px;
+}
+
+.ask-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+}
+
+.ask-label {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.ask-button {
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+}
+
+@media (max-width: 768px) {
+  .gofish-board {
+    padding: 15px;
+  }
+
+  .gofish-game-area {
+    gap: 20px;
+  }
+
+  .gofish-card {
+    width: 60px;
+    height: 85px;
+  }
+
+  .card-value {
+    font-size: 24px;
+  }
+
+  .card-suit {
+    font-size: 20px;
+  }
+
+  .gofish-book {
+    width: 60px;
+    height: 50px;
+  }
+
+  .book-value {
+    font-size: 20px;
+  }
+
+  .ask-button {
+    padding: 10px 20px;
+    font-size: 16px;
+  }
+}
