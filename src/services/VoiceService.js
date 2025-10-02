@@ -116,6 +116,7 @@ class VoiceService {
     }
 
     try {
+      // iOS Safari requires getUserMedia to be called synchronously from user action
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           channelCount: 1,
@@ -125,9 +126,15 @@ class VoiceService {
         } 
       });
 
-      this.mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
+      // Determine best mimeType for the device
+      let mimeType = 'audio/webm;codecs=opus';
+      if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        mimeType = 'audio/mp4'; // iOS prefers mp4
+      } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+        mimeType = 'audio/webm';
+      }
+
+      this.mediaRecorder = new MediaRecorder(stream, { mimeType });
       
       this.audioChunks = [];
 
@@ -143,6 +150,12 @@ class VoiceService {
 
       // Set up audio analysis for silence detection
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      
+      // iOS Safari requires AudioContext to be resumed from user gesture
+      if (this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+      }
+      
       const source = this.audioContext.createMediaStreamSource(stream);
       this.analyser = this.audioContext.createAnalyser();
       this.analyser.fftSize = 2048;

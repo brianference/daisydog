@@ -1,0 +1,127 @@
+ Set Up Jest with React Testing Library
+
+Why: Industry standard for React testing, works well in Replit
+Setup: Add to package.json dependencies and create jest.config.js
+Focus: Component testing, user interactions, safety filters
+
+2. Implement GitHub Actions CI/CD (Free Tier)
+
+Why: Replit has limited testing UI, GitHub Actions provides robust automation
+Strategy:
+
+Connect Replit to GitHub repository
+Run tests on every push/PR
+Automated safety compliance checks
+Performance benchmarks
+
+
+
+3. Prioritize Safety-Critical Testing
+Given DaisyDog's child-focused nature:
+
+Age verification flows (100% coverage required)
+Content safety filters (drug safety, inappropriate content)
+COPPA compliance checks
+Parent dashboard access controls
+
+4. Use Replit's Built-in Testing Features
+
+Unit Tests Tab: Configure to run Jest tests
+Environment Variables: Store test API keys separately
+Secrets: Never expose Claude API keys in tests
+
+5. Implement Test Coverage Tracking
+
+Tool: Istanbul/nyc (works in Replit)
+Target: 80% minimum coverage
+Critical: 100% coverage for safety components
+
+6. Create Testing Layers
+Layer 1 - Unit Tests (70%)
+
+Individual component testing
+Custom hooks (useSafetyFilter, useChatState)
+Utility functions
+
+Layer 2 - Integration Tests (20%)
+
+Chat flow with safety filters
+Game interactions
+Parent dashboard features
+
+Layer 3 - E2E Tests (10%)
+
+Playwright or Cypress
+Complete user journeys
+Age verification → game play → safety trigger
+
+7. Replit-Specific Testing Setup
+Best practices:
+.replit file configuration:
+run = "npm test -- --watchAll=false --ci"
+Test scripts in package.json:
+json"test": "jest --coverage",
+"test:watch": "jest --watch",
+"test:safety": "jest --testPathPattern=safety",
+"test:coppa": "jest --testPathPattern=coppa",
+"test:ci": "jest --ci --coverage --maxWorkers=2"
+8. Mock External Dependencies
+
+Claude API: Use MSW (Mock Service Worker)
+Video responses: Mock file loading
+Analytics: Mock tracking calls
+Reduces: API costs during testing
+
+9. Accessibility Testing
+
+jest-axe: Automated a11y testing
+Target: WCAG 2.1 AA compliance
+Critical: All child-facing interfaces must pass
+
+10. Performance Testing in Replit
+
+Lighthouse CI: Automated performance audits
+Bundle size checks: Keep under 500KB
+Load time monitoring: Target <2s
+Memory leak detection: Chrome DevTools in headless mode
+
+11. Create Test Data Fixtures
+/tests
+  /fixtures
+    - safe-messages.json
+    - unsafe-messages.json
+    - saint-data.json
+    - parent-dashboard-data.json
+12. Snapshot Testing for UI Consistency
+
+React component snapshots
+Prevents regression in child-friendly interfaces
+Safety response UI must remain consistent
+
+13. Error Boundary Testing
+
+Test all error scenarios
+Ensure child-friendly error messages
+Verify parent notifications trigger
+
+14. Continuous Monitoring Setup
+Even in Replit:
+
+Sentry: Error tracking (free tier)
+LogRocket: Session replay for debugging
+Google Analytics: Usage patterns
+
+15. Testing Documentation
+Create /docs/testing-guide.md:
+
+How to run tests locally in Replit
+Safety testing protocols
+COPPA compliance checklist
+Test coverage requirements
+
+Recommended Testing Workflow
+
+Pre-commit: Run safety tests (Husky hooks)
+On Push to GitHub: Full test suite via Actions
+Before Deploy: E2E tests + performance audit
+Post-Deploy: Smoke tests + monitoring alerts

@@ -29,21 +29,20 @@ const ContactPage = () => {
     e.preventDefault()
     setIsSubmitting(true)
     
-    // Create form data for Netlify Forms
-    const form = e.target
-    const formData = new FormData(form)
-    
     try {
-      const response = await fetch('/', {
+      const response = await fetch('/.netlify/functions/contact-form', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(formData).toString()
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
       })
       
       if (response.ok) {
         setIsSubmitted(true)
       } else {
-        throw new Error('Form submission failed')
+        const result = await response.json()
+        throw new Error(result.error || 'Form submission failed')
       }
     } catch (error) {
       console.error('Form submission error:', error)
