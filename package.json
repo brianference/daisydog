@@ -18,6 +18,15 @@
     "test:mobile:debug": "playwright test --debug",
     "test:ios": "playwright test --project=\"iPhone 15 Pro\"",
     "test:android": "playwright test --project=\"Pixel 7\"",
+    "test:firebase": "echo 'Firebase Test Lab requires mobile app build (APK/IPA). This is a web app - use Playwright for responsive testing instead: npm run test:playwright-extended'",
+    "test:kobiton": "echo '🔗 Kobiton Community (FREE - Unlimited Manual Testing): https://portal.kobiton.com'",
+    "test:appetize": "echo '🔗 Appetize.io (FREE - 100 mins/month): https://appetize.io'",
+    "test:playwright-extended": "playwright test --config=testing/playwright-extended/playwright.config.extended.ts",
+    "test:visual-regression": "playwright test --config=testing/playwright-extended/playwright.config.extended.ts --grep=Visual",
+    "test:safety-automated": "playwright test --config=testing/playwright-extended/playwright.config.extended.ts testing/playwright-extended/tests/safety-filters.spec.ts",
+    "test:all": "npm run build && npm run test && npm run test:mobile && npm run test:playwright-extended",
+    "test:daily": "npm run build && npm run test:safety-automated",
+    "pre-deploy": "bash scripts/pre-deploy-check.sh",
     "setup:apis": "node scripts/setup-apis.js",
     "version": "echo 'Daisy Dog v4.1.0 - Read the Book Integration & Enhanced Educational Features'"
   },
@@ -69,8 +78,10 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.12.0",
     "react-router-dom": "^6.8.0",
+    "serve": "^14.2.5",
     "use-sound": "^4.0.4",
-    "vite": "^6.0.0"
+    "vite": "^6.0.0",
+    "wait-on": "^9.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

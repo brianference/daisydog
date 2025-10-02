@@ -1,0 +1,58 @@
+{
+  "name": "DaisyDog - Kobiton Community Plan",
+  "description": "Real device testing for safety feature validation",
+  "plan": "community",
+  "features": {
+    "manual_testing": "unlimited",
+    "real_devices": true,
+    "device_types": "older_models",
+    "cost": 0
+  },
+  "test_priorities": [
+    {
+      "name": "Safety Filter Validation",
+      "priority": "critical",
+      "devices": ["iPhone 8", "Samsung Galaxy S8"],
+      "test_cases": [
+        "Drug safety keyword detection",
+        "Violence prevention triggers",
+        "Catholic doctrine guidance",
+        "Sensitive historical topics moderation"
+      ]
+    },
+    {
+      "name": "Voice Features",
+      "priority": "high",
+      "devices": ["iPhone X", "Pixel 3"],
+      "test_cases": [
+        "Whisper transcription accuracy",
+        "TTS voice clarity",
+        "Action text filtering (*barks*, *wags*)",
+        "Voice speed (1.25) natural pace"
+      ]
+    },
+    {
+      "name": "Interactive Games",
+      "priority": "high",
+      "devices": ["iPad Mini", "Samsung Tab A"],
+      "test_cases": [
+        "Fetch game mechanics",
+        "Tug of War pull gestures",
+        "Hide & Seek dual modes",
+        "Game action buttons"
+      ]
+    }
+  ],
+  "schedule": {
+    "safety_regression": "daily",
+    "voice_validation": "daily",
+    "game_testing": "weekly",
+    "full_suite": "pre-release"
+  },
+  "reporting": {
+    "output": "./testing/kobiton/reports",
+    "include_screenshots": true,
+    "include_logs": true,
+    "include_video": false
+  }
+}

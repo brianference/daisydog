@@ -1,0 +1,78 @@
+{
+  "name": "DaisyDog - Google Play Beta Testing",
+  "platform": "Android",
+  "cost": 0,
+  "tracks": {
+    "internal": {
+      "max_testers": 100,
+      "purpose": "Team & QA testing",
+      "cost": 0
+    },
+    "closed": {
+      "max_testers": "unlimited",
+      "purpose": "Family groups & educators",
+      "cost": 0
+    },
+    "open": {
+      "max_testers": "unlimited",
+      "purpose": "Public beta before production",
+      "cost": 0
+    }
+  },
+  "testing_groups": [
+    {
+      "name": "Family Beta Testers",
+      "track": "closed",
+      "size": 100,
+      "demographics": {
+        "children_5_8": 30,
+        "children_9_12": 40,
+        "teens_13_18": 30
+      },
+      "focus": [
+        "Real-world safety testing",
+        "Voice feature validation",
+        "Game interaction patterns",
+        "Family feedback"
+      ]
+    },
+    {
+      "name": "Catholic School Group",
+      "track": "closed",
+      "size": 50,
+      "focus": [
+        "Doctrine accuracy",
+        "Educational alignment",
+        "Classroom usability",
+        "Safety in group settings"
+      ]
+    },
+    {
+      "name": "Public Beta",
+      "track": "open",
+      "size": "unlimited",
+      "requirements": {
+        "min_age": 13,
+        "parental_consent": true
+      },
+      "focus": [
+        "Production validation",
+        "Scalability testing",
+        "Diverse device compatibility",
+        "Network condition testing"
+      ]
+    }
+  ],
+  "rollout_strategy": {
+    "internal": "immediate",
+    "closed": "weekly_builds",
+    "open": "bi_weekly_builds",
+    "production": "after_1000_beta_hours"
+  },
+  "feedback_integration": {
+    "google_play_console": true,
+    "firebase_crashlytics": true,
+    "custom_feedback": "brianference@protonmail.com",
+    "user_surveys": true
+  }
+}

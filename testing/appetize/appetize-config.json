@@ -1,0 +1,59 @@
+{
+  "name": "DaisyDog - Appetize.io Testing",
+  "description": "iframe/game integration and network performance testing",
+  "plan": "free",
+  "limits": {
+    "monthly_minutes": 100,
+    "cost": 0
+  },
+  "test_focus": [
+    {
+      "name": "iframe_game_integration",
+      "priority": "high",
+      "use_cases": [
+        "Blooket integration testing",
+        "Edukiz game validation",
+        "Third-party embed performance"
+      ],
+      "minutes_allocation": 30
+    },
+    {
+      "name": "network_throttling",
+      "priority": "high",
+      "use_cases": [
+        "Video performance on slow 3G",
+        "TTS audio streaming on 2G",
+        "Asset loading on poor connections"
+      ],
+      "network_profiles": [
+        "3G Fast",
+        "3G Slow",
+        "2G",
+        "Offline"
+      ],
+      "minutes_allocation": 40
+    },
+    {
+      "name": "video_asset_testing",
+      "priority": "medium",
+      "use_cases": [
+        "Portrait/landscape video playback",
+        "Emotion video transitions",
+        "CDN caching validation"
+      ],
+      "minutes_allocation": 30
+    }
+  ],
+  "devices": [
+    "iPhone 12 iOS 15",
+    "iPhone SE iOS 14",
+    "Pixel 5 Android 11",
+    "iPad Pro 11"
+  ],
+  "reporting": {
+    "output": "./testing/appetize/reports",
+    "network_metrics": true,
+    "performance_traces": true,
+    "screenshots": true
+  }
+}

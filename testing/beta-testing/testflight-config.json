@@ -1,0 +1,59 @@
+{
+  "name": "DaisyDog - TestFlight Beta Testing",
+  "platform": "iOS",
+  "cost": 0,
+  "features": {
+    "max_testers": 10000,
+    "external_testers": true,
+    "internal_testers": true,
+    "cost": "free_forever"
+  },
+  "testing_groups": [
+    {
+      "name": "Family Testing Group",
+      "size": 50,
+      "age_groups": {
+        "5-8": 15,
+        "9-12": 20,
+        "13-18": 15
+      },
+      "focus": [
+        "Safety feature validation",
+        "Voice interaction clarity",
+        "Game engagement",
+        "Age-appropriate content"
+      ]
+    },
+    {
+      "name": "Parent Review Group",
+      "size": 30,
+      "focus": [
+        "Safety system effectiveness",
+        "Content appropriateness",
+        "Parental controls",
+        "Privacy compliance"
+      ]
+    },
+    {
+      "name": "Educator Testing Group",
+      "size": 20,
+      "focus": [
+        "Educational value",
+        "Classroom safety",
+        "Learning engagement",
+        "Biblical accuracy"
+      ]
+    }
+  ],
+  "build_distribution": {
+    "frequency": "weekly",
+    "auto_update": true,
+    "feedback_collection": true,
+    "crash_reporting": true
+  },
+  "feedback_channels": {
+    "in_app": true,
+    "email": "brianference@protonmail.com",
+    "survey": true
+  }
+}

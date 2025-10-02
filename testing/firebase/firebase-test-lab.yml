@@ -1,0 +1,73 @@
+# Firebase Test Lab Configuration
+# FREE TIER: 10 virtual tests/day = 300/month
+# 5 real device tests/day = 150/month
+
+gcloud:
+  test:
+    android:
+      # Virtual Device Testing (Primary)
+      virtual-devices:
+        - model: Pixel2
+          version: 29
+          locale: en
+          orientation: portrait
+        - model: Pixel2
+          version: 29
+          locale: en
+          orientation: landscape
+        - model: Nexus5
+          version: 28
+          locale: en
+          orientation: portrait
+      
+      # Real Device Testing (Secondary - 5/day limit)
+      physical-devices:
+        - model: redfin  # Pixel 5
+          version: 30
+          locale: en
+          orientation: portrait
+        - model: flame   # Pixel 4
+          version: 29
+          locale: en
+          orientation: portrait
+      
+      # Test Scenarios
+      test-scenarios:
+        - name: responsive_layout
+          devices: virtual-devices
+          frequency: daily
+          priority: high
+          
+        - name: gesture_validation
+          devices: physical-devices
+          frequency: daily
+          priority: high
+          
+        - name: safety_features
+          devices: virtual-devices
+          frequency: daily
+          priority: critical
+
+# CI/CD Integration
+ci:
+  trigger: on-push-to-main
+  max-concurrent: 2
+  timeout: 30m
+  
+# Test Matrix
+matrix:
+  viewports:
+    - 375x667   # iPhone SE
+    - 414x896   # iPhone 11
+    - 360x740   # Android Medium
+    - 412x915   # Pixel 5
+    - 768x1024  # iPad
+    - 1920x1080 # Desktop
+
+# Reporting
+reports:
+  output: ./testing/firebase/reports
+  format: [html, json, junit]
+  screenshots: true
+  video: true
+  performance-metrics: true
