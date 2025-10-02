@@ -180,9 +180,24 @@ const CheckersBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) =>
 };
 
 const Checkers = ({ onExit, onGameEnd }) => {
+  const { themeConfig } = useGameTheme();
+  const [gameEvents, setGameEvents] = useState([]);
+
+  const handleGameEvent = (eventType, data) => {
+    setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
+  };
+
+  const BoardWrapper = (props) => (
+    <CheckersBoard 
+      {...props} 
+      onGameEvent={handleGameEvent}
+      themeConfig={themeConfig}
+    />
+  );
+
   const CheckersClient = Client({
     game: CheckersGame,
-    board: CheckersBoard,
+    board: BoardWrapper,
     multiplayer: Local(),
     numPlayers: 2
   });

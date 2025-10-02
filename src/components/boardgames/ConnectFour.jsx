@@ -177,9 +177,24 @@ const ConnectFourBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
 };
 
 const ConnectFour = ({ onExit, onGameEnd }) => {
+  const { themeConfig } = useGameTheme();
+  const [gameEvents, setGameEvents] = useState([]);
+
+  const handleGameEvent = (eventType, data) => {
+    setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
+  };
+
+  const BoardWrapper = (props) => (
+    <ConnectFourBoard 
+      {...props} 
+      onGameEvent={handleGameEvent}
+      themeConfig={themeConfig}
+    />
+  );
+
   const ConnectFourClient = Client({
     game: ConnectFourGame,
-    board: ConnectFourBoard,
+    board: BoardWrapper,
     multiplayer: Local(),
     numPlayers: 2
   });

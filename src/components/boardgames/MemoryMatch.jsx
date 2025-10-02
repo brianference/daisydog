@@ -189,9 +189,24 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
 };
 
 const MemoryMatch = ({ onExit, onGameEnd }) => {
+  const { themeConfig } = useGameTheme();
+  const [gameEvents, setGameEvents] = useState([]);
+
+  const handleGameEvent = (eventType, data) => {
+    setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
+  };
+
+  const BoardWrapper = (props) => (
+    <MemoryMatchBoard 
+      {...props} 
+      onGameEvent={handleGameEvent}
+      themeConfig={themeConfig}
+    />
+  );
+
   const MemoryMatchClient = Client({
     game: MemoryMatchGame,
-    board: MemoryMatchBoard,
+    board: BoardWrapper,
     multiplayer: Local(),
     numPlayers: 2
   });
