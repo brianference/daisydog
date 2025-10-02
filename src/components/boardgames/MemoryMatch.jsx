@@ -100,6 +100,14 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, a
     if (onGameEvent) {
       onGameEvent(GAME_EVENT_TYPE.MOVE_MADE, { cardIndex });
     }
+    
+    if (G.flipped.length === 1) {
+      setTimeout(() => {
+        if (moves.endPlayerTurn) {
+          moves.endPlayerTurn();
+        }
+      }, 2000);
+    }
   };
 
   const isCardFlipped = (index) => {

@@ -8,7 +8,7 @@ import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
 import './ConnectFour.css';
 
-const ConnectFourBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
+const ConnectFourBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMoves }) => {
   const processingRef = useRef(false);
   const [dropAnimation, setDropAnimation] = useState(null);
 
@@ -40,8 +40,8 @@ const ConnectFourBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
           
           processingRef.current = false;
           
-          if (move && move.col !== undefined) {
-            moves.dropToken(move.col);
+          if (move && move.col !== undefined && aiMoves && aiMoves.dropToken) {
+            aiMoves.dropToken(move.col);
             onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
           }
         } else {
@@ -179,27 +179,44 @@ const ConnectFourBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
 const ConnectFour = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
+  const aiMovesRef = useRef(null);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
   };
 
-  const BoardWrapper = (props) => (
-    <ConnectFourBoard 
-      {...props} 
-      onGameEvent={handleGameEvent}
-      themeConfig={themeConfig}
-    />
-  );
+  const BoardWrapper = (props) => {
+    if (props.playerID === '1') {
+      aiMovesRef.current = props.moves;
+      return null;
+    }
+    
+    return (
+      <ConnectFourBoard 
+        {...props} 
+        onGameEvent={handleGameEvent}
+        themeConfig={themeConfig}
+        aiMoves={aiMovesRef.current}
+      />
+    );
+  };
 
   const ConnectFourClient = Client({
     game: ConnectFourGame,
     board: BoardWrapper,
     multiplayer: Local(),
-    numPlayers: 2
+    numPlayers: 2,
+    debug: false
   });
 
-  return <ConnectFourClient playerID="0" />;
+  return (
+    <>
+      <ConnectFourClient playerID="0" matchID="local" />
+      <div style={{ display: 'none' }}>
+        <ConnectFourClient playerID="1" matchID="local" />
+      </div>
+    </>
+  );
 };
 
 export default ConnectFour;

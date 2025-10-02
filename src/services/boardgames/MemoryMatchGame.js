@@ -71,10 +71,10 @@ export const MemoryMatchGame = {
       if (G.matched.includes(cardIndex)) return;
       
       G.flipped.push(cardIndex);
-      
-      if (G.flipped.length === 2) {
-        events.endTurn();
-      }
+    },
+    
+    endPlayerTurn: ({ G, events }) => {
+      events.endTurn();
     }
   },
 

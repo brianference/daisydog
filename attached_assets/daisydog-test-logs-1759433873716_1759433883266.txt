@@ -1,0 +1,25 @@
+DaisyDog Test Logs
+===================
+Timestamp: 2025-10-02T19:37:53.715Z
+Build: 2025.10.01.03
+
+Test Results (3):
+-----------------------
+1. ❌ Voice Service Init
+   Status: failed
+   Message: Test failed
+
+2. ✅ Microphone Permission
+   Status: passed
+   Message: Test passed
+
+3. ✅ Audio Context
+   Status: passed
+   Message: Test passed
+
+
+Failed Tests (1):
+-----------------------
+1. Voice Service Init
+   Test failed
+
