@@ -1,0 +1,112 @@
+Console.js:61 Key present: true
+Console.js:61 ✅ Supabase client initialized successfully
+Console.js:61 🧪 Testing Supabase connection...
+Console.js:61 ✝️ Initializing Catholic Doctrine Service...
+Console.js:61 ✅ Catholic Doctrine Service initialized
+Console.js:61 ✅ VoiceService initialized (Netlify functions)
+Console.js:61 🧪 Initializing test services...
+Console.js:61 ✅ Test services initialized successfully
+Console.js:61 📊 Available test services: 
+{ComprehensiveSafetyTest: true, SafetyResponses: true, SafetyFilter: true, BibleCharacterDetection: true, ExtendedSafety: true, …}
+Console.js:61 ✅ SoundService initialized successfully
+Console.js:61 ✅ Pre-Release Test Suite loaded!
+Console.js:61 📋 Available commands:
+Console.js:61    window.runPreReleaseTests() - Run full test suite
+Console.js:61    window.quickTest('constitution') - Test constitutional content
+Console.js:61    window.quickTest('safety') - Test safety system
+Console.js:61    window.quickTest('ui') - Test UI button patterns
+Console.js:61    window.testSafetyFix() - Test safety system fixes
+Console.js:61    window.checkVideoFiles() - Check video file availability
+Console.js:61    window.videoStatus() - Get video system status
+Console.js:61 ✅ Game Action Button Test loaded!
+Console.js:61 📋 Run: window.testGameActions()
+Console.js:61 🎬 VideoAssetManager: Initializing with lazy loading...
+Console.js:61 ✅ VideoAssetManager: Ready (lazy loading in background)
+Console.js:61 🔧 Bible API Environment Check: 
+{VITE_BIBLE_API_KEY: true, VITE_API_BIBLE_KEY: false, REACT_APP_BIBLE_API_KEY: false, BIBLE_API_KEY: false, selectedKey: 'Found', …}
+Console.js:61 🔧 Initializing Bible API Service...
+Console.js:61 API Key present: true
+Console.js:61 DaisyDog Build: 2025.10.01.03
+Console.js:61 ✅ Supabase connection confirmed
+Console.js:61 ✅ NAB Bible found: 
+{id: '179568874c45066f-01', name: 'Douay-Rheims American 1899', abbreviation: 'engDRA'}
+Console.js:61 ✅ Bible API Service initialized successfully
+Console.js:61 📖 NAB Bible ID confirmed: 179568874c45066f-01
+Console.js:61 ✅ Model gemini-2.5-flash response: Hi there! How can I help you today?...
+Console.js:61 🎯 Using production model: gemini-2.5-flash
+Console.js:61 ✅ Gemini AI initialized successfully
+Console.js:61 🧪 Testing Gemini API connectivity...
+Console.js:61 🎬 Starting background video preloading...
+Console.js:61 ✅ Gemini API connectivity confirmed
+Console.js:61 Test response: Woof! Test successful!
+Console.js:61 📡 Connection speed estimated: fast (219.79999995231628ms)
+Console.js:61 🎬 Preloading happy video...
+Console.js:61 ✅ Preloaded happy video
+Console.js:61 🎬 Critical video preloading complete
+Console.js:61 ✅ VideoAssetManager: Background preloading complete
+injected.js:278 
+ POST https://lqxstmjczpfywfgyhahj.supabase.co/rest/v1/sessions?columns=%22id%22%2C%22age_range%22%2C%22created_at%22%2C%22interactions_count%22&select=* 401 (Unauthorized)
+Console.js:61 ⚠️ Error creating remote session, using local session: Invalid API key
+Console.js:61 ✅ Session created for voice features
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+Console.js:61 ERROR: disallowed move: clickCell
+Console.js:61 ERROR: player not active - playerID=[0] - action[clickCell]
+﻿
+

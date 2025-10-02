@@ -16,6 +16,8 @@ const TicTacToeBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) =
       setThinking(true);
       
       const makeAIMove = async () => {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
         const validMoves = G.cells
           .map((cell, index) => cell === null ? { row: Math.floor(index / 3), col: index % 3, cellIndex: index } : null)
           .filter(move => move !== null);
@@ -34,7 +36,7 @@ const TicTacToeBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) =
       
       makeAIMove();
     }
-  }, [ctx.currentPlayer, ctx.gameover]);
+  }, [ctx.currentPlayer, ctx.gameover, ctx.turn, thinking]);
 
   useEffect(() => {
     if (ctx.gameover) {

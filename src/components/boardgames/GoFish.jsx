@@ -55,7 +55,7 @@ const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
       
       makeAIMove();
     }
-  }, [ctx.currentPlayer, ctx.gameover]);
+  }, [ctx.currentPlayer, ctx.gameover, ctx.turn]);
 
   useEffect(() => {
     if (ctx.gameover) {

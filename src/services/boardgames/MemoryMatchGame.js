@@ -73,7 +73,7 @@ export const MemoryMatchGame = {
       G.flipped.push(cardIndex);
       
       if (G.flipped.length === 2) {
-        setTimeout(() => events.endTurn(), 1500);
+        events.endTurn();
       }
     }
   },

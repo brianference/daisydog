@@ -57,7 +57,7 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
       processingRef.current = true;
       
       const makeOneAIFlip = async () => {
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         const availableCards = G.cards
           .map((_, index) => index)
@@ -77,6 +77,7 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
           
           if (move && move.cardIndex !== undefined) {
             moves.flipCard(move.cardIndex);
+            onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
           }
         } else {
           processingRef.current = false;
@@ -85,7 +86,7 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
       
       makeOneAIFlip();
     }
-  }, [ctx?.currentPlayer, ctx?.gameover, G?.flipped?.length, G?.matched?.length]);
+  }, [ctx?.currentPlayer, ctx?.gameover, ctx?.turn, G?.flipped?.length, G?.matched?.length, processingRef.current]);
 
   const handleCardClick = (cardIndex) => {
     if (!G || !ctx || !moves) return;

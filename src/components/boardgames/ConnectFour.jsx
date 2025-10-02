@@ -51,7 +51,7 @@ const ConnectFourBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
       
       makeAIMove();
     }
-  }, [ctx.currentPlayer, ctx.gameover, G.cells]);
+  }, [ctx.currentPlayer, ctx.gameover, ctx.turn, G.cells]);
 
   useEffect(() => {
     if (ctx.gameover) {
