@@ -1,5 +1,6 @@
 const CARD_VALUES = ['1', '2', '3', '4', '5', '6'];
 const CARDS_PER_VALUE = 4;
+const CARDS_FOR_PAIR = 2; // Pairs are 2 of a kind, not 4
 const INITIAL_HAND_SIZE = 5;
 
 function createDeck() {
@@ -24,24 +25,58 @@ function dealInitialHands(deck) {
   return { player0Hand, player1Hand, remainingDeck };
 }
 
-function checkForBooks(hand) {
+function checkForPairs(hand) {
   const counts = {};
   hand.forEach(card => {
     counts[card.value] = (counts[card.value] || 0) + 1;
   });
   
-  const books = [];
+  const pairs = [];
   const remainingCards = [];
   
+  // Check each unique value for pairs
+  const processedValues = new Set();
+  
   for (const card of hand) {
-    if (counts[card.value] === CARDS_PER_VALUE && !books.includes(card.value)) {
-      books.push(card.value);
-    } else if (counts[card.value] !== CARDS_PER_VALUE) {
-      remainingCards.push(card);
+    if (processedValues.has(card.value)) {
+      // Already processed this value
+      continue;
+    }
+    
+    if (counts[card.value] >= CARDS_FOR_PAIR) {
+      // Found a pair (or more)
+      const numPairs = Math.floor(counts[card.value] / CARDS_FOR_PAIR);
+      for (let i = 0; i < numPairs; i++) {
+        pairs.push(card.value);
+      }
+      
+      // Add remaining cards after removing pairs
+      const cardsToRemove = numPairs * CARDS_FOR_PAIR;
+      const cardsToKeep = counts[card.value] - cardsToRemove;
+      
+      let addedCount = 0;
+      for (const c of hand) {
+        if (c.value === card.value && addedCount < cardsToKeep) {
+          remainingCards.push(c);
+          addedCount++;
+        }
+      }
+      
+      processedValues.add(card.value);
+    } else {
+      // No pair for this value, keep all cards
+      if (!processedValues.has(card.value)) {
+        for (const c of hand) {
+          if (c.value === card.value) {
+            remainingCards.push(c);
+          }
+        }
+        processedValues.add(card.value);
+      }
     }
   }
   
-  return { books, remainingCards };
+  return { pairs, remainingCards };
 }
 
 export const GoFishGame = {
@@ -51,9 +86,9 @@ export const GoFishGame = {
     const deck = shuffleDeck(createDeck(), random);
     const { player0Hand, player1Hand, remainingDeck } = dealInitialHands(deck);
     
-    // Check for initial books in both hands
-    const player0Result = checkForBooks(player0Hand);
-    const player1Result = checkForBooks(player1Hand);
+    // Check for initial pairs in both hands
+    const player0Result = checkForPairs(player0Hand);
+    const player1Result = checkForPairs(player1Hand);
     
     return {
       hands: {
@@ -61,9 +96,9 @@ export const GoFishGame = {
         '1': player1Result.remainingCards
       },
       deck: remainingDeck,
-      books: {
-        '0': player0Result.books,
-        '1': player1Result.books
+      pairs: {
+        '0': player0Result.pairs,
+        '1': player1Result.pairs
       },
       lastAction: null
     };
@@ -95,11 +130,11 @@ export const GoFishGame = {
         }
       }
       
-      const { books, remainingCards } = checkForBooks(G.hands[currentPlayer]);
-      if (books.length > 0) {
+      const { pairs, remainingCards } = checkForPairs(G.hands[currentPlayer]);
+      if (pairs.length > 0) {
         G.hands[currentPlayer] = remainingCards;
-        G.books[currentPlayer] = [...G.books[currentPlayer], ...books];
-        G.lastAction = { ...G.lastAction, madeBook: books[books.length - 1] };
+        G.pairs[currentPlayer] = [...G.pairs[currentPlayer], ...pairs];
+        G.lastAction = { ...G.lastAction, madePair: pairs[pairs.length - 1] };
       }
       
       events.endTurn();
@@ -111,11 +146,11 @@ export const GoFishGame = {
         G.hands[ctx.currentPlayer].push(drawnCard);
         G.lastAction = { type: 'DRAW', drawnCard };
         
-        const { books, remainingCards } = checkForBooks(G.hands[ctx.currentPlayer]);
-        if (books.length > 0) {
+        const { pairs, remainingCards } = checkForPairs(G.hands[ctx.currentPlayer]);
+        if (pairs.length > 0) {
           G.hands[ctx.currentPlayer] = remainingCards;
-          G.books[ctx.currentPlayer] = [...G.books[ctx.currentPlayer], ...books];
-          G.lastAction = { ...G.lastAction, madeBook: books[books.length - 1] };
+          G.pairs[ctx.currentPlayer] = [...G.pairs[ctx.currentPlayer], ...pairs];
+          G.lastAction = { ...G.lastAction, madePair: pairs[pairs.length - 1] };
         }
       }
       events.endTurn();
@@ -128,14 +163,15 @@ export const GoFishGame = {
   },
 
   endIf: ({ G }) => {
-    const totalBooks = G.books['0'].length + G.books['1'].length;
-    const allCardsInBooks = totalBooks === CARD_VALUES.length;
+    const totalPairs = G.pairs['0'].length + G.pairs['1'].length;
+    const maxPossiblePairs = CARD_VALUES.length * (CARDS_PER_VALUE / CARDS_FOR_PAIR); // 6 values * 2 pairs each = 12 pairs
+    const allCardsInPairs = totalPairs === maxPossiblePairs;
     const noCardsLeft = G.hands['0'].length === 0 && G.hands['1'].length === 0 && G.deck.length === 0;
     
-    if (allCardsInBooks || noCardsLeft) {
-      if (G.books['0'].length > G.books['1'].length) {
+    if (allCardsInPairs || noCardsLeft) {
+      if (G.pairs['0'].length > G.pairs['1'].length) {
         return { winner: '0' };
-      } else if (G.books['1'].length > G.books['0'].length) {
+      } else if (G.pairs['1'].length > G.pairs['0'].length) {
         return { winner: '1' };
       } else {
         return { draw: true };

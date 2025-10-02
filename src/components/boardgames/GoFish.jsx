@@ -109,17 +109,17 @@ const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMove
     </motion.div>
   );
 
-  const renderBook = (value, index) => (
+  const renderPair = (value, index) => (
     <motion.div
-      key={value}
-      className="gofish-book"
+      key={`${value}-${index}`}
+      className="gofish-pair"
       initial={{ scale: 0, rotate: -90 }}
       animate={{ scale: 1, rotate: 0 }}
       transition={{ type: 'spring', delay: index * 0.1 }}
       style={{ backgroundColor: themeConfig.colors.success }}
     >
-      <div className="book-value">{value}</div>
-      <div className="book-label">Book!</div>
+      <div className="pair-value">{value}</div>
+      <div className="pair-label">Pair!</div>
     </motion.div>
   );
 
@@ -147,10 +147,10 @@ const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMove
         <div className="opponent-area">
           <div className="opponent-info">
             <span>Daisy's Cards: {opponentCardCount}</span>
-            <span>Books: {G.books['1'].length}</span>
+            <span>Pairs: {G.pairs['1'].length}</span>
           </div>
-          <div className="opponent-books">
-            {G.books['1'].map((value, index) => renderBook(value, index))}
+          <div className="opponent-pairs">
+            {G.pairs['1'].map((value, index) => renderPair(value, index))}
           </div>
         </div>
 
@@ -171,14 +171,14 @@ const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMove
             >
               {G.lastAction.type === 'GOT_CARDS' && `Got ${G.lastAction.count} cards!`}
               {G.lastAction.type === 'GO_FISH' && 'Go Fish! 🎣'}
-              {G.lastAction.madeBook && ` Made a book of ${G.lastAction.madeBook}s! 📚`}
+              {G.lastAction.madePair && ` Made a pair of ${G.lastAction.madePair}s! 🎯`}
             </motion.div>
           )}
         </div>
 
         <div className="player-area">
-          <div className="player-books">
-            {G.books['0'].map((value, index) => renderBook(value, index))}
+          <div className="player-pairs">
+            {G.pairs['0'].map((value, index) => renderPair(value, index))}
           </div>
           
           <div className="player-hand">
