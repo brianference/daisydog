@@ -8,7 +8,7 @@ import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
 import './Checkers.css';
 
-const CheckersBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
+const CheckersBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMoves }) => {
   const processingRef = useRef(false);
   const [selectedPiece, setSelectedPiece] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
@@ -29,8 +29,8 @@ const CheckersBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) =>
           
           processingRef.current = false;
           
-          if (move && move.from && move.to) {
-            moves.movePiece(move.from, move.to, move.captures || []);
+          if (move && move.from && move.to && aiMoves && aiMoves.movePiece) {
+            aiMoves.movePiece(move.from, move.to, move.captures || []);
             onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
             
             if (move.captures && move.captures.length > 0) {
@@ -182,27 +182,44 @@ const CheckersBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) =>
 const Checkers = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
+  const aiMovesRef = useRef(null);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
   };
 
-  const BoardWrapper = (props) => (
-    <CheckersBoard 
-      {...props} 
-      onGameEvent={handleGameEvent}
-      themeConfig={themeConfig}
-    />
-  );
+  const BoardWrapper = (props) => {
+    if (props.playerID === '1') {
+      aiMovesRef.current = props.moves;
+      return null;
+    }
+    
+    return (
+      <CheckersBoard 
+        {...props} 
+        onGameEvent={handleGameEvent}
+        themeConfig={themeConfig}
+        aiMoves={aiMovesRef.current}
+      />
+    );
+  };
 
   const CheckersClient = Client({
     game: CheckersGame,
     board: BoardWrapper,
     multiplayer: Local(),
-    numPlayers: 2
+    numPlayers: 2,
+    debug: false
   });
 
-  return <CheckersClient playerID="0" />;
+  return (
+    <>
+      <CheckersClient playerID="0" matchID="local" />
+      <div style={{ display: 'none' }}>
+        <CheckersClient playerID="1" matchID="local" />
+      </div>
+    </>
+  );
 };
 
 export default Checkers;

@@ -8,7 +8,7 @@ import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
 import './GoFish.css';
 
-const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
+const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMoves }) => {
   const processingRef = useRef(false);
   const [selectedValue, setSelectedValue] = useState(null);
 
@@ -26,11 +26,11 @@ const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
         if (aiHand.length === 0) {
           processingRef.current = false;
           
-          if (G.deck.length > 0) {
-            moves.drawCard();
+          if (G.deck.length > 0 && aiMoves && aiMoves.drawCard) {
+            aiMoves.drawCard();
             onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
-          } else {
-            moves.passTurn();
+          } else if (aiMoves && aiMoves.passTurn) {
+            aiMoves.passTurn();
             onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
           }
           return;
@@ -44,8 +44,8 @@ const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
           
           processingRef.current = false;
           
-          if (move && move.value) {
-            moves.askForCard(move.value);
+          if (move && move.value && aiMoves && aiMoves.askForCard) {
+            aiMoves.askForCard(move.value);
             onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
           }
         } else {
@@ -81,6 +81,15 @@ const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
   const uniqueValues = [...new Set(playerHand.map(card => card.value))];
   const opponentCardCount = G.hands[ctx.currentPlayer === '0' ? '1' : '0']?.length || 0;
 
+  const cardEmojis = {
+    '1': '🐟',
+    '2': '🐠', 
+    '3': '🐡',
+    '4': '🦈',
+    '5': '🐙',
+    '6': '🦑'
+  };
+
   const renderCard = (card, index) => (
     <motion.div
       key={card.id}
@@ -95,7 +104,7 @@ const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
       }}
     >
       <div className="card-value">{card.value}</div>
-      <div className="card-suit">🐟</div>
+      <div className="card-suit" style={{ fontSize: '2rem' }}>{cardEmojis[card.value] || '🐟'}</div>
     </motion.div>
   );
 
@@ -242,27 +251,44 @@ const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
 const GoFish = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
+  const aiMovesRef = useRef(null);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
   };
 
-  const BoardWrapper = (props) => (
-    <GoFishBoard 
-      {...props} 
-      onGameEvent={handleGameEvent}
-      themeConfig={themeConfig}
-    />
-  );
+  const BoardWrapper = (props) => {
+    if (props.playerID === '1') {
+      aiMovesRef.current = props.moves;
+      return null;
+    }
+    
+    return (
+      <GoFishBoard 
+        {...props} 
+        onGameEvent={handleGameEvent}
+        themeConfig={themeConfig}
+        aiMoves={aiMovesRef.current}
+      />
+    );
+  };
 
   const GoFishClient = Client({
     game: GoFishGame,
     board: BoardWrapper,
     multiplayer: Local(),
-    numPlayers: 2
+    numPlayers: 2,
+    debug: false
   });
 
-  return <GoFishClient playerID="0" />;
+  return (
+    <>
+      <GoFishClient playerID="0" matchID="local" />
+      <div style={{ display: 'none' }}>
+        <GoFishClient playerID="1" matchID="local" />
+      </div>
+    </>
+  );
 };
 
 export default GoFish;
