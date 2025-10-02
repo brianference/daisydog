@@ -76,9 +76,9 @@ export const THEME_CONFIG = {
 
 export const GameThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
-    if (typeof window === 'undefined') return THEME_TYPES.COLORFUL;
+    if (typeof window === 'undefined') return THEME_TYPES.MODERN;
     const saved = localStorage.getItem('daisydog-game-theme');
-    return saved || THEME_TYPES.COLORFUL;
+    return saved || THEME_TYPES.MODERN;
   });
 
   useEffect(() => {

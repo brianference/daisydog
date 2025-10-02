@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import { BOARD_GAME_TYPES, BOARD_GAME_INFO } from '../../types/boardGameTypes.js';
-import ThemeToggle from './ThemeToggle.jsx';
 import './GameSelector.css';
 
 const GameSelector = ({ onSelectGame, onClose, className = '' }) => {
@@ -41,7 +40,6 @@ const GameSelector = ({ onSelectGame, onClose, className = '' }) => {
       <div className="selector-header">
         <h2 className="selector-title">🎮 Choose a Game to Play!</h2>
         <div className="selector-controls">
-          <ThemeToggle />
           {onClose && (
             <motion.button
               className="close-btn"
