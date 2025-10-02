@@ -57,3 +57,21 @@ DaisyDog is built as a React 18 + Vite 6 frontend with **Netlify serverless func
 - Rate limiting enforced
 
 **Development URL:** https://daisydogchat.replit.app (Note: May have CDN caching issues - use production URLs for testing)
+
+## Contact Form Email Setup
+**⚠️ ACTION REQUIRED:** To receive contact form submissions at brianference@protonmail.com:
+
+1. **Login to Netlify Dashboard:** https://app.netlify.com
+2. **Navigate to:** Site settings → Notifications → Form submission notifications
+3. **Add Email Notification:**
+   - Click "Add notification"
+   - Select "Email notification" → "Form submission"
+   - Choose form: "contact" (or "All forms")
+   - Enter email: **brianference@protonmail.com**
+   - Click "Save"
+
+**Notes:**
+- Emails will come from: `formresponses@netlify.com`
+- Reply-To will be set to the submitter's email
+- Check spam folder for first email, then mark as "Not Spam"
+- Form is already configured with hidden Netlify Forms detection
