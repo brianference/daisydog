@@ -1,0 +1,189 @@
+import React, { useState, useEffect } from 'react';
+import { Client } from 'boardgame.io/react';
+import { Local } from 'boardgame.io/multiplayer';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MemoryMatchGame } from '../../services/boardgames/MemoryMatchGame.js';
+import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
+import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
+import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
+import './MemoryMatch.css';
+
+const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
+  const processingRef = React.useRef(false);
+
+  useEffect(() => {
+    if (G.flipped.length === 2) {
+      const [first, second] = G.flipped.slice();
+      
+      setTimeout(() => {
+        if (first !== undefined && second !== undefined) {
+          const matched = G.cards[first].pairId === G.cards[second].pairId;
+          
+          if (matched && onGameEvent) {
+            onGameEvent(GAME_EVENT_TYPE.MATCH_FOUND, {
+              score: G.score[playerID]
+            });
+          }
+        }
+      }, 600);
+    }
+  }, [G.flipped.length]);
+
+  useEffect(() => {
+    if (ctx.gameover) {
+      if (onGameEvent) {
+        if (ctx.gameover.winner === playerID) {
+          onGameEvent(GAME_EVENT_TYPE.WIN);
+        } else if (ctx.gameover.winner) {
+          onGameEvent(GAME_EVENT_TYPE.LOSE);
+        } else if (ctx.gameover.draw) {
+          onGameEvent(GAME_EVENT_TYPE.DRAW);
+        }
+      }
+    }
+  }, [ctx.gameover]);
+
+  useEffect(() => {
+    const isAITurn = ctx.currentPlayer !== playerID && ctx.currentPlayer === '1';
+    const needsFlip = G.flipped.length < 2;
+    
+    if (isAITurn && !ctx.gameover && needsFlip && !processingRef.current) {
+      processingRef.current = true;
+      
+      const makeOneAIFlip = async () => {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        const availableCards = G.cards
+          .map((_, index) => index)
+          .filter(index => 
+            !G.matched.includes(index) && 
+            !G.flipped.includes(index)
+          );
+        
+        if (availableCards.length > 0) {
+          const move = await DaisyAIOpponent.makeMove(
+            G,
+            availableCards.map(cardIndex => ({ cardIndex })),
+            'MEMORY_MATCH'
+          );
+          
+          processingRef.current = false;
+          
+          if (move && move.cardIndex !== undefined) {
+            moves.flipCard(move.cardIndex);
+          }
+        } else {
+          processingRef.current = false;
+        }
+      };
+      
+      makeOneAIFlip();
+    }
+  }, [ctx.currentPlayer, ctx.gameover, G.flipped.length, G.matched.length]);
+
+  const handleCardClick = (cardIndex) => {
+    if (ctx.currentPlayer !== playerID) return;
+    if (G.flipped.length >= 2) return;
+    if (G.matched.includes(cardIndex)) return;
+    if (G.flipped.includes(cardIndex)) return;
+    
+    moves.flipCard(cardIndex);
+    
+    if (onGameEvent) {
+      onGameEvent(GAME_EVENT_TYPE.MOVE_MADE, { cardIndex });
+    }
+  };
+
+  const isCardFlipped = (index) => {
+    return G.flipped.includes(index) || G.matched.includes(index);
+  };
+
+  const isCardMatched = (index) => {
+    return G.matched.includes(index);
+  };
+
+  return (
+    <div className="memory-match-board">
+      <div className="game-info">
+        <div className="scores">
+          <div className={`player-score ${playerID === '0' ? 'active' : ''}`}>
+            <span className="player-label">You</span>
+            <span className="score">{G.score['0']}</span>
+          </div>
+          <div className={`player-score ${playerID === '1' ? 'active' : ''}`}>
+            <span className="player-label">Daisy 🐕</span>
+            <span className="score">{G.score['1']}</span>
+          </div>
+        </div>
+        <div className="turn-indicator">
+          {ctx.currentPlayer === playerID ? "Your Turn!" : "Daisy's Turn!"}
+        </div>
+      </div>
+
+      <div className="cards-grid">
+        {G.cards.map((card, index) => (
+          <motion.div
+            key={index}
+            className={`card-wrapper ${isCardMatched(index) ? 'matched' : ''}`}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.03 }}
+          >
+            <motion.div
+              className={`memory-card ${isCardFlipped(index) ? 'flipped' : ''}`}
+              onClick={() => handleCardClick(index)}
+              whileHover={{ scale: isCardFlipped(index) ? 1 : 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              style={{
+                cursor: isCardFlipped(index) || ctx.currentPlayer !== playerID ? 'default' : 'pointer'
+              }}
+            >
+              <div className="card-back" style={{ 
+                backgroundColor: themeConfig.colors.primary 
+              }}>
+                <span className="card-back-icon">🎴</span>
+              </div>
+              <div className="card-front" style={{ 
+                backgroundColor: isCardMatched(index) ? themeConfig.colors.success : 'white'
+              }}>
+                <span className="card-emoji">{card.emoji}</span>
+              </div>
+            </motion.div>
+          </motion.div>
+        ))}
+      </div>
+
+      {ctx.gameover && (
+        <motion.div
+          className="game-over-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <div className="game-over-content">
+            {ctx.gameover.winner === playerID ? (
+              <h2>🎉 You Won! 🎉</h2>
+            ) : ctx.gameover.draw ? (
+              <h2>🤝 It's a Tie! 🤝</h2>
+            ) : (
+              <h2>🐕 Daisy Won! 🐕</h2>
+            )}
+            <p>Final Score: You {G.score['0']} - {G.score['1']} Daisy</p>
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+const MemoryMatch = ({ onExit, onGameEnd }) => {
+  const MemoryMatchClient = Client({
+    game: MemoryMatchGame,
+    board: MemoryMatchBoard,
+    multiplayer: Local(),
+    numPlayers: 2
+  });
+
+  return <MemoryMatchClient playerID="0" />;
+};
+
+export default MemoryMatch;

@@ -1,0 +1,140 @@
+.tictactoe-board {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.game-status {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.status-message {
+  font-size: 24px;
+  font-weight: 700;
+  padding: 15px 30px;
+  background-color: #FFF8E7;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.status-message.game-over {
+  background: linear-gradient(135deg, #FFD93D, #FF6B35);
+  color: white;
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.02);
+  }
+}
+
+.ttt-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+  background-color: #e0e0e0;
+  padding: 10px;
+  border-radius: 16px;
+}
+
+.ttt-cell {
+  aspect-ratio: 1;
+  background-color: white;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72px;
+  font-weight: 700;
+  transition: all 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.ttt-cell:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ttt-cell.winning {
+  animation: winningPulse 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes winningPulse {
+  from {
+    transform: scale(1);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+  }
+  to {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(76, 175, 80, 0.5);
+  }
+}
+
+.cell-value {
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1;
+  user-select: none;
+}
+
+.thinking-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background-color: #4ECDC4;
+  color: white;
+  border-radius: 24px;
+  font-weight: 600;
+  margin-top: 20px;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.daisy-icon {
+  font-size: 24px;
+}
+
+.thinking-text {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .tictactoe-board {
+    padding: 15px;
+  }
+
+  .status-message {
+    font-size: 18px;
+    padding: 12px 24px;
+  }
+
+  .ttt-grid {
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .cell-value {
+    font-size: 56px;
+  }
+
+  .thinking-indicator {
+    font-size: 14px;
+  }
+}
