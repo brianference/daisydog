@@ -1,13 +1,13 @@
 .debug-trigger {
   position: fixed;
   bottom: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
+  left: 20px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  font-size: 24px;
+  font-size: 16px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   z-index: 9998;
@@ -18,10 +18,10 @@
 
 .debug-control-center {
   position: fixed;
-  bottom: 80px;
-  right: 20px;
-  width: 400px;
-  max-height: 600px;
+  bottom: 60px;
+  left: 20px;
+  width: 350px;
+  max-height: 500px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -206,6 +206,6 @@
 @media (max-width: 768px) {
   .debug-control-center {
     width: 90%;
-    right: 5%;
+    left: 5%;
   }
 }

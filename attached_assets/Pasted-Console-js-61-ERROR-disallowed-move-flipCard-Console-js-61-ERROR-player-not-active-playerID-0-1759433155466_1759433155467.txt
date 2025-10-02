@@ -1,0 +1,39 @@
+Console.js:61 ERROR: disallowed move: flipCard
+Console.js:61 ERROR: player not active - playerID=[0] - action[flipCard]
+Console.js:61 ERROR: disallowed move: flipCard
+Console.js:61 ERROR: player not active - playerID=[0] - action[flipCard]
+Console.js:61 ERROR: disallowed move: flipCard
+Console.js:61 ERROR: player not active - playerID=[0] - action[flipCard]
+Console.js:61 ERROR: disallowed move: flipCard
+Console.js:61 ERROR: player not active - playerID=[0] - action[flipCard]
+Console.js:61 ERROR: disallowed move: flipCard
+Console.js:61 ERROR: player not active - playerID=[0] - action[flipCard]
+Console.js:61 ERROR: disallowed move: flipCard
+Console.js:61 ERROR: player not active - playerID=[0] - action[flipCard]
+Console.js:61 ERROR: disallowed move: flipCard
+Console.js:61 ERROR: player not active - playerID=[0] - action[flipCard]
+Console.js:61 ERROR: disallowed move: flipCard
+Console.js:61 ERROR: player not active - playerID=[0] - action[flipCard]
+Console.js:61 ERROR: disallowed move: flipCard
+Console.js:61 ERROR: player not active - playerID=[0] - action[flipCard]
+Console.js:61 ERROR: disallowed move: flipCard
+Console.js:61 ERROR: player not active - playerID=[0] - action[flipCard]
+Console.js:61 ERROR: disallowed move: flipCard
+Console.js:61 ERROR: player not active - playerID=[0] - action[flipCard]
+Console.js:61 ERROR: disallowed move: flipCard
+Console.js:61 ERROR: player not active - playerID=[0] - action[flipCard]
+Console.js:61 ERROR: disallowed move: flipCard
+Console.js:61 ERROR: player not active - playerID=[0] - action[flipCard]
+Mt.forEach.n.<computed>	@	Console.js:61
+console.error	@	ChatPage.jsx:1299
+makeOneAIFlip	@	MemoryMatch.jsx:79
+await in makeOneAIFlip		
+(anonymous)	@	MemoryMatch.jsx:87
+7
+DaisyBot.js:9 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'ai')
+    at DaisyBot.play (DaisyBot.js:9:33)
+play	@	DaisyBot.js:9
+setTimeout		
+handleCellClick	@	TicTacToe.jsx:32
+onClick	@	TicTacToe.jsx:48
+﻿
