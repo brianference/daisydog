@@ -93,6 +93,56 @@ DaisyDog is built as a React 18 + Vite 6 frontend with **Netlify serverless func
 
 **Development URL:** https://daisydogchat.replit.app (Note: May have CDN caching issues - use production URLs for testing)
 
+## Testing Infrastructure
+**Comprehensive FREE Testing Stack ($0/month):**
+
+### Automated Testing (FREE - Unlimited)
+- **Playwright Extended**: Unlimited automated tests for safety filters, visual regression, mobile responsive
+  - Config: `testing/playwright-extended/playwright.config.extended.ts`
+  - Tests: `testing/playwright-extended/tests/safety-filters.spec.ts`
+  - Commands: `npm run test:playwright-extended`, `npm run test:safety-automated`, `npm run test:visual-regression`
+  
+- **GitHub Actions CI/CD**: 2,000 minutes/month free tier
+  - Workflow: `.github/workflows/testing-automation.yml`
+  - Daily automated: Safety tests, visual regression, mobile responsive
+  - Pre-release: Full suite with `[full-test]` commit message
+  - Lighthouse: Performance & accessibility checks
+
+### Manual Testing (FREE)
+- **Kobiton Community**: Unlimited manual testing on real devices (older models)
+  - Command: `npm run test:kobiton` (opens portal.kobiton.com)
+  - Use for: Safety feature validation, voice testing on real devices
+  
+- **Appetize.io**: 100 minutes/month manual testing
+  - Command: `npm run test:appetize` (opens appetize.io)
+  - Use for: iframe/game integration, network throttling, video performance
+
+### Beta Testing (FREE)
+- **TestFlight**: 10,000 iOS testers max
+  - Config: `testing/beta-testing/testflight-config.json`
+  - For: Family groups, educators, parent reviewers
+  
+- **Google Play Beta**: Unlimited Android testers
+  - Config: `testing/beta-testing/google-play-beta.json`
+  - Tracks: Internal (100), Closed (unlimited), Open (unlimited)
+
+### Pre-Deployment (MANDATORY)
+**Always run before deploying:**
+```bash
+npm run pre-deploy
+```
+This script:
+1. Tests production build (`npm run build`)
+2. Verifies dist/ folder contents
+3. Checks for broken links
+4. Runs safety filter tests (fails hard on errors)
+5. Starts preview server for manual verification
+
+**Netlify Build Plugins:**
+- `@netlify/plugin-lighthouse`: Performance audits (0.7 performance, 0.8 SEO thresholds)
+- `netlify-plugin-cache`: Caches .npm and dist (excludes node_modules symlinks)
+- `netlify-plugin-checklinks`: Validates internal links
+
 ## Contact Form Email Setup
 **⚠️ ACTION REQUIRED:** To receive contact form submissions at brianference@protonmail.com:
 
