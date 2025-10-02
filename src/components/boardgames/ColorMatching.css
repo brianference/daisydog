@@ -1,0 +1,104 @@
+.colormatching-board {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.color-stats {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin: 0 auto;
+  max-width: 400px;
+  padding: 20px;
+}
+
+.color-button {
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.color-button:disabled {
+  cursor: not-allowed;
+}
+
+.color-button.active {
+  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+}
+
+.color-button::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 20%;
+  width: 40%;
+  height: 40%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4), transparent);
+  border-radius: 50%;
+}
+
+.color-name {
+  position: relative;
+  z-index: 10;
+}
+
+.progress-indicator {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 30px;
+  min-height: 40px;
+  flex-wrap: wrap;
+}
+
+.progress-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .colormatching-board {
+    padding: 15px;
+  }
+
+  .color-grid {
+    gap: 15px;
+    padding: 15px;
+    max-width: 100%;
+  }
+
+  .color-button {
+    font-size: 20px;
+    border-radius: 15px;
+  }
+
+  .progress-dot {
+    width: 25px;
+    height: 25px;
+  }
+}
