@@ -128,21 +128,33 @@
   line-height: 1.4;
 }
 
-.mood-celebrating .cheer-content {
+.cheer-content.mood-celebrating {
   background: linear-gradient(135deg, #FFD93D, #FF6B35);
 }
 
-.mood-encouraging .cheer-content {
+.cheer-content.mood-encouraging {
   background: linear-gradient(135deg, #4ECDC4, #2196F3);
 }
 
-.mood-sympathetic .cheer-content {
+.cheer-content.mood-sympathetic {
   background: linear-gradient(135deg, #95E1D3, #4CAF50);
 }
 
-.mood-excited .cheer-content {
+.cheer-content.mood-excited {
   background: linear-gradient(135deg, #FF6B35, #F7931E);
   animation: pulse 0.5s ease-in-out infinite alternate;
+}
+
+.cheer-content.mood-playful {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.cheer-content.mood-thinking {
+  background: linear-gradient(135deg, #A8DADC, #457B9D);
+}
+
+.cheer-content.mood-patient {
+  background: linear-gradient(135deg, #B8C0FF, #6A4C93);
 }
 
 @keyframes pulse {
