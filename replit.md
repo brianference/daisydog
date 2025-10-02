@@ -4,19 +4,29 @@
 DaisyDog is an AI-powered virtual companion designed for children aged 5-18. This React + Vite frontend application leverages the Google Gemini AI API and Supabase to deliver a safe, interactive chatbot experience embodied by a friendly golden retriever personality. The project aims to provide engaging and educational content, including interactive games, video responses, and a multi-layered safety system, all within a pure frontend architecture without a dedicated backend server.
 
 ## Recent Changes (October 2, 2025)
-**Go Fish Game Mechanics Update:**
-- Changed from 4-of-a-kind "books" to 2-of-a-kind "pairs" (classic Go Fish rules)
+**Go Fish Hand Refill & UI Improvements:**
+- Added automatic hand refill logic to maintain 5 cards during gameplay
+- Refill triggers after pair removal in both askForCard and drawCard moves
+- Properly checks for new pairs after each refill card draw
+- Changed UI to show "Your Pairs: X" and "Daisy's Pairs: Y" for clarity
+- Added .player-info CSS styling to match .opponent-info display
+- Refill logic safely handles deck exhaustion without infinite loops
+
+**Memory Match & Tic Tac Toe Height Increases:**
+- Memory Match: Added min-height: 650px for better card visibility
+- Tic Tac Toe: Added min-height: 550px for improved board display
+- Memory Match uses custom AI implementation in MemoryMatchAIBoard component
+- AI properly flips two cards with delays (1s → flip → 1s → flip → 2.5s → endTurn)
+
+**Previous Changes:**
+- Go Fish: Changed from 4-of-a-kind "books" to 2-of-a-kind "pairs" (classic Go Fish rules)
 - Updated UI terminology from "Books" to "Pairs" throughout
 - Implemented proper pair counting logic with `Math.floor(count / 2)`
 - Fixed initialization bug with defensive checks (`G.pairs?.['1']?.length || 0`)
-- Updated action messages and CSS classes to reflect new terminology
-
-**UI Spacing Optimization:**
-- Reduced GameContainer padding from 15px to 8px for more compact layout
+- UI Spacing Optimization: Reduced GameContainer padding from 15px to 8px for more compact layout
 - Decreased header padding and margins (10px → 8px, margin 10px → 6px)
 - Go Fish specific reductions: board padding 20px → 8px, game area gap 30px → 12px
 - Player hand min-height reduced from 140px to 100px for better space utilization
-- All games now have tighter, more efficient spacing without visual overlap
 
 ## User Preferences
 ### Development Workflow
