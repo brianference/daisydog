@@ -86,16 +86,43 @@ export const GoFishGame = {
     const deck = shuffleDeck(createDeck(), random);
     const { player0Hand, player1Hand, remainingDeck } = dealInitialHands(deck);
     
-    // Check for initial pairs in both hands
-    const player0Result = checkForPairs(player0Hand);
-    const player1Result = checkForPairs(player1Hand);
+    // Check for initial pairs and refill hands to maintain playable size
+    let player0Result = checkForPairs(player0Hand);
+    let player1Result = checkForPairs(player1Hand);
+    let deckCopy = [...remainingDeck];
+    
+    // Refill player 0's hand to INITIAL_HAND_SIZE (or until deck is empty)
+    while (player0Result.remainingCards.length < INITIAL_HAND_SIZE && deckCopy.length > 0) {
+      const drawnCard = deckCopy.pop();
+      player0Result.remainingCards.push(drawnCard);
+      
+      // Check if this new card forms a pair
+      const recheckResult = checkForPairs(player0Result.remainingCards);
+      player0Result = {
+        pairs: [...player0Result.pairs, ...recheckResult.pairs],
+        remainingCards: recheckResult.remainingCards
+      };
+    }
+    
+    // Refill player 1's hand to INITIAL_HAND_SIZE (or until deck is empty)
+    while (player1Result.remainingCards.length < INITIAL_HAND_SIZE && deckCopy.length > 0) {
+      const drawnCard = deckCopy.pop();
+      player1Result.remainingCards.push(drawnCard);
+      
+      // Check if this new card forms a pair
+      const recheckResult = checkForPairs(player1Result.remainingCards);
+      player1Result = {
+        pairs: [...player1Result.pairs, ...recheckResult.pairs],
+        remainingCards: recheckResult.remainingCards
+      };
+    }
     
     return {
       hands: {
         '0': player0Result.remainingCards,
         '1': player1Result.remainingCards
       },
-      deck: remainingDeck,
+      deck: deckCopy,
       pairs: {
         '0': player0Result.pairs,
         '1': player1Result.pairs
