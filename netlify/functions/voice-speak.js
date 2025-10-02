@@ -65,8 +65,9 @@ export const handler = async (event) => {
       };
     }
 
-    // Clean text: remove emojis, asterisks, and extra formatting
+    // Clean text: remove action descriptions, emojis, asterisks, and extra formatting
     const cleanText = text
+      .replace(/\*[^*]+\*/g, '') // Remove action text between asterisks (*happy barks*, *tail wags*)
       .replace(/[*_~`]/g, '') // Remove markdown formatting
       .replace(/[\u{1F300}-\u{1F9FF}]/gu, '') // Remove emojis
       .replace(/\s+/g, ' ') // Normalize spaces
@@ -76,7 +77,7 @@ export const handler = async (event) => {
       model: 'tts-1-hd', // Higher quality audio
       voice: 'shimmer', // Lighter, more youthful female voice (naturally higher pitch)
       input: cleanText,
-      speed: 1.35, // Increased speed = higher pitch for younger puppy sound
+      speed: 1.25, // Reduced from 1.35 to 1.25 for slower, more natural pace
       response_format: 'mp3',
     });
 
