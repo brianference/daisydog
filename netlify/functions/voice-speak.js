@@ -75,7 +75,7 @@ export const handler = async (event) => {
 
     const response = await openai.audio.speech.create({
       model: 'tts-1-hd', // Higher quality audio
-      voice: 'shimmer', // Lighter, more youthful female voice (naturally higher pitch)
+      voice: 'nova', // Nova voice - warm, engaging, and natural
       input: cleanText,
       speed: 1.25, // Reduced from 1.35 to 1.25 for slower, more natural pace
       response_format: 'mp3',
