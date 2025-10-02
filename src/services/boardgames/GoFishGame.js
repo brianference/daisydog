@@ -164,6 +164,19 @@ export const GoFishGame = {
         G.lastAction = { ...G.lastAction, madePair: pairs[pairs.length - 1] };
       }
       
+      // Refill hand if empty or low (Go Fish rule: draw back to 5 if hand is empty)
+      while (G.hands[currentPlayer].length < INITIAL_HAND_SIZE && G.deck.length > 0) {
+        const drawnCard = G.deck.pop();
+        G.hands[currentPlayer].push(drawnCard);
+        
+        // Check if new card forms a pair
+        const refillCheck = checkForPairs(G.hands[currentPlayer]);
+        if (refillCheck.pairs.length > 0) {
+          G.hands[currentPlayer] = refillCheck.remainingCards;
+          G.pairs[currentPlayer] = [...G.pairs[currentPlayer], ...refillCheck.pairs];
+        }
+      }
+      
       events.endTurn();
     },
     
@@ -178,6 +191,18 @@ export const GoFishGame = {
           G.hands[ctx.currentPlayer] = remainingCards;
           G.pairs[ctx.currentPlayer] = [...G.pairs[ctx.currentPlayer], ...pairs];
           G.lastAction = { ...G.lastAction, madePair: pairs[pairs.length - 1] };
+        }
+        
+        // Refill hand if empty or low
+        while (G.hands[ctx.currentPlayer].length < INITIAL_HAND_SIZE && G.deck.length > 0) {
+          const refillCard = G.deck.pop();
+          G.hands[ctx.currentPlayer].push(refillCard);
+          
+          const refillCheck = checkForPairs(G.hands[ctx.currentPlayer]);
+          if (refillCheck.pairs.length > 0) {
+            G.hands[ctx.currentPlayer] = refillCheck.remainingCards;
+            G.pairs[ctx.currentPlayer] = [...G.pairs[ctx.currentPlayer], ...refillCheck.pairs];
+          }
         }
       }
       events.endTurn();

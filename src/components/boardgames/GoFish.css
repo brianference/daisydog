@@ -17,7 +17,7 @@
   gap: 8px;
 }
 
-.opponent-info {
+.opponent-info, .player-info {
   display: flex;
   justify-content: space-around;
   padding: 8px;
