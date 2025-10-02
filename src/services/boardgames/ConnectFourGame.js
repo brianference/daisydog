@@ -93,6 +93,8 @@ export const ConnectFourGame = {
   },
 
   endIf: (G, ctx) => {
+    if (!G || !G.cells) return;
+    
     const result = checkWinner(G.cells);
 
     if (result) {

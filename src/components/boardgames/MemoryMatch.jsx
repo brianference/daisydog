@@ -12,6 +12,8 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
   const processingRef = React.useRef(false);
 
   useEffect(() => {
+    if (!G || !G.flipped || !G.cards || !G.score) return;
+    
     if (G.flipped.length === 2) {
       const [first, second] = G.flipped.slice();
       
@@ -27,9 +29,11 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
         }
       }, 600);
     }
-  }, [G.flipped.length]);
+  }, [G?.flipped?.length]);
 
   useEffect(() => {
+    if (!ctx) return;
+    
     if (ctx.gameover) {
       if (onGameEvent) {
         if (ctx.gameover.winner === playerID) {
@@ -41,9 +45,11 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
         }
       }
     }
-  }, [ctx.gameover]);
+  }, [ctx?.gameover]);
 
   useEffect(() => {
+    if (!G || !G.flipped || !G.cards || !G.matched || !ctx) return;
+    
     const isAITurn = ctx.currentPlayer !== playerID && ctx.currentPlayer === '1';
     const needsFlip = G.flipped.length < 2;
     
@@ -79,9 +85,10 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
       
       makeOneAIFlip();
     }
-  }, [ctx.currentPlayer, ctx.gameover, G.flipped.length, G.matched.length]);
+  }, [ctx?.currentPlayer, ctx?.gameover, G?.flipped?.length, G?.matched?.length]);
 
   const handleCardClick = (cardIndex) => {
+    if (!G || !ctx || !moves) return;
     if (ctx.currentPlayer !== playerID) return;
     if (G.flipped.length >= 2) return;
     if (G.matched.includes(cardIndex)) return;
@@ -95,12 +102,18 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
   };
 
   const isCardFlipped = (index) => {
+    if (!G || !G.flipped || !G.matched) return false;
     return G.flipped.includes(index) || G.matched.includes(index);
   };
 
   const isCardMatched = (index) => {
+    if (!G || !G.matched) return false;
     return G.matched.includes(index);
   };
+
+  if (!G || !G.score || !G.cards || !ctx) {
+    return <div className="memory-match-board">Loading...</div>;
+  }
 
   return (
     <div className="memory-match-board">

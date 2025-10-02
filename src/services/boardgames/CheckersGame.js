@@ -140,6 +140,8 @@ export const CheckersGame = {
   },
 
   endIf: (G, ctx) => {
+    if (!G || !G.board || !ctx) return;
+    
     const pieceResult = checkWinner(G.board);
     if (pieceResult) return pieceResult;
     

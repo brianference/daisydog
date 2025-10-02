@@ -78,6 +78,8 @@ export const MemoryMatchGame = {
   },
 
   endIf: (G, ctx) => {
+    if (!G || !G.matched || !G.cards || !G.score) return;
+    
     if (G.matched.length === G.cards.length) {
       const player0Score = G.score['0'];
       const player1Score = G.score['1'];
@@ -93,6 +95,8 @@ export const MemoryMatchGame = {
   },
 
   playerView: (G, ctx, playerID) => {
+    if (!G || !G.flipped || !ctx) return G;
+    
     if (G.flipped.length === 2 && ctx.currentPlayer !== playerID) {
       const strippedG = { ...G };
       strippedG.flipped = [];
