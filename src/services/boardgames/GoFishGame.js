@@ -51,15 +51,19 @@ export const GoFishGame = {
     const deck = shuffleDeck(createDeck(), random);
     const { player0Hand, player1Hand, remainingDeck } = dealInitialHands(deck);
     
+    // Check for initial books in both hands
+    const player0Result = checkForBooks(player0Hand);
+    const player1Result = checkForBooks(player1Hand);
+    
     return {
       hands: {
-        '0': player0Hand,
-        '1': player1Hand
+        '0': player0Result.remainingCards,
+        '1': player1Result.remainingCards
       },
       deck: remainingDeck,
       books: {
-        '0': [],
-        '1': []
+        '0': player0Result.books,
+        '1': player1Result.books
       },
       lastAction: null
     };

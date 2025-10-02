@@ -3,7 +3,7 @@ class MusicService {
     this.audio = null;
     this.currentTrack = null;
     this.isPlaying = false;
-    this.volume = 0.15; // 15% volume for background music (half of previous 30%)
+    this.volume = 0.075; // 7.5% volume for background music (50% reduction from 15%)
     this.isMuted = false;
     
     this.tracks = [
