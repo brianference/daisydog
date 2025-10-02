@@ -3,7 +3,7 @@
 ## 🎮 CRITICAL FIX: BoardGame.io Integration - All 9 Games Now Fully Functional
 
 ### Issues Fixed
-**CRITICAL BUG:** All BoardGame.io games were non-functional due to missing turn management and improper API usage.
+**CRITICAL BUG:** All BoardGame.io games were non-functional due to missing turn management, improper API usage, and AI turn detection failures.
 
 ### What Was Broken
 - ❌ Turns never ended after player moves
@@ -24,6 +24,8 @@
 3. **Props not passing through** - BoardGame.io Client doesn't pass custom props without wrapper
 4. **API signature errors** - Old API patterns instead of modern `({ G, ctx, events }, ...args)`
 5. **Random API misuse** - Using `ctx.random` methods incorrectly
+6. **AI turn detection failure** - useEffect dependencies didn't trigger when ctx.turn changed
+7. **Async setTimeout in moves** - Memory Match used setTimeout for events.endTurn() breaking turn flow
 
 ### Comprehensive Fixes Applied
 
@@ -109,6 +111,48 @@ ctx.random.D6();  // Incorrect method
 // AFTER (Fixed)
 random.Shuffle(array);  // Correct API
 random.Number();  // Correct method
+```
+
+#### 6. AI Turn Detection (CRITICAL)
+✅ **Fixed useEffect dependencies to detect turn changes:**
+```javascript
+// BEFORE (Broken) - AI didn't take turns
+useEffect(() => {
+  if (ctx.currentPlayer === '1') {
+    // Make AI move
+  }
+}, [ctx.currentPlayer, ctx.gameover]); // ❌ Missing ctx.turn!
+
+// AFTER (Fixed) - AI takes turns immediately
+useEffect(() => {
+  if (ctx.currentPlayer === '1') {
+    // Make AI move
+  }
+}, [ctx.currentPlayer, ctx.gameover, ctx.turn]); // ✅ Added ctx.turn
+```
+
+#### 7. Async Events Fix (Memory Match)
+✅ **Removed setTimeout from events.endTurn():**
+```javascript
+// BEFORE (Broken)
+moves: {
+  flipCard: ({ G, ctx, events }, cardIndex) => {
+    G.flipped.push(cardIndex);
+    if (G.flipped.length === 2) {
+      setTimeout(() => events.endTurn(), 1500); // ❌ Async breaks turn flow
+    }
+  }
+}
+
+// AFTER (Fixed)
+moves: {
+  flipCard: ({ G, ctx, events }, cardIndex) => {
+    G.flipped.push(cardIndex);
+    if (G.flipped.length === 2) {
+      events.endTurn(); // ✅ Synchronous turn ending
+    }
+  }
+}
 ```
 
 ### Games Fixed (9/9)
