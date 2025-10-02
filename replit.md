@@ -5,12 +5,47 @@ DaisyDog is an AI-powered virtual companion designed for children aged 5-18. Thi
 
 ## User Preferences
 ### Development Workflow
-**MANDATORY TESTING BEFORE PUSH:**
-- **ALWAYS test changes before pushing to GitHub**
-- **Run screenshot tool to verify UI works**
-- **Check console logs for errors**
-- **Test critical features affected by changes**
-- **Never push without verification**
+**MANDATORY TESTING PROTOCOL:**
+
+**1. Pre-Change Validation (ALWAYS FIRST)**
+- Screenshot BEFORE making any UI changes
+- Document exact current values (widths, colors, positions, file paths)
+- Verify all referenced files actually exist before using them
+- Check if routes exist before linking to them
+
+**2. Build Validation (For Production Changes)**
+- Run `npm run build` locally to catch build-time issues
+- Verify dist/ folder contains all expected files
+- Check that all assets and routes are generated
+- Test links and images in built output
+
+**3. Link & Asset Checking**
+- Manually verify every link points to a real route
+- Confirm every image src points to an actual file
+- Test with actual file system checks, never assume
+- Use data URIs for simple assets when appropriate
+
+**4. Protected Core Files (NEVER DELETE)**
+- index.html (Vite entry point)
+- package.json (Dependencies)
+- vite.config.js (Build config)
+- netlify.toml (Deployment config)
+- .env files (Environment secrets)
+- Always verify file purpose before any deletion
+
+**5. Incremental Testing**
+- Make ONE change at a time
+- Screenshot immediately after each change
+- Compare before/after screenshots side-by-side
+- Get user approval before proceeding to next change
+
+**6. Pre-Push Checklist**
+- ✅ Screenshot tool shows UI works correctly
+- ✅ Console logs are clean (no errors)
+- ✅ Build succeeds without errors
+- ✅ All links and assets verified
+- ✅ Architect review passed for code changes
+- ✅ User has approved visual changes
 
 ## System Architecture
 DaisyDog is built as a React 18 + Vite 6 frontend with **Netlify serverless functions** for secure backend operations. **Framer Motion** is integrated for UI animations, enhancing the interactive experience. The application uses **Google Gemini AI** for conversational capabilities, **OpenAI Whisper & TTS** for voice features, and **Supabase** for database operations. Styling is handled with **CSS3** focusing on responsive design. **React Router v6** manages client-side navigation. The project incorporates a comprehensive **multi-layered safety system** and integrates **educational content**. Core features include:
