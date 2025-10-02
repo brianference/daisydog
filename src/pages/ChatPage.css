@@ -237,6 +237,8 @@
   padding: 12px;
   margin-bottom: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1100; /* Above input-container (1000) to ensure visibility */
 }
 
 .submenu-container h4 {

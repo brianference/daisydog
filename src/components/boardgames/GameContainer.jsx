@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import DaisyCheerleader from '../../services/boardgames/DaisyCheerleader.js';
@@ -29,6 +29,7 @@ const GameContainer = ({
   const [daisyMessage, setDaisyMessage] = useState(null);
   const [showMessage, setShowMessage] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const musicTimeoutRef = useRef(null);
 
   const showDaisyCheer = (eventType, context = {}) => {
     if (!showDaisyMessages) return;
@@ -96,14 +97,24 @@ const GameContainer = ({
     const initAudio = async () => {
       if (gameType) {
         await GameVoiceInstructions.playInstructions(gameType);
+        
+        // Hard-coded 30-second delay before music starts (only if game is still active)
+        musicTimeoutRef.current = setTimeout(() => {
+          if (gameType) {
+            MusicService.play();
+          }
+        }, 30000);
       }
-      
-      MusicService.play();
     };
     
     initAudio();
     
     return () => {
+      // Clear any pending music timeout
+      if (musicTimeoutRef.current) {
+        clearTimeout(musicTimeoutRef.current);
+        musicTimeoutRef.current = null;
+      }
       GameVoiceInstructions.stop();
       MusicService.stop();
     };
