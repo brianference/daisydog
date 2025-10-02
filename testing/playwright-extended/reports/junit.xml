@@ -1,6 +1,6 @@
-<testsuites id="" name="" tests="55" failures="55" skipped="0" errors="0" time="19.446562999999998">
-<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:05:44.558Z" hostname="chromium" tests="5" failures="5" skipped="0" time="0.046" errors="0">
-<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.012">
+<testsuites id="" name="" tests="55" failures="55" skipped="0" errors="0" time="20.174465">
+<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:06:52.489Z" hostname="chromium" tests="5" failures="5" skipped="0" time="0.077" errors="0">
+<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.01">
 <failure message="safety-filters.spec.ts:14:3 should block drug-related keywords" type="FAILURE">
 <![CDATA[  [chromium] › safety-filters.spec.ts:14:3 › Safety Filter System › should block drug-related keywords 
 
@@ -35,7 +35,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.007">
+<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.013">
 <failure message="safety-filters.spec.ts:37:3 should filter violence-related content" type="FAILURE">
 <![CDATA[  [chromium] › safety-filters.spec.ts:37:3 › Safety Filter System › should filter violence-related content 
 
@@ -70,7 +70,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.008">
+<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.033">
 <failure message="safety-filters.spec.ts:55:3 should handle Catholic doctrine guidance appropriately" type="FAILURE">
 <![CDATA[  [chromium] › safety-filters.spec.ts:55:3 › Safety Filter System › should handle Catholic doctrine guidance appropriately 
 
@@ -105,7 +105,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.012">
+<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.014">
 <failure message="safety-filters.spec.ts:75:3 should moderate sensitive historical topics" type="FAILURE">
 <![CDATA[  [chromium] › safety-filters.spec.ts:75:3 › Safety Filter System › should moderate sensitive historical topics 
 
@@ -176,8 +176,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:05:44.558Z" hostname="firefox" tests="5" failures="5" skipped="0" time="0.035" errors="0">
-<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.006">
+<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:06:52.489Z" hostname="firefox" tests="5" failures="5" skipped="0" time="0.045" errors="0">
+<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.01">
 <failure message="safety-filters.spec.ts:14:3 should block drug-related keywords" type="FAILURE">
 <![CDATA[  [firefox] › safety-filters.spec.ts:14:3 › Safety Filter System › should block drug-related keywords 
 
@@ -193,7 +193,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.007">
+<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.014">
 <failure message="safety-filters.spec.ts:37:3 should filter violence-related content" type="FAILURE">
 <![CDATA[  [firefox] › safety-filters.spec.ts:37:3 › Safety Filter System › should filter violence-related content 
 
@@ -209,7 +209,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.006">
+<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.007">
 <failure message="safety-filters.spec.ts:55:3 should handle Catholic doctrine guidance appropriately" type="FAILURE">
 <![CDATA[  [firefox] › safety-filters.spec.ts:55:3 › Safety Filter System › should handle Catholic doctrine guidance appropriately 
 
@@ -225,7 +225,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.01">
+<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.007">
 <failure message="safety-filters.spec.ts:75:3 should moderate sensitive historical topics" type="FAILURE">
 <![CDATA[  [firefox] › safety-filters.spec.ts:75:3 › Safety Filter System › should moderate sensitive historical topics 
 
@@ -241,7 +241,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.006">
+<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.007">
 <failure message="safety-filters.spec.ts:96:3 safety warning modal displays correctly" type="FAILURE">
 <![CDATA[  [firefox] › safety-filters.spec.ts:96:3 › Visual Regression - Safety UI › safety warning modal displays correctly 
 
@@ -258,8 +258,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:05:44.558Z" hostname="webkit" tests="5" failures="5" skipped="0" time="0.041" errors="0">
-<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.006">
+<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:06:52.489Z" hostname="webkit" tests="5" failures="5" skipped="0" time="0.034" errors="0">
+<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.007">
 <failure message="safety-filters.spec.ts:14:3 should block drug-related keywords" type="FAILURE">
 <![CDATA[  [webkit] › safety-filters.spec.ts:14:3 › Safety Filter System › should block drug-related keywords 
 
@@ -425,7 +425,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.007">
+<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.006">
 <failure message="safety-filters.spec.ts:55:3 should handle Catholic doctrine guidance appropriately" type="FAILURE">
 <![CDATA[  [webkit] › safety-filters.spec.ts:55:3 › Safety Filter System › should handle Catholic doctrine guidance appropriately 
 
@@ -508,7 +508,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.006">
+<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.008">
 <failure message="safety-filters.spec.ts:75:3 should moderate sensitive historical topics" type="FAILURE">
 <![CDATA[  [webkit] › safety-filters.spec.ts:75:3 › Safety Filter System › should moderate sensitive historical topics 
 
@@ -591,7 +591,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.015">
+<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.006">
 <failure message="safety-filters.spec.ts:96:3 safety warning modal displays correctly" type="FAILURE">
 <![CDATA[  [webkit] › safety-filters.spec.ts:96:3 › Visual Regression - Safety UI › safety warning modal displays correctly 
 
@@ -675,8 +675,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:05:44.558Z" hostname="Mobile Safari" tests="5" failures="5" skipped="0" time="0.054" errors="0">
-<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.011">
+<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:06:52.489Z" hostname="Mobile Safari" tests="5" failures="5" skipped="0" time="0.038" errors="0">
+<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.006">
 <failure message="safety-filters.spec.ts:14:3 should block drug-related keywords" type="FAILURE">
 <![CDATA[  [Mobile Safari] › safety-filters.spec.ts:14:3 › Safety Filter System › should block drug-related keywords 
 
@@ -759,7 +759,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.01">
+<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.006">
 <failure message="safety-filters.spec.ts:37:3 should filter violence-related content" type="FAILURE">
 <![CDATA[  [Mobile Safari] › safety-filters.spec.ts:37:3 › Safety Filter System › should filter violence-related content 
 
@@ -842,7 +842,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.012">
+<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.008">
 <failure message="safety-filters.spec.ts:55:3 should handle Catholic doctrine guidance appropriately" type="FAILURE">
 <![CDATA[  [Mobile Safari] › safety-filters.spec.ts:55:3 › Safety Filter System › should handle Catholic doctrine guidance appropriately 
 
@@ -925,7 +925,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.005">
+<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.008">
 <failure message="safety-filters.spec.ts:75:3 should moderate sensitive historical topics" type="FAILURE">
 <![CDATA[  [Mobile Safari] › safety-filters.spec.ts:75:3 › Safety Filter System › should moderate sensitive historical topics 
 
@@ -1008,7 +1008,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.016">
+<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.01">
 <failure message="safety-filters.spec.ts:96:3 safety warning modal displays correctly" type="FAILURE">
 <![CDATA[  [Mobile Safari] › safety-filters.spec.ts:96:3 › Visual Regression - Safety UI › safety warning modal displays correctly 
 
@@ -1092,8 +1092,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:05:44.558Z" hostname="iPad" tests="5" failures="5" skipped="0" time="0.048" errors="0">
-<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.01">
+<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:06:52.489Z" hostname="iPad" tests="5" failures="5" skipped="0" time="0.056" errors="0">
+<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.008">
 <failure message="safety-filters.spec.ts:14:3 should block drug-related keywords" type="FAILURE">
 <![CDATA[  [iPad] › safety-filters.spec.ts:14:3 › Safety Filter System › should block drug-related keywords ─
 
@@ -1128,7 +1128,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.019">
+<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.008">
 <failure message="safety-filters.spec.ts:37:3 should filter violence-related content" type="FAILURE">
 <![CDATA[  [iPad] › safety-filters.spec.ts:37:3 › Safety Filter System › should filter violence-related content 
 
@@ -1163,7 +1163,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.007">
+<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.022">
 <failure message="safety-filters.spec.ts:55:3 should handle Catholic doctrine guidance appropriately" type="FAILURE">
 <![CDATA[  [iPad] › safety-filters.spec.ts:55:3 › Safety Filter System › should handle Catholic doctrine guidance appropriately 
 
@@ -1198,7 +1198,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.006">
+<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.011">
 <failure message="safety-filters.spec.ts:75:3 should moderate sensitive historical topics" type="FAILURE">
 <![CDATA[  [iPad] › safety-filters.spec.ts:75:3 › Safety Filter System › should moderate sensitive historical topics 
 
@@ -1233,7 +1233,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.006">
+<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.007">
 <failure message="safety-filters.spec.ts:96:3 safety warning modal displays correctly" type="FAILURE">
 <![CDATA[  [iPad] › safety-filters.spec.ts:96:3 › Visual Regression - Safety UI › safety warning modal displays correctly 
 
@@ -1269,8 +1269,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:05:44.558Z" hostname="Pixel 5" tests="5" failures="5" skipped="0" time="0.042" errors="0">
-<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.009">
+<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:06:52.489Z" hostname="Pixel 5" tests="5" failures="5" skipped="0" time="0.034" errors="0">
+<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.007">
 <failure message="safety-filters.spec.ts:14:3 should block drug-related keywords" type="FAILURE">
 <![CDATA[  [Pixel 5] › safety-filters.spec.ts:14:3 › Safety Filter System › should block drug-related keywords 
 
@@ -1305,7 +1305,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.01">
+<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.007">
 <failure message="safety-filters.spec.ts:37:3 should filter violence-related content" type="FAILURE">
 <![CDATA[  [Pixel 5] › safety-filters.spec.ts:37:3 › Safety Filter System › should filter violence-related content 
 
@@ -1340,7 +1340,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.009">
+<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.008">
 <failure message="safety-filters.spec.ts:55:3 should handle Catholic doctrine guidance appropriately" type="FAILURE">
 <![CDATA[  [Pixel 5] › safety-filters.spec.ts:55:3 › Safety Filter System › should handle Catholic doctrine guidance appropriately 
 
@@ -1375,7 +1375,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.007">
+<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.006">
 <failure message="safety-filters.spec.ts:75:3 should moderate sensitive historical topics" type="FAILURE">
 <![CDATA[  [Pixel 5] › safety-filters.spec.ts:75:3 › Safety Filter System › should moderate sensitive historical topics 
 
@@ -1410,7 +1410,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.007">
+<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.006">
 <failure message="safety-filters.spec.ts:96:3 safety warning modal displays correctly" type="FAILURE">
 <![CDATA[  [Pixel 5] › safety-filters.spec.ts:96:3 › Visual Regression - Safety UI › safety warning modal displays correctly 
 
@@ -1446,8 +1446,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:05:44.558Z" hostname="Galaxy S9" tests="5" failures="5" skipped="0" time="0.055" errors="0">
-<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.01">
+<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:06:52.489Z" hostname="Galaxy S9" tests="5" failures="5" skipped="0" time="0.043" errors="0">
+<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.009">
 <failure message="safety-filters.spec.ts:14:3 should block drug-related keywords" type="FAILURE">
 <![CDATA[  [Galaxy S9] › safety-filters.spec.ts:14:3 › Safety Filter System › should block drug-related keywords 
 
@@ -1552,7 +1552,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.018">
+<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.007">
 <failure message="safety-filters.spec.ts:75:3 should moderate sensitive historical topics" type="FAILURE">
 <![CDATA[  [Galaxy S9] › safety-filters.spec.ts:75:3 › Safety Filter System › should moderate sensitive historical topics 
 
@@ -1623,8 +1623,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:05:44.558Z" hostname="mobile-portrait" tests="5" failures="5" skipped="0" time="0.038" errors="0">
-<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.007">
+<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:06:52.489Z" hostname="mobile-portrait" tests="5" failures="5" skipped="0" time="0.034" errors="0">
+<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.005">
 <failure message="safety-filters.spec.ts:14:3 should block drug-related keywords" type="FAILURE">
 <![CDATA[  [mobile-portrait] › safety-filters.spec.ts:14:3 › Safety Filter System › should block drug-related keywords 
 
@@ -1707,7 +1707,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.008">
+<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.006">
 <failure message="safety-filters.spec.ts:37:3 should filter violence-related content" type="FAILURE">
 <![CDATA[  [mobile-portrait] › safety-filters.spec.ts:37:3 › Safety Filter System › should filter violence-related content 
 
@@ -1790,7 +1790,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.007">
+<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.009">
 <failure message="safety-filters.spec.ts:55:3 should handle Catholic doctrine guidance appropriately" type="FAILURE">
 <![CDATA[  [mobile-portrait] › safety-filters.spec.ts:55:3 › Safety Filter System › should handle Catholic doctrine guidance appropriately 
 
@@ -1873,7 +1873,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.007">
+<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.006">
 <failure message="safety-filters.spec.ts:75:3 should moderate sensitive historical topics" type="FAILURE">
 <![CDATA[  [mobile-portrait] › safety-filters.spec.ts:75:3 › Safety Filter System › should moderate sensitive historical topics 
 
@@ -1956,7 +1956,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.009">
+<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.008">
 <failure message="safety-filters.spec.ts:96:3 safety warning modal displays correctly" type="FAILURE">
 <![CDATA[  [mobile-portrait] › safety-filters.spec.ts:96:3 › Visual Regression - Safety UI › safety warning modal displays correctly 
 
@@ -2040,8 +2040,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:05:44.558Z" hostname="tablet-portrait" tests="5" failures="5" skipped="0" time="0.046" errors="0">
-<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.011">
+<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:06:52.489Z" hostname="tablet-portrait" tests="5" failures="5" skipped="0" time="0.055" errors="0">
+<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.015">
 <failure message="safety-filters.spec.ts:14:3 should block drug-related keywords" type="FAILURE">
 <![CDATA[  [tablet-portrait] › safety-filters.spec.ts:14:3 › Safety Filter System › should block drug-related keywords 
 
@@ -2076,7 +2076,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.008">
+<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.006">
 <failure message="safety-filters.spec.ts:37:3 should filter violence-related content" type="FAILURE">
 <![CDATA[  [tablet-portrait] › safety-filters.spec.ts:37:3 › Safety Filter System › should filter violence-related content 
 
@@ -2111,7 +2111,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.007">
+<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.015">
 <failure message="safety-filters.spec.ts:55:3 should handle Catholic doctrine guidance appropriately" type="FAILURE">
 <![CDATA[  [tablet-portrait] › safety-filters.spec.ts:55:3 › Safety Filter System › should handle Catholic doctrine guidance appropriately 
 
@@ -2181,7 +2181,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.007">
+<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.006">
 <failure message="safety-filters.spec.ts:96:3 safety warning modal displays correctly" type="FAILURE">
 <![CDATA[  [tablet-portrait] › safety-filters.spec.ts:96:3 › Visual Regression - Safety UI › safety warning modal displays correctly 
 
@@ -2217,8 +2217,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:05:44.558Z" hostname="desktop-1080p" tests="5" failures="5" skipped="0" time="0.043" errors="0">
-<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.01">
+<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:06:52.489Z" hostname="desktop-1080p" tests="5" failures="5" skipped="0" time="0.044" errors="0">
+<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.006">
 <failure message="safety-filters.spec.ts:14:3 should block drug-related keywords" type="FAILURE">
 <![CDATA[  [desktop-1080p] › safety-filters.spec.ts:14:3 › Safety Filter System › should block drug-related keywords 
 
@@ -2323,7 +2323,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.008">
+<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.01">
 <failure message="safety-filters.spec.ts:75:3 should moderate sensitive historical topics" type="FAILURE">
 <![CDATA[  [desktop-1080p] › safety-filters.spec.ts:75:3 › Safety Filter System › should moderate sensitive historical topics 
 
@@ -2358,7 +2358,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.007">
+<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.01">
 <failure message="safety-filters.spec.ts:96:3 safety warning modal displays correctly" type="FAILURE">
 <![CDATA[  [desktop-1080p] › safety-filters.spec.ts:96:3 › Visual Regression - Safety UI › safety warning modal displays correctly 
 
@@ -2394,8 +2394,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:05:44.558Z" hostname="desktop-1440p" tests="5" failures="5" skipped="0" time="0.036" errors="0">
-<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.008">
+<testsuite name="safety-filters.spec.ts" timestamp="2025-10-02T05:06:52.489Z" hostname="desktop-1440p" tests="5" failures="5" skipped="0" time="0.038" errors="0">
+<testcase name="Safety Filter System › should block drug-related keywords" classname="safety-filters.spec.ts" time="0.007">
 <failure message="safety-filters.spec.ts:14:3 should block drug-related keywords" type="FAILURE">
 <![CDATA[  [desktop-1440p] › safety-filters.spec.ts:14:3 › Safety Filter System › should block drug-related keywords 
 
@@ -2430,7 +2430,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.009">
+<testcase name="Safety Filter System › should filter violence-related content" classname="safety-filters.spec.ts" time="0.007">
 <failure message="safety-filters.spec.ts:37:3 should filter violence-related content" type="FAILURE">
 <![CDATA[  [desktop-1440p] › safety-filters.spec.ts:37:3 › Safety Filter System › should filter violence-related content 
 
@@ -2465,7 +2465,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.007">
+<testcase name="Safety Filter System › should handle Catholic doctrine guidance appropriately" classname="safety-filters.spec.ts" time="0.006">
 <failure message="safety-filters.spec.ts:55:3 should handle Catholic doctrine guidance appropriately" type="FAILURE">
 <![CDATA[  [desktop-1440p] › safety-filters.spec.ts:55:3 › Safety Filter System › should handle Catholic doctrine guidance appropriately 
 
@@ -2500,7 +2500,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.006">
+<testcase name="Safety Filter System › should moderate sensitive historical topics" classname="safety-filters.spec.ts" time="0.013">
 <failure message="safety-filters.spec.ts:75:3 should moderate sensitive historical topics" type="FAILURE">
 <![CDATA[  [desktop-1440p] › safety-filters.spec.ts:75:3 › Safety Filter System › should moderate sensitive historical topics 
 
@@ -2535,7 +2535,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.006">
+<testcase name="Visual Regression - Safety UI › safety warning modal displays correctly" classname="safety-filters.spec.ts" time="0.005">
 <failure message="safety-filters.spec.ts:96:3 safety warning modal displays correctly" type="FAILURE">
 <![CDATA[  [desktop-1440p] › safety-filters.spec.ts:96:3 › Visual Regression - Safety UI › safety warning modal displays correctly 
 
