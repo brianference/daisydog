@@ -15,29 +15,30 @@ const AboutPage = () => {
 
       {/* Main Content */}
       <main className="about-content">
-        <div className="container">
-          {/* Hero Section */}
-          <motion.section 
-            className="about-hero"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="hero-content">
-              <div className="hero-image">
-                <img src="/assets/images/emotions/happy.png" alt="Daisy the Dog" />
-              </div>
-              <div className="hero-text">
-                <h2>Meet Daisy! 🐕</h2>
-                <p>
-                  Daisy is your friendly AI companion designed specifically for children. 
-                  She loves to chat, play games, tell jokes, and help kids learn in a safe, 
-                  fun environment. With her playful personality and endless enthusiasm, 
-                  Daisy is always ready to be your best friend!
-                </p>
-              </div>
+        {/* Hero Section - Full Width */}
+        <motion.section 
+          className="about-hero"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="hero-content">
+            <div className="hero-image">
+              <img src="/assets/images/emotions/happy.png" alt="Daisy the Dog" />
             </div>
-          </motion.section>
+            <div className="hero-text">
+              <h2>Meet Daisy! 🐕</h2>
+              <p>
+                Daisy is your friendly AI companion designed specifically for children. 
+                She loves to chat, play games, tell jokes, and help kids learn in a safe, 
+                fun environment. With her playful personality and endless enthusiasm, 
+                Daisy is always ready to be your best friend!
+              </p>
+            </div>
+          </div>
+        </motion.section>
+
+        <div className="container">
 
           {/* Features Section */}
           <motion.section 

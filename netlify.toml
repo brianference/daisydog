@@ -7,6 +7,9 @@
   
   # Base directory for build
   base = "."
+  
+  # Build time limit (15 minutes)
+  command_timeout = 900
 
 [build.environment]
   # Node.js version
@@ -22,6 +25,41 @@
   VITE_SUPABASE_URL = "https://lqxstmjczpfywfgyhahj.supabase.co"
   VITE_SUPABASE_ANON_KEY = "your_supabase_anon_key_here"
 
+# Netlify Build Plugins for Performance & Quality
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  
+  [plugins.inputs]
+    output_path = "reports/lighthouse.html"
+    
+  [plugins.inputs.thresholds]
+    performance = 0.8
+    accessibility = 0.9
+    best-practices = 0.9
+    seo = 0.9
+
+[[plugins]]
+  package = "netlify-plugin-cache"
+  
+  [plugins.inputs]
+    paths = [
+      "node_modules",
+      ".npm",
+      "dist"
+    ]
+
+[[plugins]]
+  package = "netlify-plugin-checklinks"
+  
+  [plugins.inputs]
+    skipPatterns = [
+      "/admin",
+      "/api"
+    ]
+    entryPoints = [
+      "*.html"
+    ]
+
 # Redirect rules for SPA (functions automatically excluded by Netlify)
 [[redirects]]
   from = "/*"
@@ -29,14 +67,18 @@
   status = 200
   force = false
 
-# Security headers
+# Security & Performance headers - Enhanced for child safety
 [[headers]]
   for = "/*"
   [headers.values]
+    # Security Headers
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    X-DNS-Prefetch-Control = "on"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Permissions-Policy = "camera=(), microphone=(self), geolocation=(), payment=()"
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://bolt.new; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' blob:; connect-src 'self' https://generativelanguage.googleapis.com https://fonts.googleapis.com https://lqxstmjczpfywfgyhahj.supabase.co https://api.scripture.api.bible;"
 
 # Disable caching for HTML to ensure users get latest bundle references
@@ -51,9 +93,38 @@
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
 
-# Cache static assets
+# Cache static assets (images, fonts, etc.) - 1 year
 [[headers]]
   for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache images specifically
+[[headers]]
+  for = "/assets/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    
+# Cache videos (Cavalier Spaniel videos!)
+[[headers]]
+  for = "/assets/videos/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, immutable"
+
+# Cache sounds
+[[headers]]
+  for = "/sounds/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# JavaScript and CSS bundles
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 

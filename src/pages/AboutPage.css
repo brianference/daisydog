@@ -36,6 +36,7 @@
 /* Hero Section */
 .about-hero {
   margin-bottom: 80px;
+  padding: 0 20px;
 }
 
 .hero-content {
@@ -47,6 +48,9 @@
   padding: 60px;
   border-radius: 30px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .hero-image img {
