@@ -6,6 +6,7 @@ import { GoFishGame } from '../../services/boardgames/GoFishGame.js';
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
+import GameVoiceInstructions from '../../services/GameVoiceInstructions.js';
 import './GoFish.css';
 
 const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMoves }) => {
@@ -252,6 +253,14 @@ const GoFish = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
   const aiMovesRef = useRef(null);
+
+  useEffect(() => {
+    GameVoiceInstructions.playInstructions('GO_FISH');
+    
+    return () => {
+      GameVoiceInstructions.stop();
+    };
+  }, []);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);

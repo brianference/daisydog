@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PatternBuilderGame, SHAPES } from '../../services/boardgames/PatternBuilderGame.js';
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
+import GameVoiceInstructions from '../../services/GameVoiceInstructions.js';
 import './PatternBuilder.css';
 
 const PatternBuilderBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
@@ -154,6 +155,14 @@ const PatternBuilderBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig
 const PatternBuilder = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
+
+  useEffect(() => {
+    GameVoiceInstructions.playInstructions('PATTERN_BUILDER');
+    
+    return () => {
+      GameVoiceInstructions.stop();
+    };
+  }, []);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);

@@ -6,6 +6,7 @@ import { CheckersGame, BOARD_SIZE, getValidMoves } from '../../services/boardgam
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
+import GameVoiceInstructions from '../../services/GameVoiceInstructions.js';
 import './Checkers.css';
 
 const CheckersBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMoves }) => {
@@ -183,6 +184,14 @@ const Checkers = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
   const aiMovesRef = useRef(null);
+
+  useEffect(() => {
+    GameVoiceInstructions.playInstructions('CHECKERS');
+    
+    return () => {
+      GameVoiceInstructions.stop();
+    };
+  }, []);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);

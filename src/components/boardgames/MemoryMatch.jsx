@@ -6,6 +6,7 @@ import { MemoryMatchGame } from '../../services/boardgames/MemoryMatchGame.js';
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
+import GameVoiceInstructions from '../../services/GameVoiceInstructions.js';
 import './MemoryMatch.css';
 
 const MemoryMatchAIBoard = ({ G, ctx, moves, playerID, onGameEvent }) => {
@@ -202,6 +203,14 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
 const MemoryMatch = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
+
+  useEffect(() => {
+    GameVoiceInstructions.playInstructions('MEMORY_MATCH');
+    
+    return () => {
+      GameVoiceInstructions.stop();
+    };
+  }, []);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SimplePuzzleGame, GRID_SIZE } from '../../services/boardgames/SimplePuzzleGame.js';
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
+import GameVoiceInstructions from '../../services/GameVoiceInstructions.js';
 import './SimplePuzzle.css';
 
 const SimplePuzzleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
@@ -160,6 +161,14 @@ const SimplePuzzleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
 const SimplePuzzle = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
+
+  useEffect(() => {
+    GameVoiceInstructions.playInstructions('SIMPLE_PUZZLE');
+    
+    return () => {
+      GameVoiceInstructions.stop();
+    };
+  }, []);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);

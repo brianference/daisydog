@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { WordScrambleGame } from '../../services/boardgames/WordScrambleGame.js';
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
+import GameVoiceInstructions from '../../services/GameVoiceInstructions.js';
 import './WordScramble.css';
 
 const WordScrambleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
@@ -174,6 +175,14 @@ const WordScrambleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
 const WordScramble = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
+
+  useEffect(() => {
+    GameVoiceInstructions.playInstructions('WORD_SCRAMBLE');
+    
+    return () => {
+      GameVoiceInstructions.stop();
+    };
+  }, []);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);

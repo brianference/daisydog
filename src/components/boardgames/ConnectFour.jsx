@@ -6,6 +6,7 @@ import { ConnectFourGame, ROWS, COLS } from '../../services/boardgames/ConnectFo
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
+import GameVoiceInstructions from '../../services/GameVoiceInstructions.js';
 import './ConnectFour.css';
 
 const ConnectFourAIBoard = ({ G, ctx, moves, playerID }) => {
@@ -180,6 +181,14 @@ const ConnectFourBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
 const ConnectFour = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
+
+  useEffect(() => {
+    GameVoiceInstructions.playInstructions('CONNECT_FOUR');
+    
+    return () => {
+      GameVoiceInstructions.stop();
+    };
+  }, []);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);

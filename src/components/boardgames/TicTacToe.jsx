@@ -6,6 +6,7 @@ import { TicTacToeGame } from '../../services/boardgames/TicTacToeGame.js';
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
+import GameVoiceInstructions from '../../services/GameVoiceInstructions.js';
 import './TicTacToe.css';
 
 const TicTacToeBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMoves }) => {
@@ -142,6 +143,14 @@ const TicTacToe = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
   const aiMovesRef = useRef(null);
+
+  useEffect(() => {
+    GameVoiceInstructions.playInstructions('TIC_TAC_TOE');
+    
+    return () => {
+      GameVoiceInstructions.stop();
+    };
+  }, []);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ColorMatchingGame, COLORS } from '../../services/boardgames/ColorMatchingGame.js';
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
+import GameVoiceInstructions from '../../services/GameVoiceInstructions.js';
 import './ColorMatching.css';
 
 const ColorMatchingBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
@@ -135,6 +136,14 @@ const ColorMatchingBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig 
 const ColorMatching = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
+
+  useEffect(() => {
+    GameVoiceInstructions.playInstructions('COLOR_MATCHING');
+    
+    return () => {
+      GameVoiceInstructions.stop();
+    };
+  }, []);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
