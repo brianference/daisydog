@@ -50,7 +50,13 @@ DaisyDog is an AI-powered virtual companion designed for children aged 5-18. Thi
 ## System Architecture
 DaisyDog is built as a React 18 + Vite 6 frontend with **Netlify serverless functions** for secure backend operations. **Framer Motion** is integrated for UI animations, enhancing the interactive experience. The application uses **Google Gemini AI** for conversational capabilities, **OpenAI Whisper & TTS** for voice features, and **Supabase** for database operations. Styling is handled with **CSS3** focusing on responsive design. **React Router v6** manages client-side navigation. The project incorporates a comprehensive **multi-layered safety system** and integrates **educational content**. Core features include:
 - Safe AI chat with child-appropriate responses.
-- Interactive games with dynamic action buttons for gameplay:
+- **9 BoardGame.io Visual Interactive Games** with full AI opponents (Daisy):
+  - **Two-Player Strategy Games:** Tic-Tac-Toe, Connect Four, Memory Match, Checkers, Go Fish
+  - **Single-Player Puzzle Games:** Simple Puzzle, Color Matching, Pattern Builder, Word Scramble
+  - Modern & Clean theme (blue palette) with smooth animations
+  - Proper turn management with `events.endTurn()` pattern
+  - BoardWrapper pattern for theme and event handler integration
+- Interactive legacy games with dynamic action buttons for gameplay:
   - **Fetch** - Classic ball throwing game
   - **Tug of War** - Strength competition with pull mechanics
   - **Guessing Game** - Number guessing with hint system
@@ -92,6 +98,15 @@ DaisyDog is built as a React 18 + Vite 6 frontend with **Netlify serverless func
 - Rate limiting enforced
 
 **Development URL:** https://daisydogchat.replit.app (Note: May have CDN caching issues - use production URLs for testing)
+
+## Debug Control Center
+**NEW: Integrated Testing & Debugging Interface:**
+- 🔧 Fixed button in bottom-right corner
+- **Game Testing:** Validates all 9 BoardGame.io games initialization
+- **Voice Testing:** Checks microphone, audio context, and OpenAI integration
+- **Safety Testing:** Runs constitutional content filters and safety responses
+- **Export Logs:** One-click JSON download of test results and error logs
+- **Usage:** Click 🔧 button → Select tab → Run tests → Export logs
 
 ## Testing Infrastructure
 **Comprehensive FREE Testing Stack ($0/month):**
