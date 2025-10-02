@@ -4,39 +4,12 @@ import { Local } from 'boardgame.io/multiplayer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TicTacToeGame } from '../../services/boardgames/TicTacToeGame.js';
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
-import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
+import { DaisyBot } from '../../services/boardgames/DaisyBot.js';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
 import './TicTacToe.css';
 
 const TicTacToeBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
-  const [thinking, setThinking] = useState(false);
-
-  useEffect(() => {
-    if (ctx.currentPlayer === '1' && !ctx.gameover && !thinking) {
-      setThinking(true);
-      
-      const makeAIMove = async () => {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        const validMoves = G.cells
-          .map((cell, index) => cell === null ? { row: Math.floor(index / 3), col: index % 3, cellIndex: index } : null)
-          .filter(move => move !== null);
-        
-        if (validMoves.length > 0) {
-          const move = await DaisyAIOpponent.makeMove(G, validMoves, 'TIC_TAC_TOE');
-          
-          if (move && move.cellIndex !== undefined && G.cells[move.cellIndex] === null) {
-            moves.clickCell(move.cellIndex);
-            onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
-          }
-        }
-        
-        setThinking(false);
-      };
-      
-      makeAIMove();
-    }
-  }, [ctx.currentPlayer, ctx.gameover, ctx.turn, thinking]);
+  const thinking = ctx.currentPlayer === '1' && !ctx.gameover;
 
   useEffect(() => {
     if (ctx.gameover) {
@@ -155,11 +128,16 @@ const TicTacToe = ({ onExit, onGameEnd }) => {
   const TicTacToeClient = Client({
     game: TicTacToeGame,
     board: BoardWrapper,
-    multiplayer: Local(),
-    numPlayers: 2
+    multiplayer: Local({
+      bots: {
+        '1': DaisyBot
+      }
+    }),
+    numPlayers: 2,
+    debug: false
   });
 
-  return <TicTacToeClient playerID="0" />;
+  return <TicTacToeClient playerID="0" matchID="local" />;
 };
 
 export default TicTacToe;
