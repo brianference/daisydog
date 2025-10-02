@@ -40,7 +40,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: safety-test-results
           path: |
@@ -73,7 +73,7 @@ jobs:
 
       - name: Upload screenshots
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: visual-regression-screenshots
           path: testing/playwright-extended/reports/
@@ -104,7 +104,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: mobile-test-results
           path: test-results/
@@ -160,13 +160,15 @@ jobs:
         run: npm run build
 
       - name: Start preview server
-        run: npx serve dist -p 4173 &
+        run: |
+          npx serve dist -p 4173 > /dev/null 2>&1 &
+          sleep 3
 
       - name: Wait for server
-        run: npx wait-on http://localhost:4173
+        run: npx wait-on http://localhost:4173 --timeout 30000
 
       - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v9
+        uses: treosh/lighthouse-ci-action@v10
         with:
           urls: |
             http://localhost:4173
