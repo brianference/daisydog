@@ -29,7 +29,8 @@ Check it out: https://daisydog.org 🐾
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(url);
+      const fullMessage = `${title}\n\n${description}`;
+      await navigator.clipboard.writeText(fullMessage);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -38,11 +39,11 @@ Check it out: https://daisydog.org 🐾
   };
 
   const shareLinks = {
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
-    twitter: `https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${shareText}`,
+    twitter: `https://twitter.com/intent/tweet?text=${shareText}`,
     instagram: `https://www.instagram.com/`,
-    whatsapp: `https://wa.me/?text=${shareTitle}%20${shareUrl}`,
-    email: `mailto:?subject=${shareTitle}&body=${shareText}%0A%0A${url}`
+    whatsapp: `https://wa.me/?text=${shareText}`,
+    email: `mailto:?subject=${shareTitle}&body=${shareText}`
   };
 
   const handleShare = (platform) => {
