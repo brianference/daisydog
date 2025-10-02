@@ -1,0 +1,96 @@
+The Netlify deploy errored, with the following guidance provided:
+
+**Diagnosis:**
+The build failed due to missing files when trying to load `sad.png` and `/chat` under the `dist` directory.
+
+**Solution:**
+1. Verify that the `sad.png` file is present in the `dist/assets/images/emotions/` directory. If the file is missing, make sure it is added to the correct location.
+2. Check if the `/chat` route exists in the `dist` directory. If it's missing, ensure that the necessary files are generated and placed in the correct location to support the `/chat` route.
+
+The relevant error logs are:
+
+Line 32: npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you wa
+Line 33: npm warn deprecated lodash.omit@4.5.0: This package is deprecated. Use destructuring assignment syntax instead.
+Line 34: npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+Line 35: npm warn deprecated abab@2.0.6: Use your platform's native atob() and btoa() methods instead
+npm warn deprecated glob@7.2.3: Glo
+Line 36: npm warn deprecated w3c-hr-time@1.0.2: Use your platform's native performance.now() and performance.timeOrigin.
+npm warn depreca
+Line 37: npm warn deprecated workbox-google-analytics@4.3.1: It is not compatible with newer versions of GA starting with v4, as long as 
+Line 38: npm warn deprecated lodash.clone@4.5.0: This package is deprecated. Use structuredClone instead.
+Line 39: npm warn deprecated lodash.template@4.5.0: This package is deprecated. Use https://socket.dev/npm/package/eta instead.
+Line 40: npm warn deprecated har-validator@5.1.5: this library is no longer supported
+Line 41: npm warn deprecated request@2.88.2: request has been deprecated, see https://github.com/request/request/issues/3142
+Line 42: npm warn deprecated domexception@2.0.1: Use your platform's native DOMException instead
+npm warn deprecated intl-messageformat-p
+Line 43: npm warn deprecated @hapi/topo@3.1.6: This version has been deprecated and is no longer supported or maintained
+Line 44: npm warn deprecated @hapi/bourne@1.3.2: This version has been deprecated and is no longer supported or maintained
+Line 45: npm warn deprecated @hapi/address@2.1.4: Moved to 'npm install @sideway/address'
+Line 46: npm warn deprecated @hapi/hoek@8.5.1: This version has been deprecated and is no longer supported or maintained
+Line 47: npm warn deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circums
+Line 48: npm warn deprecated @hapi/joi@15.1.1: Switch to 'npm install joi'
+Line 49: npm warn deprecated core-js@2.6.12: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of i
+Line 50: added 1029 packages, and changed 1 package in 15s
+Line 51: npm packages installed
+Line 52: Successfully installed dependencies
+Line 115:  - voice-token.js
+Line 116:  - voice-transcribe.js
+Line 117: ​
+Line 118: ​
+Line 119: [90m(Functions bundling completed in 154ms)[39m
+Line 120: [92m.[39m[92m.[39m[91m×[39m[91m×[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m[92m.[39m
+Line 121:   [91m✖ FAIL load dist/assets/images/emotions/sad.png[39m
+Line 122:   [91m|[39m[96m operator:[39m load
+Line 123:   [91m|[39m[96m expected:[39m 200 dist/assets/images/emotions/sad.png
+Line 124:   [91m|[39m[96m   actual:[39m ENOENT: no such file or directory, open '/opt/build/repo/dist/assets/images/emotions/sad.png'
+Line 125:   [91m|[39m[96m       at:[39m dist/404.html:167:23 <img src="/assets/images/emotions/sad.png" alt="Sad Daisy" onerror="this.
+Line 126:   [91m✖ FAIL load dist/chat[39m
+Line 127:   [91m|[39m[96m operator:[39m load
+Line 128:   [91m|[39m[96m expected:[39m 200 dist/chat
+Line 129:   [91m|[39m[96m   actual:[39m ENOENT: no such file or directory, open '/opt/build/repo/dist/chat'
+Line 130:   [91m|[39m[96m       at:[39m dist/404.html:183:22 <a href="/chat" class="btn btn-secondary">...</a>
+Line 131:   11 tests
+Line 132:   [92m 9 passed[39m
+Line 133:   [91m 2 failed[39m
+Line 134: Failed during stage 'building site': Build script returned non-zero exit code: 2
+Line 135: [91m[1m​[22m[39m
+Line 136: [91m[1mPlugin "netlify-plugin-checklinks" failed                     [22m[39m
+Line 137: [91m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 138: ​
+Line 139:   [31m[1mError message[22m[39m
+Line 140:   Error: Links checking failed
+Line 141: ​
+Line 142:   [31m[1mPlugin details[22m[39m
+Line 143:   Package:        netlify-plugin-checklinks
+Line 144:   Version:        4.1.1
+Line 145:   Repository:     git://github.com/munter/netlify-plugin-checklinks.git
+Line 146:   npm link:       https://www.npmjs.com/package/netlify-plugin-checklinks
+Line 147:   Report issues:  https://github.com/munter/netlify-plugin-checklinks/issues
+Line 148: ​
+Line 149:   [31m[1mError location[22m[39m
+Line 150:   In "onPostBuild" event in "netlify-plugin-checklinks" from netlify.toml and package.json
+Line 151: ​
+Line 152:   [31m[1mResolved config[22m[39m
+Line 153:   build:
+Line 154:     base: /opt/build/repo
+Line 155:     command: npm run build
+Line 156:     commandOrigin: config
+Line 157:     environment:
+Line 158:       - NODE_ENV
+Line 159:       - OPENAI_API_KEY
+Line 169:       - VOICE_FUNCTION_SECRET
+Line 170:       - NODE_VERSION
+Line 171:     publish: /opt/build/repo/dist
+Line 172:     publishOrigin: config
+Line 173:   functions:
+Line 174:     "*":
+Line 175:       node_bundler: esbuild
+Line 176:   functionsDirectory: /opt/build/repo/netlify/functions
+Line 177:   headers:
+Line 178:     - for: /*
+      values:
+        Content-Security-Policy: "default-src 'self'; script-src 'self' 'unsafe-inline'
+          'u
+Line 179: Build failed due to a user error: Build script returned non-zero exit code: 2
+Line 180: Failing build: Failed to build site
+Line 181: Finished processing build request in 31.705s
