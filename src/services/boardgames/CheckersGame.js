@@ -110,12 +110,14 @@ export const CheckersGame = {
   }),
 
   turn: {
-    minMoves: 1,
-    maxMoves: 1
+    order: {
+      first: () => 0,
+      next: ({ ctx }) => (ctx.playOrderPos + 1) % ctx.numPlayers
+    }
   },
 
   moves: {
-    movePiece: (G, ctx, from, to, captures) => {
+    movePiece: ({ G, ctx }, from, to, captures) => {
       const piece = G.board[from.row][from.col];
       if (!piece || piece.player !== ctx.currentPlayer) return;
       
@@ -139,7 +141,7 @@ export const CheckersGame = {
     }
   },
 
-  endIf: (G, ctx) => {
+  endIf: ({ G, ctx }) => {
     if (!G || !G.board || !ctx) return;
     
     const pieceResult = checkWinner(G.board);

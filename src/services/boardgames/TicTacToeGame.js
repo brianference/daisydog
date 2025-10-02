@@ -27,12 +27,14 @@ export const TicTacToeGame = {
   }),
 
   turn: {
-    minMoves: 1,
-    maxMoves: 1
+    order: {
+      first: () => 0,
+      next: ({ ctx }) => (ctx.playOrderPos + 1) % ctx.numPlayers
+    }
   },
 
   moves: {
-    clickCell: (G, ctx, cellIndex) => {
+    clickCell: ({ G, ctx }, cellIndex) => {
       if (G.cells[cellIndex] !== null) return;
       
       G.cells[cellIndex] = ctx.currentPlayer;
@@ -44,7 +46,7 @@ export const TicTacToeGame = {
     }
   },
 
-  endIf: (G, ctx) => {
+  endIf: ({ G, ctx }) => {
     if (!G || !G.cells) return;
     
     const result = checkWinner(G.cells);

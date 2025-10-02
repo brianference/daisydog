@@ -6,7 +6,7 @@ function generatePattern(level, random) {
   const pattern = [];
   
   for (let i = 0; i < patternSize; i++) {
-    const shapeIndex = Math.floor(random() * SHAPES.length);
+    const shapeIndex = Math.floor(random.Number() * SHAPES.length);
     pattern.push({
       id: i,
       shape: SHAPES[shapeIndex],
@@ -38,7 +38,7 @@ export const PatternBuilderGame = {
   },
 
   moves: {
-    placeShape: (G, ctx, shape) => {
+    placeShape: ({ G, ctx, random }, shape) => {
       G.playerPattern.push(shape);
       
       const currentIndex = G.playerPattern.length - 1;
@@ -48,22 +48,22 @@ export const PatternBuilderGame = {
       } else if (G.playerPattern.length === G.targetPattern.length) {
         G.score += G.level * 15;
         G.level++;
-        G.targetPattern = generatePattern(G.level, ctx.random);
+        G.targetPattern = generatePattern(G.level, random);
         G.playerPattern = [];
         G.showingPattern = true;
       }
     },
     
-    startBuilding: (G) => {
+    startBuilding: ({ G }) => {
       G.showingPattern = false;
     },
     
-    clearPattern: (G) => {
+    clearPattern: ({ G }) => {
       G.playerPattern = [];
     }
   },
 
-  endIf: (G) => {
+  endIf: ({ G }) => {
     if (G.level > 8) {
       return { winner: '0' };
     }

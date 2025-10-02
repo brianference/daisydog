@@ -43,10 +43,7 @@ export const MemoryMatchGame = {
   }),
 
   turn: {
-    minMoves: 1,
-    maxMoves: 2,
-    
-    onEnd: (G, ctx) => {
+    onEnd: ({ G, ctx }) => {
       if (G.flipped.length === 2) {
         const [first, second] = G.flipped;
         const firstCard = G.cards[first];
@@ -60,11 +57,15 @@ export const MemoryMatchGame = {
         G.flipped = [];
         G.attempts++;
       }
+    },
+    order: {
+      first: () => 0,
+      next: ({ ctx }) => (ctx.playOrderPos + 1) % ctx.numPlayers
     }
   },
 
   moves: {
-    flipCard: (G, ctx, cardIndex) => {
+    flipCard: ({ G, ctx, events }, cardIndex) => {
       if (G.flipped.length >= 2) return;
       if (G.flipped.includes(cardIndex)) return;
       if (G.matched.includes(cardIndex)) return;
@@ -72,12 +73,12 @@ export const MemoryMatchGame = {
       G.flipped.push(cardIndex);
       
       if (G.flipped.length === 2) {
-        ctx.events.endTurn();
+        events.endTurn();
       }
     }
   },
 
-  endIf: (G, ctx) => {
+  endIf: ({ G, ctx }) => {
     if (!G || !G.matched || !G.cards || !G.score) return;
     
     if (G.matched.length === G.cards.length) {
@@ -94,7 +95,7 @@ export const MemoryMatchGame = {
     }
   },
 
-  playerView: (G, ctx, playerID) => {
+  playerView: ({ G, ctx, playerID }) => {
     if (!G || !G.flipped || !ctx) return G;
     
     if (G.flipped.length === 2 && ctx.currentPlayer !== playerID) {

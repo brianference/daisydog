@@ -14,7 +14,7 @@ const WORDS = [
 function shuffleWord(word, random) {
   const letters = word.split('');
   for (let i = letters.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
+    const j = Math.floor(random.Number() * (i + 1));
     [letters[i], letters[j]] = [letters[j], letters[i]];
   }
   
@@ -29,7 +29,7 @@ export const WordScrambleGame = {
   name: 'word-scramble',
 
   setup: ({ random }) => {
-    const wordIndex = Math.floor(random() * WORDS.length);
+    const wordIndex = Math.floor(random.Number() * WORDS.length);
     const currentWord = WORDS[wordIndex];
     
     return {
@@ -49,7 +49,7 @@ export const WordScrambleGame = {
   },
 
   moves: {
-    selectLetter: (G, ctx, index) => {
+    selectLetter: ({ G, ctx, random }, index) => {
       if (G.selectedLetters.some(item => item.index === index)) return;
       
       G.selectedLetters.push({
@@ -67,7 +67,7 @@ export const WordScrambleGame = {
           const availableWords = WORDS.filter((_, idx) => !G.usedWords.includes(idx));
           
           if (availableWords.length > 0) {
-            const randomIndex = Math.floor(ctx.random() * availableWords.length);
+            const randomIndex = Math.floor(random.Number() * availableWords.length);
             const nextWordIndex = WORDS.findIndex((w, idx) => 
               !G.usedWords.includes(idx) && w.word === availableWords[randomIndex].word
             );
@@ -75,7 +75,7 @@ export const WordScrambleGame = {
             G.usedWords.push(nextWordIndex);
             G.targetWord = WORDS[nextWordIndex].word;
             G.hint = WORDS[nextWordIndex].hint;
-            G.scrambledLetters = shuffleWord(WORDS[nextWordIndex].word, ctx.random);
+            G.scrambledLetters = shuffleWord(WORDS[nextWordIndex].word, random);
           }
         }
         
@@ -83,12 +83,12 @@ export const WordScrambleGame = {
       }
     },
     
-    clearWord: (G) => {
+    clearWord: ({ G }) => {
       G.selectedLetters = [];
     }
   },
 
-  endIf: (G) => {
+  endIf: ({ G }) => {
     if (G.wordsCompleted >= 5) {
       return { winner: '0' };
     }

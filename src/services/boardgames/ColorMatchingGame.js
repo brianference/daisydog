@@ -8,7 +8,7 @@ const COLORS = [
 function generateSequence(length, random) {
   const sequence = [];
   for (let i = 0; i < length; i++) {
-    const colorIndex = Math.floor(random() * COLORS.length);
+    const colorIndex = Math.floor(random.Number() * COLORS.length);
     sequence.push(COLORS[colorIndex].id);
   }
   return sequence;
@@ -31,7 +31,7 @@ export const ColorMatchingGame = {
   },
 
   moves: {
-    selectColor: (G, ctx, colorId) => {
+    selectColor: ({ G, ctx, random }, colorId) => {
       G.playerSequence.push(colorId);
       
       const currentIndex = G.playerSequence.length - 1;
@@ -42,18 +42,18 @@ export const ColorMatchingGame = {
       } else if (G.playerSequence.length === G.sequence.length) {
         G.score += G.level * 10;
         G.level++;
-        G.sequence = generateSequence(3 + G.level, ctx.random);
+        G.sequence = generateSequence(3 + G.level, random);
         G.playerSequence = [];
         G.showingSequence = true;
       }
     },
     
-    startPlaying: (G) => {
+    startPlaying: ({ G }) => {
       G.showingSequence = false;
     }
   },
 
-  endIf: (G) => {
+  endIf: ({ G }) => {
     if (G.level > 10) {
       return { winner: '0' };
     }

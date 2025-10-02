@@ -12,12 +12,7 @@ const PUZZLE_PIECES = [
 ];
 
 function shuffleArray(array, random) {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
+  return random.Shuffle(array);
 }
 
 function checkWin(board) {
@@ -49,7 +44,7 @@ export const SimplePuzzleGame = {
   },
 
   moves: {
-    placePiece: (G, ctx, fromPos, toPos) => {
+    placePiece: ({ G, ctx }, fromPos, toPos) => {
       if (G.board[fromPos] === null) return;
       
       const temp = G.board[toPos];
@@ -64,7 +59,7 @@ export const SimplePuzzleGame = {
     }
   },
 
-  endIf: (G) => {
+  endIf: ({ G }) => {
     if (checkWin(G.board)) {
       return { winner: '0' };
     }

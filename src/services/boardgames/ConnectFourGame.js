@@ -73,12 +73,14 @@ export const ConnectFourGame = {
   }),
 
   turn: {
-    minMoves: 1,
-    maxMoves: 1
+    order: {
+      first: () => 0,
+      next: ({ ctx }) => (ctx.playOrderPos + 1) % ctx.numPlayers
+    }
   },
 
   moves: {
-    dropToken: (G, ctx, col) => {
+    dropToken: ({ G, ctx }, col) => {
       const row = getLowestEmptyRow(G.cells, col);
       if (row === -1) return;
 
@@ -92,7 +94,7 @@ export const ConnectFourGame = {
     }
   },
 
-  endIf: (G, ctx) => {
+  endIf: ({ G, ctx }) => {
     if (!G || !G.cells) return;
     
     const result = checkWinner(G.cells);

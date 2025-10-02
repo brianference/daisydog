@@ -13,12 +13,7 @@ function createDeck() {
 }
 
 function shuffleDeck(deck, random) {
-  const shuffled = [...deck];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
+  return random.Shuffle(deck);
 }
 
 function dealInitialHands(deck) {
@@ -76,7 +71,7 @@ export const GoFishGame = {
   },
 
   moves: {
-    askForCard: (G, ctx, requestedValue) => {
+    askForCard: ({ G, ctx }, requestedValue) => {
       const currentPlayer = ctx.currentPlayer;
       const opponent = currentPlayer === '0' ? '1' : '0';
       
@@ -104,7 +99,7 @@ export const GoFishGame = {
       }
     },
     
-    drawCard: (G, ctx) => {
+    drawCard: ({ G, ctx }) => {
       if (G.deck.length > 0) {
         const drawnCard = G.deck.pop();
         G.hands[ctx.currentPlayer].push(drawnCard);
@@ -119,12 +114,12 @@ export const GoFishGame = {
       }
     },
     
-    passTurn: (G, ctx) => {
+    passTurn: ({ G, ctx }) => {
       G.lastAction = { type: 'PASS' };
     }
   },
 
-  endIf: (G) => {
+  endIf: ({ G }) => {
     const totalBooks = G.books['0'].length + G.books['1'].length;
     const allCardsInBooks = totalBooks === CARD_VALUES.length;
     const noCardsLeft = G.hands['0'].length === 0 && G.hands['1'].length === 0 && G.deck.length === 0;
