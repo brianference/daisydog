@@ -8,17 +8,31 @@ import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
 import './WordScramble.css';
 
 const WordScrambleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
+  const [showCorrectMessage, setShowCorrectMessage] = useState(false);
+
   useEffect(() => {
     if (ctx.gameover && ctx.gameover.winner === playerID) {
       onGameEvent?.(GAME_EVENT_TYPE.WIN);
     }
   }, [ctx.gameover]);
 
+  useEffect(() => {
+    if (G.lastWordCorrect === true) {
+      setShowCorrectMessage(true);
+      onGameEvent?.(GAME_EVENT_TYPE.GOOD_MOVE, { score: G.score });
+      
+      setTimeout(() => {
+        setShowCorrectMessage(false);
+      }, 2000);
+    } else if (G.lastWordCorrect === false) {
+      onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
+    }
+  }, [G.lastWordCorrect]);
+
   const handleLetterClick = (index) => {
     if (ctx.gameover) return;
     
     moves.selectLetter(index);
-    onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
   };
 
   const handleClear = () => {
@@ -32,6 +46,35 @@ const WordScrambleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
 
   return (
     <div className="wordscramble-board">
+      <AnimatePresence>
+        {showCorrectMessage && (
+          <motion.div
+            className="correct-message"
+            initial={{ opacity: 0, scale: 0.5, y: -50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.5, y: 50 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+            style={{
+              position: 'absolute',
+              top: '20%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1000,
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              padding: '20px 40px',
+              borderRadius: '20px',
+              fontSize: '28px',
+              fontWeight: 'bold',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+              textAlign: 'center'
+            }}
+          >
+            ✨ Correct! ✨
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="game-status">
         {ctx.gameover ? (
           <motion.div

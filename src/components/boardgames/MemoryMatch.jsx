@@ -8,9 +8,52 @@ import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
 import './MemoryMatch.css';
 
-const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMoves }) => {
+const MemoryMatchAIBoard = ({ G, ctx, moves, playerID, onGameEvent }) => {
   const processingRef = useRef(false);
 
+  useEffect(() => {
+    if (!G || !G.flipped || !G.cards || !G.matched || !ctx || !moves) return;
+    
+    const isMyTurn = ctx.currentPlayer === playerID;
+    const needsFlip = G.flipped.length < 2;
+    
+    if (isMyTurn && !ctx.gameover && needsFlip && !processingRef.current) {
+      processingRef.current = true;
+      
+      const makeOneAIFlip = async () => {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const availableCards = G.cards
+          .map((_, index) => index)
+          .filter(index => 
+            !G.matched.includes(index) && 
+            !G.flipped.includes(index)
+          );
+        
+        if (availableCards.length > 0 && moves.flipCard) {
+          const move = await DaisyAIOpponent.makeMove(
+            G,
+            availableCards.map(cardIndex => ({ cardIndex })),
+            'MEMORY_MATCH'
+          );
+          
+          if (move && move.cardIndex !== undefined) {
+            moves.flipCard(move.cardIndex);
+            onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
+          }
+        }
+        
+        processingRef.current = false;
+      };
+      
+      makeOneAIFlip();
+    }
+  }, [ctx?.currentPlayer, ctx?.gameover, ctx?.turn, G?.flipped?.length, G?.matched?.length]);
+
+  return null;
+};
+
+const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
   useEffect(() => {
     if (!G || !G.flipped || !G.cards || !G.score) return;
     
@@ -46,47 +89,6 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, a
       }
     }
   }, [ctx?.gameover]);
-
-  useEffect(() => {
-    if (!G || !G.flipped || !G.cards || !G.matched || !ctx) return;
-    
-    const isAITurn = ctx.currentPlayer !== playerID && ctx.currentPlayer === '1';
-    const needsFlip = G.flipped.length < 2;
-    
-    if (isAITurn && !ctx.gameover && needsFlip && !processingRef.current) {
-      processingRef.current = true;
-      
-      const makeOneAIFlip = async () => {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        const availableCards = G.cards
-          .map((_, index) => index)
-          .filter(index => 
-            !G.matched.includes(index) && 
-            !G.flipped.includes(index)
-          );
-        
-        if (availableCards.length > 0) {
-          const move = await DaisyAIOpponent.makeMove(
-            G,
-            availableCards.map(cardIndex => ({ cardIndex })),
-            'MEMORY_MATCH'
-          );
-          
-          processingRef.current = false;
-          
-          if (move && move.cardIndex !== undefined && aiMoves && aiMoves.flipCard) {
-            aiMoves.flipCard(move.cardIndex);
-            onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
-          }
-        } else {
-          processingRef.current = false;
-        }
-      };
-      
-      makeOneAIFlip();
-    }
-  }, [ctx?.currentPlayer, ctx?.gameover, ctx?.turn, G?.flipped?.length, G?.matched?.length]);
 
   const handleCardClick = (cardIndex) => {
     if (!G || !ctx || !moves) return;
@@ -200,7 +202,6 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, a
 const MemoryMatch = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
-  const aiMovesRef = useRef(null);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
@@ -208,8 +209,7 @@ const MemoryMatch = ({ onExit, onGameEnd }) => {
 
   const BoardWrapper = (props) => {
     if (props.playerID === '1') {
-      aiMovesRef.current = props.moves;
-      return null;
+      return <MemoryMatchAIBoard {...props} onGameEvent={handleGameEvent} />;
     }
     
     return (
@@ -217,7 +217,6 @@ const MemoryMatch = ({ onExit, onGameEnd }) => {
         {...props} 
         onGameEvent={handleGameEvent}
         themeConfig={themeConfig}
-        aiMoves={aiMovesRef.current}
       />
     );
   };

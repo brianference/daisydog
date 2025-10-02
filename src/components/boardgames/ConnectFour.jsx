@@ -8,14 +8,13 @@ import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
 import './ConnectFour.css';
 
-const ConnectFourBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMoves }) => {
+const ConnectFourAIBoard = ({ G, ctx, moves, playerID }) => {
   const processingRef = useRef(false);
-  const [dropAnimation, setDropAnimation] = useState(null);
 
   useEffect(() => {
-    const isAITurn = ctx.currentPlayer === '1';
+    const isMyTurn = ctx.currentPlayer === playerID;
     
-    if (isAITurn && !ctx.gameover && !processingRef.current) {
+    if (isMyTurn && !ctx.gameover && !processingRef.current && moves) {
       processingRef.current = true;
       
       const makeAIMove = async () => {
@@ -35,23 +34,26 @@ const ConnectFourBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, a
           }
         }
         
-        if (validMoves.length > 0) {
+        if (validMoves.length > 0 && moves.dropToken) {
           const move = await DaisyAIOpponent.makeMove(G, validMoves, 'CONNECT_FOUR');
           
-          processingRef.current = false;
-          
-          if (move && move.col !== undefined && aiMoves && aiMoves.dropToken) {
-            aiMoves.dropToken(move.col);
-            onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
+          if (move && move.col !== undefined) {
+            moves.dropToken(move.col);
           }
-        } else {
-          processingRef.current = false;
         }
+        
+        processingRef.current = false;
       };
       
       makeAIMove();
     }
   }, [ctx.currentPlayer, ctx.gameover, ctx.turn, G.cells]);
+
+  return null;
+};
+
+const ConnectFourBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
+  const [dropAnimation, setDropAnimation] = useState(null);
 
   useEffect(() => {
     if (ctx.gameover) {
@@ -68,7 +70,6 @@ const ConnectFourBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, a
   const handleColumnClick = (col) => {
     if (ctx.currentPlayer !== playerID) return;
     if (ctx.gameover) return;
-    if (processingRef.current) return;
     
     for (let row = ROWS - 1; row >= 0; row--) {
       if (G.cells[row][col] === null) {
@@ -179,7 +180,6 @@ const ConnectFourBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, a
 const ConnectFour = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
-  const aiMovesRef = useRef(null);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
@@ -187,8 +187,7 @@ const ConnectFour = ({ onExit, onGameEnd }) => {
 
   const BoardWrapper = (props) => {
     if (props.playerID === '1') {
-      aiMovesRef.current = props.moves;
-      return null;
+      return <ConnectFourAIBoard {...props} />;
     }
     
     return (
@@ -196,7 +195,6 @@ const ConnectFour = ({ onExit, onGameEnd }) => {
         {...props} 
         onGameEvent={handleGameEvent}
         themeConfig={themeConfig}
-        aiMoves={aiMovesRef.current}
       />
     );
   };

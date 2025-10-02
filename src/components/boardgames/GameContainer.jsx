@@ -4,6 +4,8 @@ import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import DaisyCheerleader from '../../services/boardgames/DaisyCheerleader.js';
 import { GAME_EVENT_TYPE, GAME_STATUS } from '../../types/boardGameTypes.js';
 import { useSoundSystem } from '../../hooks/useSoundSystem.js';
+import MusicService from '../../services/MusicService.js';
+import ElevenLabsService from '../../services/ElevenLabsService.js';
 import GameInstructions from './GameInstructions.jsx';
 import confetti from 'canvas-confetti';
 import './GameContainer.css';
@@ -25,6 +27,7 @@ const GameContainer = ({
   const { playSound } = useSoundSystem();
   const [daisyMessage, setDaisyMessage] = useState(null);
   const [showMessage, setShowMessage] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   const showDaisyCheer = (eventType, context = {}) => {
     if (!showDaisyMessages) return;
@@ -88,6 +91,27 @@ const GameContainer = ({
     }
   }, [gameStatus]);
 
+  useEffect(() => {
+    MusicService.play();
+    
+    return () => {
+      MusicService.stop();
+    };
+  }, []);
+
+  const handleMuteToggle = () => {
+    const newMuteState = !isMuted;
+    setIsMuted(newMuteState);
+    
+    if (newMuteState) {
+      MusicService.mute();
+      ElevenLabsService.mute();
+    } else {
+      MusicService.unmute();
+      ElevenLabsService.unmute();
+    }
+  };
+
   const containerStyle = {
     '--theme-primary': themeConfig.colors.primary,
     '--theme-secondary': themeConfig.colors.secondary,
@@ -105,6 +129,15 @@ const GameContainer = ({
       <div className="game-header">
         <div className="game-controls">
           {instructions && <GameInstructions gameName={gameName} instructions={instructions} />}
+          <motion.button
+            className="game-btn game-btn-icon"
+            onClick={handleMuteToggle}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title={isMuted ? 'Unmute audio' : 'Mute audio'}
+          >
+            {isMuted ? '🔇' : '🔊'}
+          </motion.button>
           <motion.button
             className="game-btn game-btn-secondary"
             onClick={onRestart}

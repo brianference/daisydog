@@ -39,7 +39,8 @@ export const WordScrambleGame = {
       selectedLetters: [],
       score: 0,
       wordsCompleted: 0,
-      usedWords: [wordIndex]
+      usedWords: [wordIndex],
+      lastWordCorrect: null
     };
   },
 
@@ -61,6 +62,7 @@ export const WordScrambleGame = {
         const playerWord = G.selectedLetters.map(item => item.letter).join('');
         
         if (playerWord === G.targetWord) {
+          G.lastWordCorrect = true;
           G.score += G.targetWord.length * 10;
           G.wordsCompleted++;
           
@@ -77,6 +79,8 @@ export const WordScrambleGame = {
             G.hint = WORDS[nextWordIndex].hint;
             G.scrambledLetters = shuffleWord(WORDS[nextWordIndex].word, random);
           }
+        } else {
+          G.lastWordCorrect = false;
         }
         
         G.selectedLetters = [];
@@ -85,6 +89,7 @@ export const WordScrambleGame = {
     
     clearWord: ({ G }) => {
       G.selectedLetters = [];
+      G.lastWordCorrect = null;
     }
   },
 
