@@ -147,10 +147,10 @@ const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMove
         <div className="opponent-area">
           <div className="opponent-info">
             <span>Daisy's Cards: {opponentCardCount}</span>
-            <span>Pairs: {G.pairs['1'].length}</span>
+            <span>Pairs: {G.pairs?.['1']?.length || 0}</span>
           </div>
           <div className="opponent-pairs">
-            {G.pairs['1'].map((value, index) => renderPair(value, index))}
+            {(G.pairs?.['1'] || []).map((value, index) => renderPair(value, index))}
           </div>
         </div>
 
@@ -178,7 +178,7 @@ const GoFishBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMove
 
         <div className="player-area">
           <div className="player-pairs">
-            {G.pairs['0'].map((value, index) => renderPair(value, index))}
+            {(G.pairs?.['0'] || []).map((value, index) => renderPair(value, index))}
           </div>
           
           <div className="player-hand">
