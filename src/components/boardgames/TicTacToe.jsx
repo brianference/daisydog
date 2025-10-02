@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Client } from 'boardgame.io/react';
 import { Local } from 'boardgame.io/multiplayer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TicTacToeGame } from '../../services/boardgames/TicTacToeGame.js';
 import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
-import { DaisyBot } from '../../services/boardgames/DaisyBot.js';
+import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
 import './TicTacToe.css';
 
-const TicTacToeBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
-  const thinking = ctx.currentPlayer === '1' && !ctx.gameover;
+const TicTacToeBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMoves }) => {
+  const [thinking, setThinking] = useState(false);
 
   useEffect(() => {
     if (ctx.gameover) {
@@ -22,6 +22,35 @@ const TicTacToeBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) =
       }
     }
   }, [ctx.gameover]);
+
+  useEffect(() => {
+    if (ctx.currentPlayer === '1' && !ctx.gameover && !thinking) {
+      setThinking(true);
+      
+      const makeAIMove = async () => {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        const validMoves = G.cells
+          .map((cell, index) => cell === null ? { row: Math.floor(index / 3), col: index % 3, cellIndex: index } : null)
+          .filter(move => move !== null);
+        
+        if (validMoves.length > 0) {
+          const move = await DaisyAIOpponent.makeMove(G, validMoves, 'TIC_TAC_TOE');
+          
+          if (move && move.cellIndex !== undefined && G.cells[move.cellIndex] === null) {
+            if (aiMoves && aiMoves.clickCell) {
+              aiMoves.clickCell(move.cellIndex);
+              onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
+            }
+          }
+        }
+        
+        setThinking(false);
+      };
+      
+      makeAIMove();
+    }
+  }, [ctx.currentPlayer, ctx.gameover, ctx.turn]);
 
   const handleCellClick = (cellIndex) => {
     if (ctx.currentPlayer !== playerID) return;
@@ -112,32 +141,44 @@ const TicTacToeBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) =
 const TicTacToe = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
+  const aiMovesRef = useRef(null);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
   };
 
-  const BoardWrapper = (props) => (
-    <TicTacToeBoard 
-      {...props} 
-      onGameEvent={handleGameEvent}
-      themeConfig={themeConfig}
-    />
-  );
+  const BoardWrapper = (props) => {
+    if (props.playerID === '1') {
+      aiMovesRef.current = props.moves;
+      return null;
+    }
+    
+    return (
+      <TicTacToeBoard 
+        {...props} 
+        onGameEvent={handleGameEvent}
+        themeConfig={themeConfig}
+        aiMoves={aiMovesRef.current}
+      />
+    );
+  };
 
   const TicTacToeClient = Client({
     game: TicTacToeGame,
     board: BoardWrapper,
-    multiplayer: Local({
-      bots: {
-        '1': DaisyBot
-      }
-    }),
+    multiplayer: Local(),
     numPlayers: 2,
     debug: false
   });
 
-  return <TicTacToeClient playerID="0" matchID="local" />;
+  return (
+    <>
+      <TicTacToeClient playerID="0" matchID="local" />
+      <div style={{ display: 'none' }}>
+        <TicTacToeClient playerID="1" matchID="local" />
+      </div>
+    </>
+  );
 };
 
 export default TicTacToe;

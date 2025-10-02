@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Client } from 'boardgame.io/react';
 import { Local } from 'boardgame.io/multiplayer';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,8 +8,8 @@ import DaisyAIOpponent from '../../services/boardgames/DaisyAIOpponent.js';
 import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
 import './MemoryMatch.css';
 
-const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
-  const processingRef = React.useRef(false);
+const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMoves }) => {
+  const processingRef = useRef(false);
 
   useEffect(() => {
     if (!G || !G.flipped || !G.cards || !G.score) return;
@@ -75,8 +75,8 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
           
           processingRef.current = false;
           
-          if (move && move.cardIndex !== undefined) {
-            moves.flipCard(move.cardIndex);
+          if (move && move.cardIndex !== undefined && aiMoves && aiMoves.flipCard) {
+            aiMoves.flipCard(move.cardIndex);
             onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
           }
         } else {
@@ -86,7 +86,7 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
       
       makeOneAIFlip();
     }
-  }, [ctx?.currentPlayer, ctx?.gameover, ctx?.turn, G?.flipped?.length, G?.matched?.length, processingRef.current]);
+  }, [ctx?.currentPlayer, ctx?.gameover, ctx?.turn, G?.flipped?.length, G?.matched?.length]);
 
   const handleCardClick = (cardIndex) => {
     if (!G || !ctx || !moves) return;
@@ -192,27 +192,44 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
 const MemoryMatch = ({ onExit, onGameEnd }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
+  const aiMovesRef = useRef(null);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
   };
 
-  const BoardWrapper = (props) => (
-    <MemoryMatchBoard 
-      {...props} 
-      onGameEvent={handleGameEvent}
-      themeConfig={themeConfig}
-    />
-  );
+  const BoardWrapper = (props) => {
+    if (props.playerID === '1') {
+      aiMovesRef.current = props.moves;
+      return null;
+    }
+    
+    return (
+      <MemoryMatchBoard 
+        {...props} 
+        onGameEvent={handleGameEvent}
+        themeConfig={themeConfig}
+        aiMoves={aiMovesRef.current}
+      />
+    );
+  };
 
   const MemoryMatchClient = Client({
     game: MemoryMatchGame,
     board: BoardWrapper,
     multiplayer: Local(),
-    numPlayers: 2
+    numPlayers: 2,
+    debug: false
   });
 
-  return <MemoryMatchClient playerID="0" />;
+  return (
+    <>
+      <MemoryMatchClient playerID="0" matchID="local" />
+      <div style={{ display: 'none' }}>
+        <MemoryMatchClient playerID="1" matchID="local" />
+      </div>
+    </>
+  );
 };
 
 export default MemoryMatch;

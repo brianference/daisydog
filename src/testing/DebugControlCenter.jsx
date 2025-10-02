@@ -9,19 +9,38 @@ const DebugControlCenter = () => {
   const [isRunning, setIsRunning] = useState(false);
 
   const exportLogs = () => {
-    const logs = {
-      timestamp: new Date().toISOString(),
-      testResults: testResults,
-      browserConsole: window.console ? 'Available' : 'Not available',
-      errors: testResults.filter(r => r.status === 'failed'),
-      build: import.meta.env.VITE_BUILD_VERSION || '2025.10.01.03'
-    };
+    let textLog = `DaisyDog Test Logs\n`;
+    textLog += `===================\n`;
+    textLog += `Timestamp: ${new Date().toISOString()}\n`;
+    textLog += `Build: ${import.meta.env.VITE_BUILD_VERSION || '2025.10.01.03'}\n\n`;
     
-    const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
+    textLog += `Test Results (${testResults.length}):\n`;
+    textLog += `-----------------------\n`;
+    testResults.forEach((result, i) => {
+      const icon = result.status === 'passed' ? '✅' : result.status === 'failed' ? '❌' : '⏳';
+      textLog += `${i + 1}. ${icon} ${result.test}\n`;
+      textLog += `   Status: ${result.status}\n`;
+      if (result.message) textLog += `   Message: ${result.message}\n`;
+      if (result.error) textLog += `   Error: ${result.error}\n`;
+      if (result.details) textLog += `   Details: ${result.details}\n`;
+      textLog += `\n`;
+    });
+    
+    const errors = testResults.filter(r => r.status === 'failed');
+    if (errors.length > 0) {
+      textLog += `\nFailed Tests (${errors.length}):\n`;
+      textLog += `-----------------------\n`;
+      errors.forEach((err, i) => {
+        textLog += `${i + 1}. ${err.test}\n`;
+        textLog += `   ${err.error || err.message}\n\n`;
+      });
+    }
+    
+    const blob = new Blob([textLog], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `daisydog-test-logs-${Date.now()}.json`;
+    a.download = `daisydog-test-logs-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -108,11 +127,47 @@ const DebugControlCenter = () => {
 
     try {
       if (window.quickTest) {
-        setTestResults([{ test: 'Constitutional Content', status: 'running', timestamp: new Date().toISOString() }]);
-        await window.quickTest('constitution');
-        setTestResults(prev => prev.map(r => 
-          r.test === 'Constitutional Content' ? { ...r, status: 'passed', message: 'Safety tests passed' } : r
-        ));
+        setTestResults([{ test: 'Running Constitution Tests...', status: 'running', timestamp: new Date().toISOString() }]);
+        
+        const originalLog = console.log;
+        let capturedOutput = [];
+        
+        try {
+          console.log = (...args) => {
+            capturedOutput.push(args.join(' '));
+            originalLog(...args);
+          };
+          
+          await window.quickTest('constitution');
+        } finally {
+          console.log = originalLog;
+        }
+        
+        const resultsLine = capturedOutput.find(line => line.includes('Pass Rate'));
+        const detailsStart = capturedOutput.findIndex(line => line.includes('Details:'));
+        const failedStart = capturedOutput.findIndex(line => line.includes('Failed Tests:'));
+        
+        let details = '';
+        if (detailsStart !== -1) {
+          const detailsSection = capturedOutput.slice(detailsStart + 1, failedStart !== -1 ? failedStart : capturedOutput.length);
+          details = detailsSection.filter(line => line.trim()).join('\n');
+        }
+        
+        let failureInfo = '';
+        if (failedStart !== -1) {
+          const failureSection = capturedOutput.slice(failedStart + 1);
+          failureInfo = failureSection.filter(line => line.trim()).join('\n');
+        }
+        
+        const hasFailed = failedStart !== -1 || capturedOutput.some(line => line.includes('FAIL'));
+        
+        setTestResults([{ 
+          test: 'Constitutional Content Tests', 
+          status: hasFailed ? 'failed' : 'passed',
+          message: resultsLine || 'Tests completed',
+          details: (details + '\n\n' + failureInfo).trim(),
+          timestamp: new Date().toISOString()
+        }]);
       } else {
         setTestResults([{ test: 'Safety System', status: 'failed', error: 'Test suite not loaded', timestamp: new Date().toISOString() }]);
       }
