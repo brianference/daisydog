@@ -338,7 +338,7 @@ export const bibleTopics = {
   },
   
   guardianAngel: {
-    keywords: ["guardian angel", "guardian angel prayer", "teach me guardian angel prayer", "angel of god", "angel prayer", "my guardian angel", "prayer to guardian angel", "bedtime prayer", "bedtime"],
+    keywords: ["guardian angel", "guardian angel prayer", "teach me guardian angel prayer", "angel of god", "angel prayer", "my guardian angel", "prayer to guardian angel"],
     verses: [
       { reference: "Psalm 91:11", text: "For he will command his angels concerning you to guard you in all your ways." },
       { reference: "Matthew 18:10", text: "See that you do not despise one of these little ones. For I tell you that their angels in heaven always see the face of my Father in heaven." }
@@ -354,6 +354,28 @@ export const bibleTopics = {
       "*looks up with wonder* 👼 Did you know that God loves you SO much that He gave you your very own guardian angel? It's true! Let me teach you the Guardian Angel prayer!\n\n*wags tail excitedly* Your guardian angel is always with you, watching over you and protecting you! God assigned this special angel just to you - isn't that amazing? This prayer is how we thank our guardian angel and ask them to keep helping us every day! 🌟✨",
       "*sits with sparkling eyes* The Guardian Angel prayer is one of the sweetest prayers because it reminds us we're never alone! 👼💕\n\n*tilts head thoughtfully* God's love for you is so big that He gave you a personal angel to be with you always! Your guardian angel helps guide you, protects you from danger, and even helps you make good choices! When we pray this prayer, we're saying 'thank you' and asking our angel to stay close! 🐕🙏",
       "*bounces gently with joy* You have a real angel who watches over you all day and all night! How cool is that? 👼✨\n\n*wags tail warmly* This beautiful prayer asks your guardian angel to light your way (help you see what's right), guard you (keep you safe), rule you (help you follow God), and guide you (show you the best path)! Your angel loves you so much and is always ready to help! 💙🙏"
+    ]
+  },
+  
+  bedtimePrayer: {
+    keywords: ["bedtime prayer", "bedtime", "prayer before sleep", "prayer before bed", "nighttime prayer", "sleep prayer", "going to bed prayer"],
+    verses: [
+      { reference: "Psalm 4:8", text: "In peace I will lie down and sleep, for you alone, Lord, make me dwell in safety." },
+      { reference: "Psalm 91:5", text: "You will not fear the terror of night, nor the arrow that flies by day." }
+    ],
+    bedtimePrayerText: [
+      "God, our Father, I come to say",
+      "Thank you for your love today.",
+      "Thank you for my family,",
+      "And all the friends you give to me.",
+      "Guard me in the dark of night,",
+      "And in the morning send your light.",
+      "Amen."
+    ],
+    responses: [
+      "*yawns softly and settles down* 🌙 Bedtime is such a special time to talk to God! Let me teach you a beautiful bedtime prayer!\n\n*wags tail gently* Before we sleep, it's so nice to thank God for the day and ask Him to watch over us through the night! This prayer helps us remember all the blessings of the day and rest peacefully knowing God is with us! 💙✨",
+      "*sits peacefully* The bedtime prayer is like a goodnight hug for God! 🌟💕\n\n*tilts head warmly* When we pray before sleep, we thank God for keeping us safe all day, for our family and friends, and we ask Him to guard us through the night! It's the perfect way to end each day, knowing we're loved and protected! 🐕🙏",
+      "*settles in with sleepy eyes* You know what's wonderful? Praying before bed helps us sleep better because we know God is watching over us! 🌙✨\n\n*yawns and wags tail* This sweet prayer thanks God for His love, for the people in our lives, and asks Him to keep us safe while we sleep and wake us with His morning light! Sweet dreams! 💤💕"
     ]
   },
   
@@ -633,6 +655,13 @@ export const getBibleTopicResponse = async (message) => {
       console.log('🔍 Handling Guardian Angel prayer');
       const guardianAngelText = topicData.guardianAngelPrayer.join('\n');
       return `${randomResponse}\n\n👼 **The Guardian Angel Prayer:**\n${guardianAngelText}\n\n*wags tail warmly* Your guardian angel is always watching over you! 🐕💕✨`;
+    }
+    
+    // Special handling for Bedtime Prayer (include full prayer text)
+    if (topic === 'bedtimePrayer' && topicData.bedtimePrayerText) {
+      console.log('🔍 Handling Bedtime prayer');
+      const bedtimePrayerText = topicData.bedtimePrayerText.join('\n');
+      return `${randomResponse}\n\n🌙 **Bedtime Prayer:**\n${bedtimePrayerText}\n\n*yawns peacefully* Sleep tight and God bless! 🐕💤✨`;
     }
     
     // Try to get a relevant Bible verse from API

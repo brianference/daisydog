@@ -127,7 +127,7 @@ const DebugControlCenter = () => {
 
     try {
       if (window.quickTest) {
-        setTestResults([{ test: 'Running Constitution Tests...', status: 'running', timestamp: new Date().toISOString() }]);
+        setTestResults([{ test: 'Running Safety Tests...', status: 'running', timestamp: new Date().toISOString() }]);
         
         const originalLog = console.log;
         let capturedOutput = [];
@@ -138,7 +138,7 @@ const DebugControlCenter = () => {
             originalLog(...args);
           };
           
-          await window.quickTest('constitution');
+          await window.quickTest('safety');
         } finally {
           console.log = originalLog;
         }
@@ -162,7 +162,7 @@ const DebugControlCenter = () => {
         const hasFailed = failedStart !== -1 || capturedOutput.some(line => line.includes('FAIL'));
         
         setTestResults([{ 
-          test: 'Constitutional Content Tests', 
+          test: 'Safety Content Tests', 
           status: hasFailed ? 'failed' : 'passed',
           message: resultsLine || 'Tests completed',
           details: (details + '\n\n' + failureInfo).trim(),
