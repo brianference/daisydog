@@ -6,17 +6,18 @@ DaisyDog is an AI-powered virtual companion for children aged 5-18. This React +
 ## Recent Changes (October 3, 2025 - Session 2)
 **Critical Game Fixes:**
 
-**Checkers AI Freeze Fix:**
+**Checkers AI & Double Jump Support:**
 - Fixed Checkers AI not taking turns after first move
-- Moved AI logic to separate CheckersAIBoard component for player 1
-- Applied same pattern as TicTacToe and Connect Four
-- AI now validates playerID === '1' and checks turn before making moves
+- Removed processingRef from CheckersBoard (human player) - only needed in AIBoard
+- Added double/triple jump support with recursive findChainCaptures function
+- AI and players can now make chain captures (jump over multiple pieces in one turn)
+- Validates proper turn order and game state before moves
 
 **Word Scramble Progression Fix:**
 - Fixed game hanging after first word (1/5)
-- Letters now appear for words 2-5
-- Added events.endTurn() after word completion to properly update state
-- Scrambled letters render correctly with unique keys
+- Changed maxMoves from 1 to 20 to allow multiple letter selections per turn
+- Letters now appear for all 5 words with proper state updates
+- Scrambled letters render correctly with unique keys including wordsCompleted
 
 **Memory Match Victory & Audio Fix:**
 - Background music now stops when game ends (WIN/LOSE/DRAW)
