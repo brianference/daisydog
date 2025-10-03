@@ -33,9 +33,9 @@
 /* Video element */
 .inline-video {
   width: 100%;
-  height: 320px; /* Restored larger height for better video visibility in chat */
-  object-fit: cover; /* Changed back to cover to fill area and crop black bars */
-  object-position: center 30%; /* Position to favor upper portion where Daisy's head is */
+  height: 450px; /* Increased height to show full video without cropping */
+  object-fit: contain; /* Changed to contain to show full video */
+  object-position: center center; /* Center the video */
   display: block;
   background: #000;
 }
@@ -101,8 +101,8 @@
   }
   
   .inline-video {
-    height: 250px; /* Restored larger height for tablets */
-    object-position: center 30%; /* Keep head visible */
+    height: 350px; /* Increased for tablets */
+    object-position: center center;
   }
   
   .video-caption {
@@ -113,8 +113,8 @@
 
 @media (max-width: 480px) {
   .inline-video {
-    height: 220px; /* Restored larger height for mobile */
-    object-position: center 30%; /* Keep head visible */
+    height: 300px; /* Increased for mobile */
+    object-position: center center;
   }
   
   .message-text-content {
