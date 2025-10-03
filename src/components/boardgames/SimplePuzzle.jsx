@@ -64,6 +64,10 @@ const SimplePuzzleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
 
     const isCorrectPosition = piece.correctPos === index;
     const isDragging = draggedFrom === index;
+    
+    const pieceSize = 100;
+    const backgroundPositionX = -(piece.col * pieceSize);
+    const backgroundPositionY = -(piece.row * pieceSize);
 
     return (
       <motion.div
@@ -82,9 +86,14 @@ const SimplePuzzleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
         }}
         whileHover={{ scale: ctx.gameover ? 1 : 1.05 }}
         transition={{ type: 'spring', stiffness: 300 }}
-        style={{ backgroundColor: piece.color }}
+        style={{ 
+          backgroundImage: 'url(https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop)',
+          backgroundSize: '300px 300px',
+          backgroundPosition: `${backgroundPositionX}px ${backgroundPositionY}px`,
+          border: '2px solid #fff',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+        }}
       >
-        <div className="piece-emoji">{piece.emoji}</div>
         {isCorrectPosition && (
           <motion.div
             className="check-mark"
@@ -151,7 +160,7 @@ const SimplePuzzleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
 
       {!ctx.gameover && (
         <div className="puzzle-hint">
-          <span>💡 Tip: Match the flowers to complete the garden!</span>
+          <span>💡 Tip: Drag pieces to rebuild the picture!</span>
         </div>
       )}
     </div>

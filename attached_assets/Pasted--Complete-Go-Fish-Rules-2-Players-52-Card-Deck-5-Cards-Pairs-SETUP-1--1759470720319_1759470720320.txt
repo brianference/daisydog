@@ -1,0 +1,136 @@
+**Complete Go Fish Rules - 2 Players, 52-Card Deck, 5 Cards, Pairs**
+
+---
+
+## **SETUP**
+
+1. **Deck**: Use a standard 52-card deck
+2. **Players**: 2 players
+3. **Deal**: Each player receives 5 cards, dealt one at a time
+4. **Stock Pile**: Remaining cards (42 cards) placed face-down in the center as the "fishing pond"
+5. **Goal**: Collect the most pairs (two cards of the same rank, e.g., two 7s, two Queens)
+
+---
+
+## **GAMEPLAY - STEP BY STEP**
+
+### **Starting the Game**
+1. Players look at their own cards (keep hidden from opponent)
+2. Check for any pairs in your hand immediately
+3. If you have pairs, place them face-up in front of you (score pile)
+4. Decide who goes first (youngest player, coin flip, or mutual agreement)
+
+---
+
+### **On Your Turn (Logical Sequence)**
+
+**STEP 1: Ask for Cards**
+- You MUST have at least one card of the rank you're asking for
+- Choose one rank from your hand
+- Ask opponent: "Do you have any [rank]?" (e.g., "Do you have any 7s?")
+
+**STEP 2: Opponent's Response**
+
+**Option A - Opponent HAS the card(s):**
+- Opponent must give you ALL cards of that rank
+- Add cards to your hand
+- Check if you now have a pair
+- If you made a pair, place it face-up in your score pile
+- **Important**: You get another turn! Repeat from Step 1
+
+**Option B - Opponent DOES NOT have the card:**
+- Opponent says "Go Fish!"
+- Proceed to Step 3
+
+**STEP 3: Go Fish (Draw from Stock)**
+- Draw the top card from the stock pile
+- Look at the card you drew
+
+**Two Possibilities:**
+
+**A. You drew the rank you asked for:**
+- Add it to your hand
+- Check for pairs, place any pairs in your score pile
+- **You get another turn!** Repeat from Step 1
+
+**B. You drew a different rank:**
+- Add it to your hand
+- Check for pairs, place any pairs in your score pile
+- **Your turn ends**
+- Opponent takes their turn
+
+---
+
+### **Special Situations**
+
+**If your hand is empty:**
+- Draw 1 card from the stock pile
+- Your turn ends
+- Opponent's turn begins
+
+**If the stock pile is empty:**
+- Continue playing with cards in hand
+- If you have no cards and stock is empty, you're out of the game
+- Other player continues playing alone or game ends
+
+---
+
+## **WINNING THE GAME**
+
+**Game ends when:**
+1. All 26 pairs have been made (entire deck is paired), OR
+2. No cards remain in stock pile AND no valid moves can be made
+
+**Determining the Winner:**
+- Count the pairs in front of each player
+- Player with the MOST pairs wins
+- If tied, it's a draw
+
+---
+
+## **KEY RULES SUMMARY**
+
+✅ **You get another turn if:**
+- Opponent gives you the card(s) you asked for
+- You draw the exact rank you asked for when "going fish"
+
+✅ **Always check for pairs:**
+- After receiving cards from opponent
+- After drawing from stock pile
+- Immediately place pairs in your score pile
+
+✅ **You must ask for a rank you have in your hand**
+- Cannot bluff or ask for cards you don't have
+
+✅ **Give ALL cards of requested rank**
+- If opponent asks for 7s and you have two 7s, give both
+
+✅ **Pairs = 2 cards of same rank only**
+- Not suits, not colors - only matching ranks (e.g., 7♠ + 7♥)
+
+---
+
+## **QUICK TURN FLOWCHART**
+
+```
+START YOUR TURN
+    ↓
+Ask opponent for a rank (you must have it)
+    ↓
+Does opponent have it?
+    ↓           ↓
+   YES         NO
+    ↓           ↓
+Take all    Say "Go Fish"
+cards       Draw 1 card
+    ↓           ↓
+Make pairs  Did you draw
+if possible what you asked?
+    ↓           ↓
+GO AGAIN    YES → GO AGAIN
+            NO → TURN ENDS
+```
+
+---
+
+**Strategic Tip**: Remember what cards your opponent asks for and what they "go fish" on - this helps you know what they're collecting!

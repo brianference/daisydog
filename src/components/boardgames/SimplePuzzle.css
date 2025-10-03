@@ -103,11 +103,6 @@
   cursor: default;
 }
 
-.piece-emoji {
-  font-size: 48px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-}
-
 .check-mark {
   position: absolute;
   top: 5px;
@@ -158,10 +153,6 @@
     max-width: 100%;
     padding: 15px;
     gap: 8px;
-  }
-
-  .piece-emoji {
-    font-size: 36px;
   }
 
   .check-mark {

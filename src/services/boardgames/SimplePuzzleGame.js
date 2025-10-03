@@ -1,14 +1,15 @@
 const GRID_SIZE = 3;
+
 const PUZZLE_PIECES = [
-  { id: 0, correctPos: 0, emoji: '🌸', color: '#FF6B9D' },
-  { id: 1, correctPos: 1, emoji: '🌼', color: '#FFD93D' },
-  { id: 2, correctPos: 2, emoji: '🌺', color: '#F95959' },
-  { id: 3, correctPos: 3, emoji: '🌻', color: '#FFA500' },
-  { id: 4, correctPos: 4, emoji: '🌷', color: '#FF69B4' },
-  { id: 5, correctPos: 5, emoji: '🌹', color: '#DC143C' },
-  { id: 6, correctPos: 6, emoji: '💐', color: '#9370DB' },
-  { id: 7, correctPos: 7, emoji: '🏵️', color: '#FF1493' },
-  { id: 8, correctPos: 8, emoji: '🌿', color: '#32CD32' }
+  { id: 0, correctPos: 0, row: 0, col: 0 },
+  { id: 1, correctPos: 1, row: 0, col: 1 },
+  { id: 2, correctPos: 2, row: 0, col: 2 },
+  { id: 3, correctPos: 3, row: 1, col: 0 },
+  { id: 4, correctPos: 4, row: 1, col: 1 },
+  { id: 5, correctPos: 5, row: 1, col: 2 },
+  { id: 6, correctPos: 6, row: 2, col: 0 },
+  { id: 7, correctPos: 7, row: 2, col: 1 },
+  { id: 8, correctPos: 8, row: 2, col: 2 }
 ];
 
 function shuffleArray(array, random) {
