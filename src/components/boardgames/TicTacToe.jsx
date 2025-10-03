@@ -151,7 +151,7 @@ const TicTacToeBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiM
   );
 };
 
-const TicTacToe = ({ onExit, onGameEnd }) => {
+const TicTacToe = ({ onExit, onGameEnd, gameKey = 0 }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
   const aiMovesRef = useRef(null);
@@ -186,9 +186,9 @@ const TicTacToe = ({ onExit, onGameEnd }) => {
 
   return (
     <>
-      <TicTacToeClient playerID="0" matchID="local" />
+      <TicTacToeClient key={`ttt-p0-${gameKey}`} playerID="0" matchID={`local-${gameKey}`} />
       <div style={{ display: 'none' }}>
-        <TicTacToeClient playerID="1" matchID="local" />
+        <TicTacToeClient key={`ttt-p1-${gameKey}`} playerID="1" matchID={`local-${gameKey}`} />
       </div>
     </>
   );

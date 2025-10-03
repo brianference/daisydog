@@ -21,24 +21,33 @@ const CheckersBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMo
       processingRef.current = true;
       
       const makeAIMove = async () => {
-        await new Promise(resolve => setTimeout(resolve, 1200));
-        
-        const validMoves = getValidMoves(G.board, ctx.currentPlayer);
-        
-        if (validMoves.length > 0) {
-          const move = await DaisyAIOpponent.makeMove(G, validMoves, 'CHECKERS');
+        try {
+          await new Promise(resolve => setTimeout(resolve, 1200));
           
-          processingRef.current = false;
+          // Double-check it's still AI turn before making move
+          if (ctx.currentPlayer !== '1' || ctx.gameover) {
+            processingRef.current = false;
+            return;
+          }
           
-          if (move && move.from && move.to && aiMoves && aiMoves.movePiece) {
-            aiMoves.movePiece(move.from, move.to, move.captures || []);
-            onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
+          const validMoves = getValidMoves(G.board, ctx.currentPlayer);
+          
+          if (validMoves.length > 0) {
+            const move = await DaisyAIOpponent.makeMove(G, validMoves, 'CHECKERS');
             
-            if (move.captures && move.captures.length > 0) {
-              onGameEvent?.(GAME_EVENT_TYPE.GOOD_MOVE);
+            // Verify still AI turn before executing move
+            if (move && move.from && move.to && aiMoves && aiMoves.movePiece && ctx.currentPlayer === '1' && !ctx.gameover) {
+              aiMoves.movePiece(move.from, move.to, move.captures || []);
+              onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
+              
+              if (move.captures && move.captures.length > 0) {
+                onGameEvent?.(GAME_EVENT_TYPE.GOOD_MOVE);
+              }
             }
           }
-        } else {
+        } catch (error) {
+          console.warn('AI move error (recoverable):', error.message);
+        } finally {
           processingRef.current = false;
         }
       };
@@ -180,7 +189,7 @@ const CheckersBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMo
   );
 };
 
-const Checkers = ({ onExit, onGameEnd }) => {
+const Checkers = ({ onExit, onGameEnd, gameKey = 0 }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
   const aiMovesRef = useRef(null);
@@ -215,9 +224,9 @@ const Checkers = ({ onExit, onGameEnd }) => {
 
   return (
     <>
-      <CheckersClient playerID="0" matchID="local" />
+      <CheckersClient key={`checkers-p0-${gameKey}`} playerID="0" matchID={`local-${gameKey}`} />
       <div style={{ display: 'none' }}>
-        <CheckersClient playerID="1" matchID="local" />
+        <CheckersClient key={`checkers-p1-${gameKey}`} playerID="1" matchID={`local-${gameKey}`} />
       </div>
     </>
   );

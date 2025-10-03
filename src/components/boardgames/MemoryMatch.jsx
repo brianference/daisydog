@@ -16,63 +16,97 @@ const MemoryMatchAIBoard = ({ G, ctx, moves, playerID, onGameEvent }) => {
     if (!G || !G.flipped || !G.cards || !G.matched || !ctx || !moves) return;
     
     const isMyTurn = ctx.currentPlayer === playerID;
-    const needsToStartTurn = isMyTurn && G.flipped.length === 0;
+    const needsFirstFlip = isMyTurn && G.flipped.length === 0;
+    const needsSecondFlip = isMyTurn && G.flipped.length === 1;
     
-    if (needsToStartTurn && !ctx.gameover && !processingRef.current) {
+    // First flip
+    if (needsFirstFlip && !ctx.gameover && !processingRef.current) {
       processingRef.current = true;
       
-      const makeAITurn = async () => {
-        await new Promise(resolve => setTimeout(resolve, 1200));
-        
-        const availableCards = G.cards
-          .map((_, index) => index)
-          .filter(index => 
-            !G.matched.includes(index) && 
-            !G.flipped.includes(index)
-          );
-        
-        if (availableCards.length >= 2 && moves.flipCard) {
-          const firstMove = await DaisyAIOpponent.makeMove(
-            G,
-            availableCards.map(cardIndex => ({ cardIndex })),
-            'MEMORY_MATCH'
-          );
+      const makeFirstFlip = async () => {
+        try {
+          await new Promise(resolve => setTimeout(resolve, 1200));
           
-          if (firstMove && firstMove.cardIndex !== undefined) {
-            moves.flipCard(firstMove.cardIndex);
-            onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
-            
-            await new Promise(resolve => setTimeout(resolve, 1800));
-            
-            const remainingCards = availableCards.filter(
-              index => index !== firstMove.cardIndex
+          if (ctx.currentPlayer !== playerID || ctx.gameover) {
+            processingRef.current = false;
+            return;
+          }
+          
+          const availableCards = G.cards
+            .map((_, index) => index)
+            .filter(index => 
+              !G.matched.includes(index) && 
+              !G.flipped.includes(index)
+            );
+          
+          if (availableCards.length >= 2 && moves.flipCard) {
+            const firstMove = await DaisyAIOpponent.makeMove(
+              G,
+              availableCards.map(cardIndex => ({ cardIndex })),
+              'MEMORY_MATCH'
             );
             
-            if (remainingCards.length > 0) {
-              const secondMove = await DaisyAIOpponent.makeMove(
-                G,
-                remainingCards.map(cardIndex => ({ cardIndex })),
-                'MEMORY_MATCH'
-              );
+            if (firstMove && firstMove.cardIndex !== undefined) {
+              moves.flipCard(firstMove.cardIndex);
+              onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
+            }
+          }
+        } catch (error) {
+          console.warn('AI first flip error:', error.message);
+        } finally {
+          processingRef.current = false;
+        }
+      };
+      
+      makeFirstFlip();
+    }
+    
+    // Second flip - separate effect triggered when G.flipped.length === 1
+    if (needsSecondFlip && !ctx.gameover && !processingRef.current) {
+      processingRef.current = true;
+      
+      const makeSecondFlip = async () => {
+        try {
+          await new Promise(resolve => setTimeout(resolve, 1800));
+          
+          if (ctx.currentPlayer !== playerID || ctx.gameover || G.flipped.length !== 1) {
+            processingRef.current = false;
+            return;
+          }
+          
+          const availableCards = G.cards
+            .map((_, index) => index)
+            .filter(index => 
+              !G.matched.includes(index) && 
+              !G.flipped.includes(index)
+            );
+          
+          if (availableCards.length > 0 && moves.flipCard) {
+            const secondMove = await DaisyAIOpponent.makeMove(
+              G,
+              availableCards.map(cardIndex => ({ cardIndex })),
+              'MEMORY_MATCH'
+            );
+            
+            if (secondMove && secondMove.cardIndex !== undefined) {
+              moves.flipCard(secondMove.cardIndex);
+              onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
               
-              if (secondMove && secondMove.cardIndex !== undefined) {
-                moves.flipCard(secondMove.cardIndex);
-                onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
-                
-                await new Promise(resolve => setTimeout(resolve, 3500));
-                
-                if (moves.endPlayerTurn) {
-                  moves.endPlayerTurn();
-                }
+              await new Promise(resolve => setTimeout(resolve, 3500));
+              
+              if (moves.endPlayerTurn && ctx.currentPlayer === playerID && !ctx.gameover) {
+                moves.endPlayerTurn();
               }
             }
           }
+        } catch (error) {
+          console.warn('AI second flip error:', error.message);
+        } finally {
+          processingRef.current = false;
         }
-        
-        processingRef.current = false;
       };
       
-      makeAITurn();
+      makeSecondFlip();
     }
   }, [ctx?.currentPlayer, ctx?.gameover, ctx?.turn, G?.flipped?.length, G?.matched?.length]);
 
@@ -225,7 +259,7 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
   );
 };
 
-const MemoryMatch = ({ onExit, onGameEnd }) => {
+const MemoryMatch = ({ onExit, onGameEnd, gameKey = 0 }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
 
@@ -257,9 +291,9 @@ const MemoryMatch = ({ onExit, onGameEnd }) => {
 
   return (
     <>
-      <MemoryMatchClient playerID="0" matchID="local" />
+      <MemoryMatchClient key={`mm-p0-${gameKey}`} playerID="0" matchID={`local-${gameKey}`} />
       <div style={{ display: 'none' }}>
-        <MemoryMatchClient playerID="1" matchID="local" />
+        <MemoryMatchClient key={`mm-p1-${gameKey}`} playerID="1" matchID={`local-${gameKey}`} />
       </div>
     </>
   );
