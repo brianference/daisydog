@@ -242,7 +242,8 @@ const DebugControlCenter = () => {
     const prayerTests = [
       { name: 'Hail Mary Prayer', keywords: ['hail mary', 'teach me the hail mary prayer'], expected: 'Hail Mary, full of grace' },
       { name: 'Meal Prayer (Grace Before Meals)', keywords: ['meal prayer', 'grace before meals', 'bless us o lord'], expected: 'Bless us, O Lord' },
-      { name: 'Guardian Angel Prayer', keywords: ['guardian angel prayer', 'bedtime prayer'], expected: 'Angel of God, my guardian dear' },
+      { name: 'Guardian Angel Prayer', keywords: ['guardian angel prayer', 'angel of god'], expected: 'Angel of God, my guardian dear' },
+      { name: 'Bedtime Prayer', keywords: ['bedtime prayer', 'prayer before sleep'], expected: 'God, our Father, I come to say' },
       { name: 'Our Father Prayer', keywords: ['our father', 'lords prayer', 'tell me the lords prayer'], expected: 'Our Father, who art in heaven' }
     ];
 
@@ -411,7 +412,7 @@ const DebugControlCenter = () => {
               {activeTab === 'prayers' && (
                 <div className="test-panel">
                   <h4>Bible/Prayer System Test</h4>
-                  <p>Tests Catholic prayer texts: Hail Mary, Meal Prayer, Guardian Angel, Our Father</p>
+                  <p>Tests Catholic prayer texts: Hail Mary, Meal Prayer, Guardian Angel, Bedtime Prayer, Our Father</p>
                   <button 
                     onClick={runPrayerTests} 
                     disabled={isRunning}
