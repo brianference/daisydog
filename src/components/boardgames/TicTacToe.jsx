@@ -125,6 +125,19 @@ const TicTacToeBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiM
         )}
       </div>
 
+      <div className="player-legend">
+        <div className="legend-item">
+          <span className="legend-symbol" style={{ color: themeConfig.colors.player1 }}>✕</span>
+          <span className="legend-label">You</span>
+        </div>
+        <div className="legend-divider">vs</div>
+        <div className="legend-item">
+          <span className="legend-symbol" style={{ color: themeConfig.colors.player2 }}>○</span>
+          <span className="legend-paw">🐾</span>
+          <span className="legend-label">Daisy</span>
+        </div>
+      </div>
+
       <div className="ttt-grid">
         {[0, 1, 2, 3, 4, 5, 6, 7, 8].map(renderCell)}
       </div>

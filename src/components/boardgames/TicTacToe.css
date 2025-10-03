@@ -5,7 +5,7 @@
   max-width: 500px;
   min-height: 550px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 12px;
 }
 
 .game-status {
@@ -35,6 +35,46 @@
   to {
     transform: scale(1.02);
   }
+}
+
+.player-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 12px 20px;
+  background-color: #f5f5f5;
+  border-radius: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.legend-symbol {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.legend-paw {
+  font-size: 20px;
+  color: #FF6B35;
+}
+
+.legend-label {
+  color: #2C3E50;
+}
+
+.legend-divider {
+  color: #95A5A6;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .ttt-grid {

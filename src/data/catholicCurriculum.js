@@ -622,7 +622,7 @@ export const getBibleTopicResponse = async (message) => {
     if (topic === 'mealPrayer' && topicData.mealPrayerText) {
       console.log('🔍 Handling Meal Prayer (Grace Before Meals)');
       const mealPrayerText = topicData.mealPrayerText.join('\n');
-      return `${randomResponse}\n\n🍽️ **Grace Before Meals:**\n${mealPrayerText}\n\n*wags tail gratefully* Let\'s always remember to thank God for our food! 🐕🙏✨`;
+      return `${randomResponse}\n\n🍽️ **Grace Before Meals:**\n${mealPrayerText}\n\n*wags tail gratefully* Let's always remember to thank God for our food! 🐕🙏✨`;
     }
     
     // Special handling for Guardian Angel (include full prayer text)

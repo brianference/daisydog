@@ -3,9 +3,9 @@
   z-index: 1;
   width: 100%;
   max-width: 700px;
-  min-height: 650px;
+  min-height: 975px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 12px;
 }
 
 .game-info {
@@ -60,7 +60,7 @@
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
+  gap: 7.5px;
   margin-bottom: 20px;
 }
 
@@ -106,7 +106,7 @@
 }
 
 .card-back-icon {
-  font-size: 48px;
+  font-size: 24px;
   filter: brightness(1.2);
 }
 
@@ -117,7 +117,7 @@
 }
 
 .card-emoji {
-  font-size: 64px;
+  font-size: 32px;
 }
 
 .game-over-overlay {
@@ -156,15 +156,15 @@
 @media (max-width: 768px) {
   .cards-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 5px;
   }
 
   .card-emoji {
-    font-size: 40px;
+    font-size: 20px;
   }
 
   .card-back-icon {
-    font-size: 32px;
+    font-size: 16px;
   }
 
   .player-score {
