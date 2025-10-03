@@ -40,16 +40,14 @@ export const WordScrambleGame = {
       score: 0,
       wordsCompleted: 0,
       usedWords: [wordIndex],
-      lastWordCorrect: null,
-      processing: false
+      lastWordCorrect: null
     };
   },
 
   moves: {
     selectLetter: ({ G, ctx, random, events }, index) => {
-      // Prevent selecting same letter or if already processing
+      // Prevent selecting same letter twice
       if (G.selectedLetters.some(item => item.index === index)) return;
-      if (G.processing) return;
       
       G.selectedLetters.push({
         letter: G.scrambledLetters[index],
@@ -57,7 +55,6 @@ export const WordScrambleGame = {
       });
       
       if (G.selectedLetters.length === G.targetWord.length) {
-        G.processing = true; // Prevent double processing
         const playerWord = G.selectedLetters.map(item => item.letter).join('');
         
         if (playerWord === G.targetWord) {
@@ -83,7 +80,6 @@ export const WordScrambleGame = {
         }
         
         G.selectedLetters = [];
-        G.processing = false;
       }
     },
     
