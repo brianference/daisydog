@@ -3,7 +3,18 @@
 ## Overview
 DaisyDog is an AI-powered virtual companion designed for children aged 5-18. This React + Vite frontend application leverages the Google Gemini AI API and Supabase to deliver a safe, interactive chatbot experience embodied by a friendly golden retriever personality. The project aims to provide engaging and educational content, including interactive games, video responses, and a multi-layered safety system, all within a pure frontend architecture without a dedicated backend server.
 
-## Recent Changes (October 2, 2025)
+## Recent Changes (October 3, 2025)
+**UI/Game Layout Improvements + Catholic Prayer Fixes:**
+- Memory Match: Increased popup height 50%, reduced card size 50%, adjusted spacing proportionally
+- Tic-Tac-Toe: Added player legend with orange paw icon for Daisy
+- Checkers: Enlarged popup to display full board
+- Reduced padding across all games for efficient space usage
+- Reordered game buttons: Word Scramble → Memory Match → Tic-Tac-Toe → Checkers → Connect Four → others
+- Fixed Catholic prayers to show full traditional text after kid-friendly explanation
+- Replaced Founding Documents with History of America submenu (10+ key events + all presidents)
+- Added database schema for historical events and presidents in Supabase
+
+## Previous Changes (October 2, 2025)
 **Go Fish Hand Refill & UI Improvements:**
 - Added automatic hand refill logic to maintain 5 cards during gameplay
 - Refill triggers after pair removal in both askForCard and drawCard moves

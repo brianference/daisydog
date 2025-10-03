@@ -364,6 +364,70 @@ export const bibleTopics = {
     ]
   },
   
+  hailMary: {
+    keywords: ["hail mary", "hail mary prayer", "teach me the hail mary", "teach me the hail mary prayer", "tell me the hail mary", "mary prayer", "prayer to mary", "ave maria"],
+    verses: [
+      { reference: "Luke 1:28", text: "Hail, full of grace, the Lord is with you." },
+      { reference: "Luke 1:42", text: "Blessed are you among women, and blessed is the fruit of your womb." }
+    ],
+    hailMaryPrayer: [
+      "Hail Mary, full of grace,",
+      "the Lord is with thee.",
+      "Blessed art thou among women,",
+      "and blessed is the fruit of thy womb, Jesus.",
+      "Holy Mary, Mother of God,",
+      "pray for us sinners,",
+      "now and at the hour of our death.",
+      "Amen."
+    ],
+    responses: [
+      "*happy sigh with loving eyes* 💙 Mary was the most special mommy ever! God chose her to be Jesus's mother because she had such a pure and loving heart! Let me teach you the Hail Mary prayer!\n\n*wags tail gently* This beautiful prayer is how we honor Mary and ask for her help! The first part comes right from the Bible - those are the words the Angel Gabriel said to Mary, and the words her cousin Elizabeth said! The second part is us asking Mary to pray for us, just like we might ask a friend or grandma to pray for us! 🌟✨",
+      "*sits reverently* The Hail Mary is one of the most beloved prayers in the Catholic Church! 💙 It's our special way of honoring Jesus's mommy!\n\n*tilts head thoughtfully* Mary is so special because she said 'yes' to God's plan, even though it was scary and she didn't understand everything! She trusted God completely! When we pray the Hail Mary, we remember her faithfulness and ask her to help us be faithful too! She loves us because she's our spiritual mother! 🐕💕🙏",
+      "*bounces softly with reverence* You know what's wonderful? The Hail Mary prayer uses words from the Bible! The angel told Mary she was 'full of grace' and 'the Lord is with you!' 📖💙\n\n*wags tail warmly* When we pray this prayer, we're not worshipping Mary - we're asking her to pray TO Jesus for us! She's like our loving mother in heaven who always wants to help us get closer to her Son, Jesus! She's the best prayer partner we could ask for! ✨🙏"
+    ]
+  },
+  
+  mealPrayer: {
+    keywords: ["meal prayer", "grace before meals", "prayer before eating", "teach me a meal prayer", "bless us o lord", "blessing before meals", "food prayer", "dinner prayer"],
+    verses: [
+      { reference: "1 Timothy 4:4-5", text: "Everything created by God is good, and nothing is to be rejected if it is received with thanksgiving, for it is made holy by the word of God and prayer." },
+      { reference: "Psalm 145:15-16", text: "The eyes of all look to you, and you give them their food at the proper time." }
+    ],
+    mealPrayerText: [
+      "Bless us, O Lord,",
+      "and these Thy gifts,",
+      "which we are about to receive",
+      "from Thy bounty,",
+      "through Christ our Lord.",
+      "Amen."
+    ],
+    responses: [
+      "*sits politely like waiting for dinner* 🍽️ Before we eat yummy food, it's so important to thank God for providing it! Let me teach you the traditional Grace Before Meals prayer!\n\n*wags tail gratefully* This prayer reminds us that everything good comes from God's bounty - that means His generous love! When we say 'Bless us O Lord,' we're asking God to bless both US and our FOOD! It makes our meal extra special when we remember to thank God first! 🙏✨",
+      "*tilts head with appreciation* You know what's wonderful? Praying before meals is a tradition that goes back thousands of years! Even Jesus blessed food before eating! 🐕💕\n\n*bounces gently* The Grace Before Meals prayer is short but powerful! We thank God for His bounty (all the good things He gives us), and we remember that our food is a gift, not just something we earned. It teaches us to be grateful and generous, just like God is! 🍞🌟",
+      "*sits with reverent eyes* Taking time to pray before eating shows respect and gratitude to God! 🙏💙\n\n*wags tail warmly* This traditional prayer asks God to bless both the meal and the people eating it! When we say 'through Christ our Lord,' we remember that Jesus gives us everything we need - including our daily bread! It's the perfect way to start any meal! ✨🍽️"
+    ]
+  },
+  
+  guardianAngel: {
+    keywords: ["guardian angel", "guardian angel prayer", "teach me guardian angel prayer", "angel of god", "angel prayer", "my guardian angel", "prayer to guardian angel"],
+    verses: [
+      { reference: "Psalm 91:11", text: "For he will command his angels concerning you to guard you in all your ways." },
+      { reference: "Matthew 18:10", text: "See that you do not despise one of these little ones. For I tell you that their angels in heaven always see the face of my Father in heaven." }
+    ],
+    guardianAngelPrayer: [
+      "Angel of God, my guardian dear,",
+      "to whom God's love commits me here,",
+      "ever this day be at my side,",
+      "to light and guard, to rule and guide.",
+      "Amen."
+    ],
+    responses: [
+      "*looks up with wonder* 👼 Did you know that God loves you SO much that He gave you your very own guardian angel? It's true! Let me teach you the Guardian Angel prayer!\n\n*wags tail excitedly* Your guardian angel is always with you, watching over you and protecting you! God assigned this special angel just to you - isn't that amazing? This prayer is how we thank our guardian angel and ask them to keep helping us every day! 🌟✨",
+      "*sits with sparkling eyes* The Guardian Angel prayer is one of the sweetest prayers because it reminds us we're never alone! 👼💕\n\n*tilts head thoughtfully* God's love for you is so big that He gave you a personal angel to be with you always! Your guardian angel helps guide you, protects you from danger, and even helps you make good choices! When we pray this prayer, we're saying 'thank you' and asking our angel to stay close! 🐕🙏",
+      "*bounces gently with joy* You have a real angel who watches over you all day and all night! How cool is that? 👼✨\n\n*wags tail warmly* This beautiful prayer asks your guardian angel to light your way (help you see what's right), guard you (keep you safe), rule you (help you follow God), and guide you (show you the best path)! Your angel loves you so much and is always ready to help! 💙🙏"
+    ]
+  },
+  
   tenCommandments: {
     keywords: ["ten commandments", "10 commandments", "commandments", "moses", "mount sinai", "what are the full 10 commandments", "full ten commandments", "list the ten commandments", "tell me the ten commandments", "tell me the full 10 commandments", "show me the ten commandments", "what are the 10 commandments", "full 10 commandments"],
     verses: [
@@ -544,6 +608,28 @@ export const getBibleTopicResponse = async (message) => {
       console.log('🔍 Handling Prayer topic with Our Father');
       const ourFatherText = topicData.ourFatherPrayer.join('\n');
       return `${randomResponse}\n\n🙏 **The Our Father Prayer:**\n${ourFatherText}\n\n*wags tail gently* This is the prayer Jesus taught us! It's perfect for talking to God! 🐕💕`;
+    }
+    
+    
+    // Special handling for Hail Mary (include full prayer text)
+    if (topic === 'hailMary' && topicData.hailMaryPrayer) {
+      console.log('🔍 Handling Hail Mary prayer');
+      const hailMaryText = topicData.hailMaryPrayer.join('\n');
+      return `${randomResponse}\n\n💙 **The Hail Mary Prayer:**\n${hailMaryText}\n\n*wags tail reverently* This is how we honor Mary and ask for her prayers! 🐕💕✨`;
+    }
+    
+    // Special handling for Meal Prayer (include full prayer text)
+    if (topic === 'mealPrayer' && topicData.mealPrayerText) {
+      console.log('🔍 Handling Meal Prayer (Grace Before Meals)');
+      const mealPrayerText = topicData.mealPrayerText.join('\n');
+      return `${randomResponse}\n\n🍽️ **Grace Before Meals:**\n${mealPrayerText}\n\n*wags tail gratefully* Let\'s always remember to thank God for our food! 🐕🙏✨`;
+    }
+    
+    // Special handling for Guardian Angel (include full prayer text)
+    if (topic === 'guardianAngel' && topicData.guardianAngelPrayer) {
+      console.log('🔍 Handling Guardian Angel prayer');
+      const guardianAngelText = topicData.guardianAngelPrayer.join('\n');
+      return `${randomResponse}\n\n👼 **The Guardian Angel Prayer:**\n${guardianAngelText}\n\n*wags tail warmly* Your guardian angel is always watching over you! 🐕💕✨`;
     }
     
     // Try to get a relevant Bible verse from API
