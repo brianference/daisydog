@@ -3,6 +3,39 @@
 ## Overview
 DaisyDog is an AI-powered virtual companion for children aged 5-18. This React + Vite frontend application leverages the Google Gemini AI API and Supabase to provide a safe, interactive chatbot experience embodied by a friendly golden retriever personality. The project aims to deliver engaging and educational content, including interactive games, video responses, and a multi-layered safety system, all within a pure frontend architecture without a dedicated backend server.
 
+## Recent Changes (October 3, 2025 - Session 2)
+**Critical Game Fixes:**
+
+**Checkers AI Freeze Fix:**
+- Fixed Checkers AI not taking turns after first move
+- Moved AI logic to separate CheckersAIBoard component for player 1
+- Applied same pattern as TicTacToe and Connect Four
+- AI now validates playerID === '1' and checks turn before making moves
+
+**Word Scramble Progression Fix:**
+- Fixed game hanging after first word (1/5)
+- Letters now appear for words 2-5
+- Added events.endTurn() after word completion to properly update state
+- Scrambled letters render correctly with unique keys
+
+**Memory Match Victory & Audio Fix:**
+- Background music now stops when game ends (WIN/LOSE/DRAW)
+- Victory sounds play correctly (victory.mp3, victoryBark.mp3)
+- Daisy voice announces win/lose using ElevenLabsService
+- Added stopBackgroundMusic() to all game-end handlers in GameContainer
+
+**Memory Match StateID Error Fix:**
+- Fixed "invalid stateID" errors (was=[71] expected=[72], was=[57] expected=[58])
+- Added triple-check before endPlayerTurn: ctxRef.current, ctx.gameover, and ctx.currentPlayer validation
+- Prevents turn ending after game is already over
+- Applied to both AI and human player boards
+
+**Global Restart Button Fix:**
+- All games now restart properly without hiding menu
+- Removed setSelectedBoardGame(null) from restart handler
+- gameKey increments to force component re-mount
+- Applied globally to ALL BoardGame.io games (TicTacToe, Connect Four, Memory Match, Checkers, Go Fish, Word Scramble, etc.)
+
 ## User Preferences
 ### Development Workflow
 **MANDATORY TESTING PROTOCOL:**
