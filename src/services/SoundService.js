@@ -76,7 +76,7 @@ class SoundService {
     
     // Background music for games
     this.backgroundMusic = null
-    this.backgroundMusicVolume = 0.075 // 7.5% volume
+    this.backgroundMusicVolume = 0.30 // 30% volume
     this.musicTracks = [
       '/sounds/music/song1.mp3',
       '/sounds/music/song2.mp3',
@@ -161,7 +161,7 @@ class SoundService {
   }
 
   /**
-   * Play random background music for games (7.5% volume, 5s delay)
+   * Play random background music for games (30% volume, 5s delay)
    * @param {number} delaySeconds - Delay before starting (default 5s)
    * @param {string|null} specificTrack - Specific track path, or null for random
    */
