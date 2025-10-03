@@ -170,7 +170,7 @@ const WordScrambleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
   );
 };
 
-const WordScramble = ({ onExit, onGameEnd }) => {
+const WordScramble = ({ onExit, onGameEnd, gameKey }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
 
@@ -193,7 +193,7 @@ const WordScramble = ({ onExit, onGameEnd }) => {
     numPlayers: 1
   });
 
-  return <WordScrambleClient playerID="0" />;
+  return <WordScrambleClient key={gameKey} playerID="0" />;
 };
 
 export default WordScramble;

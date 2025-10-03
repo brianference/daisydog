@@ -87,20 +87,50 @@ export const GoFishGame = {
     let deckCopy = [...deck];
     
     // Deal initial hands - 5 cards each
-    const player0Hand = deckCopy.splice(0, INITIAL_HAND_SIZE);
-    const player1Hand = deckCopy.splice(0, INITIAL_HAND_SIZE);
+    let player0Hand = deckCopy.splice(0, INITIAL_HAND_SIZE);
+    let player1Hand = deckCopy.splice(0, INITIAL_HAND_SIZE);
     
-    // Start with 0 pairs - pairs are collected DURING gameplay, not at setup
+    const pairs = { '0': [], '1': [] };
+    
+    // Check for pairs at setup and draw replacement cards for each player
+    for (const player of ['0', '1']) {
+      const hand = player === '0' ? player0Hand : player1Hand;
+      const pairCheck = checkForPairs(hand);
+      
+      if (pairCheck.pairs.length > 0) {
+        // Found pairs at setup
+        pairs[player] = pairCheck.pairs;
+        const newHand = pairCheck.remainingCards;
+        
+        // Draw cards to refill to 5
+        while (newHand.length < INITIAL_HAND_SIZE && deckCopy.length > 0) {
+          const drawnCard = deckCopy.pop();
+          newHand.push(drawnCard);
+          
+          // Check if new card forms another pair
+          const refillCheck = checkForPairs(newHand);
+          if (refillCheck.pairs.length > 0) {
+            pairs[player].push(...refillCheck.pairs);
+            newHand.length = 0;
+            newHand.push(...refillCheck.remainingCards);
+          }
+        }
+        
+        if (player === '0') {
+          player0Hand = newHand;
+        } else {
+          player1Hand = newHand;
+        }
+      }
+    }
+    
     return {
       hands: {
         '0': player0Hand,
         '1': player1Hand
       },
       deck: deckCopy,
-      pairs: {
-        '0': [],
-        '1': []
-      },
+      pairs,
       lastAction: null
     };
   },
