@@ -166,7 +166,13 @@ class SoundService {
    * @param {string|null} specificTrack - Specific track path, or null for random
    */
   async playBackgroundMusic(delaySeconds = 5, specificTrack = null) {
-    if (!this.isInitialized || this.isMuted) {
+    if (!this.isInitialized) {
+      console.warn('🎵 Background music blocked: SoundService not initialized')
+      return null
+    }
+    
+    if (this.isMuted) {
+      console.warn('🎵 Background music blocked: Service is muted')
       return null
     }
 
@@ -179,11 +185,13 @@ class SoundService {
 
       // Resume audio context if suspended
       if (this.audioContext.state === 'suspended') {
+        console.log('🎵 Resuming suspended audio context...')
         await this.audioContext.resume()
       }
 
       // Pick random track or use specified one
       const musicPath = specificTrack || this.musicTracks[Math.floor(Math.random() * this.musicTracks.length)]
+      console.log(`🎵 Selected track: ${musicPath}`)
 
       this.backgroundMusic = new Audio(musicPath)
       this.backgroundMusic.volume = this.backgroundMusicVolume * this.volumes.master
@@ -194,7 +202,7 @@ class SoundService {
       return this.backgroundMusic
 
     } catch (error) {
-      console.warn('Error playing background music:', error)
+      console.warn('🎵 Error playing background music:', error.name, error.message)
       return null
     }
   }

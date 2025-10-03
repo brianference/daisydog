@@ -132,27 +132,25 @@ const WordScrambleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
       </div>
 
       <div className="scrambled-letters">
-        <AnimatePresence>
-          {G.scrambledLetters.map((letter, index) => (
-            <motion.button
-              key={`word${G.wordsCompleted}-pos${index}`}
-              className={`scrambled-letter ${isLetterSelected(index) ? 'selected' : ''}`}
-              onClick={() => handleLetterClick(index)}
-              disabled={isLetterSelected(index) || ctx.gameover}
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ 
-                scale: isLetterSelected(index) ? 0.8 : 1, 
-                rotate: 0,
-                opacity: isLetterSelected(index) ? 0.3 : 1
-              }}
-              whileHover={{ scale: isLetterSelected(index) ? 0.8 : 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              {letter}
-            </motion.button>
-          ))}
-        </AnimatePresence>
+        {G.scrambledLetters.map((letter, index) => (
+          <motion.button
+            key={`${G.wordsCompleted}-${letter}-${index}`}
+            className={`scrambled-letter ${isLetterSelected(index) ? 'selected' : ''}`}
+            onClick={() => handleLetterClick(index)}
+            disabled={isLetterSelected(index) || ctx.gameover}
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ 
+              scale: isLetterSelected(index) ? 0.8 : 1, 
+              rotate: 0,
+              opacity: isLetterSelected(index) ? 0.3 : 1
+            }}
+            whileHover={{ scale: isLetterSelected(index) ? 0.8 : 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            {letter}
+          </motion.button>
+        ))}
       </div>
 
       {G.selectedLetters.length > 0 && !ctx.gameover && (
