@@ -97,7 +97,7 @@ const TicTacToeBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiM
                 color: value === '0' ? themeConfig.colors.player1 : themeConfig.colors.player2
               }}
             >
-              {value === '0' ? '✕' : '○'}
+              {value === '0' ? '✕' : '🐾'}
             </motion.div>
           )}
         </AnimatePresence>
@@ -119,7 +119,7 @@ const TicTacToeBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiM
             {ctx.currentPlayer === playerID ? (
               <span>Your Turn! <span style={{ color: themeConfig.colors.player1 }}>✕</span></span>
             ) : (
-              <span>Daisy's Turn! <span style={{ color: themeConfig.colors.player2 }}>○</span></span>
+              <span>Daisy's Turn! <span style={{ color: themeConfig.colors.player2 }}>🐾</span></span>
             )}
           </div>
         )}
@@ -132,8 +132,7 @@ const TicTacToeBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiM
         </div>
         <div className="legend-divider">vs</div>
         <div className="legend-item">
-          <span className="legend-symbol" style={{ color: themeConfig.colors.player2 }}>○</span>
-          <span className="legend-paw">🐾</span>
+          <span className="legend-symbol" style={{ color: themeConfig.colors.player2 }}>🐾</span>
           <span className="legend-label">Daisy</span>
         </div>
       </div>

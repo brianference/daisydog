@@ -439,37 +439,7 @@ const ChatPage = () => {
         }
         return
       }
-      // Check for biblical character content first
-      let biblicalResult = null
-      try {
-        // Check for biblical characters
-        if (containsBibleCharacterKeywords(messageToSend)) {
-          biblicalResult = await getBibleCharacterResponse(messageToSend)
-        }
-      } catch (biblicalError) {
-        console.warn('Biblical character check failed:', biblicalError)
-      }
-      
-      if (biblicalResult) {
-        const biblicalMessage = {
-          id: Date.now() + 2,
-          text: biblicalResult,
-          sender: 'daisy',
-          timestamp: new Date(),
-          videoUrl: getVideoForEmotion('educational'),
-          emotion: 'ears-up'
-        }
-        setMessages(prev => [...prev, biblicalMessage])
-        playUISound('story').catch(() => {})
-        
-        // Play TTS if voice input was used
-        if (isVoiceInput && biblicalResult) {
-          await playTTSWithMute(biblicalResult, 'TEACHING', 'story')
-        }
-        return
-      }
-
-      // Check for Bible topics (prayers, commandments, etc.)
+      // Check for Bible topics (prayers, commandments, etc.) FIRST before characters
       let bibleTopicResult = null
       try {
         if (containsBibleTopicKeywords(messageToSend)) {
@@ -481,7 +451,7 @@ const ChatPage = () => {
       
       if (bibleTopicResult) {
         const bibleTopicMessage = {
-          id: Date.now() + 2.5,
+          id: Date.now() + 2,
           text: bibleTopicResult,
           sender: 'daisy',
           timestamp: new Date(),
@@ -494,6 +464,36 @@ const ChatPage = () => {
         // Play TTS if voice input was used
         if (isVoiceInput && bibleTopicResult) {
           await playTTSWithMute(bibleTopicResult, 'TEACHING', 'prayer')
+        }
+        return
+      }
+
+      // Check for biblical character content after prayers
+      let biblicalResult = null
+      try {
+        // Check for biblical characters
+        if (containsBibleCharacterKeywords(messageToSend)) {
+          biblicalResult = await getBibleCharacterResponse(messageToSend)
+        }
+      } catch (biblicalError) {
+        console.warn('Biblical character check failed:', biblicalError)
+      }
+      
+      if (biblicalResult) {
+        const biblicalMessage = {
+          id: Date.now() + 2.5,
+          text: biblicalResult,
+          sender: 'daisy',
+          timestamp: new Date(),
+          videoUrl: getVideoForEmotion('educational'),
+          emotion: 'ears-up'
+        }
+        setMessages(prev => [...prev, biblicalMessage])
+        playUISound('story').catch(() => {})
+        
+        // Play TTS if voice input was used
+        if (isVoiceInput && biblicalResult) {
+          await playTTSWithMute(biblicalResult, 'TEACHING', 'story')
         }
         return
       }

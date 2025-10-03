@@ -123,6 +123,11 @@
 
 .card-emoji {
   font-size: 36px;
+  transition: font-size 0.3s ease;
+}
+
+.memory-card.flipped .card-emoji {
+  font-size: 108px;
 }
 
 .game-over-overlay {
