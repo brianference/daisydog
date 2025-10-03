@@ -203,11 +203,11 @@ const GameContainer = ({
     const newMuteState = !isMuted;
     setIsMuted(newMuteState);
     
+    SoundService.toggleMute();
+    
     if (newMuteState) {
-      SoundService.toggleMute();
       ElevenLabsService.mute();
     } else {
-      SoundService.toggleMute();
       ElevenLabsService.unmute();
     }
   };

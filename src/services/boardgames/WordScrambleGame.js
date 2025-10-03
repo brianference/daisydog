@@ -84,11 +84,6 @@ export const WordScrambleGame = {
         }
         
         G.selectedLetters = [];
-        
-        // End turn to update state
-        if (events && events.endTurn) {
-          events.endTurn();
-        }
       }
     },
     

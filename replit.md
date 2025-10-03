@@ -3,6 +3,36 @@
 ## Overview
 DaisyDog is an AI-powered virtual companion for children aged 5-18. This React + Vite frontend application leverages the Google Gemini AI API and Supabase to provide a safe, interactive chatbot experience embodied by a friendly golden retriever personality. The project aims to deliver engaging and educational content, including interactive games, video responses, and a multi-layered safety system, all within a pure frontend architecture without a dedicated backend server.
 
+## Recent Changes (October 3, 2025 - Session 3)
+**Bug Fixes & Content Updates:**
+
+**Word Scramble CRITICAL Fix:**
+- Removed endTurn() call that was blocking progression past first word
+- Single-player game doesn't need turn management
+- Game now properly advances through all 5 words
+
+**Mute Button Fix (All Games):**
+- Fixed mute button not actually muting background music
+- Removed duplicate toggleMute() calls in both branches
+- Now correctly calls toggleMute() once and handles ElevenLabs separately
+
+**Connect Four Restart Fix:**
+- Added gameKey prop support to ConnectFour component
+- Restart button now properly resets game by incrementing gameKey
+- Follows same pattern as TicTacToe and other games
+
+**Games Menu Updates:**
+- Hidden Go Fish from games selection menu
+- Reordered games to: Memory Match, Tic Tac Toe, Checkers, Connect Four, Word Scramble
+- Removed Simple Puzzle, Color Match, and Pattern Builder from menu
+
+**American History Content Update:**
+- Removed "September 11" and "First Black President" buttons
+- Added Republican historical moments:
+  - Reagan & Berlin Wall (1987)
+  - Republican Party founding (1854)
+  - Lincoln Frees Slaves (1863)
+
 ## Recent Changes (October 3, 2025 - Session 2)
 **Critical Game Fixes:**
 

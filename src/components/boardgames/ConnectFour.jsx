@@ -183,7 +183,7 @@ const ConnectFourBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
   );
 };
 
-const ConnectFour = ({ onExit, onGameEnd }) => {
+const ConnectFour = ({ onExit, onGameEnd, gameKey = 0 }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
 
@@ -215,9 +215,9 @@ const ConnectFour = ({ onExit, onGameEnd }) => {
 
   return (
     <>
-      <ConnectFourClient playerID="0" matchID="local" />
+      <ConnectFourClient key={`c4-p0-${gameKey}`} playerID="0" matchID={`local-${gameKey}`} />
       <div style={{ display: 'none' }}>
-        <ConnectFourClient playerID="1" matchID="local" />
+        <ConnectFourClient key={`c4-p1-${gameKey}`} playerID="1" matchID={`local-${gameKey}`} />
       </div>
     </>
   );
