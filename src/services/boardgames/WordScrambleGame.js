@@ -46,7 +46,7 @@ export const WordScrambleGame = {
 
   turn: {
     minMoves: 1,
-    maxMoves: 1
+    maxMoves: 20
   },
 
   moves: {

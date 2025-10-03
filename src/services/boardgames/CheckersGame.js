@@ -39,6 +39,60 @@ function getValidMoves(board, player) {
   return captureMoves.length > 0 ? captureMoves : moves;
 }
 
+function findChainCaptures(board, row, col, piece, capturedSoFar = []) {
+  const directions = piece.king
+    ? [[-1, -1], [-1, 1], [1, -1], [1, 1]]
+    : piece.player === '0'
+      ? [[-1, -1], [-1, 1]]
+      : [[1, -1], [1, 1]];
+  
+  const chainMoves = [];
+  
+  for (const [dr, dc] of directions) {
+    const enemyRow = row + dr;
+    const enemyCol = col + dc;
+    
+    if (enemyRow < 0 || enemyRow >= BOARD_SIZE || enemyCol < 0 || enemyCol >= BOARD_SIZE) continue;
+    
+    const enemyPiece = board[enemyRow][enemyCol];
+    if (!enemyPiece || enemyPiece.player === piece.player) continue;
+    
+    const alreadyCaptured = capturedSoFar.some(c => c.row === enemyRow && c.col === enemyCol);
+    if (alreadyCaptured) continue;
+    
+    const jumpRow = enemyRow + dr;
+    const jumpCol = enemyCol + dc;
+    
+    if (
+      jumpRow >= 0 && jumpRow < BOARD_SIZE &&
+      jumpCol >= 0 && jumpCol < BOARD_SIZE &&
+      !board[jumpRow][jumpCol]
+    ) {
+      const newCaptures = [...capturedSoFar, { row: enemyRow, col: enemyCol }];
+      
+      const simulatedBoard = board.map(r => [...r]);
+      simulatedBoard[jumpRow][jumpCol] = simulatedBoard[row][col];
+      simulatedBoard[row][col] = null;
+      newCaptures.forEach(cap => {
+        simulatedBoard[cap.row][cap.col] = null;
+      });
+      
+      const furtherCaptures = findChainCaptures(simulatedBoard, jumpRow, jumpCol, piece, newCaptures);
+      
+      if (furtherCaptures.length > 0) {
+        chainMoves.push(...furtherCaptures);
+      } else {
+        chainMoves.push({
+          to: { row: jumpRow, col: jumpCol },
+          captures: newCaptures
+        });
+      }
+    }
+  }
+  
+  return chainMoves;
+}
+
 function getMovesForPiece(board, row, col, piece) {
   const moves = [];
   const directions = piece.king
@@ -46,6 +100,17 @@ function getMovesForPiece(board, row, col, piece) {
     : piece.player === '0'
       ? [[-1, -1], [-1, 1]]
       : [[1, -1], [1, 1]];
+  
+  const chainCaptures = findChainCaptures(board, row, col, piece);
+  if (chainCaptures.length > 0) {
+    chainCaptures.forEach(capture => {
+      moves.push({
+        from: { row, col },
+        to: capture.to,
+        captures: capture.captures
+      });
+    });
+  }
   
   for (const [dr, dc] of directions) {
     const newRow = row + dr;
@@ -59,21 +124,6 @@ function getMovesForPiece(board, row, col, piece) {
         to: { row: newRow, col: newCol },
         captures: []
       });
-    } else if (board[newRow][newCol].player !== piece.player) {
-      const jumpRow = newRow + dr;
-      const jumpCol = newCol + dc;
-      
-      if (
-        jumpRow >= 0 && jumpRow < BOARD_SIZE &&
-        jumpCol >= 0 && jumpCol < BOARD_SIZE &&
-        !board[jumpRow][jumpCol]
-      ) {
-        moves.push({
-          from: { row, col },
-          to: { row: jumpRow, col: jumpCol },
-          captures: [{ row: newRow, col: newCol }]
-        });
-      }
     }
   }
   
