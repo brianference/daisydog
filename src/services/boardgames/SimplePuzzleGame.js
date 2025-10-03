@@ -39,7 +39,9 @@ export const SimplePuzzleGame = {
       board[index] = piece;
     });
 
-    const imageIndex = Math.floor(random.Number() * PUZZLE_IMAGES.length);
+    const timestampSeed = Date.now() % PUZZLE_IMAGES.length;
+    const randomOffset = Math.floor(random.Number() * PUZZLE_IMAGES.length);
+    const imageIndex = (timestampSeed + randomOffset) % PUZZLE_IMAGES.length;
 
     return {
       board,

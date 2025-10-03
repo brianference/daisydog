@@ -85,9 +85,8 @@ const SimplePuzzleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
     const isCorrectPosition = piece.correctPos === index;
     const isDragging = draggedFrom === index;
     
-    const pieceSize = 100;
-    const backgroundPositionX = -(piece.col * pieceSize);
-    const backgroundPositionY = -(piece.row * pieceSize);
+    const backgroundPositionX = (piece.col * 100) / (GRID_SIZE - 1);
+    const backgroundPositionY = (piece.row * 100) / (GRID_SIZE - 1);
 
     return (
       <motion.div
@@ -110,8 +109,8 @@ const SimplePuzzleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
         transition={{ type: 'spring', stiffness: 300 }}
         style={{ 
           backgroundImage: `url(${G.imageUrl})`,
-          backgroundSize: '300px 300px',
-          backgroundPosition: `${backgroundPositionX}px ${backgroundPositionY}px`,
+          backgroundSize: `${GRID_SIZE * 100}% ${GRID_SIZE * 100}%`,
+          backgroundPosition: `${backgroundPositionX}% ${backgroundPositionY}%`,
           backgroundRepeat: 'no-repeat',
           border: '2px solid #fff',
           boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
