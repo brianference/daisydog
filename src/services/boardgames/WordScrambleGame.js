@@ -50,7 +50,7 @@ export const WordScrambleGame = {
   },
 
   moves: {
-    selectLetter: ({ G, ctx, random }, index) => {
+    selectLetter: ({ G, ctx, random, events }, index) => {
       if (G.selectedLetters.some(item => item.index === index)) return;
       
       G.selectedLetters.push({
@@ -84,6 +84,11 @@ export const WordScrambleGame = {
         }
         
         G.selectedLetters = [];
+        
+        // End turn to update state
+        if (events && events.endTurn) {
+          events.endTurn();
+        }
       }
     },
     
