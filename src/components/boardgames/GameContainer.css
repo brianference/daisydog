@@ -1,14 +1,14 @@
 .game-container {
   position: fixed;
   top: 70px;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   width: 95%;
   max-width: 1000px;
-  max-height: calc(100vh - 80px);
   overflow-y: auto;
   padding: 8px;
-  padding-bottom: 150px;
+  padding-bottom: 20px;
   font-family: var(--theme-font);
   background-color: var(--theme-background);
   border-radius: var(--theme-border-radius);
@@ -184,9 +184,9 @@
 @media (max-width: 768px) {
   .game-container {
     padding: 10px;
-    padding-bottom: 160px;
+    padding-bottom: 20px;
     top: 60px;
-    max-height: calc(100vh - 70px);
+    bottom: 10px;
     width: 98%;
   }
 
