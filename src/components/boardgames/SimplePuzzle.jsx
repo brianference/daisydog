@@ -50,6 +50,26 @@ const SimplePuzzleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
     setDraggedFrom(null);
   };
 
+  const handleTouchStart = (index) => {
+    if (ctx.gameover) return;
+    setDraggedFrom(index);
+    setDraggedPiece(G.board[index]);
+  };
+
+  const handleTouchEnd = (toIndex) => {
+    if (draggedFrom === null || draggedFrom === toIndex || ctx.gameover) {
+      setDraggedPiece(null);
+      setDraggedFrom(null);
+      return;
+    }
+
+    moves.placePiece(draggedFrom, toIndex);
+    onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
+    
+    setDraggedPiece(null);
+    setDraggedFrom(null);
+  };
+
   const renderPuzzlePiece = (piece, index) => {
     if (!piece) {
       return (
@@ -78,6 +98,8 @@ const SimplePuzzleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
         onDrop={() => handleDrop(index)}
+        onTouchStart={() => handleTouchStart(index)}
+        onTouchEnd={() => handleTouchEnd(index)}
         initial={{ scale: 0, rotate: -180 }}
         animate={{ 
           scale: isDragging ? 0.9 : 1, 
@@ -87,11 +109,13 @@ const SimplePuzzleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
         whileHover={{ scale: ctx.gameover ? 1 : 1.05 }}
         transition={{ type: 'spring', stiffness: 300 }}
         style={{ 
-          backgroundImage: 'url(https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop)',
+          backgroundImage: `url(${G.imageUrl})`,
           backgroundSize: '300px 300px',
           backgroundPosition: `${backgroundPositionX}px ${backgroundPositionY}px`,
+          backgroundRepeat: 'no-repeat',
           border: '2px solid #fff',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+          touchAction: 'none'
         }}
       >
         {isCorrectPosition && (
@@ -167,7 +191,7 @@ const SimplePuzzleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
   );
 };
 
-const SimplePuzzle = ({ onExit, onGameEnd }) => {
+const SimplePuzzle = ({ onExit, onGameEnd, gameKey = 0 }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
 
@@ -190,7 +214,7 @@ const SimplePuzzle = ({ onExit, onGameEnd }) => {
     numPlayers: 1
   });
 
-  return <SimplePuzzleClient playerID="0" />;
+  return <SimplePuzzleClient key={`puzzle-${gameKey}`} playerID="0" matchID={`local-${gameKey}`} />;
 };
 
 export default SimplePuzzle;

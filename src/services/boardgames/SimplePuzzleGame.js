@@ -1,5 +1,13 @@
 const GRID_SIZE = 3;
 
+const PUZZLE_IMAGES = [
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=300&h=300&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop&crop=faces',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop&crop=faces'
+];
+
 const PUZZLE_PIECES = [
   { id: 0, correctPos: 0, row: 0, col: 0 },
   { id: 1, correctPos: 1, row: 0, col: 1 },
@@ -31,11 +39,14 @@ export const SimplePuzzleGame = {
       board[index] = piece;
     });
 
+    const imageIndex = Math.floor(random.Number() * PUZZLE_IMAGES.length);
+
     return {
       board,
       selectedPiece: null,
       moveCount: 0,
-      correctPieces: 0
+      correctPieces: 0,
+      imageUrl: PUZZLE_IMAGES[imageIndex]
     };
   },
 

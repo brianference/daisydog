@@ -44,11 +44,6 @@ export const WordScrambleGame = {
     };
   },
 
-  turn: {
-    minMoves: 1,
-    maxMoves: 20
-  },
-
   moves: {
     selectLetter: ({ G, ctx, random, events }, index) => {
       if (G.selectedLetters.some(item => item.index === index)) return;
@@ -61,12 +56,17 @@ export const WordScrambleGame = {
       if (G.selectedLetters.length === G.targetWord.length) {
         const playerWord = G.selectedLetters.map(item => item.letter).join('');
         
+        console.log('🔤 Word Scramble - Checking word:', playerWord, 'vs', G.targetWord);
+        
         if (playerWord === G.targetWord) {
+          console.log('✅ Word Scramble - Correct! Words completed:', G.wordsCompleted, '→', G.wordsCompleted + 1);
+          
           G.lastWordCorrect = true;
           G.score += G.targetWord.length * 10;
           G.wordsCompleted++;
           
           const availableWords = WORDS.filter((_, idx) => !G.usedWords.includes(idx));
+          console.log('🔤 Word Scramble - Available words:', availableWords.length);
           
           if (availableWords.length > 0) {
             const randomIndex = Math.floor(random.Number() * availableWords.length);
@@ -78,8 +78,12 @@ export const WordScrambleGame = {
             G.targetWord = WORDS[nextWordIndex].word;
             G.hint = WORDS[nextWordIndex].hint;
             G.scrambledLetters = shuffleWord(WORDS[nextWordIndex].word, random);
+            
+            console.log('🔤 Word Scramble - Next word:', G.targetWord, 'Hint:', G.hint);
+            console.log('🔤 Word Scramble - Scrambled:', G.scrambledLetters);
           }
         } else {
+          console.log('❌ Word Scramble - Wrong word!');
           G.lastWordCorrect = false;
         }
         
