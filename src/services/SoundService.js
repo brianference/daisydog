@@ -76,7 +76,7 @@ class SoundService {
     
     // Background music for games
     this.backgroundMusic = null
-    this.backgroundMusicVolume = 0.30 // 30% volume
+    this.backgroundMusicVolume = 0.15 // 15% volume
     this.musicTracks = [
       '/sounds/music/song1.mp3',
       '/sounds/music/song2.mp3',
