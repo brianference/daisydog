@@ -27,7 +27,7 @@
 .video-wrapper {
   position: relative;
   width: 100%;
-  background: #000;
+  background: #fff;
 }
 
 /* Video element */
@@ -37,7 +37,7 @@
   object-fit: contain; /* Changed to contain to show full video */
   object-position: center center; /* Center the video */
   display: block;
-  background: #000;
+  background: #fff;
 }
 
 /* Video overlay */
