@@ -143,6 +143,12 @@ const GameContainer = ({
   useEffect(() => {
     const initAudio = async () => {
       if (gameType) {
+        // Ensure SoundService is unmuted for game audio
+        if (SoundService && SoundService.isSoundMuted && SoundService.isSoundMuted()) {
+          console.log('🔊 Unmuting SoundService for game');
+          SoundService.toggleMute();
+        }
+        
         await GameVoiceInstructions.playInstructions(gameType);
         
         // Start background music with 5-second delay after voice instructions
