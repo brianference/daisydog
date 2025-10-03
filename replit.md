@@ -30,9 +30,8 @@ DaisyDog is an AI-powered virtual companion for children aged 5-18. This React +
 - Follows same pattern as TicTacToe and other games
 
 **Games Menu Updates:**
-- Hidden Go Fish from games selection menu
-- Reordered games to: Memory Match, Tic Tac Toe, Checkers, Connect Four, Word Scramble
-- Removed Simple Puzzle, Color Match, and Pattern Builder from menu
+- Visible games (in order): Memory Match, Tic Tac Toe, Checkers, Connect Four, Word Scramble, Simple Puzzle
+- Hidden games: Go Fish, Color Match, Pattern Builder
 
 **American History Content Update:**
 - Removed "September 11" and "First Black President" buttons

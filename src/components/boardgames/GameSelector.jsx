@@ -7,7 +7,17 @@ import './GameSelector.css';
 const GameSelector = ({ onSelectGame, onClose, className = '' }) => {
   const { themeConfig } = useGameTheme();
 
-  const games = Object.values(BOARD_GAME_TYPES).map(gameType => ({
+  // Define visible games in desired order
+  const visibleGameTypes = [
+    BOARD_GAME_TYPES.MEMORY_MATCH,
+    BOARD_GAME_TYPES.TIC_TAC_TOE,
+    BOARD_GAME_TYPES.CHECKERS,
+    BOARD_GAME_TYPES.CONNECT_FOUR,
+    BOARD_GAME_TYPES.WORD_SCRAMBLE,
+    BOARD_GAME_TYPES.SIMPLE_PUZZLE
+  ];
+
+  const games = visibleGameTypes.map(gameType => ({
     type: gameType,
     ...BOARD_GAME_INFO[gameType]
   }));
