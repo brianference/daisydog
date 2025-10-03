@@ -100,7 +100,8 @@ const MemoryMatchAIBoard = ({ G, ctx, moves, playerID, onGameEvent }) => {
               
               await new Promise(resolve => setTimeout(resolve, 2500));
               
-              if (moves.endPlayerTurn && !turnEndedRef.current && !ctxRef.current?.gameover) {
+              // Triple-check before ending turn: ref, current ctx, and game not over
+              if (moves.endPlayerTurn && !turnEndedRef.current && !ctxRef.current?.gameover && !ctx?.gameover && ctx?.currentPlayer === playerID) {
                 turnEndedRef.current = true;
                 moves.endPlayerTurn();
               }
@@ -191,7 +192,8 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
     
     if (G.flipped.length === 1) {
       setTimeout(() => {
-        if (moves.endPlayerTurn && !turnEndedRef.current && !ctxRef.current?.gameover) {
+        // Triple-check before ending turn: ref, current ctx, and game not over
+        if (moves.endPlayerTurn && !turnEndedRef.current && !ctxRef.current?.gameover && !ctx?.gameover && ctx?.currentPlayer === playerID) {
           turnEndedRef.current = true;
           moves.endPlayerTurn();
         }
