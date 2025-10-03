@@ -81,7 +81,7 @@ const CheckersBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) =>
   }, [selectedPiece, G.board]);
 
   const handleCellClick = (row, col) => {
-    if (ctx.currentPlayer !== playerID || ctx.gameover || processingRef.current) return;
+    if (ctx.currentPlayer !== playerID || ctx.gameover) return;
     
     const piece = G.board[row][col];
     
