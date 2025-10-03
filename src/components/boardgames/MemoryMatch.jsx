@@ -22,7 +22,7 @@ const MemoryMatchAIBoard = ({ G, ctx, moves, playerID, onGameEvent }) => {
       processingRef.current = true;
       
       const makeAITurn = async () => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1200));
         
         const availableCards = G.cards
           .map((_, index) => index)
@@ -42,7 +42,7 @@ const MemoryMatchAIBoard = ({ G, ctx, moves, playerID, onGameEvent }) => {
             moves.flipCard(firstMove.cardIndex);
             onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
             
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 1800));
             
             const remainingCards = availableCards.filter(
               index => index !== firstMove.cardIndex
@@ -59,7 +59,7 @@ const MemoryMatchAIBoard = ({ G, ctx, moves, playerID, onGameEvent }) => {
                 moves.flipCard(secondMove.cardIndex);
                 onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
                 
-                await new Promise(resolve => setTimeout(resolve, 2500));
+                await new Promise(resolve => setTimeout(resolve, 3500));
                 
                 if (moves.endPlayerTurn) {
                   moves.endPlayerTurn();

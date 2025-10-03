@@ -86,60 +86,11 @@ export const GoFishGame = {
     const deck = shuffleDeck(createDeck(), random);
     let deckCopy = [...deck];
     
-    // Deal initial hands
+    // Deal initial hands - 5 cards each
     const player0Hand = deckCopy.splice(0, INITIAL_HAND_SIZE);
     const player1Hand = deckCopy.splice(0, INITIAL_HAND_SIZE);
     
-    // Initialize pairs
-    let player0Pairs = [];
-    let player1Pairs = [];
-    
-    // Check and replace pairs for player 0 to maintain 5 cards
-    let keepChecking0 = true;
-    while (keepChecking0) {
-      const result = checkForPairs(player0Hand);
-      if (result.pairs.length > 0) {
-        // Found pairs - record them
-        player0Pairs = [...player0Pairs, ...result.pairs];
-        // Update hand to cards without pairs
-        player0Hand.length = 0;
-        player0Hand.push(...result.remainingCards);
-        // Draw replacement cards to get back to 5 cards
-        while (player0Hand.length < INITIAL_HAND_SIZE && deckCopy.length > 0) {
-          player0Hand.push(deckCopy.shift());
-        }
-      } else {
-        keepChecking0 = false;
-      }
-      // Safety check to prevent infinite loop
-      if (deckCopy.length === 0 || player0Hand.length < INITIAL_HAND_SIZE) {
-        keepChecking0 = false;
-      }
-    }
-    
-    // Check and replace pairs for player 1 to maintain 5 cards
-    let keepChecking1 = true;
-    while (keepChecking1) {
-      const result = checkForPairs(player1Hand);
-      if (result.pairs.length > 0) {
-        // Found pairs - record them
-        player1Pairs = [...player1Pairs, ...result.pairs];
-        // Update hand to cards without pairs
-        player1Hand.length = 0;
-        player1Hand.push(...result.remainingCards);
-        // Draw replacement cards to get back to 5 cards
-        while (player1Hand.length < INITIAL_HAND_SIZE && deckCopy.length > 0) {
-          player1Hand.push(deckCopy.shift());
-        }
-      } else {
-        keepChecking1 = false;
-      }
-      // Safety check to prevent infinite loop
-      if (deckCopy.length === 0 || player1Hand.length < INITIAL_HAND_SIZE) {
-        keepChecking1 = false;
-      }
-    }
-    
+    // Start with 0 pairs - pairs are collected DURING gameplay, not at setup
     return {
       hands: {
         '0': player0Hand,
@@ -147,8 +98,8 @@ export const GoFishGame = {
       },
       deck: deckCopy,
       pairs: {
-        '0': player0Pairs,
-        '1': player1Pairs
+        '0': [],
+        '1': []
       },
       lastAction: null
     };
