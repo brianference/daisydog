@@ -92,10 +92,14 @@ const MemoryMatchAIBoard = ({ G, ctx, moves, playerID, onGameEvent }) => {
               moves.flipCard(secondMove.cardIndex);
               onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
               
-              await new Promise(resolve => setTimeout(resolve, 3500));
+              await new Promise(resolve => setTimeout(resolve, 2500));
               
-              if (moves.endPlayerTurn && ctx.currentPlayer === playerID && !ctx.gameover) {
-                moves.endPlayerTurn();
+              if (moves.endPlayerTurn && !ctx.gameover) {
+                try {
+                  moves.endPlayerTurn();
+                } catch (err) {
+                  console.log('Turn already ended or game over');
+                }
               }
             }
           }
@@ -165,8 +169,12 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
     
     if (G.flipped.length === 1) {
       setTimeout(() => {
-        if (moves.endPlayerTurn) {
-          moves.endPlayerTurn();
+        if (moves.endPlayerTurn && !ctx.gameover) {
+          try {
+            moves.endPlayerTurn();
+          } catch (err) {
+            console.log('Turn already ended or game over');
+          }
         }
       }, 2000);
     }
