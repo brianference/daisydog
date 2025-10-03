@@ -9,39 +9,34 @@ import { GAME_EVENT_TYPE } from '../../types/boardGameTypes.js';
 import GameVoiceInstructions from '../../services/GameVoiceInstructions.js';
 import './Checkers.css';
 
-const CheckersBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMoves }) => {
+const CheckersAIBoard = ({ G, ctx, moves, playerID }) => {
   const processingRef = useRef(false);
-  const [selectedPiece, setSelectedPiece] = useState(null);
-  const [validMoves, setValidMoves] = useState([]);
 
   useEffect(() => {
-    const isAITurn = ctx.currentPlayer === '1';
-    
-    if (isAITurn && !ctx.gameover && !processingRef.current) {
+    // Only run if it's AI's turn (player 1), game is not over, and not already processing
+    if (ctx.currentPlayer === '1' && playerID === '1' && !ctx.gameover && !processingRef.current && moves) {
       processingRef.current = true;
       
       const makeAIMove = async () => {
         try {
           await new Promise(resolve => setTimeout(resolve, 1200));
           
-          // Double-check it's still AI turn before making move
+          // Double-check it's still AI turn after the delay
           if (ctx.currentPlayer !== '1' || ctx.gameover) {
             processingRef.current = false;
             return;
           }
           
-          const validMoves = getValidMoves(G.board, ctx.currentPlayer);
+          const validMoves = getValidMoves(G.board, '1');
           
-          if (validMoves.length > 0) {
+          if (validMoves.length > 0 && moves.movePiece) {
             const move = await DaisyAIOpponent.makeMove(G, validMoves, 'CHECKERS');
             
-            // Verify still AI turn before executing move
-            if (move && move.from && move.to && aiMoves && aiMoves.movePiece && ctx.currentPlayer === '1' && !ctx.gameover) {
-              aiMoves.movePiece(move.from, move.to, move.captures || []);
-              onGameEvent?.(GAME_EVENT_TYPE.MOVE_MADE);
+            if (move && move.from && move.to) {
+              moves.movePiece(move.from, move.to, move.captures || []);
               
               if (move.captures && move.captures.length > 0) {
-                onGameEvent?.(GAME_EVENT_TYPE.GOOD_MOVE);
+                console.log('AI captured pieces:', move.captures);
               }
             }
           }
@@ -54,7 +49,14 @@ const CheckersBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMo
       
       makeAIMove();
     }
-  }, [ctx.currentPlayer, ctx.gameover, ctx.turn]);
+  }, [ctx.currentPlayer, ctx.gameover, ctx.turn, G.board]);
+
+  return null;
+};
+
+const CheckersBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
+  const [selectedPiece, setSelectedPiece] = useState(null);
+  const [validMoves, setValidMoves] = useState([]);
 
   useEffect(() => {
     if (ctx.gameover) {
@@ -192,7 +194,6 @@ const CheckersBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig, aiMo
 const Checkers = ({ onExit, onGameEnd, gameKey = 0 }) => {
   const { themeConfig } = useGameTheme();
   const [gameEvents, setGameEvents] = useState([]);
-  const aiMovesRef = useRef(null);
 
   const handleGameEvent = (eventType, data) => {
     setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
@@ -200,8 +201,7 @@ const Checkers = ({ onExit, onGameEnd, gameKey = 0 }) => {
 
   const BoardWrapper = (props) => {
     if (props.playerID === '1') {
-      aiMovesRef.current = props.moves;
-      return null;
+      return <CheckersAIBoard {...props} />;
     }
     
     return (
@@ -209,7 +209,6 @@ const Checkers = ({ onExit, onGameEnd, gameKey = 0 }) => {
         {...props} 
         onGameEvent={handleGameEvent}
         themeConfig={themeConfig}
-        aiMoves={aiMovesRef.current}
       />
     );
   };
