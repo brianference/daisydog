@@ -144,9 +144,15 @@ const GameContainer = ({
     const initAudio = async () => {
       if (gameType) {
         // Ensure SoundService is unmuted for game audio
-        if (SoundService && SoundService.isSoundMuted && SoundService.isSoundMuted()) {
-          console.log('🔊 Unmuting SoundService for game');
-          SoundService.toggleMute();
+        if (SoundService) {
+          const isMuted = SoundService.isSoundMuted ? SoundService.isSoundMuted() : false;
+          console.log('🎵 SoundService mute state:', isMuted);
+          
+          if (isMuted) {
+            console.log('🔊 Unmuting SoundService for game');
+            SoundService.toggleMute();
+            console.log('🔊 SoundService unmuted, new state:', SoundService.isSoundMuted());
+          }
         }
         
         await GameVoiceInstructions.playInstructions(gameType);
