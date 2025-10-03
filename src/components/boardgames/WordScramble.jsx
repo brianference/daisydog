@@ -196,7 +196,7 @@ const WordScramble = ({ onExit, onGameEnd, gameKey }) => {
     numPlayers: 1
   }), [BoardWrapper]);
 
-  return <WordScrambleClient key={gameKey} playerID="0" />;
+  return <WordScrambleClient key={`word-scramble-${gameKey}`} playerID="0" matchID={`local-${gameKey}`} />;
 };
 
 export default WordScramble;
