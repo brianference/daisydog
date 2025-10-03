@@ -18,7 +18,7 @@ const WordScrambleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
       scrambledLetters: G.scrambledLetters,
       hint: G.hint
     });
-  }, [G.targetWord, G.wordsCompleted, G.scrambledLetters]);
+  }, [G.targetWord, G.wordsCompleted]);
 
   useEffect(() => {
     if (ctx.gameover && ctx.gameover.winner === playerID) {
