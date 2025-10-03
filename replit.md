@@ -10,6 +10,14 @@ DaisyDog is an AI-powered virtual companion for children aged 5-18. This React +
 - Removed endTurn() call that was blocking progression past first word
 - Single-player game doesn't need turn management
 - Game now properly advances through all 5 words
+- Added debug logging to track word progression
+
+**Simple Puzzle Complete Fixes:**
+- Added gameKey prop support for proper restart functionality
+- Implemented touch event handlers (onTouchStart, onTouchEnd) for mobile drag/drop
+- Added dynamic image selection from 5 face-cropped Unsplash images
+- Fixed image slicing with crop=faces parameter and backgroundRepeat: no-repeat
+- Added touchAction: 'none' to prevent scroll interference on mobile
 
 **Mute Button Fix (All Games):**
 - Fixed mute button not actually muting background music
