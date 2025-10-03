@@ -13,13 +13,18 @@ const ConnectFourAIBoard = ({ G, ctx, moves, playerID }) => {
   const processingRef = useRef(false);
 
   useEffect(() => {
-    const isMyTurn = ctx.currentPlayer === playerID;
-    
-    if (isMyTurn && !ctx.gameover && !processingRef.current && moves) {
+    // Only run if it's AI's turn (player 1), game is not over, and not already processing
+    if (ctx.currentPlayer === '1' && playerID === '1' && !ctx.gameover && !processingRef.current && moves) {
       processingRef.current = true;
       
       const makeAIMove = async () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Double-check it's still AI's turn after the delay
+        if (ctx.currentPlayer !== '1' || ctx.gameover) {
+          processingRef.current = false;
+          return;
+        }
         
         const validMoves = [];
         for (let col = 0; col < COLS; col++) {
