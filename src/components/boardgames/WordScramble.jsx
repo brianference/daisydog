@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Client } from 'boardgame.io/react';
 import { Local } from 'boardgame.io/multiplayer';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -173,26 +173,28 @@ const WordScrambleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
 
 const WordScramble = ({ onExit, onGameEnd, gameKey }) => {
   const { themeConfig } = useGameTheme();
-  const [gameEvents, setGameEvents] = useState([]);
 
-  const handleGameEvent = (eventType, data) => {
-    setGameEvents(prev => [...prev, { eventType, data, timestamp: Date.now() }]);
-  };
+  const handleGameEvent = useCallback((eventType, data) => {
+    // Handle game events without causing re-renders
+    if (eventType === GAME_EVENT_TYPE.WIN && onGameEnd) {
+      onGameEnd();
+    }
+  }, [onGameEnd]);
 
-  const BoardWrapper = (props) => (
+  const BoardWrapper = useCallback((props) => (
     <WordScrambleBoard 
       {...props} 
       onGameEvent={handleGameEvent}
       themeConfig={themeConfig}
     />
-  );
+  ), [handleGameEvent, themeConfig]);
 
-  const WordScrambleClient = Client({
+  const WordScrambleClient = useMemo(() => Client({
     game: WordScrambleGame,
     board: BoardWrapper,
     multiplayer: Local(),
     numPlayers: 1
-  });
+  }), [BoardWrapper]);
 
   return <WordScrambleClient key={gameKey} playerID="0" />;
 };
