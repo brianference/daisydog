@@ -103,7 +103,9 @@ const GameContainer = ({
         
         // Start background music with 5-second delay after voice instructions
         // Random track selection, 7.5% volume
-        SoundService.playBackgroundMusic(5);
+        if (SoundService && typeof SoundService.playBackgroundMusic === 'function') {
+          SoundService.playBackgroundMusic(5);
+        }
       }
     };
     
@@ -111,7 +113,9 @@ const GameContainer = ({
     
     return () => {
       GameVoiceInstructions.stop();
-      SoundService.stopBackgroundMusic();
+      if (SoundService && typeof SoundService.stopBackgroundMusic === 'function') {
+        SoundService.stopBackgroundMusic();
+      }
     };
   }, [gameType]);
 

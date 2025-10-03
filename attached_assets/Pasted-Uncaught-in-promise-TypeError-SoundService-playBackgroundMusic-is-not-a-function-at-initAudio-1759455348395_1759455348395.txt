@@ -1,0 +1,45 @@
+Uncaught (in promise) TypeError: SoundService.playBackgroundMusic is not a function
+    at initAudio (GameContainer.jsx:106:22)
+initAudio @ GameContainer.jsx:106
+Console.js:61 TypeError: SoundService.stopBackgroundMusic is not a function
+    at GameContainer.jsx:114:20
+    at Mj (chunk-K5XMU2MF.js?v=c1c5cdd9:4735:9)
+    at Pj (chunk-K5XMU2MF.js?v=c1c5cdd9:4838:29)
+    at Hk (chunk-K5XMU2MF.js?v=c1c5cdd9:6051:27)
+    at Wk (chunk-K5XMU2MF.js?v=c1c5cdd9:6018:40)
+    at Pk (chunk-K5XMU2MF.js?v=c1c5cdd9:5964:38)
+    at Ek (chunk-K5XMU2MF.js?v=c1c5cdd9:5693:7)
+    at jg (chunk-K5XMU2MF.js?v=c1c5cdd9:2527:19)
+    at chunk-K5XMU2MF.js?v=c1c5cdd9:5515:28
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ ChatPage.jsx:1328
+Li @ chunk-K5XMU2MF.js?v=c1c5cdd9:3770
+Ni.c.callback @ chunk-K5XMU2MF.js?v=c1c5cdd9:3785
+sh @ chunk-K5XMU2MF.js?v=c1c5cdd9:3151
+kk @ chunk-K5XMU2MF.js?v=c1c5cdd9:5321
+ik @ chunk-K5XMU2MF.js?v=c1c5cdd9:5285
+hk @ chunk-K5XMU2MF.js?v=c1c5cdd9:5266
+Wk @ chunk-K5XMU2MF.js?v=c1c5cdd9:6005
+Pk @ chunk-K5XMU2MF.js?v=c1c5cdd9:5964
+Ek @ chunk-K5XMU2MF.js?v=c1c5cdd9:5693
+jg @ chunk-K5XMU2MF.js?v=c1c5cdd9:2527
+(anonymous) @ chunk-K5XMU2MF.js?v=c1c5cdd9:5515
+chunk-K5XMU2MF.js?v=c1c5cdd9:2533 Uncaught TypeError: SoundService.stopBackgroundMusic is not a function
+    at GameContainer.jsx:114:20
+    at Mj (chunk-K5XMU2MF.js?v=c1c5cdd9:4735:9)
+    at Pj (chunk-K5XMU2MF.js?v=c1c5cdd9:4838:29)
+    at Hk (chunk-K5XMU2MF.js?v=c1c5cdd9:6051:27)
+    at Wk (chunk-K5XMU2MF.js?v=c1c5cdd9:6018:40)
+    at Pk (chunk-K5XMU2MF.js?v=c1c5cdd9:5964:38)
+    at Ek (chunk-K5XMU2MF.js?v=c1c5cdd9:5693:7)
+    at jg (chunk-K5XMU2MF.js?v=c1c5cdd9:2527:19)
+    at chunk-K5XMU2MF.js?v=c1c5cdd9:5515:28
+(anonymous) @ GameContainer.jsx:114
+Mj @ chunk-K5XMU2MF.js?v=c1c5cdd9:4735
+Pj @ chunk-K5XMU2MF.js?v=c1c5cdd9:4838
+Hk @ chunk-K5XMU2MF.js?v=c1c5cdd9:6051
+Wk @ chunk-K5XMU2MF.js?v=c1c5cdd9:6018
+Pk @ chunk-K5XMU2MF.js?v=c1c5cdd9:5964
+Ek @ chunk-K5XMU2MF.js?v=c1c5cdd9:5693
+jg @ chunk-K5XMU2MF.js?v=c1c5cdd9:2527
+(anonymous) @ chunk-K5XMU2MF.js?v=c1c5cdd9:5515
