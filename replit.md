@@ -4,15 +4,19 @@
 DaisyDog is an AI-powered virtual companion designed for children aged 5-18. This React + Vite frontend application leverages the Google Gemini AI API and Supabase to deliver a safe, interactive chatbot experience embodied by a friendly golden retriever personality. The project aims to provide engaging and educational content, including interactive games, video responses, and a multi-layered safety system, all within a pure frontend architecture without a dedicated backend server.
 
 ## Recent Changes (October 3, 2025)
-**DATABASE MIGRATION: Supabase → Replit PostgreSQL (COMPLETED)**
-- Created PostgreSQLService.js using @neondatabase/serverless (Neon) for Replit DATABASE_URL
-- Migrated all tables: sessions, safety_events, performance_logs, feature_analytics, content_cache, system_reports
-- Used VARCHAR IDs instead of UUID to match existing schema (sessions table compatibility)
-- Created 18 performance indexes for optimal query speed
-- Updated ChatPage.jsx and VoiceService.js to use PostgreSQLService
-- Voice transcripts now save to Replit PostgreSQL with 7-day retention
-- All logging (safety, performance, features) now uses local database
-- COPPA-compliant anonymous session tracking maintained
+**Database Decision: Staying with Supabase**
+- Attempted PostgreSQL migration but reverted due to browser security limitations
+- DATABASE_URL cannot be accessed from browser (server-side only for security)
+- @neondatabase/serverless requires Netlify serverless functions (complex refactoring)
+- Staying with Supabase for browser-safe database access with existing architecture
+- All logging continues via Supabase (sessions, safety_events, performance_logs, voice_transcripts)
+
+**Video Display Improvements:**
+- Restored larger video heights in chat messages for better visibility
+- Desktop: 280px → 320px
+- Tablet: 220px → 250px  
+- Mobile: 200px → 220px
+- Maintains object-position: center 30% to keep Daisy's head visible
 
 **Game Fixes & Improvements:**
 - Memory Match: Fixed Daisy AI showing both card flips (removed playerView stripping)
