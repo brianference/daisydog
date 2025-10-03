@@ -274,6 +274,11 @@ class SoundService {
       }
     })
     
+    // Mute/unmute background music directly
+    if (this.backgroundMusic) {
+      this.backgroundMusic.volume = this.isMuted ? 0 : (this.backgroundMusicVolume * this.volumes.master)
+    }
+    
     this.saveSettings()
   }
 
