@@ -1,0 +1,22 @@
+Generating speech via Netlify: {text: 'Word Scramble time! Unscramble the letters to spel', emotion: 'HAPPY', mode: 'play'}
+Console.js:61 🔤 Word Scramble Board State Update: {targetWord: 'MOON', wordsCompleted: 0, scrambledLetters: Array(4), hint: '🌙 Shines at night!'}
+Console.js:61 🔤 Word Scramble Board State Update: {targetWord: 'MOON', wordsCompleted: 0, scrambledLetters: Array(4), hint: '🌙 Shines at night!'}
+Console.js:61 🔤 Word Scramble Board State Update: {targetWord: 'MOON', wordsCompleted: 0, scrambledLetters: Array(4), hint: '🌙 Shines at night!'}
+Console.js:61 ✅ Speech generated with contextual tone
+Console.js:61 ✅ Cached voice instructions for WORD_SCRAMBLE
+Console.js:61 🎤 Playing voice instructions for WORD_SCRAMBLE
+Console.js:61 🔤 Word Scramble - Checking word: MOON vs MOON
+Console.js:61 ✅ Word Scramble - Correct! Words completed: 0 → 1
+Console.js:61 🔤 Word Scramble - Available words: 9
+Console.js:61 🔤 Word Scramble - Next word: FISH Hint: 🐟 Swims in water!
+Console.js:61 🔤 Word Scramble - Scrambled: (4) ['S', 'I', 'F', 'H']
+Console.js:61 🔤 Word Scramble - Checking word: MOON vs MOON
+Console.js:61 ✅ Word Scramble - Correct! Words completed: 0 → 1
+Console.js:61 🔤 Word Scramble - Available words: 9
+Console.js:61 🔤 Word Scramble - Next word: STAR Hint: ⭐ Twinkles at night!
+Console.js:61 🔤 Word Scramble - Scrambled: (4) ['A', 'T', 'S', 'R']
+Console.js:61 🔤 Word Scramble Board State Update: {targetWord: 'STAR', wordsCompleted: 1, scrambledLetters: Array(4), hint: '⭐ Twinkles at night!'}
+Console.js:61 🔤 Word Scramble Board State Update: {targetWord: 'STAR', wordsCompleted: 1, scrambledLetters: Array(4), hint: '⭐ Twinkles at night!'}
+Console.js:61 🔤 Word Scramble Board State Update: {targetWord: 'STAR', wordsCompleted: 1, scrambledLetters: Array(4), hint: '⭐ Twinkles at night!'}
+Console.js:61 🔤 Word Scramble Board State Update: {targetWord: 'STAR', wordsCompleted: 1, scrambledLetters: Array(4), hint: '⭐ Twinkles at night!'}
+Console.js:61 🔤 Word Scramble Board State Update: {targetWord: 'STAR', wordsCompleted: 1, scra
