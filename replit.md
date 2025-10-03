@@ -3,6 +3,27 @@
 ## Overview
 DaisyDog is an AI-powered virtual companion for children aged 5-18. This React + Vite frontend application leverages the Google Gemini AI API and Supabase to provide a safe, interactive chatbot experience embodied by a friendly golden retriever personality. The project aims to deliver engaging and educational content, including interactive games, video responses, and a multi-layered safety system, all within a pure frontend architecture without a dedicated backend server.
 
+## Recent Changes (October 3, 2025 - Session 4)
+**Version 6.3.0 - Simple Puzzle Game Fixes:**
+
+**Simple Puzzle Image Slicing Fix (CRITICAL):**
+- Fixed puzzle pieces showing duplicated image content (8 eyes instead of 2)
+- Replaced fixed pixel-based background sizing (300px) with percentage-based calculations
+- Background size now uses `${GRID_SIZE * 100}%` (300% for 3x3 grid)
+- Background position uses percentages: 0%, 50%, 100% for proper image slicing
+- Each puzzle piece now shows unique portion of the image across all responsive layouts
+
+**Simple Puzzle Restart Image Variety:**
+- Fixed restart button always showing same image
+- Combined timestamp seed (Date.now()) with boardgame.io random for better variety
+- Each restart now selects different image from 5 available face-cropped photos
+- Image selection: `(timestamp % 5 + random) % 5` ensures proper distribution
+
+**Games Menu UI Update:**
+- Added Puzzle Builder button to ChatPage.jsx individual games submenu
+- Removed debug console.logs from GameSelector component
+- All 6 visible games now accessible: Memory Match, Tic Tac Toe, Checkers, Connect Four, Word Scramble, Puzzle Builder
+
 ## Recent Changes (October 3, 2025 - Session 3)
 **Bug Fixes & Content Updates:**
 
