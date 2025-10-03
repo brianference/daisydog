@@ -178,6 +178,121 @@ const DebugControlCenter = () => {
     setIsRunning(false);
   };
 
+  const runConstitutionTests = async () => {
+    setIsRunning(true);
+    setTestResults([]);
+
+    try {
+      if (window.quickTest) {
+        setTestResults([{ test: 'Running Constitution Tests...', status: 'running', timestamp: new Date().toISOString() }]);
+        
+        const originalLog = console.log;
+        let capturedOutput = [];
+        
+        try {
+          console.log = (...args) => {
+            capturedOutput.push(args.join(' '));
+            originalLog(...args);
+          };
+          
+          await window.quickTest('constitution');
+        } finally {
+          console.log = originalLog;
+        }
+        
+        const resultsLine = capturedOutput.find(line => line.includes('Pass Rate'));
+        const detailsStart = capturedOutput.findIndex(line => line.includes('Details:'));
+        const failedStart = capturedOutput.findIndex(line => line.includes('Failed Tests:'));
+        
+        let details = '';
+        if (detailsStart !== -1) {
+          const detailsSection = capturedOutput.slice(detailsStart + 1, failedStart !== -1 ? failedStart : capturedOutput.length);
+          details = detailsSection.filter(line => line.trim()).join('\n');
+        }
+        
+        let failureInfo = '';
+        if (failedStart !== -1) {
+          const failureSection = capturedOutput.slice(failedStart + 1);
+          failureInfo = failureSection.filter(line => line.trim()).join('\n');
+        }
+        
+        const hasFailed = failedStart !== -1 || capturedOutput.some(line => line.includes('FAIL'));
+        
+        setTestResults([{ 
+          test: 'Constitution Content Tests', 
+          status: hasFailed ? 'failed' : 'passed',
+          message: resultsLine || 'Tests completed',
+          details: (details + '\n\n' + failureInfo).trim(),
+          timestamp: new Date().toISOString()
+        }]);
+      } else {
+        setTestResults([{ test: 'Constitution System', status: 'failed', error: 'Test suite not loaded', timestamp: new Date().toISOString() }]);
+      }
+    } catch (error) {
+      setTestResults([{ test: 'Constitution System', status: 'failed', error: error.message, timestamp: new Date().toISOString() }]);
+    }
+    
+    setIsRunning(false);
+  };
+
+  const runPrayerTests = async () => {
+    setIsRunning(true);
+    setTestResults([]);
+
+    const prayerTests = [
+      { name: 'Hail Mary Prayer', keywords: ['hail mary', 'teach me the hail mary prayer'], expected: 'Hail Mary, full of grace' },
+      { name: 'Meal Prayer (Grace Before Meals)', keywords: ['meal prayer', 'grace before meals', 'bless us o lord'], expected: 'Bless us, O Lord' },
+      { name: 'Guardian Angel Prayer', keywords: ['guardian angel prayer', 'bedtime prayer'], expected: 'Angel of God, my guardian dear' },
+      { name: 'Our Father Prayer', keywords: ['our father', 'lords prayer', 'tell me the lords prayer'], expected: 'Our Father, who art in heaven' }
+    ];
+
+    for (const prayerTest of prayerTests) {
+      try {
+        setTestResults(prev => [...prev, {
+          test: prayerTest.name,
+          status: 'running',
+          timestamp: new Date().toISOString()
+        }]);
+
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        const { containsBibleTopicKeywords, getBibleTopicResponse } = await import('../data/catholicCurriculum.js');
+        
+        let testPassed = false;
+        let responseText = '';
+        
+        for (const keyword of prayerTest.keywords) {
+          const topic = containsBibleTopicKeywords(keyword);
+          if (topic) {
+            const response = await getBibleTopicResponse(keyword);
+            if (response && response.includes(prayerTest.expected)) {
+              testPassed = true;
+              responseText = response.substring(0, 150) + '...';
+              break;
+            } else {
+              responseText = `Got unexpected response for "${keyword}": ${response ? response.substring(0, 100) : 'null'}`;
+            }
+          }
+        }
+        
+        setTestResults(prev => prev.map(r =>
+          r.test === prayerTest.name ? { 
+            ...r, 
+            status: testPassed ? 'passed' : 'failed',
+            message: testPassed ? 'Prayer text correct' : 'Prayer text incorrect',
+            details: responseText
+          } : r
+        ));
+      } catch (error) {
+        setTestResults(prev => prev.map(r =>
+          r.test === prayerTest.name ? { ...r, status: 'failed', error: error.message } : r
+        ));
+      }
+    }
+    
+    setIsRunning(false);
+  };
+
   return (
     <>
       <motion.button
@@ -222,6 +337,18 @@ const DebugControlCenter = () => {
               >
                 🛡️ Safety
               </button>
+              <button 
+                className={activeTab === 'constitution' ? 'active' : ''}
+                onClick={() => setActiveTab('constitution')}
+              >
+                📜 Constitution
+              </button>
+              <button 
+                className={activeTab === 'prayers' ? 'active' : ''}
+                onClick={() => setActiveTab('prayers')}
+              >
+                🙏 Bible/Prayer
+              </button>
             </div>
 
             <div className="debug-content">
@@ -263,6 +390,34 @@ const DebugControlCenter = () => {
                     className="test-btn"
                   >
                     {isRunning ? 'Running...' : 'Run Safety Tests'}
+                  </button>
+                </div>
+              )}
+
+              {activeTab === 'constitution' && (
+                <div className="test-panel">
+                  <h4>Constitution System Test</h4>
+                  <p>Tests constitutional content delivery and accuracy</p>
+                  <button 
+                    onClick={runConstitutionTests} 
+                    disabled={isRunning}
+                    className="test-btn"
+                  >
+                    {isRunning ? 'Running...' : 'Run Constitution Tests'}
+                  </button>
+                </div>
+              )}
+
+              {activeTab === 'prayers' && (
+                <div className="test-panel">
+                  <h4>Bible/Prayer System Test</h4>
+                  <p>Tests Catholic prayer texts: Hail Mary, Meal Prayer, Guardian Angel, Our Father</p>
+                  <button 
+                    onClick={runPrayerTests} 
+                    disabled={isRunning}
+                    className="test-btn"
+                  >
+                    {isRunning ? 'Running...' : 'Run Prayer Tests'}
                   </button>
                 </div>
               )}
