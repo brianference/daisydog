@@ -76,6 +76,11 @@ const GameContainer = ({
     }, 3000);
 
     if (eventType === GAME_EVENT_TYPE.WIN) {
+      // Stop background music when game ends
+      if (SoundService && typeof SoundService.stopBackgroundMusic === 'function') {
+        SoundService.stopBackgroundMusic();
+      }
+      
       triggerConfetti('large');
       playSound('games', 'victory');
       playSound('dog', 'victoryBark');
@@ -92,6 +97,11 @@ const GameContainer = ({
         }
       }
     } else if (eventType === GAME_EVENT_TYPE.LOSE) {
+      // Stop background music when game ends
+      if (SoundService && typeof SoundService.stopBackgroundMusic === 'function') {
+        SoundService.stopBackgroundMusic();
+      }
+      
       playSound('games', 'gameOver');
       playSound('dog', 'sadWhimper');
       if (cheerMessage?.text) {
@@ -107,6 +117,11 @@ const GameContainer = ({
         }
       }
     } else if (eventType === GAME_EVENT_TYPE.DRAW) {
+      // Stop background music when game ends
+      if (SoundService && typeof SoundService.stopBackgroundMusic === 'function') {
+        SoundService.stopBackgroundMusic();
+      }
+      
       triggerConfetti('medium');
       if (cheerMessage?.text) {
         try {
