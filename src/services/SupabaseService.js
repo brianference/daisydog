@@ -57,6 +57,11 @@ class SupabaseService {
 
       // Test connection
       await this.testConnection()
+      
+      // Start heartbeat to keep connection alive
+      if (this.isConnected) {
+        this.startHeartbeat()
+      }
     } catch (error) {
       console.error('❌ Failed to initialize Supabase:', error)
       this.isInitialized = false
@@ -629,6 +634,129 @@ class SupabaseService {
       }
     } catch (error) {
       console.error('Error updating session activity:', error)
+    }
+  }
+
+  /**
+   * Log error to database for monitoring
+   * @param {string} errorMessage - Error message
+   * @param {string} errorType - Type of error (e.g., 'API', 'DATABASE', 'GAME')
+   * @param {Object} metadata - Additional error context
+   */
+  async logError(errorMessage, errorType = 'UNKNOWN', metadata = {}) {
+    if (!this.currentSession) {
+      console.warn('No active session for error logging')
+      return null
+    }
+
+    const errorData = {
+      session_id: this.currentSession.id,
+      error_message: errorMessage.substring(0, 500),
+      error_type: errorType,
+      metadata: metadata,
+      timestamp: new Date().toISOString()
+    }
+
+    if (!this.isAvailable() || this.currentSession.local || this.currentSession.mock) {
+      console.log('🔴 Error logged (local):', errorData)
+      return errorData
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('error_logs')
+        .insert(errorData)
+
+      if (error) {
+        if (error.code === '42P01') {
+          console.log('🔴 Error logged (local - table not found):', errorData)
+          return errorData
+        }
+        throw error
+      }
+      console.log('🔴 Error logged to database:', errorMessage)
+      return data
+    } catch (error) {
+      console.warn('Error logging fallback to local:', error.message)
+      return errorData
+    }
+  }
+
+  /**
+   * Log game event (start, win, lose)
+   * @param {string} gameName - Name of the game
+   * @param {string} eventType - 'START', 'WIN', 'LOSE', 'DRAW'
+   * @param {Object} gameData - Additional game data (score, duration, etc.)
+   */
+  async logGameEvent(gameName, eventType, gameData = {}) {
+    if (!this.currentSession) {
+      console.warn('No active session for game event logging')
+      return null
+    }
+
+    const eventData = {
+      session_id: this.currentSession.id,
+      game_name: gameName,
+      event_type: eventType,
+      game_data: gameData,
+      timestamp: new Date().toISOString()
+    }
+
+    if (!this.isAvailable() || this.currentSession.local || this.currentSession.mock) {
+      console.log('🎮 Game event (local):', eventData)
+      return eventData
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('game_events')
+        .insert(eventData)
+
+      if (error) {
+        if (error.code === '42P01') {
+          console.log('🎮 Game event (local - table not found):', eventData)
+          return eventData
+        }
+        throw error
+      }
+      console.log('🎮 Game event logged:', gameName, eventType)
+      return data
+    } catch (error) {
+      console.warn('Game event logging fallback to local:', error.message)
+      return eventData
+    }
+  }
+
+  /**
+   * Start periodic heartbeat to keep database connection alive
+   */
+  startHeartbeat() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval)
+    }
+
+    this.heartbeatInterval = setInterval(async () => {
+      if (this.isConnected && this.supabase) {
+        try {
+          await this.testConnection()
+          console.log('💓 Database heartbeat ping successful')
+        } catch (error) {
+          console.warn('💔 Database heartbeat ping failed:', error.message)
+        }
+      }
+    }, 300000)
+
+    console.log('💓 Database heartbeat started (5 min intervals)')
+  }
+
+  /**
+   * Stop periodic heartbeat
+   */
+  stopHeartbeat() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval)
+      this.heartbeatInterval = null
+      console.log('💔 Database heartbeat stopped')
     }
   }
 }

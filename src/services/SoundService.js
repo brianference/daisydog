@@ -19,7 +19,7 @@ class SoundService {
     }
     this.isMuted = false
     
-    // Sound file mappings
+    // Sound file mappings - arrays support variation
     this.soundConfig = {
       dog: {
         happyBark: '/sounds/dog/happy-bark.mp3',
@@ -28,30 +28,62 @@ class SoundService {
         victoryBark: '/sounds/dog/mixkit-happy-puppy-barks-741.wav'
       },
       games: {
-        ballBounce: '/sounds/dog/mixkit-ball-bouncing-to-a-stop-2089.wav',
-        tugPull: '/sounds/dog/excited-bark.mp3', // Use excited bark as tug sound
+        // Click sounds - can be shared across games
+        click: [
+          '/sounds/games/click-234708.mp3',
+          '/sounds/games/mouse-click-290204.mp3',
+          '/sounds/games/button-394464.mp3'
+        ],
+        // Success/combo sounds - variation per game
+        success: [
+          '/sounds/games/material-buy-success-394517.mp3',
+          '/sounds/games/combine-special-394482.mp3'
+        ],
+        match: '/sounds/games/clear-combo-7-394494.mp3',
+        error: '/sounds/games/error-05-199276.mp3',
+        // Victory sounds - different options
+        victory: [
+          '/sounds/games/you-win-sequence-2-183949.mp3',
+          '/sounds/games/level-win-6416.mp3',
+          '/sounds/games/violin-win-5-185128.mp3'
+        ],
+        levelComplete: '/sounds/games/level-complete-394515.mp3',
+        gameOver: '/sounds/games/sweet-game-over-sound-effect-230470.mp3',
+        ballBounce: '/sounds/games/ball-bounce.mp3',
+        // Legacy game sounds (keep for backward compatibility)
+        tugPull: '/sounds/dog/excited-bark.mp3',
         tugSuccess: '/sounds/dog/mixkit-happy-puppy-barks-741.wav',
         tugFail: '/sounds/dog/mixkit-dog-whimper-sad-466.wav',
         hideStart: '/sounds/dog/happy-bark.mp3',
         hideFound: '/sounds/dog/excited-bark.mp3',
         guessCorrect: '/sounds/dog/mixkit-happy-puppy-barks-741.wav',
-        guessWrong: '/sounds/dog/mixkit-dog-whimper-sad-466.wav',
-        victory: '/sounds/dog/excited-bark.mp3'
+        guessWrong: '/sounds/dog/mixkit-dog-whimper-sad-466.wav'
       },
       eating: {
-        crunchyTreats: '/sounds/eating/crunchy-treats2.mp3', // Use the working file
+        crunchyTreats: '/sounds/eating/crunchy-treats2.mp3',
         happyEating: '/sounds/eating/crunchy-treats2.mp3'
       },
       ui: {
         buttonClick: '/sounds/ui/button-click.mp3',
-        storyTell: '/sounds/dog/happy-bark.mp3', // Use happy bark for stories
-        jokeLaugh: '/sounds/dog/excited-bark.mp3', // Use excited bark for jokes
-        danceMusic: '/sounds/dog/dance-sound.mp3', // Use dance-sound.mp3 for dance
+        storyTell: '/sounds/dog/happy-bark.mp3',
+        jokeLaugh: '/sounds/dog/excited-bark.mp3',
+        danceMusic: '/sounds/dog/dance-sound.mp3',
         gameStart: '/sounds/dog/happy-bark.mp3',
         success: '/sounds/dog/excited-bark.mp3',
         failure: '/sounds/dog/mixkit-dog-whimper-sad-466.wav'
       }
     }
+    
+    // Background music for games
+    this.backgroundMusic = null
+    this.backgroundMusicVolume = 0.075 // 7.5% volume
+    this.musicTracks = [
+      '/sounds/music/song1.mp3',
+      '/sounds/music/song2.mp3',
+      '/sounds/music/song3.mp3',
+      '/sounds/music/song4.mp3',
+      '/sounds/music/song5.mp3'
+    ]
     
     this.initialize()
   }
@@ -82,7 +114,7 @@ class SoundService {
   }
 
   /**
-   * Play a sound from the sound library
+   * Play a sound from the sound library (supports variation with arrays)
    * @param {string} category - Sound category (dog, games, eating, ui)
    * @param {string} soundName - Specific sound name
    * @returns {Promise<HTMLAudioElement>} Audio element
@@ -98,10 +130,15 @@ class SoundService {
         await this.audioContext.resume()
       }
 
-      const soundPath = this.soundConfig[category]?.[soundName]
+      let soundPath = this.soundConfig[category]?.[soundName]
       if (!soundPath) {
         console.warn(`Sound not found: ${category}.${soundName}`)
         return null
+      }
+
+      // Support variation - if soundPath is an array, pick random one
+      if (Array.isArray(soundPath)) {
+        soundPath = soundPath[Math.floor(Math.random() * soundPath.length)]
       }
 
       // Create and configure audio element
@@ -120,6 +157,56 @@ class SoundService {
     } catch (error) {
       console.warn('Error playing sound:', error)
       return null
+    }
+  }
+
+  /**
+   * Play random background music for games (7.5% volume, 5s delay)
+   * @param {number} delaySeconds - Delay before starting (default 5s)
+   * @param {string|null} specificTrack - Specific track path, or null for random
+   */
+  async playBackgroundMusic(delaySeconds = 5, specificTrack = null) {
+    if (!this.isInitialized || this.isMuted) {
+      return null
+    }
+
+    try {
+      // Wait for delay
+      await new Promise(resolve => setTimeout(resolve, delaySeconds * 1000))
+
+      // Stop existing background music
+      this.stopBackgroundMusic()
+
+      // Resume audio context if suspended
+      if (this.audioContext.state === 'suspended') {
+        await this.audioContext.resume()
+      }
+
+      // Pick random track or use specified one
+      const musicPath = specificTrack || this.musicTracks[Math.floor(Math.random() * this.musicTracks.length)]
+
+      this.backgroundMusic = new Audio(musicPath)
+      this.backgroundMusic.volume = this.backgroundMusicVolume * this.volumes.master
+      this.backgroundMusic.loop = true
+
+      await this.backgroundMusic.play()
+      console.log(`🎵 Playing background music: ${musicPath}`)
+      return this.backgroundMusic
+
+    } catch (error) {
+      console.warn('Error playing background music:', error)
+      return null
+    }
+  }
+
+  /**
+   * Stop background music
+   */
+  stopBackgroundMusic() {
+    if (this.backgroundMusic) {
+      this.backgroundMusic.pause()
+      this.backgroundMusic.currentTime = 0
+      this.backgroundMusic = null
     }
   }
 
@@ -328,7 +415,17 @@ class SoundService {
       sadWhimper: () => this.playSound('dog', 'sadWhimper'),
       victoryBark: () => this.playSound('dog', 'victoryBark'),
 
-      // Game sounds
+      // BoardGame.io game sounds (with variation)
+      gameClick: () => this.playSound('games', 'click'),
+      gameSuccess: () => this.playSound('games', 'success'),
+      gameMatch: () => this.playSound('games', 'match'),
+      gameError: () => this.playSound('games', 'error'),
+      gameVictory: () => this.playSound('games', 'victory'),
+      gameLevelComplete: () => this.playSound('games', 'levelComplete'),
+      gameOver: () => this.playSound('games', 'gameOver'),
+      gameBallBounce: () => this.playSound('games', 'ballBounce'),
+
+      // Legacy game sounds (backward compatibility)
       ballBounce: () => this.playSound('games', 'ballBounce'),
       tugPull: () => this.playSound('games', 'tugPull'),
       tugSuccess: () => this.playSound('games', 'tugSuccess'),
@@ -337,7 +434,6 @@ class SoundService {
       hideFound: () => this.playSound('games', 'hideFound'),
       guessCorrect: () => this.playSound('games', 'guessCorrect'),
       guessWrong: () => this.playSound('games', 'guessWrong'),
-      gameVictory: () => this.playSound('games', 'victory'),
 
       // Eating sounds
       crunchyTreats: () => this.playSound('eating', 'crunchyTreats'),
@@ -350,7 +446,11 @@ class SoundService {
       danceMusic: () => this.playSound('ui', 'danceMusic'),
       gameStart: () => this.playSound('ui', 'gameStart'),
       success: () => this.playSound('ui', 'success'),
-      failure: () => this.playSound('ui', 'failure')
+      failure: () => this.playSound('ui', 'failure'),
+
+      // Background music controls
+      startBackgroundMusic: (delay = 5) => this.playBackgroundMusic(delay),
+      stopBackgroundMusic: () => this.stopBackgroundMusic()
     }
   }
 }

@@ -4,7 +4,7 @@ import { useGameTheme } from '../../contexts/GameThemeContext.jsx';
 import DaisyCheerleader from '../../services/boardgames/DaisyCheerleader.js';
 import { GAME_EVENT_TYPE, GAME_STATUS } from '../../types/boardGameTypes.js';
 import { useSoundSystem } from '../../hooks/useSoundSystem.js';
-import MusicService from '../../services/MusicService.js';
+import SoundService from '../../services/SoundService.js';
 import ElevenLabsService from '../../services/ElevenLabsService.js';
 import GameVoiceInstructions from '../../services/GameVoiceInstructions.js';
 import GameInstructions from './GameInstructions.jsx';
@@ -71,15 +71,19 @@ const GameContainer = ({
 
     if (eventType === GAME_EVENT_TYPE.WIN) {
       triggerConfetti('large');
-      playSound('games', 'victory');
+      playSound('games', 'victory'); // Variation: 3 different victory sounds
       playSound('dog', 'victoryBark');
     } else if (eventType === GAME_EVENT_TYPE.LOSE) {
+      playSound('games', 'gameOver');
       playSound('dog', 'sadWhimper');
-    } else if (eventType === GAME_EVENT_TYPE.MATCH_FOUND || eventType === GAME_EVENT_TYPE.GOOD_MOVE) {
+    } else if (eventType === GAME_EVENT_TYPE.MATCH_FOUND) {
       triggerConfetti('small');
-      playSound('ui', 'success');
+      playSound('games', 'match'); // Special match sound
+    } else if (eventType === GAME_EVENT_TYPE.GOOD_MOVE) {
+      triggerConfetti('small');
+      playSound('games', 'success'); // Variation: 2 different success sounds
     } else if (eventType === GAME_EVENT_TYPE.MOVE_MADE) {
-      playSound('ui', 'buttonClick');
+      playSound('games', 'click'); // Variation: 3 different click sounds
     } else if (eventType === GAME_EVENT_TYPE.GAME_START) {
       playSound('ui', 'gameStart');
       playSound('dog', 'excitedBark');
@@ -93,27 +97,21 @@ const GameContainer = ({
   }, [gameStatus]);
 
   useEffect(() => {
-    let musicTimeout = null;
-    
     const initAudio = async () => {
       if (gameType) {
         await GameVoiceInstructions.playInstructions(gameType);
         
-        // 5-second delay after voice instructions before music starts
-        musicTimeout = setTimeout(() => {
-          MusicService.play();
-        }, 5000);
+        // Start background music with 5-second delay after voice instructions
+        // Random track selection, 7.5% volume
+        SoundService.playBackgroundMusic(5);
       }
     };
     
     initAudio();
     
     return () => {
-      if (musicTimeout) {
-        clearTimeout(musicTimeout);
-      }
       GameVoiceInstructions.stop();
-      MusicService.stop();
+      SoundService.stopBackgroundMusic();
     };
   }, [gameType]);
 
@@ -122,10 +120,10 @@ const GameContainer = ({
     setIsMuted(newMuteState);
     
     if (newMuteState) {
-      MusicService.mute();
+      SoundService.toggleMute();
       ElevenLabsService.mute();
     } else {
-      MusicService.unmute();
+      SoundService.toggleMute();
       ElevenLabsService.unmute();
     }
   };
