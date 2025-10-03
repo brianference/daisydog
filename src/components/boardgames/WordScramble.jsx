@@ -12,6 +12,15 @@ const WordScrambleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
   const [showCorrectMessage, setShowCorrectMessage] = useState(false);
 
   useEffect(() => {
+    console.log('🔤 Word Scramble Board State Update:', {
+      targetWord: G.targetWord,
+      wordsCompleted: G.wordsCompleted,
+      scrambledLetters: G.scrambledLetters,
+      hint: G.hint
+    });
+  }, [G.targetWord, G.wordsCompleted, G.scrambledLetters]);
+
+  useEffect(() => {
     if (ctx.gameover && ctx.gameover.winner === playerID) {
       onGameEvent?.(GAME_EVENT_TYPE.WIN);
     }
