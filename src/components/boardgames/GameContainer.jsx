@@ -146,11 +146,15 @@ const GameContainer = ({
         await GameVoiceInstructions.playInstructions(gameType);
         
         // Start background music with 5-second delay after voice instructions
-        // Random track selection, 7.5% volume
+        // Random track selection, 30% volume
         console.log('🎵 Attempting to start background music for', gameType);
         if (SoundService && typeof SoundService.playBackgroundMusic === 'function') {
-          await SoundService.playBackgroundMusic(5);
-          console.log('✅ Background music started');
+          const music = await SoundService.playBackgroundMusic(5);
+          if (music) {
+            console.log('✅ Background music started successfully');
+          } else {
+            console.log('⚠️ Background music returned null');
+          }
         } else {
           console.warn('❌ SoundService.playBackgroundMusic not available');
         }
