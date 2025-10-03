@@ -107,7 +107,7 @@ export const GoFishGame = {
 
   turn: {
     minMoves: 1,
-    maxMoves: 1
+    maxMoves: Infinity // Allow multiple moves per turn when rules permit
   },
 
   moves: {
@@ -116,21 +116,31 @@ export const GoFishGame = {
       const opponent = currentPlayer === '0' ? '1' : '0';
       
       const opponentCards = G.hands[opponent].filter(card => card.value === requestedValue);
+      let shouldContinueTurn = false;
       
       if (opponentCards.length > 0) {
+        // Opponent has the card(s) - give ALL cards of that rank
         G.hands[opponent] = G.hands[opponent].filter(card => card.value !== requestedValue);
         G.hands[currentPlayer] = [...G.hands[currentPlayer], ...opponentCards];
         G.lastAction = { type: 'GOT_CARDS', value: requestedValue, count: opponentCards.length };
+        shouldContinueTurn = true; // You get another turn!
       } else {
+        // Opponent says "Go Fish!" - draw a card
         if (G.deck.length > 0) {
           const drawnCard = G.deck.pop();
           G.hands[currentPlayer].push(drawnCard);
           G.lastAction = { type: 'GO_FISH', drawnCard };
+          
+          // Check if you drew what you asked for
+          if (drawnCard.value === requestedValue) {
+            shouldContinueTurn = true; // You get another turn!
+          }
         } else {
           G.lastAction = { type: 'GO_FISH', drawnCard: null };
         }
       }
       
+      // Check for pairs after receiving/drawing cards
       const { pairs, remainingCards } = checkForPairs(G.hands[currentPlayer]);
       if (pairs.length > 0) {
         G.hands[currentPlayer] = remainingCards;
@@ -138,7 +148,7 @@ export const GoFishGame = {
         G.lastAction = { ...G.lastAction, madePair: pairs[pairs.length - 1] };
       }
       
-      // Refill hand if empty or low (Go Fish rule: draw back to 5 if hand is empty)
+      // Refill hand if empty or low (maintain 5 cards if possible)
       while (G.hands[currentPlayer].length < INITIAL_HAND_SIZE && G.deck.length > 0) {
         const drawnCard = G.deck.pop();
         G.hands[currentPlayer].push(drawnCard);
@@ -151,7 +161,10 @@ export const GoFishGame = {
         }
       }
       
-      events.endTurn();
+      // Only end turn if you didn't get cards AND didn't draw what you asked for
+      if (!shouldContinueTurn) {
+        events.endTurn();
+      }
     },
     
     drawCard: ({ G, ctx, events }) => {
