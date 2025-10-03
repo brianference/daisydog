@@ -13,11 +13,18 @@ DaisyDog is an AI-powered virtual companion for children aged 5-18. This React +
 - AI and players can now make chain captures (jump over multiple pieces in one turn)
 - Validates proper turn order and game state before moves
 
-**Word Scramble Progression Fix:**
+**Word Scramble Progression & Restart Fix:**
 - Fixed game hanging after first word (1/5)
 - Changed maxMoves from 1 to 20 to allow multiple letter selections per turn
 - Letters now appear for all 5 words with proper state updates
-- Scrambled letters render correctly with unique keys including wordsCompleted
+- Fixed restart button - WordScramble now receives and uses gameKey prop as key on Client
+- Restart properly resets game without hiding menu
+
+**Go Fish Auto-Pair Detection:**
+- Added auto-pair detection at setup - pairs are now marked immediately on deal
+- After pairs removed, cards are auto-drawn to refill hand to 5 cards
+- Hand always maintained at 5 cards until deck exhausted
+- Recursive pair checking during card draws to handle chain pairs
 
 **Memory Match Victory & Audio Fix:**
 - Background music now stops when game ends (WIN/LOSE/DRAW)
