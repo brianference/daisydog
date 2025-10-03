@@ -469,6 +469,35 @@ const ChatPage = () => {
         return
       }
 
+      // Check for Bible topics (prayers, commandments, etc.)
+      let bibleTopicResult = null
+      try {
+        if (containsBibleTopicKeywords(messageToSend)) {
+          bibleTopicResult = await getBibleTopicResponse(messageToSend)
+        }
+      } catch (bibleTopicError) {
+        console.warn('Bible topic check failed:', bibleTopicError)
+      }
+      
+      if (bibleTopicResult) {
+        const bibleTopicMessage = {
+          id: Date.now() + 2.5,
+          text: bibleTopicResult,
+          sender: 'daisy',
+          timestamp: new Date(),
+          videoUrl: getVideoForEmotion('educational'),
+          emotion: 'ears-up'
+        }
+        setMessages(prev => [...prev, bibleTopicMessage])
+        playUISound('prayer').catch(() => {})
+        
+        // Play TTS if voice input was used
+        if (isVoiceInput && bibleTopicResult) {
+          await playTTSWithMute(bibleTopicResult, 'TEACHING', 'prayer')
+        }
+        return
+      }
+
       // Check for constitutional content
       let constitutionalResult = null
       try {
