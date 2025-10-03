@@ -68,6 +68,49 @@ CREATE TABLE IF NOT EXISTS system_reports (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- ===== EDUCATIONAL CONTENT TABLES =====
+
+-- Historical events for American history education
+CREATE TABLE IF NOT EXISTS historical_events (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  year INTEGER NOT NULL,
+  date_display TEXT, -- e.g., "July 4, 1776"
+  short_description TEXT NOT NULL,
+  long_description TEXT,
+  kid_friendly_summary TEXT NOT NULL,
+  significance TEXT,
+  related_presidents TEXT[], -- array of president names if applicable
+  image_url TEXT,
+  category TEXT CHECK (category IN ('founding', 'war', 'expansion', 'civil_rights', 'technology', 'politics', 'culture')),
+  age_appropriate_min INTEGER DEFAULT 8,
+  age_appropriate_max INTEGER DEFAULT 18,
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- U.S. Presidents for educational reference
+CREATE TABLE IF NOT EXISTS presidents (
+  id SERIAL PRIMARY KEY,
+  number INTEGER UNIQUE NOT NULL, -- presidential number (1-46+)
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  full_name TEXT NOT NULL,
+  birth_year INTEGER,
+  death_year INTEGER,
+  party TEXT,
+  term_start INTEGER NOT NULL, -- year
+  term_end INTEGER, -- NULL if current
+  vice_presidents TEXT[], -- array of VP names
+  major_accomplishments TEXT[],
+  kid_friendly_summary TEXT NOT NULL,
+  fun_facts TEXT[],
+  portrait_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- ===== POSTGRESQL INDEXES FOR PERFORMANCE =====
 
 -- Sessions indexes
@@ -102,6 +145,16 @@ CREATE INDEX IF NOT EXISTS idx_content_cache_expires_at ON content_cache(expires
 -- System reports indexes
 CREATE INDEX IF NOT EXISTS idx_system_reports_report_date ON system_reports(report_date);
 CREATE INDEX IF NOT EXISTS idx_system_reports_report_type ON system_reports(report_type);
+
+-- Historical events indexes
+CREATE INDEX IF NOT EXISTS idx_historical_events_year ON historical_events(year);
+CREATE INDEX IF NOT EXISTS idx_historical_events_category ON historical_events(category);
+CREATE INDEX IF NOT EXISTS idx_historical_events_display_order ON historical_events(display_order);
+
+-- Presidents indexes
+CREATE INDEX IF NOT EXISTS idx_presidents_number ON presidents(number);
+CREATE INDEX IF NOT EXISTS idx_presidents_term_start ON presidents(term_start);
+CREATE INDEX IF NOT EXISTS idx_presidents_last_name ON presidents(last_name);
 
 -- ===== POSTGRESQL DATA RETENTION POLICIES =====
 
@@ -146,6 +199,8 @@ ALTER TABLE performance_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feature_analytics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE content_cache ENABLE ROW LEVEL SECURITY;
 ALTER TABLE system_reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE historical_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE presidents ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for anonymous access (Supabase anon key)
 CREATE POLICY "Allow anonymous insert on sessions" ON sessions
@@ -165,6 +220,19 @@ CREATE POLICY "Allow anonymous read/write on content_cache" ON content_cache
 
 -- Admin-only policies for system_reports
 CREATE POLICY "Admin only access to system_reports" ON system_reports
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Educational content policies (public read-only, admin write)
+CREATE POLICY "Allow anonymous read on historical_events" ON historical_events
+  FOR SELECT TO anon USING (true);
+
+CREATE POLICY "Allow anonymous read on presidents" ON presidents
+  FOR SELECT TO anon USING (true);
+
+CREATE POLICY "Admin write on historical_events" ON historical_events
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Admin write on presidents" ON presidents
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- ===== POSTGRESQL TRIGGERS FOR AUTOMATIC CLEANUP =====
@@ -254,6 +322,8 @@ COMMENT ON TABLE performance_logs IS 'Application performance metrics and monito
 COMMENT ON TABLE feature_analytics IS 'Feature usage patterns and engagement';
 COMMENT ON TABLE content_cache IS 'Cached content for performance optimization';
 COMMENT ON TABLE system_reports IS 'Aggregated system reports and analytics';
+COMMENT ON TABLE historical_events IS 'Key moments in American history for educational reference';
+COMMENT ON TABLE presidents IS 'U.S. Presidents information for educational reference';
 
 COMMENT ON FUNCTION cleanup_old_data() IS 'COPPA-compliant data retention cleanup';
 
@@ -265,7 +335,7 @@ SELECT
   tablename,
   tableowner
 FROM pg_tables 
-WHERE tablename IN ('sessions', 'safety_events', 'performance_logs', 'feature_analytics', 'content_cache', 'system_reports')
+WHERE tablename IN ('sessions', 'safety_events', 'performance_logs', 'feature_analytics', 'content_cache', 'system_reports', 'historical_events', 'presidents')
 ORDER BY tablename;
 
 -- Query to verify indexes
@@ -274,7 +344,7 @@ SELECT
   tablename,
   indexdef
 FROM pg_indexes 
-WHERE tablename IN ('sessions', 'safety_events', 'performance_logs', 'feature_analytics', 'content_cache', 'system_reports')
+WHERE tablename IN ('sessions', 'safety_events', 'performance_logs', 'feature_analytics', 'content_cache', 'system_reports', 'historical_events', 'presidents')
 ORDER BY tablename, indexname;
 
 -- ===== POSTGRESQL SPECIFIC NOTES =====
