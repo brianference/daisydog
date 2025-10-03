@@ -17,10 +17,14 @@ const GameSelector = ({ onSelectGame, onClose, className = '' }) => {
     BOARD_GAME_TYPES.SIMPLE_PUZZLE
   ];
 
+  console.log('🎮 GameSelector Visible Games:', visibleGameTypes);
+
   const games = visibleGameTypes.map(gameType => ({
     type: gameType,
     ...BOARD_GAME_INFO[gameType]
   }));
+  
+  console.log('🎮 GameSelector Games Array:', games.map(g => g.title));
 
   const handleGameClick = (gameType) => {
     if (onSelectGame) {
