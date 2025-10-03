@@ -66,24 +66,68 @@ const GameContainer = ({
     confetti(config);
   };
 
-  const handleGameEvent = (eventType, data = {}) => {
-    showDaisyCheer(eventType, data);
+  const handleGameEvent = async (eventType, data = {}) => {
+    const cheerMessage = DaisyCheerleader.getMessage(eventType, data);
+    setDaisyMessage(cheerMessage);
+    setShowMessage(true);
+
+    setTimeout(() => {
+      setShowMessage(false);
+    }, 3000);
 
     if (eventType === GAME_EVENT_TYPE.WIN) {
       triggerConfetti('large');
-      playSound('games', 'victory'); // Variation: 3 different victory sounds
+      playSound('games', 'victory');
       playSound('dog', 'victoryBark');
+      if (cheerMessage?.text) {
+        try {
+          const cleanText = cheerMessage.text.replace(/[🎉🏆👑🎊🔥🌟💪⭐🐾💙🤝🎮]/g, '').trim();
+          const audioBlob = await ElevenLabsService.generateSpeech(cleanText, 'HAPPY', 'play');
+          if (audioBlob) {
+            const audio = new Audio(URL.createObjectURL(audioBlob));
+            audio.play().catch(err => console.log('Victory voice error:', err));
+          }
+        } catch (err) {
+          console.log('Failed to speak victory message:', err);
+        }
+      }
     } else if (eventType === GAME_EVENT_TYPE.LOSE) {
       playSound('games', 'gameOver');
       playSound('dog', 'sadWhimper');
+      if (cheerMessage?.text) {
+        try {
+          const cleanText = cheerMessage.text.replace(/[🎉🏆👑🎊🔥🌟💪⭐🐾💙🤝🎮]/g, '').trim();
+          const audioBlob = await ElevenLabsService.generateSpeech(cleanText, 'SYMPATHETIC', 'play');
+          if (audioBlob) {
+            const audio = new Audio(URL.createObjectURL(audioBlob));
+            audio.play().catch(err => console.log('Defeat voice error:', err));
+          }
+        } catch (err) {
+          console.log('Failed to speak defeat message:', err);
+        }
+      }
+    } else if (eventType === GAME_EVENT_TYPE.DRAW) {
+      triggerConfetti('medium');
+      if (cheerMessage?.text) {
+        try {
+          const cleanText = cheerMessage.text.replace(/[🎉🏆👑🎊🔥🌟💪⭐🐾💙🤝🎮]/g, '').trim();
+          const audioBlob = await ElevenLabsService.generateSpeech(cleanText, 'HAPPY', 'play');
+          if (audioBlob) {
+            const audio = new Audio(URL.createObjectURL(audioBlob));
+            audio.play().catch(err => console.log('Draw voice error:', err));
+          }
+        } catch (err) {
+          console.log('Failed to speak draw message:', err);
+        }
+      }
     } else if (eventType === GAME_EVENT_TYPE.MATCH_FOUND) {
       triggerConfetti('small');
-      playSound('games', 'match'); // Special match sound
+      playSound('games', 'match');
     } else if (eventType === GAME_EVENT_TYPE.GOOD_MOVE) {
       triggerConfetti('small');
-      playSound('games', 'success'); // Variation: 2 different success sounds
+      playSound('games', 'success');
     } else if (eventType === GAME_EVENT_TYPE.MOVE_MADE) {
-      playSound('games', 'click'); // Variation: 3 different click sounds
+      playSound('games', 'click');
     } else if (eventType === GAME_EVENT_TYPE.GAME_START) {
       playSound('ui', 'gameStart');
       playSound('dog', 'excitedBark');
