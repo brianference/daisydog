@@ -11,6 +11,12 @@ import './MemoryMatch.css';
 
 const MemoryMatchAIBoard = ({ G, ctx, moves, playerID, onGameEvent }) => {
   const processingRef = useRef(false);
+  const turnEndedRef = useRef(false);
+  const ctxRef = useRef(ctx);
+  
+  useEffect(() => {
+    ctxRef.current = ctx;
+  }, [ctx]);
 
   useEffect(() => {
     if (!G || !G.flipped || !G.cards || !G.matched || !ctx || !moves) return;
@@ -94,12 +100,9 @@ const MemoryMatchAIBoard = ({ G, ctx, moves, playerID, onGameEvent }) => {
               
               await new Promise(resolve => setTimeout(resolve, 2500));
               
-              if (moves.endPlayerTurn && !ctx.gameover) {
-                try {
-                  moves.endPlayerTurn();
-                } catch (err) {
-                  console.log('Turn already ended or game over');
-                }
+              if (moves.endPlayerTurn && !turnEndedRef.current && !ctxRef.current?.gameover) {
+                turnEndedRef.current = true;
+                moves.endPlayerTurn();
               }
             }
           }
@@ -113,11 +116,30 @@ const MemoryMatchAIBoard = ({ G, ctx, moves, playerID, onGameEvent }) => {
       makeSecondFlip();
     }
   }, [ctx?.currentPlayer, ctx?.gameover, ctx?.turn, G?.flipped?.length, G?.matched?.length]);
+  
+  useEffect(() => {
+    if (ctx?.currentPlayer === playerID) {
+      turnEndedRef.current = false;
+    }
+  }, [ctx?.currentPlayer, playerID]);
 
   return null;
 };
 
 const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }) => {
+  const turnEndedRef = useRef(false);
+  const ctxRef = useRef(ctx);
+  
+  useEffect(() => {
+    ctxRef.current = ctx;
+  }, [ctx]);
+  
+  useEffect(() => {
+    if (ctx?.currentPlayer === playerID) {
+      turnEndedRef.current = false;
+    }
+  }, [ctx?.currentPlayer, playerID]);
+  
   useEffect(() => {
     if (!G || !G.flipped || !G.cards || !G.score) return;
     
@@ -169,12 +191,9 @@ const MemoryMatchBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig })
     
     if (G.flipped.length === 1) {
       setTimeout(() => {
-        if (moves.endPlayerTurn && !ctx.gameover) {
-          try {
-            moves.endPlayerTurn();
-          } catch (err) {
-            console.log('Turn already ended or game over');
-          }
+        if (moves.endPlayerTurn && !turnEndedRef.current && !ctxRef.current?.gameover) {
+          turnEndedRef.current = true;
+          moves.endPlayerTurn();
         }
       }, 2000);
     }

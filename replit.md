@@ -4,28 +4,33 @@
 DaisyDog is an AI-powered virtual companion designed for children aged 5-18. This React + Vite frontend application leverages the Google Gemini AI API and Supabase to deliver a safe, interactive chatbot experience embodied by a friendly golden retriever personality. The project aims to provide engaging and educational content, including interactive games, video responses, and a multi-layered safety system, all within a pure frontend architecture without a dedicated backend server.
 
 ## Recent Changes (October 3, 2025)
-**Database Decision: Staying with Supabase**
-- Attempted PostgreSQL migration but reverted due to browser security limitations
-- DATABASE_URL cannot be accessed from browser (server-side only for security)
-- @neondatabase/serverless requires Netlify serverless functions (complex refactoring)
-- Staying with Supabase for browser-safe database access with existing architecture
-- All logging continues via Supabase (sessions, safety_events, performance_logs, voice_transcripts)
+**Memory Match Critical Fixes:**
+- Fixed "invalid stateID" error when game ends (all 8 pairs matched)
+- Problem: Stale ctx in setTimeout closures caused endPlayerTurn to fire after game over
+- Solution: Use ctxRef to track live game state, check ctxRef.current.gameover before ending turn
+- Added turnEndedRef to prevent duplicate endPlayerTurn calls
+- Win/lose screen now stays visible with proper game over overlay
+- Added Daisy voice speech for victory/defeat using ElevenLabsService
+- Victory sounds play correctly (victory.mp3, victoryBark.mp3)
+- Applied fix to both AI and human player boards
 
 **Video Display Improvements:**
-- Restored larger video heights in chat messages for better visibility
-- Desktop: 280px → 320px
-- Tablet: 220px → 250px  
-- Mobile: 200px → 220px
-- Maintains object-position: center 30% to keep Daisy's head visible
+- Increased video heights significantly to show full video without cropping
+- Desktop: 320px → 450px (object-fit: contain)
+- Tablet: 250px → 350px (object-fit: contain)
+- Mobile: 220px → 300px (object-fit: contain)
+- Changed from cover (crops) to contain (shows full video)
+- No more cutting off Daisy's head or paws in chat videos
 
-**Game Fixes & Improvements:**
-- Memory Match: Fixed Daisy AI showing both card flips (removed playerView stripping)
-- Memory Match: Increased card boxes 20% (90px → 108px) for better visibility
-- Memory Match: Flipped cards show 300% larger emojis (36px → 108px)
-- Tic-Tac-Toe: Daisy now places paw icons (🐾) instead of circles (○)
-- Word Scramble: Fixed disappearing letters by using unique AnimatePresence keys (targetWord-index-letter)
-- Background Music: Fixed async/await in GameContainer.jsx for all games
-- All BoardGame.io games now play background music 5 seconds after voice instructions
+**Background Music Volume Fix:**
+- Increased from 7.5% to 30% - now clearly audible during gameplay
+- Applied to both SoundService.js and MusicService.js
+
+**Game Reset System:**
+- Added gameKey state management to force proper game re-initialization
+- Tic-Tac-Toe, Memory Match, and Checkers now reset correctly
+- gameKey increments on restart to force boardgame.io Client re-mount
+- No more stuck "Daisy won" screens or frozen games
 
 **Catholic Prayer System Enhancements:**
 - Separated Guardian Angel and Bedtime Prayer into distinct prayer topics
