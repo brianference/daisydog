@@ -132,10 +132,10 @@ const WordScrambleBoard = ({ G, ctx, moves, playerID, onGameEvent, themeConfig }
       </div>
 
       <div className="scrambled-letters">
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {G.scrambledLetters.map((letter, index) => (
             <motion.button
-              key={index}
+              key={`${G.targetWord}-${index}-${letter}`}
               className={`scrambled-letter ${isLetterSelected(index) ? 'selected' : ''}`}
               onClick={() => handleLetterClick(index)}
               disabled={isLetterSelected(index) || ctx.gameover}

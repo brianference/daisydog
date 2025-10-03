@@ -70,8 +70,8 @@
 .card-wrapper {
   aspect-ratio: 1;
   perspective: 1000px;
-  max-width: 90px;
-  max-height: 90px;
+  max-width: 108px;
+  max-height: 108px;
 }
 
 .card-wrapper.matched {

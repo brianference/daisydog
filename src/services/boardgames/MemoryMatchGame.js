@@ -96,13 +96,6 @@ export const MemoryMatchGame = {
   },
 
   playerView: ({ G, ctx, playerID }) => {
-    if (!G || !G.flipped || !ctx) return G;
-    
-    if (G.flipped.length === 2 && ctx.currentPlayer !== playerID) {
-      const strippedG = { ...G };
-      strippedG.flipped = [];
-      return strippedG;
-    }
     return G;
   }
 };

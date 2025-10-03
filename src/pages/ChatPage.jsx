@@ -7,7 +7,7 @@ import { dogFacts, getRandomDogFact, getDogFactByKeyword, containsDogFactKeyword
 import { bibleCharacters, getBibleCharacterResponse, containsBibleCharacterKeywords, findBibleCharacter } from '../data/bibleCharacters'
 import { catholicCurriculum, getBiblePassageResponse, containsBiblePassageKeywords, getCurriculumResponse, containsCurriculumKeywords, getBibleTopicResponse, containsBibleTopicKeywords, getSpecificVerseResponse, containsSpecificVerseKeywords, containsLessonKeywords, getLessonResponse, findCurriculumGrade } from '../data/catholicCurriculum'
 import geminiService from '../services/GeminiService.js'
-import supabaseService from '../services/SupabaseService.js'
+import postgreSQLService from '../services/PostgreSQLService.js'
 import catholicDoctrineService from '../services/CatholicDoctrineService.js'
 import voiceService from '../services/VoiceService.js'
 import TestServicesInitializer from '../services/TestServicesInitializer.js'
@@ -267,8 +267,8 @@ const ChatPage = () => {
     
     // Create anonymous session for voice features
     const userAge = verificationData?.age || verificationData
-    if (!supabaseService.getCurrentSession()) {
-      supabaseService.createAnonymousSession(userAge)
+    if (!postgreSQLService.getCurrentSession()) {
+      postgreSQLService.createAnonymousSession(userAge)
         .then(() => {
           console.log('✅ Session created for voice features')
         })
@@ -573,7 +573,7 @@ const ChatPage = () => {
 
       // Log feature usage (COPPA compliant - no personal data)
       try {
-        await supabaseService.logFeatureUsage('ai_chat', 'message_sent')
+        await postgreSQLService.logFeatureUsage('ai_chat', 'message_sent')
       } catch (logError) {
         console.warn('Logging failed:', logError)
       }

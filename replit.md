@@ -4,24 +4,34 @@
 DaisyDog is an AI-powered virtual companion designed for children aged 5-18. This React + Vite frontend application leverages the Google Gemini AI API and Supabase to deliver a safe, interactive chatbot experience embodied by a friendly golden retriever personality. The project aims to provide engaging and educational content, including interactive games, video responses, and a multi-layered safety system, all within a pure frontend architecture without a dedicated backend server.
 
 ## Recent Changes (October 3, 2025)
+**DATABASE MIGRATION: Supabase → Replit PostgreSQL (COMPLETED)**
+- Created PostgreSQLService.js using @neondatabase/serverless (Neon) for Replit DATABASE_URL
+- Migrated all tables: sessions, safety_events, performance_logs, feature_analytics, content_cache, system_reports
+- Used VARCHAR IDs instead of UUID to match existing schema (sessions table compatibility)
+- Created 18 performance indexes for optimal query speed
+- Updated ChatPage.jsx and VoiceService.js to use PostgreSQLService
+- Voice transcripts now save to Replit PostgreSQL with 7-day retention
+- All logging (safety, performance, features) now uses local database
+- COPPA-compliant anonymous session tracking maintained
+
+**Game Fixes & Improvements:**
+- Memory Match: Fixed Daisy AI showing both card flips (removed playerView stripping)
+- Memory Match: Increased card boxes 20% (90px → 108px) for better visibility
+- Memory Match: Flipped cards show 300% larger emojis (36px → 108px)
+- Tic-Tac-Toe: Daisy now places paw icons (🐾) instead of circles (○)
+- Word Scramble: Fixed disappearing letters by using unique AnimatePresence keys (targetWord-index-letter)
+- Background Music: Fixed async/await in GameContainer.jsx for all games
+- All BoardGame.io games now play background music 5 seconds after voice instructions
+
 **Catholic Prayer System Enhancements:**
 - Separated Guardian Angel and Bedtime Prayer into distinct prayer topics
 - Guardian Angel Prayer: "Angel of God, my guardian dear..." (keywords: guardian angel, angel of god)
 - Bedtime Prayer: "God, our Father, I come to say..." (keywords: bedtime prayer, prayer before sleep)
 - Fixed prayer ordering in bibleTopics to check specific prayers before generic "prayer" topic
 - All prayers now display full traditional text: Hail Mary, Meal Prayer, Guardian Angel, Bedtime Prayer, Our Father
+- Bible topics checked BEFORE biblical characters to prevent "Mary" name match override
 - Enhanced Debug Control Center with 5 tabs: Games, Voice, Safety, Constitution, Bible/Prayer
 - Added automated prayer testing with 5 prayer validation tests
-- Fixed SoundService conditional checks in GameContainer for background music
-
-**UI/Game Layout Improvements:**
-- Memory Match: Increased popup height 50%, reduced card size 50%, adjusted spacing proportionally
-- Tic-Tac-Toe: Added player legend with orange paw icon for Daisy
-- Checkers: Enlarged popup to display full board
-- Reduced padding across all games for efficient space usage
-- Reordered game buttons: Word Scramble → Memory Match → Tic-Tac-Toe → Checkers → Connect Four → others
-- Replaced Founding Documents with History of America submenu (10+ key events + all presidents)
-- Added database schema for historical events and presidents in Supabase
 
 ## Previous Changes (October 2, 2025)
 **Go Fish Hand Refill & UI Improvements:**

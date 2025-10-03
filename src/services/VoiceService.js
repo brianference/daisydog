@@ -7,7 +7,7 @@
  * Transcripts stored locally for 7 days with parent access
  */
 
-import supabaseService from './SupabaseService';
+import postgreSQLService from './PostgreSQLService';
 
 // Netlify function endpoints (relative paths work in both dev and production)
 const NETLIFY_FUNCTIONS = {
@@ -64,7 +64,7 @@ class VoiceService {
       return this.authToken;
     }
 
-    const session = supabaseService.getCurrentSession();
+    const session = postgreSQLService.getCurrentSession();
     if (!session || !session.id) {
       throw new Error('No active session for voice features');
     }
@@ -420,29 +420,25 @@ class VoiceService {
    */
   async saveTranscript(text) {
     try {
-      if (!supabaseService.isAvailable()) {
+      if (!postgreSQLService.isAvailable()) {
         console.warn('⚠️ Database not available, transcript not saved');
         return;
       }
 
-      const session = supabaseService.getCurrentSession();
+      const session = postgreSQLService.getCurrentSession();
       if (!session) {
         console.warn('⚠️ No active session for transcript save');
         return;
       }
 
-      const { data, error } = await supabaseService.supabase
-        .from('voice_transcripts')
-        .insert({
-          session_id: session.id,
-          transcript_text: text,
-          created_at: new Date().toISOString(),
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
-        });
+      const result = await postgreSQLService.sql`
+        INSERT INTO voice_transcripts (session_id, transcript_text, created_at, expires_at)
+        VALUES (${session.id}, ${text}, ${new Date().toISOString()}, ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()})
+        RETURNING *
+      `;
 
-      if (error) throw error;
       console.log('📝 Transcript saved (7-day retention)');
-      return data;
+      return result[0];
     } catch (error) {
       console.error('❌ Failed to save transcript:', error);
     }
@@ -484,7 +480,7 @@ class VoiceService {
       const result = await response.json();
 
       if (!result.isSafe) {
-        await supabaseService.logSafetyEvent(
+        await postgreSQLService.logSafetyEvent(
           'voice_input_flagged',
           'content_moderation',
           result.categories.join(', ')
