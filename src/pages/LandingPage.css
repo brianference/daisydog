@@ -445,7 +445,7 @@
 /* Book Feature Section */
 .book-feature {
   padding: 80px 0;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   position: relative;
   overflow: hidden;
 }
@@ -509,17 +509,17 @@
 }
 
 .book-tagline {
-  color: #2d3748;
+  color: white;
   font-size: 1.25rem !important;
   margin-bottom: 20px !important;
   padding: 15px;
-  background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px;
-  border-left: 4px solid #e17055;
+  border-left: 4px solid #4c51bf;
 }
 
 .btn-book {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 16px 40px;
   font-size: 1.2rem;
@@ -531,19 +531,19 @@
   align-items: center;
   gap: 12px;
   text-decoration: none;
-  box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
   transition: all 0.3s ease;
 }
 
 .btn-book:hover {
-  box-shadow: 0 12px 35px rgba(245, 87, 108, 0.6);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
   transform: translateY(-2px);
 }
 
 .book-feature-image {
   flex-shrink: 0;
   position: relative;
-  width: 400px;
+  width: 800px;
   max-width: 100%;
 }
 
@@ -594,7 +594,7 @@
   
   .book-feature-image {
     width: 100%;
-    max-width: 400px;
+    max-width: 600px;
     margin: 0 auto;
   }
   
