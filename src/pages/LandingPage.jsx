@@ -150,7 +150,7 @@ const LandingPage = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <div className="book-feature-content">
+            <div className="book-feature-header">
               <motion.div
                 className="book-feature-badge"
                 animate={{ 
@@ -168,26 +168,7 @@ const LandingPage = () => {
               
               <h2 className="book-feature-title">📚 Daisy's Story - Now Available!</h2>
               
-              <div className="book-feature-blurb">
-                <p className="book-tagline"><strong>A heartwarming tale about finding where you belong, perfect for young readers who love dogs, family stories, and the magic of being chosen just as you are.</strong></p>
-                
-                <p>While her brothers and sisters jumped and barked "PICK ME! PICK ME!" whenever visitors came, little Daisy sat quietly in the corner, wondering if anyone would ever choose her. She wasn't the loudest or the pushiest puppy—she was gentle, patient, and just a little bit shy.</p>
-                
-                <p>Then one magical Saturday, seven-year-old Victoria walked into Daisy's life. With her kind blue eyes and patient heart, Victoria saw something special in the quiet brown and white puppy sitting in the corner. And in that perfect moment, Daisy got the two most wonderful things a puppy could ask for: a forever family and a beautiful name!</p>
-                
-                <p>From her first car ride home to mastering the art of treat training (SO many treats!), Daisy discovers that being chosen wasn't about being the loudest—it was about being herself. Join Daisy as she learns to sit, stay, shake a paw, and even attempt the ULTIMATE CHALLENGE: balancing a treat on her head!</p>
-              </div>
-              
-              <motion.a
-                href="https://www.readkidz.com/share/ebook/1969460528838705153"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-book"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FaBook /> Read Daisy's Story
-              </motion.a>
+              <p className="book-tagline"><strong>A heartwarming tale about finding where you belong, perfect for young readers who love dogs, family stories, and the magic of being chosen just as you are.</strong></p>
             </div>
             
             <motion.div 
@@ -217,6 +198,27 @@ const LandingPage = () => {
                 }}
               />
             </motion.div>
+            
+            <div className="book-feature-footer">
+              <div className="book-feature-blurb">
+                <p>While her brothers and sisters jumped and barked "PICK ME! PICK ME!" whenever visitors came, little Daisy sat quietly in the corner, wondering if anyone would ever choose her. She wasn't the loudest or the pushiest puppy—she was gentle, patient, and just a little bit shy.</p>
+                
+                <p>Then one magical Saturday, seven-year-old Victoria walked into Daisy's life. With her kind blue eyes and patient heart, Victoria saw something special in the quiet brown and white puppy sitting in the corner. And in that perfect moment, Daisy got the two most wonderful things a puppy could ask for: a forever family and a beautiful name!</p>
+                
+                <p>From her first car ride home to mastering the art of treat training (SO many treats!), Daisy discovers that being chosen wasn't about being the loudest—it was about being herself. Join Daisy as she learns to sit, stay, shake a paw, and even attempt the ULTIMATE CHALLENGE: balancing a treat on her head!</p>
+              </div>
+              
+              <motion.a
+                href="https://www.readkidz.com/share/ebook/1969460528838705153"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-book"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <FaBook /> Read Daisy's Story
+              </motion.a>
+            </div>
           </motion.div>
         </div>
       </section>

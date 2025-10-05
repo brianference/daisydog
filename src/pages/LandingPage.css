@@ -414,18 +414,12 @@
     padding: 40px 0;
   }
   
-  .book-feature-card {
-    flex-direction: column;
+  .book-feature-header {
+    padding: 20px 15px 15px 15px;
   }
   
-  .book-feature-content {
-    padding: 30px 20px;
-    order: 2;
-  }
-  
-  .book-feature-image {
-    order: 1;
-    margin-bottom: 20px;
+  .book-feature-footer {
+    padding: 15px 15px 20px 15px;
   }
   
   .book-feature-badge {
@@ -463,18 +457,22 @@
 .book-feature-card {
   background: rgba(255, 255, 255, 0.98);
   border-radius: 24px;
-  padding: 50px;
+  padding: 0;
   display: flex;
-  gap: 50px;
-  align-items: center;
+  flex-direction: column;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   position: relative;
   overflow: hidden;
 }
 
-.book-feature-content {
-  flex: 1;
-  min-width: 0;
+.book-feature-header {
+  padding: 50px 50px 30px 50px;
+  text-align: center;
+}
+
+.book-feature-footer {
+  padding: 30px 50px 50px 50px;
+  text-align: center;
 }
 
 .book-feature-badge {
@@ -541,18 +539,15 @@
 }
 
 .book-feature-image {
-  flex-shrink: 0;
   position: relative;
-  width: 800px;
-  max-width: 100%;
+  width: 100%;
+  margin: 0;
 }
 
 .book-feature-image a {
   display: block;
   position: relative;
-  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
   transition: transform 0.3s ease;
 }
 
@@ -560,7 +555,6 @@
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 16px;
 }
 
 .book-glow {
@@ -586,16 +580,12 @@
 
 /* Responsive adjustments for book feature */
 @media (max-width: 968px) {
-  .book-feature-card {
-    flex-direction: column;
-    padding: 40px 30px;
-    gap: 30px;
+  .book-feature-header {
+    padding: 30px 20px 20px 20px;
   }
   
-  .book-feature-image {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
+  .book-feature-footer {
+    padding: 20px 20px 30px 20px;
   }
   
   .book-feature-title {
