@@ -12,6 +12,11 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       clientPort: 443,
       protocol: 'wss'
+    },
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
     }
   },
   preview: {
