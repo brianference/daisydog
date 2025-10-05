@@ -151,24 +151,9 @@ const LandingPage = () => {
             viewport={{ once: true }}
           >
             <div className="book-feature-header">
-              <motion.div
-                className="book-feature-badge"
-                animate={{ 
-                  scale: [1, 1.05, 1],
-                  opacity: [0.9, 1, 0.9]
-                }}
-                transition={{ 
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                🎧 Daisy Reads You the Story!
-              </motion.div>
-              
               <h2 className="book-feature-title">📚 Daisy's Story - Now Available!</h2>
               
-              <p className="book-tagline"><strong>A heartwarming tale about finding where you belong, perfect for young readers who love dogs, family stories, and the magic of being chosen just as you are.</strong></p>
+              <p className="book-tagline">A heartwarming tale about finding where you belong, perfect for young readers who love dogs, family stories, and the magic of being chosen just as you are.</p>
             </div>
             
             <motion.div 
