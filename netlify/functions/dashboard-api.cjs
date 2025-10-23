@@ -111,7 +111,7 @@ async function getChildren(parentId) {
 async function addChild(parentId, { nickname, ageRange, avatarColor }) {
   // Check subscription and child limit
   const parent = await sql`
-    SELECT subscription_status FROM parents WHERE id = ${parentId}
+    SELECT subscription_status, stripe_customer_id, created_at FROM parents WHERE id = ${parentId}
   `;
 
   if (parent.length === 0) {
@@ -126,7 +126,14 @@ async function addChild(parentId, { nickname, ageRange, avatarColor }) {
     SELECT COUNT(*) as count FROM children WHERE parent_id = ${parentId} AND is_active = true
   `;
 
-  const isPaid = parent[0].subscription_status === 'active';
+  // Allow access if:
+  // 1. Subscription is active, OR
+  // 2. Has a Stripe customer ID (payment processed, webhook pending), OR
+  // 3. Account is less than 1 hour old (grace period for webhook)
+  const hasStripeCustomer = !!parent[0].stripe_customer_id;
+  const accountAge = Date.now() - new Date(parent[0].created_at).getTime();
+  const isWithinGracePeriod = accountAge < 60 * 60 * 1000; // 1 hour
+  const isPaid = parent[0].subscription_status === 'active' || hasStripeCustomer || isWithinGracePeriod;
   const maxChildren = isPaid ? 3 : 0;
 
   if (childCount[0].count >= maxChildren) {

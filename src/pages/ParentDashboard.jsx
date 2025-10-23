@@ -14,6 +14,7 @@ export default function ParentDashboard() {
   const location = useLocation();
   const [parent, setParent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showProcessingBanner, setShowProcessingBanner] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -26,10 +27,32 @@ export default function ParentDashboard() {
       setParent(parentData);
       setLoading(false);
 
-      // Note: Temporarily allowing access even without active subscription
-      // This gives time for Stripe webhook to process
-      // In production, you may want to poll for subscription status
-      // or show a "Processing payment..." message
+      // Show processing banner if subscription status is not active
+      if (parentData.subscriptionStatus !== 'active') {
+        setShowProcessingBanner(true);
+        
+        // Poll for subscription status every 5 seconds
+        const pollInterval = setInterval(async () => {
+          const verified = await parentAuthService.verifyToken();
+          if (verified) {
+            const updatedParent = parentAuthService.getParent();
+            setParent(updatedParent);
+            
+            if (updatedParent.subscriptionStatus === 'active') {
+              setShowProcessingBanner(false);
+              clearInterval(pollInterval);
+            }
+          }
+        }, 5000);
+
+        // Stop polling after 5 minutes
+        setTimeout(() => {
+          clearInterval(pollInterval);
+          setShowProcessingBanner(false);
+        }, 5 * 60 * 1000);
+
+        return () => clearInterval(pollInterval);
+      }
     };
 
     checkAuth();
@@ -51,7 +74,25 @@ export default function ParentDashboard() {
 
   return (
     <div className="dashboard-layout">
-      <aside className="dashboard-sidebar">
+      {showProcessingBanner && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+          color: '#333',
+          padding: '12px 20px',
+          textAlign: 'center',
+          fontSize: '14px',
+          fontWeight: '600',
+          zIndex: 1000,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }}>
+          ⏳ Processing your payment... Your subscription will be activated shortly. (This usually takes less than 1 minute)
+        </div>
+      )}
+      <aside className="dashboard-sidebar" style={{ marginTop: showProcessingBanner ? '44px' : '0' }}>
         <div className="sidebar-header">
           <h2>🐾 DaisyDog</h2>
           <p className="parent-email">{parent?.email}</p>

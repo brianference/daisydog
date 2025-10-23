@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { checkAuth, createAuthErrorResponse, checkRateLimit, getClientIP, createRateLimitResponse } from './utils/rateLimiter.js';
+import { checkAuth, createAuthErrorResponse, checkRateLimit, getClientIP, createRateLimitResponse } from '../shared/utils/rateLimiter.js';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
