@@ -47,7 +47,7 @@ class StripeService {
   getCustomerPortalUrl() {
     // Stripe Customer Portal is configured in Stripe Dashboard
     // This redirects to Stripe-hosted billing management
-    return 'https://billing.stripe.com/p/login/test_your_portal_id'
+    return 'https://billing.stripe.com/p/login/test_7sY6oG1Li9G18mG1cc'
   }
 
   /**

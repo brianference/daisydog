@@ -36,6 +36,10 @@ exports.handler = async (event) => {
       };
     }
 
+    // Get the base URL from the request origin or use production URL
+    const origin = event.headers.origin || event.headers.referer || 'https://daisydogchat.replit.app';
+    const baseUrl = origin.replace(/\/$/, '');
+
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       mode,
@@ -47,8 +51,8 @@ exports.handler = async (event) => {
         },
       ],
       customer_email: email,
-      success_url: `${process.env.URL || 'http://localhost:5173'}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.URL || 'http://localhost:5173'}/pricing?cancelled=true`,
+      success_url: `${baseUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/pricing?cancelled=true`,
       allow_promotion_codes: true,
       billing_address_collection: 'required',
       metadata: {
