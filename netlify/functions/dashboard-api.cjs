@@ -18,32 +18,40 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers, body: '' };
   }
 
-  // Verify JWT token
-  const authHeader = event.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return {
-      statusCode: 401,
-      headers,
-      body: JSON.stringify({ error: 'Unauthorized' }),
-    };
-  }
-
-  let parentId;
-  try {
-    const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, JWT_SECRET);
-    parentId = decoded.parentId;
-  } catch (error) {
-    return {
-      statusCode: 401,
-      headers,
-      body: JSON.stringify({ error: 'Invalid token' }),
-    };
-  }
-
   try {
     const { action } = event.queryStringParameters || {};
     const body = event.body ? JSON.parse(event.body) : {};
+
+    // Actions that don't require authentication (child logging)
+    if (action === 'log-activity') {
+      return await logActivity(body);
+    }
+    if (action === 'log-safety-event') {
+      return await logSafetyEvent(body);
+    }
+
+    // All other actions require JWT authentication
+    const authHeader = event.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: 'Unauthorized' }),
+      };
+    }
+
+    let parentId;
+    try {
+      const token = authHeader.substring(7);
+      const decoded = jwt.verify(token, JWT_SECRET);
+      parentId = decoded.parentId;
+    } catch (error) {
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: 'Invalid token' }),
+      };
+    }
 
     switch (action) {
       case 'get-children':
@@ -336,4 +344,88 @@ async function updateSettings(parentId, settings) {
     headers,
     body: JSON.stringify({ settings: result[0] }),
   };
+}
+
+async function logActivity(data) {
+  const { childId, sessionId, activityType, timestamp, ...extra } = data;
+  
+  if (!childId) {
+    return {
+      statusCode: 400,
+      headers,
+      body: JSON.stringify({ error: 'childId is required' }),
+    };
+  }
+
+  try {
+    // Insert activity into sessions table
+    await sql`
+      INSERT INTO sessions (child_id, session_id, activity_type, start_time, metadata)
+      VALUES (${childId}, ${sessionId || 'unknown'}, ${activityType}, ${timestamp || 'NOW()'}, ${JSON.stringify(extra)})
+      ON CONFLICT (session_id) 
+      DO UPDATE SET 
+        end_time = NOW(),
+        total_minutes = EXTRACT(EPOCH FROM (NOW() - sessions.start_time)) / 60
+    `;
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ success: true }),
+    };
+  } catch (error) {
+    console.error('Error logging activity:', error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: error.message }),
+    };
+  }
+}
+
+async function logSafetyEvent(data) {
+  const { childId, sessionId, message, category, aiResponse, timestamp } = data;
+  
+  if (!childId || !category) {
+    return {
+      statusCode: 400,
+      headers,
+      body: JSON.stringify({ error: 'childId and category are required' }),
+    };
+  }
+
+  try {
+    // Get session_id from sessions table
+    const sessionResult = await sql`
+      SELECT id FROM sessions 
+      WHERE child_id = ${childId} 
+      ORDER BY start_time DESC 
+      LIMIT 1
+    `;
+
+    const dbSessionId = sessionResult.length > 0 ? sessionResult[0].id : null;
+
+    // Insert safety event
+    await sql`
+      INSERT INTO safety_events (
+        session_id, event_type, trigger_text, response_text, severity, timestamp
+      )
+      VALUES (
+        ${dbSessionId}, ${category}, ${message}, ${aiResponse}, 'medium', ${timestamp || 'NOW()'}
+      )
+    `;
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ success: true }),
+    };
+  } catch (error) {
+    console.error('Error logging safety event:', error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: error.message }),
+    };
+  }
 }

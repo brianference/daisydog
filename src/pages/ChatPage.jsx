@@ -9,6 +9,7 @@ import { catholicCurriculum, getBiblePassageResponse, containsBiblePassageKeywor
 import geminiService from '../services/GeminiService.js'
 import supabaseService from '../services/SupabaseService.js'
 import catholicDoctrineService from '../services/CatholicDoctrineService.js'
+import childSessionService from '../services/ChildSessionService.js'
 import voiceService from '../services/VoiceService.js'
 import TestServicesInitializer from '../services/TestServicesInitializer.js'
 import useSoundManagerModular from '../hooks/useSoundManagerModular.js'
@@ -267,6 +268,19 @@ const ChatPage = () => {
     }
   }
 
+  // Create session for linked children on mount
+  useEffect(() => {
+    if (childSessionService.isLinkedChild()) {
+      childSessionService.createSession()
+        .then(() => {
+          console.log('✅ Child session created for dashboard tracking');
+        })
+        .catch(error => {
+          console.error('Failed to create child session:', error);
+        });
+    }
+  }, []); // Run once on mount
+
   // Handle verification and create session
   const handleVerificationComplete = (verificationData) => {
     setIsVerified(true)
@@ -439,6 +453,15 @@ const ChatPage = () => {
         setMessages(prev => [...prev, safetyMessage])
         playUISound('failure').catch(() => {})
         
+        // Log safety event for linked children
+        if (childSessionService.isLinkedChild()) {
+          childSessionService.logSafetyEvent(
+            messageToSend,
+            safetyResult.category || 'inappropriate_content',
+            safetyMessage.text
+          ).catch(err => console.error('Failed to log safety event:', err));
+        }
+        
         // Play TTS if voice input was used
         if (isVoiceInput && safetyMessage.text) {
           await playTTSWithMute(safetyMessage.text, 'SAFETY', 'play')
@@ -582,6 +605,18 @@ const ChatPage = () => {
         await supabaseService.logFeatureUsage('ai_chat', 'message_sent')
       } catch (logError) {
         console.warn('Logging failed:', logError)
+      }
+
+      // Log activity for linked children
+      if (childSessionService.isLinkedChild()) {
+        try {
+          await childSessionService.logActivity('ai_chat', {
+            messageLength: messageToSend.length,
+            responseLength: response?.length || 0,
+          });
+        } catch (logError) {
+          console.warn('Child activity logging failed:', logError);
+        }
       }
 
     } catch (error) {
