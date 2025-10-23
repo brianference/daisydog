@@ -51,13 +51,12 @@ class StripeService {
   }
 
   /**
-   * Price IDs (set these in Stripe Dashboard)
-   * These will be created when you set up products in Stripe
+   * Price IDs from Stripe Dashboard
    */
   getPriceIds() {
     return {
-      monthly: 'price_monthly_699', // Replace with actual price ID from Stripe
-      annual: 'price_annual_5900',  // Replace with actual price ID from Stripe
+      monthly: 'price_1SLHehBinIhtMaPUs6oS4I1c',
+      annual: 'price_1SLHflBinIhtMaPUOviM0TCm',
     }
   }
 }
