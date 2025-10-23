@@ -358,14 +358,14 @@ async function logActivity(data) {
   }
 
   try {
-    // Insert activity into sessions table
+    // Insert or update session in sessions table
     await sql`
-      INSERT INTO sessions (child_id, session_id, activity_type, start_time, metadata)
-      VALUES (${childId}, ${sessionId || 'unknown'}, ${activityType}, ${timestamp || 'NOW()'}, ${JSON.stringify(extra)})
-      ON CONFLICT (session_id) 
+      INSERT INTO sessions (id, child_id, is_linked_account, last_activity, interactions_count)
+      VALUES (${sessionId || `session_${Date.now()}`}, ${childId}, true, NOW(), 1)
+      ON CONFLICT (id) 
       DO UPDATE SET 
-        end_time = NOW(),
-        total_minutes = EXTRACT(EPOCH FROM (NOW() - sessions.start_time)) / 60
+        last_activity = NOW(),
+        interactions_count = sessions.interactions_count + 1
     `;
 
     return {
@@ -399,19 +399,19 @@ async function logSafetyEvent(data) {
     const sessionResult = await sql`
       SELECT id FROM sessions 
       WHERE child_id = ${childId} 
-      ORDER BY start_time DESC 
+      ORDER BY last_activity DESC 
       LIMIT 1
     `;
 
-    const dbSessionId = sessionResult.length > 0 ? sessionResult[0].id : null;
+    const dbSessionId = sessionResult.length > 0 ? sessionResult[0].id : sessionId || 'unknown';
 
     // Insert safety event
     await sql`
       INSERT INTO safety_events (
-        session_id, event_type, trigger_text, response_text, severity, timestamp
+        session_id, event_type, category, trigger_text, response_text, timestamp
       )
       VALUES (
-        ${dbSessionId}, ${category}, ${message}, ${aiResponse}, 'medium', ${timestamp || 'NOW()'}
+        ${dbSessionId}, 'safety_trigger', ${category}, ${message}, ${aiResponse}, NOW()
       )
     `;
 
