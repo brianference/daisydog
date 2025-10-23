@@ -1,15 +1,30 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import parentAuthService from '../services/ParentAuthService';
 import './ParentAuth.css';
 
 export default function ParentSignup() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fromStripe, setFromStripe] = useState(false);
+
+  useEffect(() => {
+    const emailParam = searchParams.get('email');
+    const sessionId = searchParams.get('session_id');
+    
+    if (emailParam) {
+      setEmail(decodeURIComponent(emailParam));
+    }
+    
+    if (sessionId) {
+      setFromStripe(true);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,9 +45,13 @@ export default function ParentSignup() {
     try {
       const result = await parentAuthService.signup(email, password);
       
-      alert('Account created! Please check your email to verify your account.');
-      
-      navigate('/pricing');
+      if (fromStripe) {
+        alert('Account created! You can now log in to access your dashboard.');
+        navigate('/login');
+      } else {
+        alert('Account created! Please check your email to verify your account.');
+        navigate('/pricing');
+      }
     } catch (err) {
       setError(err.message || 'Signup failed');
     } finally {
@@ -45,10 +64,22 @@ export default function ParentSignup() {
       <div className="auth-container">
         <div className="auth-header">
           <h1>Create Parent Account 🐾</h1>
-          <p>Start monitoring your child's journey with Daisy</p>
+          <p>{fromStripe ? 'Complete your account setup to access the dashboard' : "Start monitoring your child's journey with Daisy"}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
+          {fromStripe && (
+            <div className="success-message" style={{
+              background: '#d4edda',
+              color: '#155724',
+              padding: '12px',
+              borderRadius: '8px',
+              marginBottom: '20px',
+              border: '1px solid #c3e6cb'
+            }}>
+              ✅ Payment successful! Create your account below.
+            </div>
+          )}
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">

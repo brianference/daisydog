@@ -51,7 +51,7 @@ exports.handler = async (event) => {
         },
       ],
       customer_email: email,
-      success_url: `${baseUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${baseUrl}/signup?session_id={CHECKOUT_SESSION_ID}&email=${encodeURIComponent(email)}`,
       cancel_url: `${baseUrl}/pricing?cancelled=true`,
       allow_promotion_codes: true,
       billing_address_collection: 'required',
