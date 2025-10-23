@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { neon } from '@neondatabase/serverless';
 import './ChildLinkPage.css';
 
 export default function ChildLinkPage() {
@@ -15,39 +14,27 @@ export default function ChildLinkPage() {
     setLoading(true);
 
     try {
-      // Verify code exists and is not expired
-      const sql = neon(import.meta.env.VITE_DATABASE_URL || import.meta.env.DATABASE_URL);
-      
-      const result = await sql`
-        SELECT clc.*, c.nickname
-        FROM child_link_codes clc
-        JOIN children c ON c.id = clc.child_id
-        WHERE clc.code = ${code}
-        AND clc.expires_at > NOW()
-        AND clc.used_at IS NULL
-        LIMIT 1
-      `;
+      const response = await fetch('/.netlify/functions/child-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code }),
+      });
 
-      if (result.length === 0) {
-        setError('Invalid or expired code. Please check the code and try again.');
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Failed to link account');
         setLoading(false);
         return;
       }
 
-      const linkData = result[0];
-
-      // Mark code as used
-      await sql`
-        UPDATE child_link_codes
-        SET used_at = NOW()
-        WHERE id = ${linkData.id}
-      `;
-
       // Store child ID in localStorage for session linking
-      localStorage.setItem('linkedChildId', linkData.child_id);
-      localStorage.setItem('childNickname', linkData.nickname);
+      localStorage.setItem('linkedChildId', data.childId);
+      localStorage.setItem('childNickname', data.nickname);
 
-      alert(`Successfully linked to ${linkData.nickname}'s account!`);
+      alert(`Successfully linked to ${data.nickname}'s account!`);
       navigate('/chat');
     } catch (err) {
       console.error('Link error:', err);
