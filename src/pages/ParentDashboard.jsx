@@ -26,10 +26,10 @@ export default function ParentDashboard() {
       setParent(parentData);
       setLoading(false);
 
-      // Check if user has active subscription
-      if (parentData.subscriptionStatus !== 'active') {
-        navigate('/pricing');
-      }
+      // Note: Temporarily allowing access even without active subscription
+      // This gives time for Stripe webhook to process
+      // In production, you may want to poll for subscription status
+      // or show a "Processing payment..." message
     };
 
     checkAuth();

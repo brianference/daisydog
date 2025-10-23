@@ -67,19 +67,22 @@ export default function ParentSignup() {
           <p>{fromStripe ? 'Complete your account setup to access the dashboard' : "Start monitoring your child's journey with Daisy"}</p>
         </div>
 
+        {fromStripe && (
+          <div style={{
+            background: '#d4edda',
+            color: '#155724',
+            padding: '12px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            border: '1px solid #c3e6cb',
+            fontSize: '14px',
+            textAlign: 'center'
+          }}>
+            ✅ Payment successful! Create your account below.
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="auth-form">
-          {fromStripe && (
-            <div className="success-message" style={{
-              background: '#d4edda',
-              color: '#155724',
-              padding: '12px',
-              borderRadius: '8px',
-              marginBottom: '20px',
-              border: '1px solid #c3e6cb'
-            }}>
-              ✅ Payment successful! Create your account below.
-            </div>
-          )}
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
