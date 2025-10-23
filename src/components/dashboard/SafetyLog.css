@@ -1,0 +1,147 @@
+.safety-log {
+  max-width: 1400px;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.export-button {
+  background: #4A90E2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.export-button:hover {
+  opacity: 0.9;
+}
+
+.events-table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.events-table thead {
+  background: #f5f7fa;
+}
+
+.events-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #e0e0e0;
+  white-space: nowrap;
+}
+
+.events-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.events-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.datetime {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.time {
+  font-size: 12px;
+  color: #999;
+}
+
+.child-name {
+  font-weight: 600;
+  color: #4A90E2;
+}
+
+.event-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.event-badge.drug_safety {
+  background: #ffe6e6;
+  color: #cc0000;
+}
+
+.event-badge.comprehensive_safety {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.event-badge.false_positive {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.keyword {
+  font-family: monospace;
+  font-size: 13px;
+  color: #666;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.reviewed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .export-buttons {
+    flex-direction: column;
+  }
+
+  .export-button {
+    width: 100%;
+  }
+
+  .events-table {
+    font-size: 14px;
+  }
+
+  .events-table th,
+  .events-table td {
+    padding: 12px 8px;
+  }
+}

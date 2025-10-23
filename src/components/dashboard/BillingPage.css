@@ -1,0 +1,142 @@
+.billing-page {
+  max-width: 800px;
+}
+
+.billing-card,
+.features-card,
+.faq-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.subscription-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.subscription-status h2 {
+  margin: 0;
+  color: #333;
+}
+
+.status-badge {
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.status-badge.active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.past_due {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.plan-details {
+  padding: 20px;
+  background: #f5f7fa;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.plan-details p {
+  margin: 8px 0;
+  color: #333;
+}
+
+.savings {
+  color: #4A90E2;
+  font-weight: 600;
+}
+
+.billing-actions {
+  text-align: center;
+}
+
+.manage-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+  margin-bottom: 12px;
+}
+
+.manage-button:hover {
+  transform: scale(1.05);
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.features-list li {
+  padding: 12px;
+  background: #f5f7fa;
+  border-radius: 6px;
+  color: #333;
+}
+
+.faq-card h2 {
+  margin: 0 0 24px 0;
+  color: #333;
+}
+
+.faq-item {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.faq-item h3 {
+  color: #4A90E2;
+  margin: 0 0 8px 0;
+  font-size: 16px;
+}
+
+.faq-item p {
+  color: #666;
+  margin: 0;
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .subscription-status {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .features-list {
+    grid-template-columns: 1fr;
+  }
+}

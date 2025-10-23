@@ -70,6 +70,9 @@ const LandingPage = () => {
                 <Link to="/chat" className="btn btn-primary">
                   <FaPlay /> Start Chatting
                 </Link>
+                <Link to="/pricing" className="btn btn-parent-dashboard">
+                  👨‍👩‍👧‍👦 For Parents
+                </Link>
                 <Link to="/about" className="btn btn-secondary">
                   <FaInfoCircle /> Learn More
                 </Link>

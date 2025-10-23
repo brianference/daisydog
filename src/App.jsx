@@ -6,6 +6,11 @@ import ChatPage from './pages/ChatPage'
 import FAQPage from './pages/FAQPage'
 import PrivacyPage from './pages/PrivacyPage'
 import ContactPage from './pages/ContactPage'
+import PricingPage from './pages/PricingPage'
+import ParentLogin from './pages/ParentLogin'
+import ParentSignup from './pages/ParentSignup'
+import ParentDashboard from './pages/ParentDashboard'
+import ChildLinkPage from './pages/ChildLinkPage'
 import './utils/videoFileChecker.js' // Import video file checker
 import './App.css'
 
@@ -31,6 +36,11 @@ function App() {
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/login" element={<ParentLogin />} />
+        <Route path="/signup" element={<ParentSignup />} />
+        <Route path="/dashboard/*" element={<ParentDashboard />} />
+        <Route path="/link-child" element={<ChildLinkPage />} />
       </Routes>
     </>
   )

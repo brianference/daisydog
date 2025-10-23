@@ -548,6 +548,19 @@
   transform: translateY(-1px);
 }
 
+.btn-parent-dashboard {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #333;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-parent-dashboard:hover {
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+  transform: translateY(-2px) scale(1.05);
+}
+
 .book-feature-image {
   position: relative;
   width: 100%;
