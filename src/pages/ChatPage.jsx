@@ -50,7 +50,11 @@ const ChatPage = () => {
   const [inputMessage, setInputMessage] = useState('')
   const [messages, setMessages] = useState([])
   const [isTyping, setIsTyping] = useState(false)
-  const [isVerified, setIsVerified] = useState(false)
+  const [isVerified, setIsVerified] = useState(() => {
+    // Skip age verification if child is linked to a parent account
+    const linkedChildId = localStorage.getItem('linkedChildId');
+    return !!linkedChildId;
+  })
   const [hungerLevel, setHungerLevel] = useState(3)
   const [gameState, setGameState] = useState(null)
   const [bibleMenuState, setBibleMenuState] = useState(null)

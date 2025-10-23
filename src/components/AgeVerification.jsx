@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import './AgeVerification.css'
 
 const AgeVerification = ({ onVerificationComplete }) => {
@@ -150,6 +151,39 @@ const AgeVerification = ({ onVerificationComplete }) => {
             </button>
           </form>
           
+          
+          <div style={{ 
+            textAlign: 'center', 
+            marginTop: '20px', 
+            padding: '15px',
+            background: '#f0f8ff',
+            borderRadius: '8px',
+            border: '1px solid #6366f1'
+          }}>
+            <p style={{ marginBottom: '10px', color: '#333' }}>
+              <strong>👨‍👩‍👧‍👦 Are you a parent?</strong>
+            </p>
+            <Link 
+              to="/login" 
+              style={{
+                display: 'inline-block',
+                padding: '10px 20px',
+                background: '#6366f1',
+                color: 'white',
+                borderRadius: '6px',
+                textDecoration: 'none',
+                fontWeight: '600',
+                transition: 'background 0.3s'
+              }}
+              onMouseEnter={(e) => e.target.style.background = '#4f46e5'}
+              onMouseLeave={(e) => e.target.style.background = '#6366f1'}
+            >
+              Parent Dashboard Login →
+            </Link>
+            <p style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+              Monitor your child's activity and manage settings
+            </p>
+          </div>
           <div className="coppa-notice">
             <h3>📋 COPPA Compliance</h3>
             <p>This app complies with the Children's Online Privacy Protection Act (COPPA). We do not collect any personal information from children under 13 without verified parental consent.</p>
