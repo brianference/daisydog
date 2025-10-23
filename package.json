@@ -28,7 +28,9 @@
     "test:daily": "npm run build && npm run test:safety",
     "pre-deploy": "bash scripts/pre-deploy-check.sh",
     "setup:apis": "node scripts/setup-apis.js",
-    "version": "echo 'Daisy Dog v4.1.0 - Read the Book Integration & Enhanced Educational Features'"
+    "version": "echo 'Daisy Dog v4.1.0 - Read the Book Integration & Enhanced Educational Features'",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "homepage": "https://brianference.github.io/daisydog",
   "keywords": [
@@ -67,6 +69,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "boardgame.io": "^0.50.2",
     "canvas-confetti": "^1.9.3",
+    "drizzle-kit": "^0.31.5",
     "drizzle-orm": "^0.44.5",
     "framer-motion": "^10.16.0",
     "identity-obj-proxy": "^3.0.0",
