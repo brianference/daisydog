@@ -254,10 +254,37 @@ export default function LessonsComponent({ childSessionId, onClose }) {
                 <div className="lesson-section">
                   <h3>Activities ({selectedLesson.activities.length}):</h3>
                   <div className="activities-list">
-                    {selectedLesson.activities.slice(0, 5).map((activity, i) => (
+                    {selectedLesson.activities.map((activity, i) => (
                       <div key={i} className="activity-item">
                         <span className="activity-type">{activity.type}</span>
-                        <span>{activity.name}</span>
+                        <div className="activity-content">
+                          <div className="activity-header">
+                            <strong>{activity.name}</strong>
+                          </div>
+                          {activity.description && activity.description !== activity.name && (
+                            <p className="activity-description">{activity.description}</p>
+                          )}
+                          {activity.links && activity.links.length > 0 && (
+                            <div className="activity-links">
+                              {activity.links.map((link, idx) => (
+                                <a 
+                                  key={idx} 
+                                  href={link} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="activity-link"
+                                >
+                                  🔗 {link.includes('dltk') ? 'DLTK' : 
+                                      link.includes('daniellesplace') ? "Danielle's Place" :
+                                      link.includes('sundayschool') ? 'Sunday School' :
+                                      link.includes('childrens') ? 'Children\'s Ministry' :
+                                      link.includes('craft') ? 'Craft Ideas' :
+                                      'View Resource'}
+                                </a>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

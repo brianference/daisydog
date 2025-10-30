@@ -4,6 +4,16 @@
 DaisyDog is an AI-powered virtual companion for children aged 5-18. This React + Vite frontend application leverages the Google Gemini AI API and Supabase to provide a safe, interactive chatbot experience embodied by a friendly golden retriever personality. The project aims to deliver engaging and educational content, including interactive games, video responses, a multi-layered safety system, and comprehensive Catholic catechesis lessons with parent dashboard tracking.
 
 ## Recent Changes (October 30, 2025 - Session 5)
+**Version 6.4.1 - Catholic Lesson Plans UI/UX Improvements:**
+
+**Lesson Display Enhancements:**
+- ✅ Alphabetical ordering: All lessons now sorted by title (A-Z) instead of creation date
+- ✅ Fixed "Activitie" typo: Updated 24 database records to properly display "Activity"
+- ✅ All activities displayed: Removed 10-item limit, now showing complete list of activities per lesson
+- ✅ Clickable activity links: All external resource links are now fully clickable with proper styling
+- ✅ Smart link labels: Links display friendly names (DLTK, Danielle's Place, etc.) based on URL
+- ✅ Improved activity layout: Better visual hierarchy with activity type badges and content sections
+
 **Version 6.4.0 - Catholic Lesson Plans Feature (MAJOR):**
 
 **Complete Catholic Catechesis System:**

@@ -177,7 +177,7 @@ async function getLessons(params) {
       SELECT l.id, l.title, l.topic, l.age_group, l.liturgical_season, 
              l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
       FROM catechesis_lessons l
-      ORDER BY l.created_at DESC
+      ORDER BY l.title ASC
       LIMIT ${parseInt(limit)}
     `;
   } else if (topic && !age && !season && !type) {
@@ -186,7 +186,7 @@ async function getLessons(params) {
              l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
       FROM catechesis_lessons l
       WHERE l.topic ILIKE ${topicPattern}
-      ORDER BY l.created_at DESC LIMIT ${parseInt(limit)}
+      ORDER BY l.title ASC LIMIT ${parseInt(limit)}
     `;
   } else if (!topic && age && !season && !type) {
     lessons = await sql`
@@ -194,7 +194,7 @@ async function getLessons(params) {
              l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
       FROM catechesis_lessons l
       WHERE l.age_group ILIKE ${agePattern}
-      ORDER BY l.created_at DESC LIMIT ${parseInt(limit)}
+      ORDER BY l.title ASC LIMIT ${parseInt(limit)}
     `;
   } else if (!topic && !age && season && !type) {
     lessons = await sql`
@@ -202,7 +202,7 @@ async function getLessons(params) {
              l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
       FROM catechesis_lessons l
       WHERE l.liturgical_season = ${season}
-      ORDER BY l.created_at DESC LIMIT ${parseInt(limit)}
+      ORDER BY l.title ASC LIMIT ${parseInt(limit)}
     `;
   } else if (!topic && !age && !season && type) {
     lessons = await sql`
@@ -210,7 +210,7 @@ async function getLessons(params) {
              l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
       FROM catechesis_lessons l
       WHERE l.lesson_type = ${type}
-      ORDER BY l.created_at DESC LIMIT ${parseInt(limit)}
+      ORDER BY l.title ASC LIMIT ${parseInt(limit)}
     `;
   } else {
     // Multiple filters - build WHERE clause
@@ -222,7 +222,7 @@ async function getLessons(params) {
         AND (${!age} OR l.age_group ILIKE ${agePattern})
         AND (${!season} OR l.liturgical_season = ${season})
         AND (${!type} OR l.lesson_type = ${type})
-      ORDER BY l.created_at DESC LIMIT ${parseInt(limit)}
+      ORDER BY l.title ASC LIMIT ${parseInt(limit)}
     `;
   }
 
