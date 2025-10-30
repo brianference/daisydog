@@ -22,6 +22,10 @@ class ChildSessionService {
     return this.childId;
   }
 
+  getSessionId() {
+    return this.sessionId;
+  }
+
   async createSession() {
     if (!this.isLinkedChild()) {
       console.log('Not a linked child, skipping session creation');
