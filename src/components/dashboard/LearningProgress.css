@@ -138,6 +138,88 @@
   font-style: italic;
 }
 
+.lessons-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 24px;
+}
+
+.lessons-card h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.lessons-table {
+  overflow-x: auto;
+}
+
+.lessons-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.lessons-table th {
+  background: #f5f7fa;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.lessons-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #555;
+}
+
+.lessons-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.lesson-type-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #667eea;
+  color: white;
+}
+
+.lesson-type-badge.bible-story {
+  background: #4CAF50;
+}
+
+.lesson-type-badge.sacrament {
+  background: #FFD700;
+  color: #333;
+}
+
+.lesson-type-badge.liturgy {
+  background: #764ba2;
+}
+
+.status-completed {
+  color: #4CAF50;
+  font-weight: 600;
+}
+
+.status-in-progress {
+  color: #FFA500;
+  font-weight: 600;
+}
+
+.showing-count {
+  text-align: center;
+  color: #666;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
 @media (max-width: 768px) {
   .progress-grid {
     grid-template-columns: 1fr;
@@ -145,5 +227,14 @@
 
   .curriculum-grid {
     grid-template-columns: 1fr;
+  }
+
+  .lessons-table {
+    font-size: 14px;
+  }
+
+  .lessons-table th,
+  .lessons-table td {
+    padding: 8px 6px;
   }
 }

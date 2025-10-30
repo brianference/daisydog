@@ -30,9 +30,10 @@ export default function ChildLinkPage() {
         return;
       }
 
-      // Store child ID in localStorage for session linking
+      // Store child ID and session token in localStorage
       localStorage.setItem('linkedChildId', data.childId);
       localStorage.setItem('childNickname', data.nickname);
+      localStorage.setItem('childSessionToken', data.token);
 
       alert(`Successfully linked to ${data.nickname}'s account!`);
       navigate('/chat');

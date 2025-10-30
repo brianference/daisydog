@@ -7,7 +7,12 @@ const { neon } = require('@neondatabase/serverless');
 const crypto = require('crypto');
 
 const sql = neon(process.env.DATABASE_URL);
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
+// Fail fast if JWT_SECRET is not configured
+if (!process.env.JWT_SECRET) {
+  throw new Error('CRITICAL: JWT_SECRET environment variable is not set. Cannot issue secure tokens.');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // CORS headers
 const headers = {
@@ -127,7 +132,7 @@ async function handleSignup(email, password) {
 
   // Generate JWT
   const jwtToken = jwt.sign(
-    { parentId: parent.id, email: parent.email },
+    { parentId: parent.id, email: parent.email, type: 'parent' },
     JWT_SECRET,
     { expiresIn: '7d' }
   );
@@ -180,7 +185,7 @@ async function handleLogin(email, password) {
 
   // Generate JWT
   const token = jwt.sign(
-    { parentId: parent.id, email: parent.email },
+    { parentId: parent.id, email: parent.email, type: 'parent' },
     JWT_SECRET,
     { expiresIn: '7d' }
   );

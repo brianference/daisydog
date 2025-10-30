@@ -2,6 +2,7 @@
 // Allows children to link their session to a parent account using a 6-digit code
 
 const { neon } = require('@neondatabase/serverless');
+const jwt = require('jsonwebtoken');
 
 const sql = neon(process.env.DATABASE_URL);
 
@@ -63,6 +64,18 @@ exports.handler = async (event) => {
       WHERE id = ${linkData.id}
     `;
 
+    // Create a JWT token for the child session
+    // Token expires in 90 days (children shouldn't need to re-link frequently)
+    const childToken = jwt.sign(
+      {
+        childId: linkData.child_id,
+        parentId: linkData.parent_id,
+        type: 'child',
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '90d' }
+    );
+
     return {
       statusCode: 200,
       headers,
@@ -70,6 +83,7 @@ exports.handler = async (event) => {
         success: true,
         childId: linkData.child_id,
         nickname: linkData.nickname,
+        token: childToken,
       }),
     };
   } catch (error) {
