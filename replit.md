@@ -1,7 +1,35 @@
 # DaisyDog - AI Virtual Pet Companion for Kids
 
 ## Overview
-DaisyDog is an AI-powered virtual companion for children aged 5-18. This React + Vite frontend application leverages the Google Gemini AI API and Supabase to provide a safe, interactive chatbot experience embodied by a friendly golden retriever personality. The project aims to deliver engaging and educational content, including interactive games, video responses, and a multi-layered safety system, all within a pure frontend architecture without a dedicated backend server.
+DaisyDog is an AI-powered virtual companion for children aged 5-18. This React + Vite frontend application leverages the Google Gemini AI API and Supabase to provide a safe, interactive chatbot experience embodied by a friendly golden retriever personality. The project aims to deliver engaging and educational content, including interactive games, video responses, a multi-layered safety system, and comprehensive Catholic catechesis lessons with parent dashboard tracking.
+
+## Recent Changes (October 30, 2025 - Session 5)
+**Version 6.4.0 - Catholic Lesson Plans Feature (MAJOR):**
+
+**Complete Catholic Catechesis System:**
+- Built comprehensive database schema (catechesis_lessons, lesson_activities, lesson_progress, liturgical_calendar)
+- Imported 9 Catholic lessons: Abraham, Adam & Eve, Ash Wednesday, Baptism of Jesus, Birth of Jesus, Creation (Days 1-7), Daniel
+- Created lessons-api.cjs Netlify Function with full CRUD operations for lessons and progress tracking
+- Implemented DaisyLessonAdapter service to convert formal lessons into Daisy's engaging, child-friendly teaching voice
+- Built LessonsComponent UI with topic browsing (Bible Stories, Sacraments, Liturgy), age filters, and liturgical season suggestions
+- Enhanced Parent Dashboard Learning Progress tab to display completed lessons, time spent, curriculum alignment
+
+**Security Hardening (CRITICAL):**
+- Implemented JWT-based authentication for both parent and child sessions
+- Child accounts now receive secure session tokens (90-day expiration) when linking via 6-digit code
+- Parent tokens include type='parent', child tokens include type='child' for role separation
+- lessons-api enforces token-based authorization:
+  - get-progress requires parent JWT + ownership validation
+  - start-lesson/complete-lesson require child JWT, derive childId from token (prevents ID spoofing)
+- Added fail-fast JWT_SECRET validation (no insecure fallbacks)
+- Removed password reset/email verification token exposure from API responses
+- Defense-in-depth: signature verification, type enforcement, ownership checks, parameterized SQL queries
+
+**Architecture:**
+- Lesson browsing is public (no auth required for reading lesson content)
+- Progress tracking requires authenticated child session linked to parent account
+- Parent dashboard aggregates progress across all linked children with proper authorization
+- Supports scalability for 100+ lessons and multiple children per parent account
 
 ## Recent Changes (October 3, 2025 - Session 4)
 **Version 6.3.0 - Simple Puzzle Game Fixes:**
