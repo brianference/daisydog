@@ -126,8 +126,8 @@ async function handleSignup(email, password) {
     VALUES (${parent.id})
   `;
 
-  // TODO: Send verification email with token
-  // For now, return token in response (in production, send via email)
+  // TODO: Send verification email via Netlify's email service
+  // For development, log to console only (never expose in API response)
   console.log('Email verification link:', `${process.env.URL}/verify-email?token=${verificationToken}`);
 
   // Generate JWT
@@ -149,7 +149,6 @@ async function handleSignup(email, password) {
         subscriptionStatus: parent.subscription_status,
         emailVerified: false,
       },
-      verificationToken, // Remove in production
     }),
   };
 }
@@ -243,7 +242,8 @@ async function handleRequestReset(email) {
     WHERE email = ${email}
   `;
 
-  // TODO: Send reset email
+  // TODO: Send reset email via Netlify's email service
+  // For development, log to console only (never expose in API response)
   console.log('Password reset link:', `${process.env.URL}/reset-password?token=${resetToken}`);
 
   return {
@@ -251,8 +251,7 @@ async function handleRequestReset(email) {
     headers,
     body: JSON.stringify({
       success: true,
-      message: 'Password reset email sent',
-      resetToken, // Remove in production
+      message: 'If an account exists with that email, a password reset link has been sent.',
     }),
   };
 }
