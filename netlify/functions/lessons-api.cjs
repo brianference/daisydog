@@ -164,79 +164,67 @@ exports.handler = async (event) => {
 async function getLessons(params) {
   const { topic, age, season, type, limit = 50 } = params;
   
-  let query = sql`
-    SELECT 
-      l.id,
-      l.title,
-      l.topic,
-      l.age_group,
-      l.liturgical_season,
-      l.lesson_type,
-      l.objectives,
-      l.vocabulary_words,
-      l.created_at
-    FROM catechesis_lessons l
-    WHERE 1=1
-  `;
-
-  // Apply filters
-  const conditions = [];
-  if (topic) {
-    conditions.push(sql`l.topic ILIKE ${'%' + topic + '%'}`);
+  // Execute query with proper WHERE filtering using tagged templates
+  let lessons;
+  
+  // Handle all filter combinations with tagged templates
+  const topicPattern = topic ? `%${topic}%` : null;
+  const agePattern = age ? `%${age}%` : null;
+  
+  if (!topic && !age && !season && !type) {
+    // No filters
+    lessons = await sql`
+      SELECT l.id, l.title, l.topic, l.age_group, l.liturgical_season, 
+             l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
+      FROM catechesis_lessons l
+      ORDER BY l.created_at DESC
+      LIMIT ${parseInt(limit)}
+    `;
+  } else if (topic && !age && !season && !type) {
+    lessons = await sql`
+      SELECT l.id, l.title, l.topic, l.age_group, l.liturgical_season, 
+             l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
+      FROM catechesis_lessons l
+      WHERE l.topic ILIKE ${topicPattern}
+      ORDER BY l.created_at DESC LIMIT ${parseInt(limit)}
+    `;
+  } else if (!topic && age && !season && !type) {
+    lessons = await sql`
+      SELECT l.id, l.title, l.topic, l.age_group, l.liturgical_season, 
+             l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
+      FROM catechesis_lessons l
+      WHERE l.age_group ILIKE ${agePattern}
+      ORDER BY l.created_at DESC LIMIT ${parseInt(limit)}
+    `;
+  } else if (!topic && !age && season && !type) {
+    lessons = await sql`
+      SELECT l.id, l.title, l.topic, l.age_group, l.liturgical_season, 
+             l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
+      FROM catechesis_lessons l
+      WHERE l.liturgical_season = ${season}
+      ORDER BY l.created_at DESC LIMIT ${parseInt(limit)}
+    `;
+  } else if (!topic && !age && !season && type) {
+    lessons = await sql`
+      SELECT l.id, l.title, l.topic, l.age_group, l.liturgical_season, 
+             l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
+      FROM catechesis_lessons l
+      WHERE l.lesson_type = ${type}
+      ORDER BY l.created_at DESC LIMIT ${parseInt(limit)}
+    `;
+  } else {
+    // Multiple filters - build WHERE clause
+    lessons = await sql`
+      SELECT l.id, l.title, l.topic, l.age_group, l.liturgical_season, 
+             l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
+      FROM catechesis_lessons l
+      WHERE (${!topic} OR l.topic ILIKE ${topicPattern})
+        AND (${!age} OR l.age_group ILIKE ${agePattern})
+        AND (${!season} OR l.liturgical_season = ${season})
+        AND (${!type} OR l.lesson_type = ${type})
+      ORDER BY l.created_at DESC LIMIT ${parseInt(limit)}
+    `;
   }
-  if (age) {
-    conditions.push(sql`l.age_group ILIKE ${'%' + age + '%'}`);
-  }
-  if (season) {
-    conditions.push(sql`l.liturgical_season = ${season}`);
-  }
-  if (type) {
-    conditions.push(sql`l.lesson_type = ${type}`);
-  }
-
-  // Build final query
-  let finalQuery = `
-    SELECT 
-      l.id,
-      l.title,
-      l.topic,
-      l.age_group,
-      l.liturgical_season,
-      l.lesson_type,
-      l.objectives,
-      l.vocabulary_words,
-      l.created_at
-    FROM catechesis_lessons l
-    WHERE 1=1
-  `;
-
-  const values = [];
-  let paramIndex = 1;
-
-  if (topic) {
-    finalQuery += ` AND l.topic ILIKE $${paramIndex}`;
-    values.push('%' + topic + '%');
-    paramIndex++;
-  }
-  if (age) {
-    finalQuery += ` AND l.age_group ILIKE $${paramIndex}`;
-    values.push('%' + age + '%');
-    paramIndex++;
-  }
-  if (season) {
-    finalQuery += ` AND l.liturgical_season = $${paramIndex}`;
-    values.push(season);
-    paramIndex++;
-  }
-  if (type) {
-    finalQuery += ` AND l.lesson_type = $${paramIndex}`;
-    values.push(type);
-    paramIndex++;
-  }
-
-  finalQuery += ` ORDER BY l.created_at DESC LIMIT ${parseInt(limit)}`;
-
-  const lessons = await sql(finalQuery, values);
 
   return {
     statusCode: 200,

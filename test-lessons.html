@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catholic Lessons Test Page</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f7fa;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .test-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 8px;
+      transition: transform 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    select, input {
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    #results {
+      margin-top: 24px;
+    }
+    .lesson-card {
+      background: #f9f9f9;
+      border-left: 4px solid #667eea;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+    }
+    .lesson-card h3 {
+      margin: 0 0 8px 0;
+      color: #333;
+    }
+    .lesson-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .badge-bible { background: #4CAF50; color: white; }
+    .badge-liturgy { background: #764ba2; color: white; }
+    .badge-sacrament { background: #FFD700; color: #333; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+    }
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-top: 8px;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .lesson-detail {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 16px;
+    }
+    .objectives, .questions {
+      margin-top: 16px;
+    }
+    .objectives li, .questions li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+    .activities {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .activity-card {
+      background: #f9f9f9;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <h1>📿 Catholic Lesson Plans - Test Dashboard</h1>
+
+  <!-- API Statistics -->
+  <div class="test-section">
+    <h2>📊 Lesson Statistics</h2>
+    <button onclick="loadStats()">Load Stats</button>
+    <div id="stats" class="stats"></div>
+  </div>
+
+  <!-- Browse All Lessons -->
+  <div class="test-section">
+    <h2>📚 Browse All Lessons</h2>
+    <div class="filters">
+      <select id="typeFilter">
+        <option value="">All Types</option>
+        <option value="Bible Story">Bible Story</option>
+        <option value="Sacrament">Sacrament</option>
+        <option value="Liturgy">Liturgy</option>
+      </select>
+      <select id="ageFilter">
+        <option value="">All Ages</option>
+        <option value="Pre K - K">Pre K - K</option>
+        <option value="All Ages">All Ages</option>
+      </select>
+      <input type="text" id="topicFilter" placeholder="Search by topic...">
+    </div>
+    <button onclick="loadLessons()">Search Lessons</button>
+    <button onclick="clearFilters()">Clear Filters</button>
+    <div id="results"></div>
+  </div>
+
+  <!-- Get Specific Lesson -->
+  <div class="test-section">
+    <h2>🔍 Get Lesson by ID</h2>
+    <input type="number" id="lessonId" placeholder="Enter lesson ID (e.g., 65)" style="width: 200px;">
+    <button onclick="loadLessonById()">Load Lesson</button>
+    <div id="lessonDetail"></div>
+  </div>
+
+  <!-- Test DaisyLessonAdapter -->
+  <div class="test-section">
+    <h2>🐕 Daisy's Teaching Voice</h2>
+    <p>Test how formal lessons are converted into Daisy's friendly, child-appropriate voice:</p>
+    <button onclick="testDaisyAdapter()">Test Daisy Adapter</button>
+    <div id="daisyTest"></div>
+  </div>
+
+  <script>
+    const API_BASE = '/.netlify/functions/lessons-api';
+
+    async function loadStats() {
+      try {
+        const response = await fetch(`${API_BASE}?action=get-topics`);
+        const data = await response.json();
+        
+        const totalLessons = data.types.reduce((sum, t) => sum + parseInt(t.count), 0);
+        
+        document.getElementById('stats').innerHTML = `
+          <div class="stat-card">
+            <div class="stat-value">${totalLessons}</div>
+            <div class="stat-label">Total Lessons</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${data.types.length}</div>
+            <div class="stat-label">Lesson Types</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${data.ageGroups.length}</div>
+            <div class="stat-label">Age Groups</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${data.seasons.filter(s => s.liturgical_season).length}</div>
+            <div class="stat-label">Liturgical Seasons</div>
+          </div>
+        `;
+        
+        console.log('Topics Data:', data);
+      } catch (error) {
+        console.error('Error loading stats:', error);
+        alert('Error loading stats: ' + error.message);
+      }
+    }
+
+    async function loadLessons() {
+      const type = document.getElementById('typeFilter').value;
+      const age = document.getElementById('ageFilter').value;
+      const topic = document.getElementById('topicFilter').value;
+      
+      const params = new URLSearchParams({ action: 'get-lessons' });
+      if (type) params.append('type', type);
+      if (age) params.append('age', age);
+      if (topic) params.append('topic', topic);
+      
+      try {
+        const response = await fetch(`${API_BASE}?${params}`);
+        const data = await response.json();
+        
+        const resultsDiv = document.getElementById('results');
+        
+        if (data.lessons.length === 0) {
+          resultsDiv.innerHTML = '<p>No lessons found with the selected filters.</p>';
+          return;
+        }
+        
+        resultsDiv.innerHTML = `
+          <h3>${data.lessons.length} Lesson${data.lessons.length !== 1 ? 's' : ''} Found</h3>
+          ${data.lessons.map(lesson => `
+            <div class="lesson-card">
+              <h3>${lesson.title}</h3>
+              <div>
+                <span class="lesson-badge badge-${lesson.lesson_type.toLowerCase().replace(' ', '-')}">${lesson.lesson_type}</span>
+                <span class="lesson-badge" style="background: #2196F3; color: white;">${lesson.age_group}</span>
+                ${lesson.liturgical_season ? `<span class="lesson-badge" style="background: #FF9800; color: white;">${lesson.liturgical_season}</span>` : ''}
+              </div>
+              <p><strong>Topic:</strong> ${lesson.topic}</p>
+              <p><strong>Objectives:</strong> ${lesson.objectives.slice(0, 2).join(', ')}${lesson.objectives.length > 2 ? '...' : ''}</p>
+              <button onclick="loadLessonById(${lesson.id})">View Full Lesson</button>
+            </div>
+          `).join('')}
+        `;
+        
+        console.log('Lessons:', data.lessons);
+      } catch (error) {
+        console.error('Error loading lessons:', error);
+        alert('Error loading lessons: ' + error.message);
+      }
+    }
+
+    async function loadLessonById(id) {
+      const lessonId = id || document.getElementById('lessonId').value;
+      
+      if (!lessonId) {
+        alert('Please enter a lesson ID');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE}/lessons/${lessonId}`);
+        const data = await response.json();
+        
+        const lesson = data.lesson;
+        
+        document.getElementById('lessonDetail').innerHTML = `
+          <div class="lesson-detail">
+            <h3>${lesson.title}</h3>
+            <div style="margin-bottom: 16px;">
+              <span class="lesson-badge badge-${lesson.lesson_type.toLowerCase().replace(' ', '-')}">${lesson.lesson_type}</span>
+              <span class="lesson-badge" style="background: #2196F3; color: white;">${lesson.age_group}</span>
+            </div>
+            
+            <div class="objectives">
+              <h4>📝 Learning Objectives:</h4>
+              <ul>
+                ${lesson.objectives.map(obj => `<li>${obj}</li>`).join('')}
+              </ul>
+            </div>
+            
+            ${lesson.discussion_questions && lesson.discussion_questions.length > 0 ? `
+              <div class="questions">
+                <h4>💭 Discussion Questions:</h4>
+                <ul>
+                  ${lesson.discussion_questions.map(q => `<li>${q}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+            
+            ${lesson.activities && lesson.activities.length > 0 ? `
+              <div class="activities">
+                <h4 style="grid-column: 1 / -1;">🎨 Activities:</h4>
+                ${lesson.activities.map(activity => `
+                  <div class="activity-card">
+                    <h5>${activity.type}: ${activity.name}</h5>
+                    ${activity.links && activity.links.length > 0 ? `
+                      <p><a href="${activity.links[0]}" target="_blank">View Resource →</a></p>
+                    ` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+            
+            <details style="margin-top: 24px;">
+              <summary><strong>View Full Lesson Content (Raw Markdown)</strong></summary>
+              <pre>${lesson.lesson_content.substring(0, 1000)}...</pre>
+            </details>
+          </div>
+        `;
+        
+        console.log('Lesson Detail:', lesson);
+      } catch (error) {
+        console.error('Error loading lesson:', error);
+        alert('Error loading lesson: ' + error.message);
+      }
+    }
+
+    function clearFilters() {
+      document.getElementById('typeFilter').value = '';
+      document.getElementById('ageFilter').value = '';
+      document.getElementById('topicFilter').value = '';
+      document.getElementById('results').innerHTML = '';
+    }
+
+    async function testDaisyAdapter() {
+      document.getElementById('daisyTest').innerHTML = '<p>Loading Daisy Adapter test...</p>';
+      
+      try {
+        // First get a sample lesson
+        const response = await fetch(`${API_BASE}?action=get-lessons&limit=1`);
+        const data = await response.json();
+        const lesson = data.lessons[0];
+        
+        // Show comparison
+        document.getElementById('daisyTest').innerHTML = `
+          <div class="lesson-detail">
+            <h4>Original Formal Lesson:</h4>
+            <p><strong>Title:</strong> ${lesson.title}</p>
+            <p><strong>Objectives:</strong></p>
+            <ul>${lesson.objectives.map(obj => `<li>${obj}</li>`).join('')}</ul>
+            
+            <hr style="margin: 24px 0;">
+            
+            <h4>🐕 Daisy's Voice Conversion:</h4>
+            <p><em>Note: The DaisyLessonAdapter service converts formal lessons into Daisy's warm, encouraging teaching style using Gemini AI. This happens when children select a lesson in the main app.</em></p>
+            
+            <div style="background: #f0f8ff; padding: 16px; border-radius: 8px; border-left: 4px solid #667eea;">
+              <p><strong>Daisy would say:</strong></p>
+              <p>"Woof woof! 🐕 Hi friend! Today we're going to learn about ${lesson.title}! This is such an exciting story from the Bible!"</p>
+              <p>"Let me tell you what we'll discover together:"</p>
+              <ul>
+                ${lesson.objectives.slice(0, 2).map(obj => `
+                  <li>We'll learn ${obj.replace('identify that', '').replace('discuss', 'talk about')}!</li>
+                `).join('')}
+              </ul>
+              <p>"Are you ready to learn? Let's get started! 🎉"</p>
+            </div>
+            
+            <p style="margin-top: 16px;"><strong>Features of Daisy's Teaching Voice:</strong></p>
+            <ul>
+              <li>Warm, encouraging tone with "woof" sounds</li>
+              <li>Age-appropriate language simplification</li>
+              <li>Interactive questions and prompts</li>
+              <li>Emojis and visual elements for engagement</li>
+              <li>Breaks complex objectives into simple steps</li>
+            </ul>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error testing Daisy adapter:', error);
+        document.getElementById('daisyTest').innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+      }
+    }
+
+    // Load stats on page load
+    window.addEventListener('load', () => {
+      loadStats();
+    });
+  </script>
+</body>
+</html>
