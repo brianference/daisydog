@@ -14,7 +14,8 @@ exports.handler = async (event) => {
 
   try {
     // Verify webhook signature
-    stripeEvent = stripe.webhooks.constructEvent(
+    // Async variant: the Workers build of stripe only verifies signatures with SubtleCrypto.
+    stripeEvent = await stripe.webhooks.constructEventAsync(
       event.body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
