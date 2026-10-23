@@ -110,7 +110,8 @@ export function checkRateLimit(clientIP) {
 }
 
 export function getClientIP(event) {
-  return event.headers['x-forwarded-for']?.split(',')[0].trim() || 
+  return event.headers['cf-connecting-ip'] ||
+         event.headers['x-forwarded-for']?.split(',')[0].trim() || 
          event.headers['x-real-ip'] || 
          event.headers['client-ip'] ||
          'unknown';

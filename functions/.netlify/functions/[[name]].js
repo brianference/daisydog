@@ -73,12 +73,13 @@ function toResponse(result) {
 }
 
 /**
- * Pages Function entry point for /.netlify/functions/:name.
- * @param {{request: Request, env: object, params: {name: string}}} context
+ * Pages Function entry point for /.netlify/functions/:name and any sub-path
+ * (lessons-api reads /lessons/:id from event.path), so the route is a catch-all.
+ * @param {{request: Request, env: object, params: {name: string[]}}} context
  * @returns {Promise<Response>}
  */
 export async function onRequest(context) {
-  const load = HANDLERS[context.params.name];
+  const load = HANDLERS[context.params.name[0]];
   if (!load) {
     return new Response(JSON.stringify({ error: 'Function not found' }), {
       status: 404,
