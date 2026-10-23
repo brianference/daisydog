@@ -155,3 +155,9 @@ test-results/
 
 # Local Netlify folder
 .netlify
+
+# Cloudflare local secrets and state
+.dev.vars
+.wrangler/
+# The Cloudflare adapter lives under functions/.netlify on purpose
+!functions/.netlify/

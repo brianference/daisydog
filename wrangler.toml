@@ -1,0 +1,11 @@
+# Cloudflare Pages config (direct upload: build locally, then `wrangler pages deploy dist`).
+name = "daisydog"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-07-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Mirrors netlify.toml [build.environment]; the functions read these at runtime.
+[vars]
+SITE_URL = "https://daisydog.org"
+VITE_SUPABASE_URL = "https://lqxstmjczpfywfgyhahj.supabase.co"
+VITE_SUPABASE_ANON_KEY = "your_supabase_anon_key_here"
