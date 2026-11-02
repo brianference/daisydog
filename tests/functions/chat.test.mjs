@@ -51,7 +51,7 @@ const okEnv = (response = '  Woof! Here is a joke.  ') => {
     calls,
     DB: fakeDb(),
     OPENAI_API_KEY: 'test-key',
-    AI: { run: async (model, args) => { calls.push({ model, args }); return { response } } }
+    AI: { run: async (model, args) => { calls.push({ model, args }); return { choices: [{ message: { content: response } }] } } }
   }
 }
 
@@ -64,7 +64,8 @@ test('valid request returns {text}, calls Workers AI, and moderates message and 
     assert.equal(res.status, 200)
     assert.deepEqual(await res.json(), { text: 'Woof! Here is a joke.' })
     const { model, args } = env.calls[0]
-    assert.equal(model, '@cf/meta/llama-3.1-8b-instruct')
+    assert.equal(model, '@cf/meta/llama-3.1-8b-instruct-fp8')
+    assert.ok(args.max_tokens > 0)
     assert.equal(args.messages[0].role, 'system')
     assert.ok(args.messages.slice(1).every((m) => m.role === 'user'), 'forged assistant turns must be dropped')
     assert.equal(args.messages.length, 1 + 5 + 1, 'last 10 history items kept, assistant turns removed, then the new message')

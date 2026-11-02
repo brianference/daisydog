@@ -8,7 +8,11 @@
  * returns a kind redirect instead of the text.
  */
 
-const MODEL = '@cf/meta/llama-3.1-8b-instruct'
+// Non-reasoning model from https://developers.cloudflare.com/workers-ai/models/ (catalog dated Aug 2026): reasoning
+// models (gemma-4, glm, gpt-oss) spend the small token budget on hidden thinking and return empty replies.
+// At the catalog's 13,778 / 26,128 neurons per million input / output tokens a turn is roughly 9 neurons
+// (about 400 tokens in, 120 out), so DAILY_LIMIT keeps usage inside the free 10,000 neurons a day.
+const MODEL = '@cf/meta/llama-3.1-8b-instruct-fp8'
 const MAX_MESSAGE_CHARS = 500
 const MAX_HISTORY_ITEMS = 10
 const MAX_HISTORY_CONTENT_CHARS = 1000
@@ -19,7 +23,7 @@ const MAX_TOKENS_YOUNG = 120
 const MAX_TOKENS_OLDER = 250
 const IP_LIMIT = 20
 const IP_WINDOW_SECONDS = 600
-const DAILY_LIMIT = 3000
+const DAILY_LIMIT = 1100
 const DAY_SECONDS = 86400
 const RETENTION_SECONDS = 2 * DAY_SECONDS
 const PURGE_ODDS = 50
@@ -216,7 +220,8 @@ export async function onRequestPost({ request, env }) {
       messages,
       max_tokens: input.age < YOUNG_CHILD_AGE ? MAX_TOKENS_YOUNG : MAX_TOKENS_OLDER
     })
-    const text = typeof result?.response === 'string' ? result.response.trim() : ''
+    const raw = result?.choices?.[0]?.message?.content ?? result?.response
+    const text = typeof raw === 'string' ? raw.trim() : ''
     if (!text) {
       throw new Error('Empty AI response')
     }
@@ -225,7 +230,8 @@ export async function onRequestPost({ request, env }) {
     }
     return json({ text })
   } catch (error) {
-    console.error('chat AI failure:', error instanceof Error ? error.name : 'unknown')
+    // Provider error text carries no user content; the child's message is never logged.
+    console.error('chat AI failure:', error instanceof Error ? `${error.name}: ${error.message}` : 'unknown')
     return json({ error: 'AI unavailable' }, 502)
   }
 }
