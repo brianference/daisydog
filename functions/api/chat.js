@@ -8,6 +8,10 @@
  * returns a kind redirect instead of the text.
  */
 
+import { ipGroup } from '../../netlify/shared/utils/ip-group.cjs'
+
+export { ipGroup }
+
 // Non-reasoning model from https://developers.cloudflare.com/workers-ai/models/ (catalog dated Aug 2026): reasoning
 // models (gemma-4, glm, gpt-oss) spend the small token budget on hidden thinking and return empty replies.
 // At the catalog's 13,778 / 26,128 neurons per million input / output tokens a turn is roughly 9 neurons
@@ -143,20 +147,6 @@ export async function withinLimit(db, bucket, windowSeconds, limit) {
 export async function sha256Hex(value, salt = '') {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${salt}:${value}`))
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('')
-}
-
-/**
- * Group IPv6 addresses by /64 (one subscriber) so rotating the low bits does not dodge the limit.
- * @param {string} ip - Client IP.
- * @returns {string} Bucketing key.
- */
-export function ipGroup(ip) {
-  if (!ip.includes(':')) return ip
-  const [head, tail = ''] = ip.split('::')
-  const front = head ? head.split(':') : []
-  const back = tail ? tail.split(':') : []
-  const filler = Array(Math.max(8 - front.length - back.length, 0)).fill('0')
-  return [...front, ...filler, ...back].slice(0, 4).map((part) => part.toLowerCase().padStart(4, '0')).join(':')
 }
 
 /**

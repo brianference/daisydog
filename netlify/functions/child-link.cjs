@@ -6,8 +6,8 @@ const jwt = require('jsonwebtoken');
 const sql = require('../shared/utils/d1-sql.cjs');
 const { withinAttemptLimit } = require('../shared/utils/attempt-limit.cjs');
 
-const LINK_ATTEMPT_LIMIT = 10;
-const LINK_ATTEMPT_WINDOW_SECONDS = 600;
+// 6-digit codes are guessable: cap each client, and cap all clients together so many addresses cannot add up.
+const LINK_ATTEMPT_LIMITS = { perClient: 10, global: 60, windowSeconds: 600 };
 
 const headers = {
   'Access-Control-Allow-Origin': '*',
@@ -30,7 +30,7 @@ exports.handler = async (event) => {
 
   try {
     // 6-digit codes are guessable, so cap attempts per IP.
-    if (!(await withinAttemptLimit(event, 'link-code', LINK_ATTEMPT_LIMIT, LINK_ATTEMPT_WINDOW_SECONDS))) {
+    if (!(await withinAttemptLimit(event, 'link-code', LINK_ATTEMPT_LIMITS))) {
       return {
         statusCode: 429,
         headers,
