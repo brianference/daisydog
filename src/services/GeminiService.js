@@ -1,402 +1,164 @@
 /**
- * GeminiService - Google Gemini AI integration service
- * Updated to use the new @google/genai SDK with correct API endpoints
+ * GeminiService - chat AI client.
+ *
+ * The filename and public API are kept so existing callers keep working, but
+ * the model now runs server-side: this service POSTs to the Cloudflare Pages
+ * Function at /api/chat (Workers AI). No API key exists in the browser bundle.
  */
 
-import { GoogleGenAI } from '@google/genai'
+const CHAT_ENDPOINT = '/api/chat'
+const REQUEST_TIMEOUT_MS = 15000
+const MAX_HISTORY_ITEMS = 10
+const DEFAULT_AGE = 12
+const MIN_AGE = 3
+const MAX_AGE = 120
+const RETRY_COOLDOWN_MS = 60 * 1000
+const FALLBACK_MESSAGE = "Woof! I'm using my basic responses right now! 🐕"
 
 class GeminiService {
   constructor() {
-    this.version = '5.6.1' // Force cache refresh
-    this.apiKey = import.meta.env.VITE_GEMINI_API_KEY
-    this.genAI = null
-    this.model = null
-    this.isInitialized = false
+    this.version = '6.4.0'
+    this.isInitialized = true
+    this.apiWorking = true
     this.lastApiTest = null
-    this.apiWorking = false
     this.lastError = null
     this.retryCount = 0
-    this.maxRetries = 3
-    
-    this.initialize()
+    this.userAge = DEFAULT_AGE
+    this.history = []
   }
 
   /**
-   * Test available models by trying to use them
+   * Remember the child's age for prompt tailoring.
+   * @param {number|string} age - Age in years; ignored if outside 3-120.
    */
-  async testAvailableModels() {
-    if (!this.genAI) {
-      console.error('❌ genAI not initialized')
-      return []
+  setAge(age) {
+    const parsed = Number(age)
+    if (Number.isFinite(parsed) && parsed >= MIN_AGE && parsed <= MAX_AGE) {
+      this.userAge = parsed
     }
-    
-    console.log('🔍 Testing available models...')
-    const modelsToTest = [
-      'gemini-2.5-flash',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro',
-      'gemini-pro'
-    ]
-    
-    const workingModels = []
-    
-    for (const modelName of modelsToTest) {
-      try {
-        console.log(`🧪 Testing model: ${modelName}`)
-        
-        // Quick test with timeout using new SDK
-        const result = await Promise.race([
-          this.genAI.models.generateContent({
-            model: modelName,
-            contents: 'Hi'
-          }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
-        ])
-        
-        const text = result.text
-        
-        console.log(`✅ Model ${modelName} works! Response: ${text.substring(0, 30)}...`)
-        workingModels.push(modelName)
-      } catch (error) {
-        console.log(`❌ Model ${modelName} failed: ${error.message}`)
-      }
-    }
-    
-    console.log(`📊 Working models found: ${workingModels.length}`)
-    return workingModels
   }
 
   /**
-   * Initialize Gemini AI service
+   * No-op kept for API compatibility; there is nothing to initialise client-side.
+   * @returns {Promise<void>}
    */
   async initialize() {
-    console.log('🔧 Initializing Gemini Service...')
-    
-    // SECURITY: Only log sensitive info in development mode
-    const isDev = import.meta.env.DEV
-    if (isDev) {
-      console.log('🔐 [DEV ONLY] API Key present:', !!this.apiKey)
-      console.log('🔐 [DEV ONLY] API Key length:', this.apiKey?.length || 0)
-      console.log('🔐 [DEV ONLY] API Key prefix:', this.apiKey?.substring(0, 10) || 'none')
-    } else {
-      console.log('API Key configured:', !!this.apiKey)
-    }
-    
-    // Check if we're in local development (only disable for localhost)
-    const isLocalhost = window.location.hostname === 'localhost' || 
-                       window.location.hostname === '127.0.0.1'
-    
-    if (isDev) {
-      console.log('🌐 [DEV ONLY] Hostname check:', {
-        hostname: window.location.hostname,
-        isLocalhost: isLocalhost,
-        fullURL: window.location.href
-      })
-    }
-    
-    if (isLocalhost) {
-      console.log('🏠 Running on localhost - Gemini API enabled for development')
-      // Localhost testing enabled permanently
-    }
-    
-    if (!this.apiKey || this.apiKey === 'your_actual_gemini_api_key_here') {
-      console.warn('⚠️ Gemini API key not configured properly')
-      return
-    }
-
-    try {
-      console.log('🔧 Attempting to create GoogleGenAI instance...')
-      
-      // Use the new GoogleGenAI SDK
-      this.genAI = new GoogleGenAI({ apiKey: this.apiKey })
-      console.log('✅ GoogleGenAI instance created successfully')
-      
-      // Try different models in order of preference
-      const modelsToTest = [
-        'gemini-2.5-flash',
-        'gemini-1.5-flash', 
-        'gemini-1.5-pro',
-        'gemini-pro'
-      ]
-      
-      let workingModel = null
-      
-      for (const modelName of modelsToTest) {
-        try {
-          console.log(`🧪 Testing model: ${modelName}`)
-          
-          // Quick test with timeout using new SDK
-          const result = await Promise.race([
-            this.genAI.models.generateContent({
-              model: modelName,
-              contents: 'Hi'
-            }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout after 8s')), 8000))
-          ])
-          
-          const text = result.text
-          
-          if (text && text.length > 0) {
-            console.log(`✅ Model ${modelName} response: ${text.substring(0, 50)}...`)
-            workingModel = modelName
-            break
-          }
-        } catch (error) {
-          console.log(`❌ Model ${modelName} failed: ${error.message}`)
-          
-          // If it's a 404, try next model. If it's 403/401, might be API access issue
-          if (error.message.includes('403') || error.message.includes('401')) {
-            console.warn(`🚫 API access issue detected with ${modelName}`)
-          }
-        }
-      }
-      
-      if (!workingModel) {
-        console.warn('⚠️ No working Gemini models found')
-        console.warn('📋 This is likely because:')
-        console.warn('  • Your API key has access to different model names')
-        console.warn('  • Models require different authentication level')
-        console.warn('  • Google has updated model names since our last check')
-        console.warn('💡 DaisyDog will work perfectly in Local Mode with:')
-        console.warn('  ✅ All 6 videos working')
-        console.warn('  ✅ Safety system active')
-        console.warn('  ✅ Bible API working')
-        console.warn('  ✅ Built-in intelligent responses')
-        this.apiWorking = false
-        this.lastError = 'Using Local Mode - all features operational'
-        this.isInitialized = true
-        return
-      }
-      
-      console.log(`🎯 Using production model: ${workingModel}`)
-      
-      // Store the working model name
-      this.workingModel = workingModel
-      
-      this.isInitialized = true
-      console.log('✅ Gemini AI initialized successfully')
-      
-      // Test API connectivity immediately
-      await this.testApiConnectivity()
-    } catch (error) {
-      console.error('❌ Failed to initialize Gemini AI:', error)
-      this.isInitialized = false
-      this.apiWorking = false
-      this.lastError = error.message
-    }
+    this.isInitialized = true
   }
 
   /**
-   * Test API connectivity with a simple request
-   */
-  async testApiConnectivity() {
-    if (!this.genAI || !this.workingModel) {
-      console.log('❌ No model available for testing')
-      this.apiWorking = false
-      return false
-    }
-
-    try {
-      console.log('🧪 Testing Gemini API connectivity...')
-      
-      const testPrompt = 'You are DaisyDog, a friendly AI dog. Say "Woof! Test successful!" in under 10 words.'
-      const result = await this.genAI.models.generateContent({
-        model: this.workingModel,
-        contents: testPrompt
-      })
-      
-      const text = result.text
-      
-      if (text && text.trim()) {
-        this.apiWorking = true
-        this.lastApiTest = Date.now()
-        this.lastError = null
-        this.retryCount = 0
-        console.log('✅ Gemini API connectivity confirmed')
-        console.log('Test response:', text.trim())
-        return true
-      } else {
-        throw new Error('Empty response from API')
-      }
-    } catch (error) {
-      this.apiWorking = false
-      this.lastApiTest = Date.now()
-      this.lastError = error.message
-      
-      console.error('❌ Gemini API connectivity test failed:', error.message)
-      
-      if (error.message.includes('API_KEY_INVALID')) {
-        console.error('🔑 API Key Issue: The API key appears to be invalid')
-      } else if (error.message.includes('quota') || error.message.includes('429')) {
-        console.error('📊 Quota Issue: API quota exceeded')
-      } else if (error.message.includes('billing')) {
-        console.error('💳 Billing Issue: Billing account required')
-      } else if (error.message.includes('403')) {
-        console.error('🚫 Permission Issue: API access denied - check domain restrictions')
-      } else if (error.message.includes('CORS')) {
-        console.error('🌐 CORS Issue: Cross-origin request blocked')
-      }
-      
-      return false
-    }
-  }
-  /**
-   * Check if Gemini is available and ready
-   * @returns {boolean} Whether Gemini is available
+   * Whether AI replies should be attempted. After a failure the service
+   * reports unavailable for a short cooldown so callers use local replies.
+   * @returns {boolean}
    */
   isAvailable() {
-    const hasKey = !!this.apiKey && this.apiKey !== 'your_actual_gemini_api_key_here'
-    const hasModel = !!this.workingModel
-    const isWorking = this.apiWorking
-    
-    // Check if we're in production vs localhost
-    const isLocalhost = window.location.hostname === 'localhost' || 
-                       window.location.hostname === '127.0.0.1' ||
-                       window.location.port !== ''
-    const isProduction = !isLocalhost
-    
-    // If we haven't tested the API yet, or if it's working and been more than 61 seconds
-    const testAge = this.lastApiTest ? Date.now() - this.lastApiTest : Infinity
-    const shouldRetest = testAge === Infinity || (isWorking && testAge > 61 * 1000) // 61 seconds if working
-    // If not working, check every 5 minutes
-    const testStale = !isWorking && testAge > 5 * 60 * 1000 // 5 minutes if not working
-    
-    // In production, be more strict about API availability
-    const available = hasKey && hasModel && this.isInitialized && (isProduction ? this.apiWorking !== false : (isWorking && !testStale))
-    
-    if (import.meta.env.VITE_DEBUG_MODE === 'true') {
-      console.log('🔧 Gemini Availability Check:', {
-        hasKey,
-        hasModel,
-        isInitialized: this.isInitialized,
-        isWorking,
-        isProduction,
-        hostname: window.location.hostname,
-        protocol: window.location.protocol,
-        testAge: testAge < Infinity ? `${Math.round(testAge / 1000)}s ago` : 'never',
-        shouldRetest,
-        testStale,
-        available,
-        lastError: this.lastError
-      })
-    }
-    
-    return available
+    if (this.apiWorking) return true
+    return Date.now() - (this.lastApiTest || 0) > RETRY_COOLDOWN_MS
   }
 
   /**
-   * Generate AI response using Gemini
-   * @param {string} userMessage - User's message
-   * @param {Object} context - Chat context
-   * @returns {Promise<string>} AI response
+   * POST to /api/chat with a timeout.
+   * @param {string} message - The child's message.
+   * @returns {Promise<string>} Reply text.
+   * @throws {Error} On network error, timeout, non-2xx or empty reply.
+   */
+  async callServer(message) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+    try {
+      const response = await fetch(CHAT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: message.slice(0, 500),
+          history: this.history.slice(-MAX_HISTORY_ITEMS),
+          age: this.userAge
+        }),
+        signal: controller.signal
+      })
+      if (!response.ok) {
+        throw new Error(`chat endpoint returned ${response.status}`)
+      }
+      const data = await response.json()
+      if (!data || typeof data.text !== 'string' || !data.text.trim()) {
+        throw new Error('empty chat response')
+      }
+      return data.text.trim()
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
+  /**
+   * Generate an AI reply. Falls back to a canned reply on any failure.
+   * @param {string} userMessage - User's message.
+   * @param {Object} [context] - Chat context (unused server-side; kept for compatibility).
+   * @returns {Promise<string>} Reply text.
    */
   async generateResponse(userMessage, context = {}) {
+    const age = context && (context.age ?? context.userAge)
+    if (age !== undefined) this.setAge(age)
+
     if (!this.isAvailable()) {
-      console.log('❌ Gemini service not available, using fallback')
-      console.log('🔧 Gemini status:', this.getStatus())
-      return "Woof! I'm using my basic responses right now! 🐕"
+      return FALLBACK_MESSAGE
     }
 
     try {
-      const systemPrompt = `You are DaisyDog, a friendly and playful AI dog companion for kids aged 5-12.
-
-Personality:
-- Always excited and enthusiastic like a real dog
-- Playful and fun-loving
-- Very friendly and welcoming
-- Loves sharing simple dog facts
-- Speaks with cute dog sounds like "woof!", "*tail wags*", "*bounces*"
-- Includes relevant emojis
-- Be encouraging and positive
-- Keep responses short and simple (under 100 words)
-- Use age-appropriate vocabulary for children
-
-Knowledge & Helpfulness:
-- You can answer general knowledge questions (like what day it is, weather, simple facts)
-- Always provide helpful information when asked direct questions
-- For time/date questions, use current information if available
-- Combine helpful answers with your playful dog personality
-- Make learning fun and engaging for kids
-
-Current context:
-- User name: ${context.userName || 'friend'}
-- Hunger level: ${context.hungerLevel || 3}/5
-- Current emotion: ${context.currentEmotion || 'happy'}
-- Current date: ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-- Current time: ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
-
-Important: Always maintain Daisy's dog personality while being helpful and informative!`
-
-      const fullPrompt = `${systemPrompt}\n\nUser: ${userMessage}\n\nDaisyDog:`
-      
-      console.log('🧠 Generating Gemini response...')
-      const result = await this.genAI.models.generateContent({
-        model: this.workingModel,
-        contents: fullPrompt
-      })
-      
-      // Update API status on successful call
+      const text = await this.callServer(userMessage)
       this.apiWorking = true
       this.lastApiTest = Date.now()
       this.lastError = null
       this.retryCount = 0
-      
-      const aiResponse = result.text.trim()
-      console.log('✅ Gemini response generated successfully')
-      
-      return aiResponse
-
+      this.history.push({ role: 'user', content: userMessage.slice(0, 500) })
+      this.history.push({ role: 'assistant', content: text.slice(0, 1000) })
+      this.history = this.history.slice(-MAX_HISTORY_ITEMS)
+      return text
     } catch (error) {
-      console.error('💥 Gemini API Error:', error)
-      
-      // Update API status on failed call
       this.apiWorking = false
       this.lastApiTest = Date.now()
-      this.lastError = error.message
-      
-      // Specific error handling
-      if (error.message.includes('quota') || error.message.includes('429')) {
-        console.error('📊 Quota exceeded - using local responses')
-        return "Woof! I've used up my smart brain quota for today, but I still have lots of local responses! 🐕"
-      } else if (error.message.includes('API_KEY_INVALID') || error.message.includes('400')) {
-        console.error('🔑 API key invalid - check configuration')
-        return "Woof! My API key seems to be having trouble. Please check the setup! 🐕"
-      } else if (error.message.includes('billing') || error.message.includes('403')) {
-        console.error('💳 Billing required - check Google Cloud billing')
-        return "Woof! There's a billing issue with my smart brain. Please check Google Cloud billing! 🐕"
-      } else {
-        console.error('🌐 Network or other error:', error.message)
-        return "Woof! I'm having trouble connecting to my AI brain right now! 🐕"
-      }
+      this.lastError = error.name === 'AbortError' ? 'timeout' : error.message
+      this.retryCount += 1
+      return FALLBACK_MESSAGE
     }
   }
 
   /**
-   * Force a retry of API connectivity (ignores cooldown)
+   * Probe the endpoint with a harmless message.
+   * @returns {Promise<boolean>} True if the server answered.
    */
-  async forceRetry() {
-    console.log('🔄 Forcing API connectivity retry...')
-    this.lastApiTest = null // Reset to allow immediate retry
-    this.lastError = null
-    this.retryCount = 0
-    await this.testApiConnectivity()
-    return this.isAvailable()
+  async testApiConnectivity() {
+    try {
+      await this.callServer('Say woof!')
+      this.apiWorking = true
+      this.lastError = null
+    } catch (error) {
+      this.apiWorking = false
+      this.lastError = error.name === 'AbortError' ? 'timeout' : error.message
+    }
+    this.lastApiTest = Date.now()
+    return this.apiWorking
   }
 
   /**
-   * Get service status
-   * @returns {Object} Status information
+   * Ignore the cooldown and re-test now.
+   * @returns {Promise<boolean>}
+   */
+  async forceRetry() {
+    this.lastApiTest = null
+    this.retryCount = 0
+    return this.testApiConnectivity()
+  }
+
+  /**
+   * Status snapshot for debug panels.
+   * @returns {Object}
    */
   getStatus() {
     return {
-      apiKeyConfigured: !!this.apiKey,
-      apiKeyValid: this.apiKey !== 'your_actual_gemini_api_key_here',
+      endpoint: CHAT_ENDPOINT,
       isAvailable: this.isAvailable(),
-      modelReady: !!this.workingModel,
-      workingModel: this.workingModel,
       apiWorking: this.apiWorking,
       lastTested: this.lastApiTest,
-      testAge: this.lastApiTest ? Date.now() - this.lastApiTest : null,
       lastError: this.lastError,
       isInitialized: this.isInitialized,
       retryCount: this.retryCount
@@ -404,112 +166,22 @@ Important: Always maintain Daisy's dog personality while being helpful and infor
   }
 
   /**
-   * Get detailed debug information
+   * Status snapshot, also printed to the console for debugging.
+   * @returns {Object}
    */
   debugStatus() {
     const status = this.getStatus()
-    console.log('🔧 Gemini Service Debug Status:')
     console.table(status)
-    
-    // Additional debug info
-    console.log('🔍 Environment Check:')
-    console.log('- Current URL:', window.location.href)
-    console.log('- Environment:', import.meta.env.MODE)
-    if (import.meta.env.DEV) {
-      console.log('🔐 [DEV ONLY] - API Key (first 10 chars):', this.apiKey?.substring(0, 10) || 'none')
-    }
-    
-    if (this.lastError) {
-      console.error('❌ Last error details:', this.lastError)
-    }
-    
-    if (!status.apiKeyConfigured) {
-      console.log('💡 To fix: Add VITE_GEMINI_API_KEY to Netlify environment variables')
-      console.log('💡 Get key from: https://aistudio.google.com/app/apikey')
-    }
-    
-    if (!status.apiWorking && status.apiKeyConfigured) {
-      console.log('💡 Try: GeminiService.forceRetry() to test connectivity')
-    }
-    
     return status
   }
 }
 
-// Create singleton instance
 const geminiService = new GeminiService()
 
-// Make available globally for testing
 if (typeof window !== 'undefined') {
   window.GeminiService = geminiService
-  window.testGemini = () => geminiService.testApiConnectivity()
   window.geminiStatus = () => geminiService.getStatus()
-  window.testGeminiModels = () => geminiService.testAvailableModels()
-  window.debugGeminiKey = () => {
-    if (!import.meta.env.DEV) {
-      console.log('⚠️ API Key debugging is only available in development mode')
-      return
-    }
-    console.log('🔑 [DEV ONLY] API Key Debug:')
-    console.log('  Present:', !!geminiService.apiKey)
-    console.log('  Length:', geminiService.apiKey?.length || 0)
-    console.log('  Starts with:', geminiService.apiKey?.substring(0, 15) || 'none')
-    console.log('  Format check:', geminiService.apiKey?.startsWith('AIza') ? '✅ Correct format' : '❌ Wrong format')
-    console.log('  Environment:', import.meta.env.VITE_GEMINI_API_KEY ? 'Set in env' : 'Not in env')
-  }
-  window.reinitGemini = () => {
-    console.log('🔄 Reinitializing Gemini Service...')
-    return geminiService.initialize()
-  }
-  window.checkGeminiAPI = async () => {
-    console.log('🔍 Checking Gemini API access with multi-version test...')
-    if (import.meta.env.DEV) {
-      console.log('🔐 [DEV ONLY] API Key:', geminiService.apiKey ? `${geminiService.apiKey.substring(0, 15)}...` : 'None')
-    } else {
-      console.log('API Key configured:', !!geminiService.apiKey)
-    }
-    
-    if (!geminiService.apiKey) {
-      console.error('❌ No API key configured')
-      return
-    }
-    
-    // Try different models like the main service does
-    const modelsToTest = [
-      'gemini-2.5-flash',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro',
-      'gemini-pro'
-    ]
-    
-    const genAI = new GoogleGenAI({ apiKey: geminiService.apiKey })
-    let foundWorking = false
-    
-    for (const modelName of modelsToTest) {
-      try {
-        console.log(`🧪 Testing model: ${modelName}...`)
-        const result = await genAI.models.generateContent({
-          model: modelName,
-          contents: 'Hello'
-        })
-        const text = result.text
-        console.log(`✅ Model ${modelName} working! Response: ${text.substring(0, 50)}...`)
-        foundWorking = true
-        break
-      } catch (error) {
-        console.log(`❌ ${modelName} failed: ${error.message}`)
-      }
-    }
-    
-    if (!foundWorking) {
-      console.error('❌ No API version/model combination worked')
-      console.error('🔍 Possible causes:')
-      console.error('  - Billing not enabled in Google Cloud')
-      console.error('  - Generative AI API not enabled')
-      console.error('  - API key lacks proper permissions')
-      console.error('  - Domain restrictions (if any)')
-    }
-  }
+  window.testGemini = () => geminiService.testApiConnectivity()
 }
 
 export default geminiService

@@ -13,7 +13,6 @@ const EnvChecker = () => {
   const envVars = {
     'VITE_BIBLE_API_KEY': import.meta.env.VITE_BIBLE_API_KEY,
     'VITE_API_BIBLE_KEY': import.meta.env.VITE_API_BIBLE_KEY,
-    'VITE_GEMINI_API_KEY': import.meta.env.VITE_GEMINI_API_KEY,
     'VITE_DEBUG_MODE': import.meta.env.VITE_DEBUG_MODE,
     'NODE_ENV': import.meta.env.NODE_ENV,
     'MODE': import.meta.env.MODE
