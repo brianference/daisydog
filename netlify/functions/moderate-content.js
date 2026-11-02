@@ -49,7 +49,7 @@ export const handler = async (event) => {
 
     const moderation = await openai.moderations.create({
       input: text,
-      model: 'text-moderation-latest',
+      model: 'omni-moderation-latest',
     });
 
     const result = moderation.results[0];
