@@ -9,3 +9,13 @@ compatibility_flags = ["nodejs_compat"]
 SITE_URL = "https://daisydog.org"
 VITE_SUPABASE_URL = "https://lqxstmjczpfywfgyhahj.supabase.co"
 VITE_SUPABASE_ANON_KEY = "your_supabase_anon_key_here"
+
+# Parent accounts, dashboard, lessons and child links (replaces Neon).
+[[d1_databases]]
+binding = "DB"
+database_name = "daisydog"
+database_id = "c53a1d3e-e90c-4144-b085-2bba74ead3a6"
+
+# Workers AI: free-tier chat model for Daisy, no API key.
+[ai]
+binding = "AI"
