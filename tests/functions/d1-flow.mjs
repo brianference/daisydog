@@ -24,9 +24,10 @@ async function call(name, { query = '', body, token, method } = {}) {
     method: method || (body === undefined ? 'GET' : 'POST'),
     headers: {
       'content-type': 'application/json',
-      // A distinct client IP per run keeps the link-code limiter from carrying over between runs.
-      // Cloudflare overwrites this header in production, so there reruns within 10 minutes share a bucket.
-      'cf-connecting-ip': `198.51.100.${RUN % 250}`,
+      // Locally, a distinct client IP per run keeps the link-code limiter from carrying over between runs.
+      // Cloudflare rejects requests that send this header from outside (HTTP 403), so never send it to
+      // a deployed site; there, reruns within 10 minutes share a limiter bucket.
+      ...(BASE.startsWith('http://127.0.0.1') ? { 'cf-connecting-ip': `198.51.100.${RUN % 250}` } : {}),
       ...(token ? { authorization: `Bearer ${token}` } : {}),
     },
     body: body === undefined ? undefined : JSON.stringify(body),
