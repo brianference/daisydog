@@ -96,7 +96,8 @@ export async function onRequest(context) {
     const result = await handler(event, {});
     return toResponse(result || {});
   } catch (error) {
-    return new Response(JSON.stringify({ errorType: 'Error', errorMessage: error.message }), {
+    console.error('function ' + context.params.name[0] + ' failed:', error.message);
+    return new Response(JSON.stringify({ errorType: 'Error', errorMessage: 'Internal error' }), {
       status: 502,
       headers: { 'Content-Type': 'application/json' },
     });

@@ -137,11 +137,26 @@ export async function withinLimit(db, bucket, windowSeconds, limit) {
 /**
  * One-way hash so raw IP addresses are never written to the database.
  * @param {string} value - Text to hash.
+ * @param {string} [salt] - Secret mixed in so the hash cannot be brute-forced from the IPv4 space.
  * @returns {Promise<string>} Hex SHA-256.
  */
-export async function sha256Hex(value) {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))
+export async function sha256Hex(value, salt = '') {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${salt}:${value}`))
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
+/**
+ * Group IPv6 addresses by /64 (one subscriber) so rotating the low bits does not dodge the limit.
+ * @param {string} ip - Client IP.
+ * @returns {string} Bucketing key.
+ */
+export function ipGroup(ip) {
+  if (!ip.includes(':')) return ip
+  const [head, tail = ''] = ip.split('::')
+  const front = head ? head.split(':') : []
+  const back = tail ? tail.split(':') : []
+  const filler = Array(Math.max(8 - front.length - back.length, 0)).fill('0')
+  return [...front, ...filler, ...back].slice(0, 4).map((part) => part.toLowerCase().padStart(4, '0')).join(':')
 }
 
 /**
@@ -201,13 +216,18 @@ export async function onRequestPost({ request, env }) {
       throw new Error('AI, DB or moderation binding missing')
     }
     const ip = request.headers.get('CF-Connecting-IP') || 'unknown'
-    const ipOk = await withinLimit(env.DB, `ip:${await sha256Hex(ip)}`, IP_WINDOW_SECONDS, IP_LIMIT)
-    const dayOk = await withinLimit(env.DB, 'daily', DAY_SECONDS, DAILY_LIMIT)
     await purgeOldWindows(env.DB)
-    if (!ipOk || !dayOk) {
+    const ipKey = await sha256Hex(ipGroup(ip), env.JWT_SECRET || '')
+    // Check the caller's own bucket first: a rejected caller must not spend the shared daily budget.
+    if (!(await withinLimit(env.DB, `ip:${ipKey}`, IP_WINDOW_SECONDS, IP_LIMIT))) {
       return json({ error: 'Too many requests' }, 429)
     }
-    if (await isFlagged(env.OPENAI_API_KEY, input.message)) {
+    if (!(await withinLimit(env.DB, 'daily', DAY_SECONDS, DAILY_LIMIT))) {
+      return json({ error: 'Too many requests' }, 429)
+    }
+    // History is model context too, so it is moderated together with the new message.
+    const toModerate = [...input.history.map((turn) => turn.content), input.message].join('\n')
+    if (await isFlagged(env.OPENAI_API_KEY, toModerate)) {
       return json({ text: SAFE_REDIRECT })
     }
 

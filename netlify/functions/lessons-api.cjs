@@ -161,7 +161,9 @@ exports.handler = async (event) => {
 };
 
 async function getLessons(params) {
-  const { topic, age, season, type, limit = 50 } = params;
+  const { topic, age, season, type } = params;
+  const requested = parseInt(params.limit, 10);
+  const limit = Number.isInteger(requested) ? Math.min(Math.max(requested, 1), 100) : 50;
   
   // Execute query with proper WHERE filtering using tagged templates
   let lessons;
@@ -177,7 +179,7 @@ async function getLessons(params) {
              l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
       FROM catechesis_lessons l
       ORDER BY l.title ASC
-      LIMIT ${parseInt(limit)}
+      LIMIT ${limit}
     `;
   } else if (topic && !age && !season && !type) {
     lessons = await sql`
@@ -185,7 +187,7 @@ async function getLessons(params) {
              l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
       FROM catechesis_lessons l
       WHERE l.topic ILIKE ${topicPattern}
-      ORDER BY l.title ASC LIMIT ${parseInt(limit)}
+      ORDER BY l.title ASC LIMIT ${limit}
     `;
   } else if (!topic && age && !season && !type) {
     lessons = await sql`
@@ -193,7 +195,7 @@ async function getLessons(params) {
              l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
       FROM catechesis_lessons l
       WHERE l.age_group ILIKE ${agePattern}
-      ORDER BY l.title ASC LIMIT ${parseInt(limit)}
+      ORDER BY l.title ASC LIMIT ${limit}
     `;
   } else if (!topic && !age && season && !type) {
     lessons = await sql`
@@ -201,7 +203,7 @@ async function getLessons(params) {
              l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
       FROM catechesis_lessons l
       WHERE l.liturgical_season = ${season}
-      ORDER BY l.title ASC LIMIT ${parseInt(limit)}
+      ORDER BY l.title ASC LIMIT ${limit}
     `;
   } else if (!topic && !age && !season && type) {
     lessons = await sql`
@@ -209,7 +211,7 @@ async function getLessons(params) {
              l.lesson_type, l.objectives, l.vocabulary_words, l.created_at
       FROM catechesis_lessons l
       WHERE l.lesson_type = ${type}
-      ORDER BY l.title ASC LIMIT ${parseInt(limit)}
+      ORDER BY l.title ASC LIMIT ${limit}
     `;
   } else {
     // Multiple filters - build WHERE clause
@@ -221,7 +223,7 @@ async function getLessons(params) {
         AND (${!age} OR l.age_group ILIKE ${agePattern})
         AND (${!season} OR l.liturgical_season = ${season})
         AND (${!type} OR l.lesson_type = ${type})
-      ORDER BY l.title ASC LIMIT ${parseInt(limit)}
+      ORDER BY l.title ASC LIMIT ${limit}
     `;
   }
 

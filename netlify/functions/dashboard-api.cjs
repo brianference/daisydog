@@ -2,6 +2,7 @@
 // Fetch parent dashboard data, manage children, settings
 
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const sql = require('../shared/utils/d1-sql.cjs');
 // Fail fast, like parent-auth: a hardcoded fallback secret would let anyone forge parent tokens.
@@ -25,12 +26,25 @@ exports.handler = async (event) => {
     const { action } = event.queryStringParameters || {};
     const body = event.body ? JSON.parse(event.body) : {};
 
-    // Actions that don't require authentication (child logging)
-    if (action === 'log-activity') {
-      return await logActivity(body);
-    }
-    if (action === 'log-safety-event') {
-      return await logSafetyEvent(body);
+    // Child logging needs the child's own session token; the child id comes from the token.
+    if (action === 'log-activity' || action === 'log-safety-event') {
+      const child = verifyChildToken(event.headers.authorization);
+      if (!child) {
+        return {
+          statusCode: 401,
+          headers,
+          body: JSON.stringify({ error: 'Unauthorized - child session token required' }),
+        };
+      }
+      if (body.childId && body.childId !== child.childId) {
+        return {
+          statusCode: 403,
+          headers,
+          body: JSON.stringify({ error: 'Forbidden - child ID mismatch' }),
+        };
+      }
+      body.childId = child.childId;
+      return action === 'log-activity' ? await logActivity(body) : await logSafetyEvent(body);
     }
 
     // All other actions require JWT authentication
@@ -47,6 +61,9 @@ exports.handler = async (event) => {
     try {
       const token = authHeader.substring(7);
       const decoded = jwt.verify(token, JWT_SECRET);
+      if (decoded.type !== 'parent') {
+        throw new Error('not a parent token');
+      }
       parentId = decoded.parentId;
     } catch (error) {
       return {
@@ -70,7 +87,7 @@ exports.handler = async (event) => {
         return await deleteChild(parentId, body.childId);
       
       case 'generate-link-code':
-        return await generateLinkCode(body.childId);
+        return await generateLinkCode(parentId, body.childId);
       
       case 'get-activity':
         return await getActivity(parentId, body);
@@ -104,6 +121,49 @@ exports.handler = async (event) => {
   }
 };
 
+/**
+ * Verifies a child session token (type "child").
+ * @param {string|undefined} authHeader Authorization header
+ * @returns {{childId: string}|null} decoded token or null
+ */
+function verifyChildToken(authHeader) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+  try {
+    const decoded = jwt.verify(authHeader.substring(7), JWT_SECRET);
+    return decoded.type === 'child' && decoded.childId ? decoded : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+const MAX_NICKNAME_CHARS = 50;
+const MAX_SHORT_FIELD_CHARS = 50;
+const MAX_LOG_MESSAGE_CHARS = 500;
+const MAX_LOG_RESPONSE_CHARS = 1000;
+
+/**
+ * Validates child fields; SQLite stores any type, so check them here.
+ * @param {object} fields nickname, ageRange, avatarColor, isActive
+ * @param {boolean} requireAll true when creating
+ * @returns {string|null} error message or null when valid
+ */
+function validateChildFields({ nickname, ageRange, avatarColor, isActive }, requireAll) {
+  const text = (value, max) => typeof value === 'string' && value.trim().length > 0 && value.length <= max;
+  if (requireAll || nickname !== undefined) {
+    if (!text(nickname, MAX_NICKNAME_CHARS)) return 'nickname must be 1-' + MAX_NICKNAME_CHARS + ' characters';
+  }
+  if (requireAll || ageRange !== undefined) {
+    if (!text(ageRange, MAX_SHORT_FIELD_CHARS)) return 'ageRange must be a short string';
+  }
+  if (avatarColor !== undefined && avatarColor !== null && !text(avatarColor, MAX_SHORT_FIELD_CHARS)) {
+    return 'avatarColor must be a short string';
+  }
+  if (isActive !== undefined && isActive !== null && typeof isActive !== 'boolean') {
+    return 'isActive must be true or false';
+  }
+  return null;
+}
+
 async function getChildren(parentId) {
   const children = await sql`
     SELECT id, nickname, age_range, avatar_color, is_active, created_at
@@ -120,6 +180,10 @@ async function getChildren(parentId) {
 }
 
 async function addChild(parentId, { nickname, ageRange, avatarColor }) {
+  const invalid = validateChildFields({ nickname, ageRange, avatarColor }, true);
+  if (invalid) {
+    return { statusCode: 400, headers, body: JSON.stringify({ error: invalid }) };
+  }
   // Check subscription and child limit
   const parent = await sql`
     SELECT subscription_status, stripe_customer_id, created_at FROM parents WHERE id = ${parentId}
@@ -171,6 +235,10 @@ async function addChild(parentId, { nickname, ageRange, avatarColor }) {
 }
 
 async function updateChild(parentId, { childId, nickname, ageRange, avatarColor, isActive }) {
+  const invalid = validateChildFields({ nickname, ageRange, avatarColor, isActive }, false);
+  if (invalid) {
+    return { statusCode: 400, headers, body: JSON.stringify({ error: invalid }) };
+  }
   const result = await sql`
     UPDATE children
     SET 
@@ -199,6 +267,15 @@ async function updateChild(parentId, { childId, nickname, ageRange, avatarColor,
 }
 
 async function deleteChild(parentId, childId) {
+  const owned = await sql`SELECT id FROM children WHERE id = ${childId} AND parent_id = ${parentId}`;
+  if (owned.length === 0) {
+    return { statusCode: 404, headers, body: JSON.stringify({ error: 'Child not found' }) };
+  }
+
+  // Remove everything recorded about this child so a parent can really delete their data.
+  await sql`DELETE FROM safety_events WHERE session_id IN (SELECT id FROM sessions WHERE child_id = ${childId})`;
+  await sql`DELETE FROM feature_analytics WHERE session_id IN (SELECT id FROM sessions WHERE child_id = ${childId})`;
+  await sql`DELETE FROM sessions WHERE child_id = ${childId}`;
   await sql`
     DELETE FROM children
     WHERE id = ${childId} AND parent_id = ${parentId}
@@ -211,9 +288,15 @@ async function deleteChild(parentId, childId) {
   };
 }
 
-async function generateLinkCode(childId) {
-  // Generate 6-digit code
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
+const MAX_LINK_CODE_TRIES = 5;
+
+async function generateLinkCode(parentId, childId) {
+  // Only the owning parent may mint or revoke a code for a child.
+  const owned = await sql`SELECT id FROM children WHERE id = ${childId} AND parent_id = ${parentId}`;
+  if (owned.length === 0) {
+    return { statusCode: 404, headers, body: JSON.stringify({ error: 'Child not found' }) };
+  }
+
   const expiresAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000); // 3 days
 
   // Invalidate old codes
@@ -223,21 +306,23 @@ async function generateLinkCode(childId) {
     WHERE child_id = ${childId} AND used_at IS NULL
   `;
 
-  // Create new code
-  const result = await sql`
-    INSERT INTO child_link_codes (child_id, code, expires_at)
-    VALUES (${childId}, ${code}, ${expiresAt.toISOString()})
-    RETURNING code, expires_at
-  `;
-
-  return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify({
-      code: result[0].code,
-      expiresAt: result[0].expires_at,
-    }),
-  };
+  // codes are unique across all rows, so retry on the rare collision
+  for (let attempt = 0; attempt < MAX_LINK_CODE_TRIES; attempt += 1) {
+    const code = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
+    const taken = await sql`SELECT id FROM child_link_codes WHERE code = ${code}`;
+    if (taken.length > 0) continue;
+    const result = await sql`
+      INSERT INTO child_link_codes (child_id, code, expires_at)
+      VALUES (${childId}, ${code}, ${expiresAt.toISOString()})
+      RETURNING code, expires_at
+    `;
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ code: result[0].code, expiresAt: result[0].expires_at }),
+    };
+  }
+  return { statusCode: 503, headers, body: JSON.stringify({ error: 'Could not create a code, try again' }) };
 }
 
 async function getActivity(parentId, { childId, startDate, endDate }) {
@@ -369,6 +454,7 @@ async function logActivity(data) {
       DO UPDATE SET 
         last_activity = NOW(),
         interactions_count = sessions.interactions_count + 1
+      WHERE sessions.child_id = excluded.child_id
     `;
 
     return {
@@ -406,7 +492,17 @@ async function logSafetyEvent(data) {
       LIMIT 1
     `;
 
-    const dbSessionId = sessionResult.length > 0 ? sessionResult[0].id : sessionId || 'unknown';
+    let dbSessionId;
+    if (sessionResult.length > 0) {
+      dbSessionId = sessionResult[0].id;
+    } else {
+      // The id is generated here, never taken from the request, so an event cannot land on someone else's session.
+      dbSessionId = 'session_' + crypto.randomUUID();
+      await sql`
+        INSERT INTO sessions (id, child_id, is_linked_account, last_activity, interactions_count)
+        VALUES (${dbSessionId}, ${childId}, true, NOW(), 0)
+      `;
+    }
 
     // Insert safety event
     await sql`
@@ -414,7 +510,7 @@ async function logSafetyEvent(data) {
         session_id, event_type, category, trigger_text, response_text, timestamp
       )
       VALUES (
-        ${dbSessionId}, 'safety_trigger', ${category}, ${message}, ${aiResponse}, NOW()
+        ${dbSessionId}, 'safety_trigger', ${String(category).slice(0, MAX_SHORT_FIELD_CHARS)}, ${String(message || '').slice(0, MAX_LOG_MESSAGE_CHARS)}, ${String(aiResponse || '').slice(0, MAX_LOG_RESPONSE_CHARS)}, NOW()
       )
     `;
 

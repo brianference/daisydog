@@ -73,7 +73,7 @@ const AgeVerification = ({ onVerificationComplete }) => {
           
           <div className="privacy-notice">
             <h3>🔒 Privacy Notice</h3>
-            <p>DaisyDog does not ask for names or other personal information. Your chat history stays in this browser. Each message you send is passed to our server and to AI services (Cloudflare Workers AI and OpenAI's safety check) so Daisy can write and check her reply. We do not save it on our servers, except safety alerts for children linked to a parent account.</p>
+            <p>DaisyDog does not ask children for their name, address or contact details. Your chat history stays in this browser. Each message you send is passed to our server and to AI services (Cloudflare Workers AI and OpenAI's safety check) so Daisy can write and check her reply. We do not save it on our servers, except activity and safety-alert logs for children linked to a parent account; a parent can delete these by deleting the child.</p>
           </div>
         </div>
       </div>
@@ -137,7 +137,7 @@ const AgeVerification = ({ onVerificationComplete }) => {
               
               <p><strong>Safety:</strong> All content is filtered for age-appropriateness. No external links or contact with other users.</p>
               
-              <p><strong>Data Storage:</strong> Chat history, age verification and game progress are stored in your browser. Each message you send is passed to our server and to AI services (Cloudflare Workers AI and OpenAI's safety check) so Daisy can write and check her reply. We do not save it on our servers, except safety alerts for children linked to a parent account. Bible verse lookups are sent to the Bible API. To limit abuse we keep a hashed form of your IP address for up to 2 days.</p>
+              <p><strong>Data Storage:</strong> Chat history, age verification and game progress are stored in your browser. Each message you send is passed to our server and to AI services (Cloudflare Workers AI and OpenAI's safety check) so Daisy can write and check her reply. We do not save it on our servers, except activity and safety-alert logs for children linked to a parent account; a parent can delete these by deleting the child. Bible verse lookups are sent to the Bible API. To limit abuse we keep a scrambled (hashed) form of your IP address for a few days.</p>
               
               <p><strong>Parental Rights:</strong> Parents can clear all data at any time by clearing browser storage. This consent can be withdrawn at any time.</p>
               

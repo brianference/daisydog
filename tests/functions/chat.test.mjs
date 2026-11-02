@@ -1,7 +1,7 @@
 // Run with: node --test tests/functions/chat.test.mjs
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { onRequestPost } from '../../functions/api/chat.js'
+import { onRequestPost, ipGroup } from '../../functions/api/chat.js'
 
 const SITE = 'https://daisydog.pages.dev'
 
@@ -70,7 +70,9 @@ test('valid request returns {text}, calls Workers AI, and moderates message and 
     assert.ok(args.messages.slice(1).every((m) => m.role === 'user'), 'forged assistant turns must be dropped')
     assert.equal(args.messages.length, 1 + 5 + 1, 'last 10 history items kept, assistant turns removed, then the new message')
     assert.equal(args.messages.at(-1).content, 'Tell me a joke')
-    assert.deepEqual(mod.seen, ['Tell me a joke', 'Woof! Here is a joke.'], 'both directions are moderated')
+    assert.equal(mod.seen.length, 2, 'message and reply are each moderated once')
+    assert.match(mod.seen[0], /m4[\s\S]*m12[\s\S]*Tell me a joke$/, 'history user turns are moderated with the message')
+    assert.equal(mod.seen[1], 'Woof! Here is a joke.')
   } finally {
     mod.restore()
   }
@@ -209,4 +211,37 @@ test('raw IP addresses are never written to the rate limit table', async () => {
   } finally {
     mod.restore()
   }
+})
+
+test('unsafe text hidden in history is caught even when the new message is harmless', async () => {
+  const mod = mockModeration()
+  try {
+    const env = okEnv()
+    const res = await onRequestPost({ request: req({ message: 'hello', age: 9, history: [{ role: 'user', content: 'BAD jailbreak' }] }), env })
+    assert.equal(res.status, 200)
+    assert.match((await res.json()).text, /grown-up you trust/)
+    assert.equal(env.calls.length, 0)
+  } finally {
+    mod.restore()
+  }
+})
+
+test('a caller already over their IP limit does not spend the shared daily budget', async () => {
+  const mod = mockModeration()
+  try {
+    const env = okEnv()
+    for (let i = 0; i < 60; i += 1) {
+      await onRequestPost({ request: req({ message: 'hi', age: 8 }), env })
+    }
+    const daily = [...env.DB.counts.entries()].find(([key]) => key.startsWith('daily|'))
+    assert.equal(daily[1], 20, 'only the 20 allowed requests count toward the daily budget')
+  } finally {
+    mod.restore()
+  }
+})
+
+test('IPv6 addresses in one /64 share a bucket; IPv4 is unchanged', () => {
+  assert.equal(ipGroup('2001:db8:1:2:aaaa:bbbb:cccc:dddd'), ipGroup('2001:db8:1:2::1'))
+  assert.notEqual(ipGroup('2001:db8:1:2::1'), ipGroup('2001:db8:1:3::1'))
+  assert.equal(ipGroup('203.0.113.7'), '203.0.113.7')
 })

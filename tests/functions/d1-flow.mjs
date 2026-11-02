@@ -22,7 +22,13 @@ let passed = 0;
 async function call(name, { query = '', body, token, method } = {}) {
   const response = await fetch(`${FN}/${name}${query}`, {
     method: method || (body === undefined ? 'GET' : 'POST'),
-    headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
+    headers: {
+      'content-type': 'application/json',
+      // A distinct client IP per run keeps the link-code limiter from carrying over between runs.
+      // Cloudflare overwrites this header in production, so there reruns within 10 minutes share a bucket.
+      'cf-connecting-ip': `198.51.100.${RUN % 250}`,
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
+    },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const text = await response.text();
@@ -197,9 +203,9 @@ await check('settings upsert and read back with decoded booleans and JSON', asyn
   assert.equal(get.body.settings.allowed_features.chat, false);
 });
 await check('log-activity then get-activity (with nested child filter) returns the session', async () => {
-  const log = await call('dashboard-api', { query: '?action=log-activity', body: { childId, sessionId: `session_${RUN}` } });
+  const log = await call('dashboard-api', { query: '?action=log-activity', token: childToken, body: { childId, sessionId: `session_${RUN}` } });
   assert.equal(log.status, 200, JSON.stringify(log.body).slice(0, 200));
-  await call('dashboard-api', { query: '?action=log-activity', body: { childId, sessionId: `session_${RUN}` } });
+  await call('dashboard-api', { query: '?action=log-activity', token: childToken, body: { sessionId: `session_${RUN}` } });
   const r = await call('dashboard-api', { query: '?action=get-activity', token: tokenA, body: { childId } });
   assert.equal(r.status, 200, JSON.stringify(r.body).slice(0, 200));
   assert.equal(r.body.sessions.length, 1);
@@ -207,18 +213,70 @@ await check('log-activity then get-activity (with nested child filter) returns t
   assert.equal(r.body.sessions[0].is_linked_account, true);
 });
 await check('safety event is logged and shows for the owning parent only', async () => {
-  const log = await call('dashboard-api', { query: '?action=log-safety-event', body: { childId, sessionId: `session_${RUN}`, category: 'drug_safety', message: 'test trigger', aiResponse: 'talk to a trusted adult' } });
+  const log = await call('dashboard-api', { query: '?action=log-safety-event', token: childToken, body: { sessionId: `session_${RUN}`, category: 'drug_safety', message: 'test trigger', aiResponse: 'talk to a trusted adult' } });
   assert.equal(log.status, 200, JSON.stringify(log.body).slice(0, 200));
   const mine = await call('dashboard-api', { query: '?action=get-safety-events', token: tokenA, body: {} });
   assert.equal(mine.body.events.length, 1);
   const theirs = await call('dashboard-api', { query: '?action=get-safety-events', token: tokenB, body: {} });
   assert.equal(theirs.body.events.length, 0);
 });
+await check('log-activity and log-safety-event without a child token are 401', async () => {
+  for (const action of ['log-activity', 'log-safety-event']) {
+    const r = await call('dashboard-api', { query: `?action=${action}`, body: { childId, sessionId: 'session_forged_12345', category: 'x', message: 'forged' } });
+    assert.equal(r.status, 401, action);
+  }
+});
+await check('a parent token cannot be used for child logging', async () => {
+  const r = await call('dashboard-api', { query: '?action=log-activity', token: tokenA, body: { childId, sessionId: 'session_x_123456' } });
+  assert.equal(r.status, 401);
+});
+await check('child token with a different childId in the body is 403', async () => {
+  const r = await call('dashboard-api', { query: '?action=log-activity', token: childToken, body: { childId: 'someone-else', sessionId: 'session_y_123456' } });
+  assert.equal(r.status, 403);
+});
+await check('a child token cannot call parent actions', async () => {
+  const r = await call('dashboard-api', { query: '?action=get-children', token: childToken, body: {} });
+  assert.equal(r.status, 401);
+});
+await check('another parent cannot mint a link code for this child (IDOR)', async () => {
+  const r = await call('dashboard-api', { query: '?action=generate-link-code', token: tokenB, body: { childId } });
+  assert.equal(r.status, 404);
+});
+await check('another parent cannot delete this child', async () => {
+  const r = await call('dashboard-api', { query: '?action=delete-child', token: tokenB, body: { childId } });
+  assert.equal(r.status, 404);
+  const list = await call('dashboard-api', { query: '?action=get-children', token: tokenA, body: {} });
+  assert.equal(list.body.children.length, 1, 'child must still exist');
+});
+await check('bad child fields are rejected (type and length)', async () => {
+  const longName = await call('dashboard-api', { query: '?action=add-child', token: tokenA, body: { nickname: 'x'.repeat(51), ageRange: '8-12' } });
+  assert.equal(longName.status, 400);
+  const objectName = await call('dashboard-api', { query: '?action=add-child', token: tokenA, body: { nickname: { a: 1 }, ageRange: '8-12' } });
+  assert.equal(objectName.status, 400);
+  const stringBool = await call('dashboard-api', { query: '?action=update-child', token: tokenA, body: { childId, isActive: 'false' } });
+  assert.equal(stringBool.status, 400);
+});
+await check('lessons limit is clamped (negative gives 1, huge gives all)', async () => {
+  const neg = await call('lessons-api', { query: '?action=get-lessons&limit=-1' });
+  assert.equal(neg.body.lessons.length, 1);
+  const big = await call('lessons-api', { query: '?action=get-lessons&limit=100000' });
+  assert.equal(big.body.lessons.length, 9);
+});
+await check('database errors do not leak table or column names', async () => {
+  const r = await call('lessons-api', { query: '?action=start-lesson', token: childToken, body: { lessonId: 987654 } });
+  assert.doesNotMatch(JSON.stringify(r.body), /D1_ERROR|SQLITE|constraint|lesson_progress/i);
+});
 await check('delete-child removes it and its progress (cascade)', async () => {
   const r = await call('dashboard-api', { query: '?action=delete-child', token: tokenA, body: { childId } });
   assert.equal(r.status, 200);
   const list = await call('dashboard-api', { query: '?action=get-children', token: tokenA, body: {} });
   assert.equal(list.body.children.length, 0);
+});
+
+await check('link code guessing is rate limited (429 within 12 attempts)', async () => {
+  const statuses = [];
+  for (let i = 0; i < 12; i += 1) statuses.push((await call('child-link', { body: { code: String(100000 + i) } })).status);
+  assert.ok(statuses.includes(429), `no 429 in ${statuses}`);
 });
 
 console.log(`\n${passed} passed${process.exitCode ? ', SOME FAILED' : ''}`);

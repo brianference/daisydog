@@ -61,6 +61,7 @@ class ChildSessionService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('childSessionToken') || ''}`,
         },
         body: JSON.stringify({
           childId: this.childId,
@@ -81,7 +82,7 @@ class ChildSessionService {
     }
   }
 
-  async logSafetyEvent(message, category, response) {
+  async logSafetyEvent(message, category, aiResponseText) {
     if (!this.isLinkedChild()) {
       return;
     }
@@ -91,13 +92,14 @@ class ChildSessionService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('childSessionToken') || ''}`,
         },
         body: JSON.stringify({
           childId: this.childId,
           sessionId: this.sessionId,
           message: message.substring(0, 500), // Truncate for privacy
           category,
-          aiResponse: response?.substring(0, 500),
+          aiResponse: aiResponseText?.substring(0, 500),
           timestamp: new Date().toISOString(),
         }),
       });

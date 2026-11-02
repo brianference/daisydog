@@ -122,7 +122,7 @@ class Query {
         params.push(toBindable(value));
       }
     });
-    return { text: text.replace(/\)\s*,\s*\?\s*\)/g, ')'), params };
+    return { text, params };
   }
 
   /**
@@ -138,6 +138,11 @@ class Query {
       .bind(...params)
       .all()
       .then((result) => (result.results || []).map(decodeRow))
+      .catch((error) => {
+        // Log the real error server-side; never hand D1 table and column names to a client.
+        console.error('D1 query failed:', error.message);
+        throw new Error('Database error');
+      })
       .then(resolve, reject);
   }
 }
