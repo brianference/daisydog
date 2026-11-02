@@ -1,14 +1,11 @@
 /**
  * Safe AI System for DaisyDog
- * Comprehensive AI safety and response management using Google Gemini
+ * Comprehensive AI safety and response management; model calls go to the server-side /api/chat (Workers AI)
  */
-
-import { GoogleGenerativeAI } from '@google/generative-ai'
 
 export class SafeAISystem {
   constructor(daisyResponses) {
     this.daisyResponses = daisyResponses
-    this.geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY
     this.debugMode = import.meta.env.VITE_DEBUG_MODE === 'true'
     this.shouldLogApiStatus = import.meta.env.VITE_LOG_API_STATUS === 'true'
     
@@ -39,59 +36,16 @@ export class SafeAISystem {
   }
   
   initializeGemini() {
-    if (!this.geminiApiKey || this.geminiApiKey === 'your_actual_gemini_api_key_here') {
-      console.warn('⚠️ Gemini API key not configured. Add VITE_GEMINI_API_KEY to .env.local for enhanced AI responses')
-      return
-    }
-
-    try {
-      this.genAI = new GoogleGenerativeAI(this.geminiApiKey)
-      
-      // Main conversation model
-      this.model = this.genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash',
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 300,
-          topP: 0.8,
-          topK: 40
-        },
-        safetySettings: [
-          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
-        ]
-      })
-      
-      // Content moderation model
-      this.moderationModel = this.genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash',
-        generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 50,
-          topP: 0.5,
-          topK: 10
-        },
-        safetySettings: [
-          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_LOW_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_LOW_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_LOW_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_LOW_AND_ABOVE' }
-        ]
-      })
-      
-      console.log('✅ Gemini AI initialized successfully')
-    } catch (error) {
-      console.warn('❌ Failed to initialize Gemini AI:', error)
-    }
+    // The model runs server-side behind /api/chat; nothing to configure in the browser.
+    this.model = { endpoint: '/api/chat' }
+    this.moderationModel = null
   }
   
   logApiStatus() {
     if (this.shouldLogApiStatus) {
       console.log('🔧 SafeAI System Status:')
-      console.log(`  Gemini API: ${this.geminiApiKey ? '✅ Configured' : '❌ Not configured'}`)
-      console.log(`  Gemini Model: ${this.model ? '✅ Ready' : '❌ Not ready'}`)
+      console.log(`  Chat API: /api/chat`)
+      console.log(`  Chat model: ${this.model ? '✅ Ready' : '❌ Not ready'}`)
       console.log(`  Child Safety: ${this.safetyConfig.childSafetyMode ? '✅ Enabled' : '❌ Disabled'}`)
       console.log(`  Debug Mode: ${this.debugMode ? '✅ Enabled' : '❌ Disabled'}`)
     }
@@ -238,26 +192,32 @@ Focus on: inappropriate content, personal information requests, harmful language
   }
   
   async getGeminiResponse(message, userAge) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 15000)
     try {
-      const systemPrompt = this.buildSystemPrompt(userAge)
-      const fullPrompt = `${systemPrompt}\n\nUser: ${message}\n\nDaisyDog:`
-      
-      const result = await this.model.generateContent(fullPrompt)
-      const response = await result.response
-      this.safetyMetrics.apiCalls++
-      
-      const text = response.text()
-      if (text && text.trim()) {
-        return text.trim()
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: String(message).slice(0, 500),
+          history: [],
+          age: Number(userAge || this.safetyConfig.defaultUserAge)
+        }),
+        signal: controller.signal
+      })
+      if (!response.ok) {
+        throw new Error(`chat endpoint returned ${response.status}`)
       }
-      
-      return null
-      
+      const data = await response.json()
+      this.safetyMetrics.apiCalls++
+      return data && typeof data.text === 'string' && data.text.trim() ? data.text.trim() : null
     } catch (error) {
       if (this.debugMode) {
-        console.warn('Gemini API call failed:', error.message)
+        console.warn('Chat API call failed:', error.message)
       }
       throw error
+    } finally {
+      clearTimeout(timer)
     }
   }
   
@@ -395,7 +355,7 @@ Remember: You are a dog who loves treats, playing, and making children happy!`
     return {
       ...this.safetyMetrics,
       blockRate: `${blockRate}%`,
-      apiAvailable: !!(this.geminiApiKey && this.model),
+      apiAvailable: !!this.model,
       safetyLevel: this.safetyConfig.childSafetyMode ? 'Strict' : 'Standard'
     }
   }

@@ -289,6 +289,7 @@ const ChatPage = () => {
     
     // Create anonymous session for voice features
     const userAge = verificationData?.age || verificationData
+    geminiService.setAge(userAge)
     if (!supabaseService.getCurrentSession()) {
       supabaseService.createAnonymousSession(userAge)
         .then(() => {
