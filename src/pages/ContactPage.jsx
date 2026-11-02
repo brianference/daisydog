@@ -29,34 +29,24 @@ const ContactPage = () => {
     e.preventDefault()
     setIsSubmitting(true)
     
-    const submissionForm = new FormData()
-    submissionForm.append('form-name', 'contact')
-    submissionForm.append('name', formData.name)
-    submissionForm.append('email', formData.email)
-    submissionForm.append('subject', formData.subject)
-    submissionForm.append('category', formData.category)
-    submissionForm.append('message', formData.message)
-    submissionForm.append('isParent', formData.isParent ? 'Yes' : 'No')
-    
-    const isNetlify = window.location.hostname.includes('netlify.app') || window.location.hostname === 'daisydog.org'
-    
     try {
-      if (isNetlify) {
-        const response = await fetch('/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams(submissionForm).toString()
+      const response = await fetch('/.netlify/functions/contact-form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          category: formData.category,
+          message: formData.message,
+          isParent: formData.isParent
         })
-        
-        if (response.ok) {
-          setIsSubmitted(true)
-        } else {
-          throw new Error('Form submission failed')
-        }
-      } else {
-        console.log('[DEV MODE] Contact form submission:', Object.fromEntries(submissionForm))
-        alert('Form submission is only available on the production site (daisydog.org or daisydog.netlify.app). Your form data has been logged to the console for testing.')
+      })
+
+      if (response.ok) {
         setIsSubmitted(true)
+      } else {
+        throw new Error('Form submission failed')
       }
     } catch (error) {
       console.error('Form submission error:', error)

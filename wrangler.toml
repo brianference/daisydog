@@ -5,9 +5,10 @@ compatibility_date = "2026-07-01"
 compatibility_flags = ["nodejs_compat"]
 
 # Non-secret runtime config the functions read. Secrets (JWT_SECRET, OPENAI_API_KEY, VOICE_FUNCTION_SECRET)
-# live in the Pages project, not here.
+# (BREVO_API_KEY, CONTACT_TO) live in the Pages project, not here.
 [vars]
-SITE_URL = "https://daisydog.org"
+SITE_URL = "https://daisydog.pages.dev"
+MAIL_FROM = "no-reply@txeas.com"
 
 # Parent accounts, dashboard, lessons and child links (replaces Neon).
 [[d1_databases]]

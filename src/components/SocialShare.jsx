@@ -3,7 +3,7 @@ import { FaFacebook, FaTwitter, FaInstagram, FaWhatsapp, FaEnvelope, FaCopy, FaC
 import './SocialShare.css';
 
 const SocialShare = ({ 
-  url = 'https://daisydog.org', 
+  url = 'https://daisydog.pages.dev', 
   title = '🐕 Finally, a Safe AI Companion That Transforms Kids\' Learning!', 
   description = `As a parent, I'm so relieved to find DaisyDog! 🛡️💙
 
@@ -17,7 +17,7 @@ Daisy Dog is revolutionizing educational fun for children with:
 
 My children ask to "play with Daisy" every day! Finally, technology that makes learning FUN while supporting our family values! 🙏✨
 
-Check it out: https://daisydog.org 🐾
+Check it out: https://daisydog.pages.dev 🐾
 
 #DaisyDog #ParentingWin #SafeTech #KidsEducation #EdTech #SafeAI` 
 }) => {
@@ -48,7 +48,7 @@ Check it out: https://daisydog.org 🐾
 
   const handleShare = (platform) => {
     if (platform === 'instagram') {
-      alert('📱 To share on Instagram:\n\n1. Open Instagram on your mobile device\n2. Create a new post or story\n3. Share: daisydog.org');
+      alert('📱 To share on Instagram:\n\n1. Open Instagram on your mobile device\n2. Create a new post or story\n3. Share: daisydog.pages.dev');
       return;
     }
     window.open(shareLinks[platform], '_blank', 'width=600,height=400');
