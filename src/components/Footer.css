@@ -140,6 +140,7 @@
 @media (max-width: 768px) {
   .footer-links {
     gap: 1rem;
+    flex-wrap: wrap;
   }
   
   .footer-links a {
