@@ -4,11 +4,10 @@ pages_build_output_dir = "dist"
 compatibility_date = "2026-07-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Mirrors netlify.toml [build.environment]; the functions read these at runtime.
+# Non-secret runtime config the functions read. Secrets (JWT_SECRET, OPENAI_API_KEY, VOICE_FUNCTION_SECRET)
+# live in the Pages project, not here.
 [vars]
 SITE_URL = "https://daisydog.org"
-VITE_SUPABASE_URL = "https://lqxstmjczpfywfgyhahj.supabase.co"
-VITE_SUPABASE_ANON_KEY = "your_supabase_anon_key_here"
 
 # Parent accounts, dashboard, lessons and child links (replaces Neon).
 [[d1_databases]]

@@ -3,28 +3,144 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { onRequestPost } from '../../functions/api/chat.js'
 
-/** Build a POST request with a JSON body. */
-const req = (body) =>
-  new Request('http://x/api/chat', { method: 'POST', body: typeof body === 'string' ? body : JSON.stringify(body) })
+const SITE = 'https://daisydog.pages.dev'
+
+/** Build a POST request with a JSON body from the site's own origin. */
+const req = (body, headers = { Origin: SITE }) =>
+  new Request(`${SITE}/api/chat`, {
+    method: 'POST',
+    headers: { 'CF-Connecting-IP': '203.0.113.7', ...headers },
+    body: typeof body === 'string' ? body : JSON.stringify(body)
+  })
+
+/** In-memory stand-in for the D1 rate_limits table. */
+const fakeDb = () => {
+  const counts = new Map()
+  return {
+    counts,
+    prepare: () => ({
+      bind: (bucket, windowStart) => ({
+        run: async () => ({}),
+        first: async () => {
+          const key = `${bucket}|${windowStart}`
+          counts.set(key, (counts.get(key) || 0) + 1)
+          return { count: counts.get(key) }
+        }
+      })
+    })
+  }
+}
+
+/** Mock moderation endpoint: texts containing "BAD" are flagged, "DOWN" makes it fail. */
+const mockModeration = () => {
+  const seen = []
+  const original = globalThis.fetch
+  globalThis.fetch = async (url, init) => {
+    const { input } = JSON.parse(init.body)
+    seen.push(input)
+    if (input.includes('DOWN')) return new Response('{}', { status: 500 })
+    return new Response(JSON.stringify({ results: [{ flagged: input.includes('BAD') }] }), { status: 200 })
+  }
+  return { seen, restore: () => { globalThis.fetch = original } }
+}
 
 /** Mock AI binding that records its call. */
 const okEnv = (response = '  Woof! Here is a joke.  ') => {
   const calls = []
-  return { calls, AI: { run: async (model, args) => { calls.push({ model, args }); return { response } } } }
+  return {
+    calls,
+    DB: fakeDb(),
+    OPENAI_API_KEY: 'test-key',
+    AI: { run: async (model, args) => { calls.push({ model, args }); return { response } } }
+  }
 }
 
-test('valid request returns {text} and calls Workers AI correctly', async () => {
+test('valid request returns {text}, calls Workers AI, and moderates message and reply', async () => {
+  const mod = mockModeration()
+  try {
+    const env = okEnv()
+    const history = Array.from({ length: 14 }, (_, i) => ({ role: i % 2 ? 'assistant' : 'user', content: `m${i}` }))
+    const res = await onRequestPost({ request: req({ message: 'Tell me a joke', history, age: 7 }), env })
+    assert.equal(res.status, 200)
+    assert.deepEqual(await res.json(), { text: 'Woof! Here is a joke.' })
+    const { model, args } = env.calls[0]
+    assert.equal(model, '@cf/meta/llama-3.1-8b-instruct')
+    assert.equal(args.messages[0].role, 'system')
+    assert.ok(args.messages.slice(1).every((m) => m.role === 'user'), 'forged assistant turns must be dropped')
+    assert.equal(args.messages.length, 1 + 5 + 1, 'last 10 history items kept, assistant turns removed, then the new message')
+    assert.equal(args.messages.at(-1).content, 'Tell me a joke')
+    assert.deepEqual(mod.seen, ['Tell me a joke', 'Woof! Here is a joke.'], 'both directions are moderated')
+  } finally {
+    mod.restore()
+  }
+})
+
+test('a flagged child message gets a redirect and never reaches the model', async () => {
+  const mod = mockModeration()
+  try {
+    const env = okEnv()
+    const res = await onRequestPost({ request: req({ message: 'something BAD', age: 9 }), env })
+    assert.equal(res.status, 200)
+    assert.match((await res.json()).text, /grown-up you trust/)
+    assert.equal(env.calls.length, 0)
+  } finally {
+    mod.restore()
+  }
+})
+
+test('a flagged model reply is replaced by the redirect', async () => {
+  const mod = mockModeration()
+  try {
+    const res = await onRequestPost({ request: req({ message: 'hello', age: 9 }), env: okEnv('this is BAD output') })
+    assert.equal(res.status, 200)
+    const { text } = await res.json()
+    assert.match(text, /grown-up you trust/)
+    assert.doesNotMatch(text, /BAD/)
+  } finally {
+    mod.restore()
+  }
+})
+
+test('moderation outage fails closed with 502 and the model is not called', async () => {
+  const mod = mockModeration()
+  try {
+    const env = okEnv()
+    const res = await onRequestPost({ request: req({ message: 'DOWN please', age: 9 }), env })
+    assert.equal(res.status, 502)
+    assert.equal(env.calls.length, 0)
+  } finally {
+    mod.restore()
+  }
+})
+
+test('other origins and missing Origin are 403 before anything else runs', async () => {
   const env = okEnv()
-  const history = Array.from({ length: 14 }, (_, i) => ({ role: i % 2 ? 'assistant' : 'user', content: `m${i}` }))
-  const res = await onRequestPost({ request: req({ message: 'Tell me a joke', history, age: 7 }), env })
-  assert.equal(res.status, 200)
-  assert.deepEqual(await res.json(), { text: 'Woof! Here is a joke.' })
-  const { model, args } = env.calls[0]
-  assert.equal(model, '@cf/meta/llama-3.1-8b-instruct')
-  assert.equal(args.messages[0].role, 'system')
-  assert.equal(args.messages.length, 1 + 10 + 1, 'history capped to last 10')
-  assert.equal(args.messages.at(-1).content, 'Tell me a joke')
-  assert.ok(args.max_tokens > 0)
+  for (const headers of [{ Origin: 'https://evil.example' }, {}]) {
+    const res = await onRequestPost({ request: req({ message: 'hi', age: 8 }, headers), env })
+    assert.equal(res.status, 403)
+  }
+  assert.equal(env.calls.length, 0)
+})
+
+test('the 21st request from one IP in a window is 429; another IP is unaffected', async () => {
+  const mod = mockModeration()
+  try {
+    const env = okEnv()
+    const statuses = []
+    for (let i = 0; i < 21; i += 1) {
+      statuses.push((await onRequestPost({ request: req({ message: 'hi', age: 8 }), env })).status)
+    }
+    assert.equal(statuses.slice(0, 20).every((s) => s === 200), true)
+    assert.equal(statuses[20], 429)
+    const other = new Request(`${SITE}/api/chat`, {
+      method: 'POST',
+      headers: { Origin: SITE, 'CF-Connecting-IP': '198.51.100.9' },
+      body: JSON.stringify({ message: 'hi', age: 8 })
+    })
+    assert.equal((await onRequestPost({ request: other, env })).status, 200)
+  } finally {
+    mod.restore()
+  }
 })
 
 const badBodies = {
@@ -52,18 +168,44 @@ for (const [name, body] of Object.entries(badBodies)) {
 }
 
 test('AI throwing returns 502 {error}', async () => {
-  const env = { AI: { run: async () => { throw new Error('boom') } } }
-  const res = await onRequestPost({ request: req({ message: 'hi', age: 8 }), env })
-  assert.equal(res.status, 502)
-  assert.deepEqual(await res.json(), { error: 'AI unavailable' })
+  const mod = mockModeration()
+  try {
+    const env = { ...okEnv(), AI: { run: async () => { throw new Error('boom') } } }
+    const res = await onRequestPost({ request: req({ message: 'hi', age: 8 }), env })
+    assert.equal(res.status, 502)
+    assert.deepEqual(await res.json(), { error: 'AI unavailable' })
+  } finally {
+    mod.restore()
+  }
 })
 
 test('empty AI response returns 502', async () => {
-  const res = await onRequestPost({ request: req({ message: 'hi', age: 8 }), env: okEnv('   ') })
-  assert.equal(res.status, 502)
+  const mod = mockModeration()
+  try {
+    const res = await onRequestPost({ request: req({ message: 'hi', age: 8 }), env: okEnv('   ') })
+    assert.equal(res.status, 502)
+  } finally {
+    mod.restore()
+  }
 })
 
-test('missing AI binding returns 502', async () => {
-  const res = await onRequestPost({ request: req({ message: 'hi', age: 8 }), env: {} })
-  assert.equal(res.status, 502)
+test('missing bindings return 502', async () => {
+  for (const env of [{}, { ...okEnv(), DB: undefined }, { ...okEnv(), OPENAI_API_KEY: undefined }]) {
+    const res = await onRequestPost({ request: req({ message: 'hi', age: 8 }), env })
+    assert.equal(res.status, 502)
+  }
+})
+
+test('raw IP addresses are never written to the rate limit table', async () => {
+  const mod = mockModeration()
+  try {
+    const env = okEnv()
+    await onRequestPost({ request: req({ message: 'hi', age: 8 }), env })
+    const keys = [...env.DB.counts.keys()]
+    assert.ok(keys.length >= 2, 'expected an ip bucket and a daily bucket')
+    assert.ok(keys.every((key) => !key.includes('203.0.113.7')), `raw IP leaked: ${keys}`)
+    assert.ok(keys.some((key) => /^ip:[0-9a-f]{64}\|/.test(key)), 'ip bucket should be a sha256 hex digest')
+  } finally {
+    mod.restore()
+  }
 })

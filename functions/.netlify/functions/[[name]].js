@@ -31,6 +31,8 @@ function populateProcessEnv(env) {
     if (typeof value === 'string') process.env[key] = value;
   }
   process.env.URL = process.env.URL || process.env.SITE_URL || '';
+  // netlify/shared/utils/d1-sql.cjs reads the D1 binding from here.
+  globalThis.__DAISY_DB = env.DB;
 }
 
 /**

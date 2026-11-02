@@ -62,8 +62,8 @@ const PrivacyPage = () => {
             <h2><FaLock /> How We Protect Your Privacy</h2>
             <div className="protection-features">
               <div className="feature">
-                <h3>🔒 Local Storage Only</h3>
-                <p>Conversations are stored locally on your device and never sent to our servers.</p>
+                <h3>🔒 Your Chats Stay Private</h3>
+                <p>Chat history is stored in your browser. Each message you send is passed to our server and to AI services (Cloudflare Workers AI and OpenAI's safety check) so Daisy can write and check her reply. We do not save it on our servers, except safety alerts for children linked to a parent account. To limit abuse we keep a hashed form of your IP address for up to 2 days.</p>
               </div>
               <div className="feature">
                 <h3>🤖 AI Safety Filters</h3>

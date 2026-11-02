@@ -1,6 +1,5 @@
-const { neon } = require('@neondatabase/serverless');
 
-const sql = neon(process.env.DATABASE_URL);
+const sql = require('../shared/utils/d1-sql.cjs');
 
 const headers = {
   'Access-Control-Allow-Origin': '*',
@@ -235,26 +234,23 @@ async function getLessons(params) {
 
 async function getLessonById(lessonId) {
   const lesson = await sql`
-    SELECT 
+    SELECT
       l.*,
-      COALESCE(
-        json_agg(
-          json_build_object(
-            'id', a.id,
-            'type', a.activity_type,
-            'name', a.activity_name,
-            'description', a.activity_description,
-            'materials', a.materials_needed,
-            'instructions', a.instructions,
-            'links', a.external_links
-          )
-        ) FILTER (WHERE a.id IS NOT NULL),
-        '[]'
-      ) as activities
+      COALESCE((
+        SELECT json_group_array(json_object(
+          'id', a.id,
+          'type', a.activity_type,
+          'name', a.activity_name,
+          'description', a.activity_description,
+          'materials', a.materials_needed,
+          'instructions', a.instructions,
+          'links', json(a.external_links)
+        ))
+        FROM lesson_activities a
+        WHERE a.lesson_id = l.id
+      ), '[]') as activities
     FROM catechesis_lessons l
-    LEFT JOIN lesson_activities a ON a.lesson_id = l.id
     WHERE l.id = ${lessonId}
-    GROUP BY l.id
   `;
 
   if (lesson.length === 0) {

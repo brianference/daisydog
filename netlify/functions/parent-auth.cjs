@@ -3,10 +3,9 @@
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { neon } = require('@neondatabase/serverless');
 const crypto = require('crypto');
 
-const sql = neon(process.env.DATABASE_URL);
+const sql = require('../shared/utils/d1-sql.cjs');
 
 // Fail fast if JWT_SECRET is not configured
 if (!process.env.JWT_SECRET) {

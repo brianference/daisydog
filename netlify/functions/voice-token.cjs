@@ -1,12 +1,10 @@
 import crypto from 'crypto';
-import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL,
-  process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
-);
-
-const FUNCTION_SECRET = process.env.VOICE_FUNCTION_SECRET || 'dev-secret-change-in-production';
+// Fail fast: a hardcoded fallback secret would let anyone mint valid session tokens.
+if (!process.env.VOICE_FUNCTION_SECRET) {
+  throw new Error('CRITICAL: VOICE_FUNCTION_SECRET environment variable is not set.');
+}
+const FUNCTION_SECRET = process.env.VOICE_FUNCTION_SECRET;
 
 // Netlify serverless function handler
 export const handler = async (event) => {
@@ -45,15 +43,7 @@ export const handler = async (event) => {
       };
     }
 
-    // Try to validate session in database, but allow local sessions too
-    const { data: session, error } = await supabase
-      .from('sessions')
-      .select('id, created_at')
-      .eq('id', sessionId)
-      .single();
-
-    // If session not in DB, it might be a local session - still allow it
-    // HMAC signature provides security regardless of DB validation
+    // Sessions are client-generated; the HMAC signature below is what the other functions verify.
     if (!sessionId || sessionId.length < 10) {
       return {
         statusCode: 401,

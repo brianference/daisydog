@@ -1,10 +1,9 @@
 // Netlify Function: Child Link
 // Allows children to link their session to a parent account using a 6-digit code
 
-const { neon } = require('@neondatabase/serverless');
 const jwt = require('jsonwebtoken');
 
-const sql = neon(process.env.DATABASE_URL);
+const sql = require('../shared/utils/d1-sql.cjs');
 
 const headers = {
   'Access-Control-Allow-Origin': '*',

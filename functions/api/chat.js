@@ -1,8 +1,11 @@
 /**
  * POST /api/chat -- Cloudflare Pages Function backed by Workers AI.
- * No API key is needed: the AI binding is declared in wrangler.toml.
+ * No API key is needed for the model: the AI binding is declared in wrangler.toml.
  * Request:  { message: string(1-500), history?: [{role, content}], age: number(3-120) }
- * Response: { text } on success, { error } with 400 (bad input) or 502 (AI failure).
+ * Response: { text } on success; { error } with 400 (bad input), 403 (other origin),
+ *           429 (rate limited) or 502 (AI or moderation failure).
+ * Both the child's message and the model's reply are moderated; a flagged one
+ * returns a kind redirect instead of the text.
  */
 
 const MODEL = '@cf/meta/llama-3.1-8b-instruct'
@@ -14,7 +17,16 @@ const MAX_AGE = 120
 const YOUNG_CHILD_AGE = 10
 const MAX_TOKENS_YOUNG = 120
 const MAX_TOKENS_OLDER = 250
-const ALLOWED_ROLES = new Set(['user', 'assistant'])
+const IP_LIMIT = 20
+const IP_WINDOW_SECONDS = 600
+const DAILY_LIMIT = 3000
+const DAY_SECONDS = 86400
+const RETENTION_SECONDS = 2 * DAY_SECONDS
+const PURGE_ODDS = 50
+const MODERATION_URL = 'https://api.openai.com/v1/moderations'
+const MODERATION_MODEL = 'omni-moderation-latest'
+const MODERATION_TIMEOUT_MS = 8000
+const SAFE_REDIRECT = "Hmm, that's not something I can chat about, friend! 🐕 Let's talk about something else, or ask a grown-up you trust. Want to hear a dog joke instead?"
 
 const JSON_HEADERS = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
 
@@ -50,6 +62,8 @@ export function buildSystemPrompt(age) {
 
 /**
  * Validate and normalise the request body.
+ * Only the child's own earlier messages are kept as context: the browser can forge
+ * assistant turns to steer the model, so those are dropped.
  * @param {unknown} body - Parsed JSON.
  * @returns {{ok: true, message: string, history: Array<{role:string,content:string}>, age: number} | {ok: false, error: string}}
  */
@@ -71,27 +85,101 @@ export function validateInput(body) {
   for (const item of recent) {
     if (
       !item || typeof item !== 'object' ||
-      !ALLOWED_ROLES.has(item.role) ||
+      (item.role !== 'user' && item.role !== 'assistant') ||
       typeof item.content !== 'string' ||
       item.content.length > MAX_HISTORY_CONTENT_CHARS
     ) {
       return { ok: false, error: 'history items must be {role: "user"|"assistant", content: string}' }
     }
   }
-  return {
-    ok: true,
-    message: message.trim(),
-    age,
-    history: recent.map(({ role, content }) => ({ role, content }))
+  const userTurns = recent
+    .filter((item) => item.role === 'user')
+    .map(({ content }) => ({ role: 'user', content }))
+  return { ok: true, message: message.trim(), age, history: userTurns }
+}
+
+/**
+ * Whether the request came from this site's own pages.
+ * @param {Request} request - Incoming request.
+ * @returns {boolean}
+ */
+export function isSameOrigin(request) {
+  const origin = request.headers.get('Origin')
+  if (!origin) return false
+  try {
+    return new URL(origin).host === new URL(request.url).host
+  } catch {
+    return false
   }
 }
 
 /**
+ * Count one use of a fixed-window bucket in D1 and report whether it is within the limit.
+ * @param {{prepare: Function}} db - D1 binding.
+ * @param {string} bucket - Bucket name, e.g. "ip:1.2.3.4" or "daily".
+ * @param {number} windowSeconds - Window length.
+ * @param {number} limit - Max uses per window.
+ * @returns {Promise<boolean>} True if allowed.
+ */
+export async function withinLimit(db, bucket, windowSeconds, limit) {
+  const windowStart = Math.floor(Date.now() / 1000 / windowSeconds) * windowSeconds
+  const row = await db
+    .prepare('INSERT INTO rate_limits (bucket, window_start, count) VALUES (?, ?, 1) ON CONFLICT (bucket, window_start) DO UPDATE SET count = count + 1 RETURNING count')
+    .bind(bucket, windowStart)
+    .first()
+  return row.count <= limit
+}
+
+/**
+ * One-way hash so raw IP addresses are never written to the database.
+ * @param {string} value - Text to hash.
+ * @returns {Promise<string>} Hex SHA-256.
+ */
+export async function sha256Hex(value) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
+/**
+ * Delete counters older than the retention window. Runs on about 1 in PURGE_ODDS requests.
+ * @param {{prepare: Function}} db - D1 binding.
+ * @returns {Promise<void>}
+ */
+export async function purgeOldWindows(db) {
+  if (Math.floor(Math.random() * PURGE_ODDS) !== 0) return
+  const cutoff = Math.floor(Date.now() / 1000) - RETENTION_SECONDS
+  await db.prepare('DELETE FROM rate_limits WHERE window_start < ?').bind(cutoff).run()
+}
+
+/**
+ * Ask OpenAI's moderation endpoint whether text is unsafe for children.
+ * @param {string} apiKey - OPENAI_API_KEY secret.
+ * @param {string} text - Text to check.
+ * @returns {Promise<boolean>} True if the text is flagged.
+ * @throws {Error} If the check cannot be completed (callers fail closed).
+ */
+export async function isFlagged(apiKey, text) {
+  const response = await fetch(MODERATION_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ model: MODERATION_MODEL, input: text }),
+    signal: AbortSignal.timeout(MODERATION_TIMEOUT_MS)
+  })
+  if (!response.ok) throw new Error(`moderation returned ${response.status}`)
+  const data = await response.json()
+  return data.results[0].flagged === true
+}
+
+/**
  * Pages Function entry point.
- * @param {{request: Request, env: {AI: {run: Function}}}} context
+ * @param {{request: Request, env: {AI: {run: Function}, DB: object, OPENAI_API_KEY: string}}} context
  * @returns {Promise<Response>}
  */
 export async function onRequestPost({ request, env }) {
+  if (!isSameOrigin(request)) {
+    return json({ error: 'Forbidden' }, 403)
+  }
+
   let body
   try {
     body = await request.json()
@@ -105,9 +193,20 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
-    if (!env || !env.AI || typeof env.AI.run !== 'function') {
-      throw new Error('AI binding missing')
+    if (!env || !env.AI || typeof env.AI.run !== 'function' || !env.DB || !env.OPENAI_API_KEY) {
+      throw new Error('AI, DB or moderation binding missing')
     }
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown'
+    const ipOk = await withinLimit(env.DB, `ip:${await sha256Hex(ip)}`, IP_WINDOW_SECONDS, IP_LIMIT)
+    const dayOk = await withinLimit(env.DB, 'daily', DAY_SECONDS, DAILY_LIMIT)
+    await purgeOldWindows(env.DB)
+    if (!ipOk || !dayOk) {
+      return json({ error: 'Too many requests' }, 429)
+    }
+    if (await isFlagged(env.OPENAI_API_KEY, input.message)) {
+      return json({ text: SAFE_REDIRECT })
+    }
+
     const messages = [
       { role: 'system', content: buildSystemPrompt(input.age) },
       ...input.history,
@@ -120,6 +219,9 @@ export async function onRequestPost({ request, env }) {
     const text = typeof result?.response === 'string' ? result.response.trim() : ''
     if (!text) {
       throw new Error('Empty AI response')
+    }
+    if (await isFlagged(env.OPENAI_API_KEY, text)) {
+      return json({ text: SAFE_REDIRECT })
     }
     return json({ text })
   } catch (error) {

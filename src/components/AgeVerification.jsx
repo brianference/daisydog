@@ -73,7 +73,7 @@ const AgeVerification = ({ onVerificationComplete }) => {
           
           <div className="privacy-notice">
             <h3>🔒 Privacy Notice</h3>
-            <p>DaisyDog does not collect, store, or share any personal information. All conversations are kept locally on your device and are not sent to our servers.</p>
+            <p>DaisyDog does not ask for names or other personal information. Your chat history stays in this browser. Each message you send is passed to our server and to AI services (Cloudflare Workers AI and OpenAI's safety check) so Daisy can write and check her reply. We do not save it on our servers, except safety alerts for children linked to a parent account.</p>
           </div>
         </div>
       </div>
@@ -137,7 +137,7 @@ const AgeVerification = ({ onVerificationComplete }) => {
               
               <p><strong>Safety:</strong> All content is filtered for age-appropriateness. No external links or contact with other users.</p>
               
-              <p><strong>Data Storage:</strong> All data is stored locally in your browser. No information is sent to external servers except anonymous API requests for Bible verses.</p>
+              <p><strong>Data Storage:</strong> Chat history, age verification and game progress are stored in your browser. Each message you send is passed to our server and to AI services (Cloudflare Workers AI and OpenAI's safety check) so Daisy can write and check her reply. We do not save it on our servers, except safety alerts for children linked to a parent account. Bible verse lookups are sent to the Bible API. To limit abuse we keep a hashed form of your IP address for up to 2 days.</p>
               
               <p><strong>Parental Rights:</strong> Parents can clear all data at any time by clearing browser storage. This consent can be withdrawn at any time.</p>
               

@@ -2,10 +2,13 @@
 // Fetch parent dashboard data, manage children, settings
 
 const jwt = require('jsonwebtoken');
-const { neon } = require('@neondatabase/serverless');
 
-const sql = neon(process.env.DATABASE_URL);
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const sql = require('../shared/utils/d1-sql.cjs');
+// Fail fast, like parent-auth: a hardcoded fallback secret would let anyone forge parent tokens.
+if (!process.env.JWT_SECRET) {
+  throw new Error('CRITICAL: JWT_SECRET environment variable is not set. Cannot verify tokens.');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const headers = {
   'Access-Control-Allow-Origin': '*',

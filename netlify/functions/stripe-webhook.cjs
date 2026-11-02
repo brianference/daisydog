@@ -2,10 +2,9 @@
 // Listens for subscription events and updates database
 
 const Stripe = require('stripe');
-const { neon } = require('@neondatabase/serverless');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const sql = neon(process.env.DATABASE_URL);
+const sql = require('../shared/utils/d1-sql.cjs');
 
 exports.handler = async (event) => {
   const sig = event.headers['stripe-signature'];
@@ -57,7 +56,7 @@ exports.handler = async (event) => {
           UPDATE parents
           SET 
             subscription_status = ${subscription.status},
-            subscription_ends_at = to_timestamp(${subscription.current_period_end}),
+            subscription_ends_at = strftime('%Y-%m-%dT%H:%M:%fZ', ${subscription.current_period_end}, 'unixepoch'),
             updated_at = NOW()
           WHERE stripe_customer_id = ${subscription.customer}
         `;

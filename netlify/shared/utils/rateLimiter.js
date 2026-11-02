@@ -7,7 +7,11 @@
 import crypto from 'crypto';
 
 const requestCounts = new Map();
-const FUNCTION_SECRET = process.env.VOICE_FUNCTION_SECRET || 'dev-secret-change-in-production';
+// Fail fast: a hardcoded fallback secret would let anyone mint valid session tokens.
+if (!process.env.VOICE_FUNCTION_SECRET) {
+  throw new Error('CRITICAL: VOICE_FUNCTION_SECRET environment variable is not set.');
+}
+const FUNCTION_SECRET = process.env.VOICE_FUNCTION_SECRET;
 
 export function checkAuth(event) {
   const authHeader = event.headers['authorization'];
